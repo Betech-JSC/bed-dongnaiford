@@ -22,6 +22,7 @@ return new class extends Migration
 
             $table->integer('flash_sale_quantity')->nullable();
             $table->decimal('flash_sale_price', 18, 2)->nullable();
+            $table->string('status', 30)->default('ACTIVE');
 
             $table->unsignedBigInteger('product_id')->nullable();;
             $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');

@@ -20,6 +20,7 @@ class CreatePostCategoryTranslationsTable extends Migration
             $table->string('title');
             $table->string('locale');
             $table->string('slug');
+            $table->json('sliders')->nullable();
 
             $table->addSeo();
 

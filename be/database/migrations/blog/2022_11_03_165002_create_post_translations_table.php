@@ -17,8 +17,9 @@ class CreatePostTranslationsTable extends Migration
             $table->id();
             $table->unsignedBigInteger('post_id');
 
-            $table->string('title');
+            $table->string('title')->nullable();
             $table->string('locale');
+            $table->string('status_locale', 30)->default('ACTIVE');
             $table->string('slug');
 
             $table->string('author')->nullable();

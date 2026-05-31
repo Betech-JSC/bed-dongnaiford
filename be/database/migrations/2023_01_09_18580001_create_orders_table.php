@@ -13,7 +13,9 @@ class CreateOrdersTable extends Migration
             $table->bigInteger('id')->unsigned()->autoIncrement();
             $table->string('order_number', 255)->nullable();
             $table->integer('payment_method')->default(1)->nullable();
-            $table->smallInteger('status')->default(0);
+            $table->string('status', 30)->default('NEW');
+            $table->smallInteger('cancel_status')->default(1);
+            $table->string('payment_status', 30)->default('UNPAID');
             $table->boolean('taxes_included')->default(false);
             $table->boolean('confirmed')->default(false);
             $table->boolean('buyer_accepts_marketing')->default(false);

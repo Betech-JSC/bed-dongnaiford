@@ -45,7 +45,15 @@ return new class extends Migration
             $table->decimal('sale_price', 18, 2)->nullable();
             $table->integer('sale_quantity')->nullable()->default(0);
             $table->integer('flash_sale_quantity')->nullable();
+            $table->integer('stock_quantity')->default(1);
+            $table->integer('position_flash_sale')->nullable();
 
+            $table->json('banner')->nullable();
+            $table->json('image_harvest_season')->nullable();
+            $table->json('images_characteristics')->nullable();
+            $table->json('images_product_process')->nullable();
+            $table->json('images_package_specification')->nullable();
+            $table->json('images_preservation_methods')->nullable();
 
             $table->addInjectCode();
             $table->addTimestamps();

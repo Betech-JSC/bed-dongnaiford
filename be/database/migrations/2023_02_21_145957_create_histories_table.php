@@ -20,6 +20,7 @@ return new class extends Migration
             $table->integer('view_count')->default(0);
             $table->integer('position')->nullable();
             $table->integer('year')->nullable();
+            $table->integer('staff_quantity')->nullable();
             $table->json('image')->nullable();
             $table->json('sliders')->nullable();
 

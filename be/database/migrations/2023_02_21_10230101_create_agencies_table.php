@@ -21,10 +21,15 @@ class CreateAgenciesTable extends Migration
             $table->float('longitude', 13, 10)->nullable();
             $table->float('latitude', 13, 10)->nullable();
             $table->string('link_google_map')->nullable();
+            $table->string('province_id')->nullable();
+            $table->string('district_id')->nullable();
+            $table->string('ward_id')->nullable();
+            $table->text('code')->nullable();
             $table->boolean('is_headquarter')->nullable()->default(0);
             $table->boolean('is_featured')->nullable()->default(0);
             $table->integer('position')->nullable();
             $table->json('image')->nullable();
+            $table->json('images')->nullable();
 
             $table->softDeletes();
             $table->timestamps();

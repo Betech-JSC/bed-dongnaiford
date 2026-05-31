@@ -19,12 +19,18 @@ class CreateAgencyTranslationsTable extends Migration
 
             $table->string('title');
             $table->string('locale');
+            $table->string('slug');
             $table->string('location')->nullable();
+            $table->string('full_address')->nullable();
             $table->text('description')->nullable();
+            $table->longText('content')->nullable();
             $table->json('phones')->nullable();
             $table->json('info')->nullable();
 
+            $table->addSeo();
+
             $table->unique(['locale', 'agency_id']);
+            $table->unique(['locale', 'slug']);
             $table->foreign('agency_id')
                 ->references('id')
                 ->on('agencies')

@@ -27,6 +27,8 @@ class CreatePostsTable extends Migration
             $table->boolean('is_featured')->nullable()->default(0);
             $table->integer('position')->nullable();
             $table->integer('home_position')->nullable();
+            $table->integer('footer_position')->nullable();
+            $table->string('type')->default('POST');
 
             $table->string('status', 30)->default(Post::STATUS_ACTIVE);
 

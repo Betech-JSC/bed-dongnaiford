@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('title', 255);
             $table->string('locale');
             $table->string('slug');
+            $table->string('menu_title')->nullable();
 
             $table->json('banner')->nullable();
             $table->text('description')->nullable();
