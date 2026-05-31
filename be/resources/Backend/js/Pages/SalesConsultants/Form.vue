@@ -16,11 +16,6 @@
                                :class="currentTab === 'en' ? 'border-l border-t border-r rounded-t text-primary-700' : 'text-gray-500 hover:text-primary-800'"
                                @click="currentTab = 'en'">🇬🇧 English</a>
                         </li>
-                        <li class="-mb-px mr-1">
-                            <a class="bg-white inline-block py-2 px-4 font-semibold cursor-pointer"
-                               :class="currentTab === 'zh' ? 'border-l border-t border-r rounded-t text-primary-700' : 'text-gray-500 hover:text-primary-800'"
-                               @click="currentTab = 'zh'">🇨🇳 中文</a>
-                        </li>
                     </ul>
                 </div>
                 <div class="card-body mt-4">
@@ -36,16 +31,6 @@
                         }"
                     />
 
-                    <!-- Slug -->
-                    <Field
-                        v-model="form[currentTab].slug"
-                        :field="{
-                            type: 'text',
-                            name: `slug_${currentTab}`,
-                            label: 'Slug (tự động tạo)',
-                        }"
-                    />
-
                     <!-- Chức danh -->
                     <Field
                         v-model="form[currentTab].job_title"
@@ -53,7 +38,7 @@
                             type: 'text',
                             name: `job_title_${currentTab}`,
                             label: 'Chức danh',
-                            placeholder: 'vd: Giám đốc Chăm sóc & Nhân sự',
+                            placeholder: 'vd: Cố vấn bán hàng / Cố vấn dịch vụ',
                         }"
                     />
 
@@ -63,7 +48,7 @@
                         :field="{
                             type: 'textarea',
                             name: `short_bio_${currentTab}`,
-                            label: 'Tiểu sử ngắn',
+                            label: 'Giới thiệu ngắn',
                         }"
                     />
 
@@ -73,7 +58,7 @@
                         :field="{
                             type: 'richtext',
                             name: `bio_${currentTab}`,
-                            label: 'Tiểu sử đầy đủ',
+                            label: 'Thông tin chi tiết / Giới thiệu bản thân',
                         }"
                     />
                 </div>
@@ -81,18 +66,18 @@
 
             <!-- Gallery -->
             <div class="card mt-4">
-                <div class="card-header">Gallery (Trang chi tiết)</div>
+                <div class="card-header">Thư viện ảnh hoạt động</div>
                 <div class="card-body">
                     <div
                         v-for="(item, index) in form.gallery"
                         :key="index"
-                        class="border rounded p-3 mb-3"
+                        class="border rounded p-3 mb-3 bg-gray-50"
                     >
-                        <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div class="flex justify-between items-center mb-2">
                             <strong>Ảnh {{ index + 1 }}</strong>
                             <button
                                 type="button"
-                                class="btn btn-sm btn-danger"
+                                class="text-red-500 text-sm font-semibold hover:underline"
                                 @click="removeGalleryItem(index)"
                             >Xoá</button>
                         </div>
@@ -109,7 +94,7 @@
                             :field="{
                                 type: 'text',
                                 name: 'gallery_caption_' + index,
-                                label: 'Caption (tuỳ chọn)',
+                                label: 'Mô tả ảnh (tuỳ chọn)',
                             }"
                         />
                     </div>
@@ -131,15 +116,45 @@
                         :field="{
                             type: 'file_upload',
                             name: 'avatar',
-                            label: 'Ảnh đại diện',
+                            label: 'Ảnh chân dung cố vấn (Avatar)',
                         }"
                     />
                 </div>
             </div>
 
-            <!-- Trạng thái -->
+            <!-- Ảnh bìa -->
             <div class="card mt-4">
                 <div class="card-body">
+                    <Field
+                        v-model="form.cover_image"
+                        :field="{
+                            type: 'file_upload',
+                            name: 'cover_image',
+                            label: 'Ảnh bìa (Cover Image)',
+                        }"
+                    />
+                </div>
+            </div>
+
+            <!-- Phân loại & Thứ tự -->
+            <div class="card mt-4">
+                <div class="card-body">
+                    <Field
+                        v-model="form.department"
+                        :field="{
+                            type: 'dropdown',
+                            name: 'department',
+                            label: 'Phòng ban',
+                            options: [
+                                { id: 'sales', label: 'Phòng Bán Hàng (Sales)' },
+                                { id: 'service', label: 'Phòng Dịch Vụ (Service)' },
+                                { id: 'marketing', label: 'Phòng Marketing' },
+                                { id: 'technical', label: 'Phòng Kỹ Thuật' },
+                            ],
+                            emptyLabel: '-- Chọn phòng ban --',
+                        }"
+                    />
+
                     <Field
                         v-model="form.status"
                         :field="{
@@ -149,6 +164,7 @@
                             options: schema.columns.status.list,
                         }"
                     />
+
                     <Field
                         v-model="form.sort_order"
                         :field="{
@@ -160,17 +176,47 @@
                 </div>
             </div>
 
-            <!-- Liên hệ -->
+            <!-- Thông tin liên hệ -->
             <div class="card mt-4">
-                <div class="card-header">Liên hệ</div>
+                <div class="card-header">Thông tin liên hệ</div>
                 <div class="card-body">
                     <Field
                         v-model="form.email"
                         :field="{
                             type: 'text',
                             name: 'email',
-                            label: 'Email',
-                            placeholder: 'example@lotus.edu.vn',
+                            label: 'Email công việc',
+                            placeholder: 'vd: example@dongnaiford.com.vn',
+                        }"
+                    />
+
+                    <Field
+                        v-model="form.phone"
+                        :field="{
+                            type: 'text',
+                            name: 'phone',
+                            label: 'Số điện thoại',
+                            placeholder: 'vd: 0901234567',
+                        }"
+                    />
+
+                    <Field
+                        v-model="form.zalo_url"
+                        :field="{
+                            type: 'text',
+                            name: 'zalo_url',
+                            label: 'Đường dẫn Zalo',
+                            placeholder: 'vd: https://zalo.me/...',
+                        }"
+                    />
+
+                    <Field
+                        v-model="form.facebook_url"
+                        :field="{
+                            type: 'text',
+                            name: 'facebook_url',
+                            label: 'Đường dẫn Facebook',
+                            placeholder: 'vd: https://facebook.com/...',
                         }"
                     />
                 </div>
@@ -202,9 +248,14 @@ export default {
                 status: 'ACTIVE',
                 sort_order: 0,
                 gallery: [],
+                department: 'sales',
+                phone: '',
+                zalo_url: '',
+                facebook_url: '',
+                cover_image: null,
                 ...item,
             }
-            const locales = ['vi', 'en', 'zh']
+            const locales = ['vi', 'en']
             locales.forEach(loc => {
                 let trans = null
                 if (item.translations && Array.isArray(item.translations)) {

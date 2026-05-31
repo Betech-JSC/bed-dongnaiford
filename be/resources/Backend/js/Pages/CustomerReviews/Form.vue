@@ -15,26 +15,21 @@
                                :class="currentTab === 'en' ? 'border-l border-t border-r rounded-t text-primary-700' : 'text-gray-500 hover:text-primary-800'"
                                @click="currentTab = 'en'">🇬🇧 English</a>
                         </li>
-                        <li class="-mb-px mr-1">
-                            <a class="bg-white inline-block py-2 px-4 font-semibold cursor-pointer"
-                               :class="currentTab === 'zh' ? 'border-l border-t border-r rounded-t text-primary-700' : 'text-gray-500 hover:text-primary-800'"
-                               @click="currentTab = 'zh'">🇨🇳 中文</a>
-                        </li>
                     </ul>
                 </div>
                 <div class="card-body mt-4">
 
-                    <!-- Khóa học liên kết (không dịch) -->
+                    <!-- Dòng xe liên kết (không dịch) -->
                     <Field
-                        v-model="form.product_id"
+                        v-model="form.vehicle_id"
                         :field="{
                             type: 'dropdown',
-                            name: 'product_id',
-                            label: 'Khóa học',
+                            name: 'vehicle_id',
+                            label: 'Dòng xe liên kết',
                             keyBy: 'id',
                             labelBy: 'title',
                             options: products,
-                            emptyLabel: '— Review chung (không gắn khóa học) —',
+                            emptyLabel: '— Đánh giá chung (không gắn dòng xe) —',
                         }"
                     />
 
@@ -126,7 +121,7 @@
                     </p>
                     <p class="font-semibold text-sm">{{ formData[currentTab]?.customer_name || 'Tên khách hàng' }}</p>
                     <p class="text-xs text-gray-400 uppercase">
-                        {{ productTitle }}
+                        {{ vehicleTitle }}
                     </p>
                 </div>
             </div>
@@ -147,9 +142,9 @@ export default {
     },
 
     computed: {
-        productTitle() {
-            if (!this.formData.product_id) return '— Review chung —'
-            const p = this.products.find(p => p.id === this.formData.product_id)
+        vehicleTitle() {
+            if (!this.formData.vehicle_id) return '— Đánh giá chung —'
+            const p = this.products.find(p => p.id === this.formData.vehicle_id)
             return p ? p.title.toUpperCase() : ''
         },
     },
@@ -166,11 +161,11 @@ export default {
                 status: 'ACTIVE',
                 rating: 5,
                 sort_order: 0,
-                product_id: null,
+                vehicle_id: null,
                 image: null,
                 ...item,
             }
-            const locales = ['vi', 'en', 'zh']
+            const locales = ['vi', 'en']
             locales.forEach(loc => {
                 let trans = null
                 if (item.translations && Array.isArray(item.translations)) {

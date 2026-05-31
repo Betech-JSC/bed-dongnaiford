@@ -51,6 +51,7 @@ class PolicyController extends Controller
             return response()->json($data);
         }
 
-        return Inertia::render('Policy', $data);
+        return Inertia::render('Policy', $data)
+            ->withViewData(['seo' => $contentModel ? $contentModel->transformSeo() : null]);
     }
 }

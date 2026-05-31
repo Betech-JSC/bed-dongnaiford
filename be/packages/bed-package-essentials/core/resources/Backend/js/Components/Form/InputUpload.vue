@@ -174,12 +174,12 @@ export default {
         initFiles() {
             if (this.urlOnly) {
                 if (this.multiple) {
-                    this.files = this.modelValue?.map(function (url) {
+                    this.files = Array.isArray(this.modelValue) ? this.modelValue.map(function (url) {
                         return {
                             static_url: url,
                             path: url,
                         };
-                    });
+                    }) : [];
                 } else if (
                     !this.multiple &&
                     this.modelValue !== null &&
@@ -193,7 +193,7 @@ export default {
                 }
             } else {
                 if (this.multiple) {
-                    this.files = this.modelValue;
+                    this.files = Array.isArray(this.modelValue) ? this.modelValue : [];
                 } else if (
                     !this.multiple &&
                     this.modelValue !== null &&

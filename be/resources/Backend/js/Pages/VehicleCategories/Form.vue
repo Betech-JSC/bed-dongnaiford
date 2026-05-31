@@ -14,11 +14,6 @@
                                :class="currentTab === 'en' ? 'border-l border-t border-r rounded-t text-primary-700' : 'text-gray-500 hover:text-primary-800'"
                                @click="currentTab = 'en'">🇬🇧 English</a>
                         </li>
-                        <li class="-mb-px mr-1">
-                            <a class="bg-white inline-block py-2 px-4 font-semibold cursor-pointer"
-                               :class="currentTab === 'zh' ? 'border-l border-t border-r rounded-t text-primary-700' : 'text-gray-500 hover:text-primary-800'"
-                               @click="currentTab = 'zh'">🇨🇳 中文</a>
-                        </li>
                     </ul>
                 </div>
                 <div class="card-body mt-4">
@@ -30,14 +25,6 @@
                             label: 'Tên danh mục',
                         }"
                     />
-                    <Field
-                        v-model="form[currentTab].slug"
-                        :field="{
-                            type: 'text',
-                            name: `slug_${currentTab}`,
-                            label: 'Slug (tự động tạo)',
-                        }"
-                    />
                 </div>
             </div>
 
@@ -46,15 +33,6 @@
                 <div class="card-header">Thông tin chung</div>
                 <div class="card-body">
                     <Field
-                        v-model="form.icon"
-                        :field="{
-                            type: 'text',
-                            name: 'icon',
-                            label: 'Icon',
-                            placeholder: 'vd: 📚 hoặc fa-book',
-                        }"
-                    />
-                    <Field
                         v-model="form.image"
                         :field="{
                             type: 'file_upload',
@@ -62,8 +40,9 @@
                             label: 'Ảnh danh mục',
                         }"
                     />
-                </div>
-            </div>
+
+            <!-- SEO Settings -->
+            <SeoFields :modelValue="form[currentTab]" @update:modelValue="form[currentTab] = $event" />
         </template>
         <template #aside="{ form }">
             <div class="card">
@@ -111,7 +90,7 @@ export default {
                 sort_order: 0,
                 ...item,
             }
-            const locales = ['vi', 'en', 'zh']
+            const locales = ['vi', 'en']
             locales.forEach(loc => {
                 let trans = null
                 if (item.translations && Array.isArray(item.translations)) {
@@ -120,6 +99,15 @@ export default {
                 data[loc] = {
                     title: trans ? trans.title : (loc === 'vi' ? (item.title ?? '') : ''),
                     slug:  trans ? trans.slug  : (loc === 'vi' ? (item.slug  ?? '') : ''),
+                    // SEO fields
+                    seo_meta_title:       trans?.seo_meta_title       ?? '',
+                    seo_slug:             trans?.seo_slug             ?? '',
+                    seo_meta_description: trans?.seo_meta_description ?? '',
+                    seo_meta_keywords:    trans?.seo_meta_keywords    ?? '',
+                    seo_meta_robots:      trans?.seo_meta_robots      ?? '',
+                    seo_canonical:        trans?.seo_canonical        ?? '',
+                    seo_image:            trans?.seo_image            ?? '',
+                    seo_schemas:          trans?.seo_schemas          ?? '',
                 }
             })
             return data

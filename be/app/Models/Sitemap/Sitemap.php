@@ -34,7 +34,28 @@ class Sitemap
                         $uri !== 'sitemap.xml' &&
                         $uri !== '/'
                     ) {
-                        $this->add(url($uri));
+                        $excludePatterns = [
+                            'robots.txt',
+                            'error',
+                            'demo',
+                            'routes',
+                            'checkout',
+                            'api/',
+                            'search',
+                            'tim-kiem'
+                        ];
+                        
+                        $shouldExclude = false;
+                        foreach ($excludePatterns as $pattern) {
+                            if (str_contains($uri, $pattern)) {
+                                $shouldExclude = true;
+                                break;
+                            }
+                        }
+
+                        if (!$shouldExclude) {
+                            $this->add(url($uri));
+                        }
                     }
                 }
             }

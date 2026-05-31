@@ -8,7 +8,7 @@
                         type: 'text',
                         name: 'title',
                         label: 'Tiêu đề',
-                        placeholder: 'vd: Hơn 200 học viên tham gia',
+                        placeholder: 'vd: Lễ bàn giao xe Ford Ranger cho khách hàng',
                     }" />
                     <Field v-model="form.image" :field="{
                         type: 'file_upload',

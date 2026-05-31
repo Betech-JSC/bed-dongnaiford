@@ -1,0 +1,1 @@
+import{_ as s,M as r,r as e,o as l,c,a as t,F as i}from"./app.11efa666.js";const p={components:{FileManager:r}};function _(a,m,d,f,u,F){const n=e("Head"),o=e("FileManager",!0);return l(),c(i,null,[t(n,{title:a.tt("models.titles.file")},null,8,["title"]),t(o,{show:!0,selectable:!1})],64)}const M=s(p,[["render",_]]);export{M as default};

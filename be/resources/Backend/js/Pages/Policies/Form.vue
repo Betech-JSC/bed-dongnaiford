@@ -14,11 +14,6 @@
                                :class="currentTab === 'en' ? 'border-l border-t border-r rounded-t text-primary-700' : 'text-gray-500 hover:text-primary-800'"
                                @click="currentTab = 'en'">English</a>
                         </li>
-                        <li class="-mb-px mr-1">
-                            <a class="bg-white inline-block py-2 px-4 font-semibold cursor-pointer"
-                               :class="currentTab === 'zh' ? 'border-l border-t border-r rounded-t text-primary-700' : 'text-gray-500 hover:text-primary-800'"
-                               @click="currentTab = 'zh'">中文</a>
-                        </li>
                     </ul>
                 </div>
                 <div class="card-body mt-4">
@@ -103,7 +98,7 @@ export default {
     methods: {
         initFormData(item) {
             let data = { ...item };
-            const locales = ['vi', 'en', 'zh'];
+            const locales = ['vi', 'en'];
             
             locales.forEach(loc => {
                 let trans = null;

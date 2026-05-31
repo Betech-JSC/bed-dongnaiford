@@ -42,8 +42,16 @@ RUN cp .env.example .env
 # Cài đặt JS packages, sinh Route Ziggy và build static assets cho Admin panel
 RUN yarn install && yarn build
 
+# Sao lưu thư mục public để entrypoint copy vào volume khi container chạy
+RUN cp -R /var/www/public /var/www/public_bootstrap
+
+# Copy và cấp quyền cho script entrypoint
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
 # Cấp quyền cho thư mục cache và storage
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
 EXPOSE 9000
+ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["php-fpm"]

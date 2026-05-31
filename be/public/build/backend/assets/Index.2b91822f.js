@@ -1,1 +1,0 @@
-import{_ as a}from"./Table.b8f830fa.js";import{_ as o,o as s,f as c}from"./app.263f0d89.js";const n={props:["schema"]};function _(r,m,e,p,u,i){const t=a;return s(),c(t,{schema:e.schema,columns:["id","image","title",,"is_featured","status","view_count","created_at","updated_at"]},null,8,["schema"])}const l=o(n,[["render",_]]);export{l as default};

@@ -84,7 +84,6 @@ createInertiaApp({
                         // Tỷ giá quy đổi từ VNĐ
                         const exchangeRates = {
                             en: 25500,  // 1 USD = 25,500 VNĐ
-                            zh: 3500,   // 1 CNY = 3,500 VNĐ
                         };
 
                         if (locale === 'vi') {
@@ -100,13 +99,6 @@ createInertiaApp({
                                 maximumFractionDigits: 2,
                             }).format(converted);
                             return `$${number}`;
-                        } else if (locale === 'zh') {
-                            const converted = vndAmount / exchangeRates.zh;
-                            const number = new Intl.NumberFormat('zh-CN', {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2,
-                            }).format(converted);
-                            return `¥${number}`;
                         }
 
                         const number = new Intl.NumberFormat('en-US', {

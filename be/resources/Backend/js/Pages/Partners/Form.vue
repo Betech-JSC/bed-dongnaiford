@@ -2,7 +2,7 @@
     <Form v-model="formData">
         <template #default="{ form }">
             <div class="card">
-                <div class="card-header">Thông tin nhà tài trợ</div>
+                <div class="card-header">Thông tin đối tác</div>
                 <div class="card-body">
 
                     <Field
@@ -10,8 +10,8 @@
                         :field="{
                             type: 'text',
                             name: 'name',
-                            label: 'Tên nhà tài trợ',
-                            placeholder: 'vd: HTV, TDT, HSC',
+                            label: 'Tên đối tác',
+                            placeholder: 'vd: Ngân hàng VIB, Bảo hiểm Bảo Việt',
                         }"
                     />
 

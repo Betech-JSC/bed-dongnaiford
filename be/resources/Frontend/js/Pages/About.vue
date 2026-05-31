@@ -21,7 +21,7 @@
                             animate="slideright"
                             class="bg-linear-author md:p-4 p-3 xl:p-6 lg:rounded-tl-[12px] lg:rounded-bl-[12px] md:space-y-4 space-y-2 xl:space-y-6 lg:max-w-[540px] xl:max-w-[660px] w-full">
                             <div class="space-y-2">
-                                <h3 class="headline-3 font-bold" :class="$page.props.locale.current === 'zh' ? 'notranslate' : ''">{{ $page.props.locale.current === 'zh' ? 'Mr. Zhouyi (周一)' : tt('CHÂU NHẤT (Zhouyi)') }}</h3>
+                                <h3 class="headline-3 font-bold">{{ tt('CHÂU NHẤT (Zhouyi)') }}</h3>
                                 <div class="bg-linear-gold title-3 font-bold p-2 w-fit">
                                     {{ tt('Viện trưởng học viên - Nhà sáng lập LOTUS INSTITUTE') }}
                                 </div>
@@ -52,8 +52,8 @@
                             class="absolute inset-0 bg-linear-value lg:group-hover:opacity-100 opacity-0 duration-300 ease-in-out">
                         </div>
                         <div class="relative space-y-1.5 text-center">
-                            <div class="display-3 font-bold" :class="$page.props.locale.current === 'zh' ? 'notranslate' : ''">{{ itemValue.title }}</div>
-                            <div class="body-1" :class="$page.props.locale.current === 'zh' ? 'notranslate' : ''">{{ itemValue.description }}</div>
+                            <div class="display-3 font-bold">{{ itemValue.title }}</div>
+                            <div class="body-1">{{ itemValue.description }}</div>
                         </div>
                     </AnimatedAppear>
                 </div>
@@ -87,36 +87,36 @@ export default {
         return {
             values: [
                 {
-                    title: this.$page.props.locale.current === 'zh' ? '~500亿美元' : this.tt("~$50 billion"),
-                    description: this.$page.props.locale.current === 'zh' ? '学员累计交易规模' : this.tt("Tổng giá trị giao dịch học viên")
+                    title: this.tt("~$50 billion"),
+                    description: this.tt("Tổng giá trị giao dịch học viên")
                 },
                 {
-                    title: this.$page.props.locale.current === 'zh' ? '99.2%' : this.tt("99.2%"),
-                    description: this.$page.props.locale.current === 'zh' ? '交易盈利率' : this.tt("Giao dịch đạt lợi nhuận")
+                    title: this.tt("99.2%"),
+                    description: this.tt("Giao dịch đạt lợi nhuận")
                 },
                 {
-                    title: this.$page.props.locale.current === 'zh' ? '~500人' : this.tt("~500"),
-                    description: this.$page.props.locale.current === 'zh' ? '参与专家指导课程' : this.tt("Tham gia chương trình học thuật với chuyên gia tài chính")
+                    title: this.tt("~500"),
+                    description: this.tt("Tham gia chương trình học thuật với chuyên gia tài chính")
                 },
                 {
-                    title: this.$page.props.locale.current === 'zh' ? '100%' : this.tt("100%"),
-                    description: this.$page.props.locale.current === 'zh' ? '对接国际市场体系' : this.tt("LIên kết giáo trình quốc tế trong thị trường thế giới")
+                    title: this.tt("100%"),
+                    description: this.tt("LIên kết giáo trình quốc tế trong thị trường thế giới")
                 },
                 {
-                    title: this.$page.props.locale.current === 'zh' ? '2025' : this.tt("2025"),
-                    description: this.$page.props.locale.current === 'zh' ? '正式拓展越南市场' : this.tt("Chính thức phát triển tại Việt nam")
+                    title: this.tt("2025"),
+                    description: this.tt("Chính thức phát triển tại Việt nam")
                 },
                 {
-                    title: this.$page.props.locale.current === 'zh' ? '2,200+' : this.tt("2,200+"),
-                    description: this.$page.props.locale.current === 'zh' ? '学员学习目标达成' : this.tt("Có mục tiêu chinh phục các khóa học")
+                    title: this.tt("2,200+"),
+                    description: this.tt("Có mục tiêu chinh phục các khóa học")
                 },
                 {
-                    title: this.$page.props.locale.current === 'zh' ? '24/7' : this.tt("24/7"),
-                    description: this.$page.props.locale.current === 'zh' ? '全天候市场资讯支持' : this.tt("Hỗ trợ cập nhật tin tức liên tục cho học viên")
+                    title: this.tt("24/7"),
+                    description: this.tt("Hỗ trợ cập nhật tin tức liên tục cho học viên")
                 },
                 {
-                    title: this.$page.props.locale.current === 'zh' ? '10,000+' : this.tt("10,000+"),
-                    description: this.$page.props.locale.current === 'zh' ? '交易分析信号输出' : this.tt("Lệnh giao dịch được phân tích")
+                    title: this.tt("10,000+"),
+                    description: this.tt("Lệnh giao dịch được phân tích")
                 },
             ],
         }

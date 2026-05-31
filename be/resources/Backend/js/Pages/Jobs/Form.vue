@@ -16,11 +16,6 @@
                                :class="currentTab === 'en' ? 'border-l border-t border-r rounded-t text-primary-700' : 'text-gray-500 hover:text-primary-800'"
                                @click="currentTab = 'en'">🇬🇧 English</a>
                         </li>
-                        <li class="-mb-px mr-1">
-                            <a class="bg-white inline-block py-2 px-4 font-semibold cursor-pointer"
-                               :class="currentTab === 'zh' ? 'border-l border-t border-r rounded-t text-primary-700' : 'text-gray-500 hover:text-primary-800'"
-                               @click="currentTab = 'zh'">🇨🇳 中文</a>
-                        </li>
                     </ul>
                 </div>
 
@@ -35,16 +30,6 @@
                             type: 'text',
                             name: `title_${currentTab}`,
                             label: 'Tiêu đề',
-                        }"
-                    />
-
-                    <!-- Slug -->
-                    <Field
-                        v-model="form[currentTab].slug"
-                        :field="{
-                            type: 'text',
-                            name: `slug_${currentTab}`,
-                            label: 'Slug (tự động tạo)',
                         }"
                     />
 
@@ -198,7 +183,7 @@ export default {
                 position: 0,
                 ...item,
             }
-            const locales = ['vi', 'en', 'zh']
+            const locales = ['vi', 'en']
             locales.forEach(loc => {
                 let trans = null
                 if (item.translations && Array.isArray(item.translations)) {

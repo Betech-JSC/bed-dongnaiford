@@ -15,10 +15,19 @@ class VehicleCategory extends BaseModel
     public $translationModel = VehicleCategoryTranslation::class;
     public $translationForeignKey = 'vehicle_category_id';
     public $with = ['translations'];
+    protected $appends = ['url'];
     
     public $translatedAttributes = [
         'title',
         'slug',
+        'seo_meta_title',
+        'seo_slug',
+        'seo_meta_description',
+        'seo_meta_keywords',
+        'seo_meta_robots',
+        'seo_canonical',
+        'seo_image',
+        'seo_schemas',
     ];
 
     protected $fillable = [
@@ -48,5 +57,23 @@ class VehicleCategory extends BaseModel
     public function vehicles()
     {
         return $this->hasMany(Vehicle::class, 'category_id');
+    }
+
+    public function getUrlAttribute(): array
+    {
+        $urls = [];
+        if ($this->status === self::STATUS_ACTIVE) {
+            foreach ($this->translations as $translation) {
+                $urls[strtoupper($translation->locale)] = route("$translation->locale.products.categories", [
+                    'slug' => $translation->seo_slug ?? $translation->slug,
+                ]);
+            }
+        }
+        return $urls;
+    }
+
+    public function transformSeo()
+    {
+        return transform_seo($this);
     }
 }

@@ -88,7 +88,6 @@ return [
     'locales' =>  [
         'vi',
         'en',
-        'zh',
     ],
     'locale_default_frontend' => 'vi',
     'locale_default_backend' => 'vi',

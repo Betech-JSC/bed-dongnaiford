@@ -38,7 +38,15 @@ class TeamController extends Controller
                 return response()->json($data);
             }
 
-            return Inertia::render('Member', $data);
+            $translation = $member->translate($locale);
+            $seo = [
+                'seo_meta_title'       => ($translation?->name ?? $member->name ?? '') . ' - Cố vấn bán hàng tại Ford Đồng Nai',
+                'seo_meta_description' => mb_substr(strip_tags($translation?->short_bio ?? $translation?->bio ?? ''), 0, 160),
+                'seo_canonical'        => url()->current(),
+            ];
+
+            return Inertia::render('Member', $data)
+                ->withViewData(['seo' => $seo]);
         } catch (\Throwable $th) {
             \Log::error('TeamController@show: ' . $th->getMessage(), ['slug' => $slug]);
             abort(404);

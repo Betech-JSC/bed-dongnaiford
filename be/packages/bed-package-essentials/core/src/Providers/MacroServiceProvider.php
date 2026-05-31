@@ -97,17 +97,21 @@ class MacroServiceProvider extends BaseServiceProvider
         });
 
         Router::macro('dynamicRedirect', function () {
-            if (Schema::hasTable('redirects')) {
-                Route::name('dynamic-redirect')->group(function () {
-                    $redirects = Redirect::active()->get();
-                    foreach ($redirects as $redirect) {
-                        Route::redirect(
-                            $redirect->old_url,
-                            $redirect->new_url,
-                            $redirect->status_code
-                        );
-                    }
-                });
+            try {
+                if (Schema::hasTable('redirects')) {
+                    Route::name('dynamic-redirect')->group(function () {
+                        $redirects = Redirect::active()->get();
+                        foreach ($redirects as $redirect) {
+                            Route::redirect(
+                                $redirect->old_url,
+                                $redirect->new_url,
+                                $redirect->status_code
+                            );
+                        }
+                    });
+                }
+            } catch (\Throwable $e) {
+                // Fail silently when database is not ready (e.g. during docker build)
             }
         });
     }

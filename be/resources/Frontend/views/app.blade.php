@@ -75,6 +75,11 @@
         SEO::opengraph()->setUrl($url);
         SEO::setCanonical($canonical);
         SEO::jsonLd()->setUrl($url);
+
+        $seoSchemas = isset($seo['seo_schemas']) ? json_decode($seo['seo_schemas'], true) : null;
+        if (!empty($seoSchemas)) {
+            $schemas = array_merge($schemas ?? [], is_array($seoSchemas) ? $seoSchemas : [$seoSchemas]);
+        }
     @endphp
 
     {!! SEO::generate() !!}

@@ -1,0 +1,1 @@
+import{o as e,c as o,b as t}from"./app.11efa666.js";const n={viewBox:"0 0 24 24",width:"1.2em",height:"1.2em"},h=t("path",{fill:"currentColor",d:"M5 21V6H4V4h5V3h6v1h5v2h-1v15Zm2-2h10V6H7Zm2-2h2V8H9Zm4 0h2V8h-2ZM7 6v13Z"},null,-1),s=[h];function c(r,a){return e(),o("svg",n,s)}const _={name:"material-symbols-delete-outline-sharp",render:c};export{_};

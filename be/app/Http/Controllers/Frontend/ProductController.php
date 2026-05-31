@@ -183,7 +183,8 @@ class ProductController extends Controller
                 return response()->json($data);
             }
 
-            return Inertia::render('Products/Show', $data);
+            return Inertia::render('Products/Show', $data)
+                ->withViewData(['seo' => $product->transformSeo()]);
         } catch (\Throwable $th) {
             \Log::error('ProductController@show: ' . $th->getMessage(), ['slug' => $slug]);
             abort(500);
@@ -268,7 +269,8 @@ class ProductController extends Controller
                 return response()->json($data);
             }
 
-            return Inertia::render('Products/Category', $data);
+            return Inertia::render('Products/Category', $data)
+                ->withViewData(['seo' => $category ? $category->transformSeo() : null]);
         } catch (\Throwable $th) {
             dd($th);
         }

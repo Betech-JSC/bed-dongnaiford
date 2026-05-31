@@ -5,7 +5,7 @@
         <!-- Header -->
         <div class="dashboard-header">
             <div class="header-content">
-                <h1 class="header-title">Tổng Quan Hệ Thống</h1>
+                <h1 class="header-title">Hệ Thống Quản Trị Ford Dongnaiford</h1>
                 <p class="header-date">{{ currentDate }}</p>
             </div>
             <div class="header-badge">
@@ -16,7 +16,7 @@
 
         <!-- Stats Grid -->
         <div class="stats-grid">
-            <!-- Đơn hàng hôm nay -->
+            <!-- Yêu cầu đặt cọc xe -->
             <div class="stat-card stat-card--indigo">
                 <div class="stat-card__icon">
                     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -25,16 +25,16 @@
                     </svg>
                 </div>
                 <div class="stat-card__body">
-                    <div class="stat-card__label">Đơn hàng hôm nay</div>
+                    <div class="stat-card__label">Yêu cầu đặt cọc xe</div>
                     <div class="stat-card__value">{{ todayOrderCount }}</div>
                     <div class="stat-card__sub">
                         <span class="dot dot--new"></span>
-                        <span>{{ newOrderCount }} đơn mới chờ xử lý</span>
+                        <span>{{ newOrderCount }} yêu cầu mới chờ duyệt</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Doanh thu hôm nay -->
+            <!-- Tiền cọc hôm nay -->
             <div class="stat-card stat-card--emerald">
                 <div class="stat-card__icon">
                     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -43,16 +43,16 @@
                     </svg>
                 </div>
                 <div class="stat-card__body">
-                    <div class="stat-card__label">Doanh thu hôm nay</div>
+                    <div class="stat-card__label">Tiền đặt cọc nhận hôm nay</div>
                     <div class="stat-card__value">{{ formattedRevenue }}</div>
                     <div class="stat-card__sub">
                         <span class="dot dot--green"></span>
-                        <span>Tổng giá trị đơn hàng ngày</span>
+                        <span>Tổng tiền cọc nhận trong ngày</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Liên hệ hôm nay -->
+            <!-- Liên hệ hỗ trợ -->
             <div class="stat-card stat-card--rose">
                 <div class="stat-card__icon">
                     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -60,7 +60,7 @@
                     </svg>
                 </div>
                 <div class="stat-card__body">
-                    <div class="stat-card__label">Liên hệ hôm nay</div>
+                    <div class="stat-card__label">Yêu cầu liên hệ / gọi lại</div>
                     <div class="stat-card__value">{{ todayContactCount }}</div>
                     <div class="stat-card__sub">
                         <span class="dot dot--red"></span>
@@ -69,19 +69,19 @@
                 </div>
             </div>
 
-            <!-- Tuyển dụng hôm nay -->
+            <!-- Yêu cầu tư vấn xe -->
             <div class="stat-card stat-card--amber">
                 <div class="stat-card__icon">
                     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                 </div>
                 <div class="stat-card__body">
-                    <div class="stat-card__label">Ứng tuyển hôm nay</div>
-                    <div class="stat-card__value">{{ todayApplyCount }}</div>
+                    <div class="stat-card__label">Yêu cầu tư vấn xe</div>
+                    <div class="stat-card__value">{{ todayAdviseCount }}</div>
                     <div class="stat-card__sub">
                         <span class="dot dot--yellow"></span>
-                        <span>{{ newApplyCount }} hồ sơ chưa xem</span>
+                        <span>{{ newAdviseCount }} yêu cầu tư vấn mới</span>
                     </div>
                 </div>
             </div>
@@ -89,43 +89,43 @@
 
         <!-- Summary Row -->
         <div class="summary-grid">
-            <!-- Tổng kết liên hệ -->
+            <!-- Tổng kết liên hệ & Tuyển dụng -->
             <div class="summary-card">
                 <div class="summary-card__header">
                     <h2 class="summary-card__title">
                         <svg viewBox="0 0 20 20" fill="currentColor" class="summary-icon summary-icon--rose">
                             <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
                         </svg>
-                        Liên hệ &amp; Tuyển dụng
+                        Khách Hàng &amp; Tuyển Dụng
                     </h2>
                 </div>
                 <div class="summary-card__body">
                     <div class="summary-row">
-                        <span class="summary-label">Liên hệ hôm nay</span>
+                        <span class="summary-label">Yêu cầu gọi lại hôm nay</span>
                         <span class="summary-value summary-value--rose">{{ todayContactCount }}</span>
                     </div>
                     <div class="summary-row">
-                        <span class="summary-label">Liên hệ chưa xử lý</span>
+                        <span class="summary-label">Yêu cầu gọi lại chưa xử lý</span>
                         <span class="summary-value summary-value--rose">{{ newContactCount }}</span>
                     </div>
                     <div class="summary-divider"></div>
                     <div class="summary-row">
-                        <span class="summary-label">Ứng tuyển hôm nay</span>
+                        <span class="summary-label">Hồ sơ ứng tuyển hôm nay</span>
                         <span class="summary-value summary-value--amber">{{ todayApplyCount }}</span>
                     </div>
                     <div class="summary-row">
-                        <span class="summary-label">Hồ sơ chưa xem</span>
+                        <span class="summary-label">Hồ sơ ứng tuyển chưa duyệt</span>
                         <span class="summary-value summary-value--amber">{{ newApplyCount }}</span>
                     </div>
                 </div>
                 <div class="summary-card__footer">
                     <a :href="route('admin.contacts.index')" class="summary-link summary-link--rose">
-                        Xem tất cả liên hệ →
+                        Quản lý liên hệ khách hàng →
                     </a>
                 </div>
             </div>
 
-            <!-- Tổng kết đơn hàng -->
+            <!-- Tổng kết đặt cọc xe & tư vấn -->
             <div class="summary-card">
                 <div class="summary-card__header">
                     <h2 class="summary-card__title">
@@ -133,28 +133,52 @@
                             <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
                             <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
                         </svg>
-                        Đơn hàng
+                        Đơn Đặt Cọc &amp; Tư Vấn Xe
                     </h2>
                 </div>
                 <div class="summary-card__body">
                     <div class="summary-row">
-                        <span class="summary-label">Đơn hàng hôm nay</span>
-                        <span class="summary-value summary-value--indigo">{{ todayOrderCount }}</span>
+                        <span class="summary-label">Đơn đặt cọc mới</span>
+                        <span class="summary-value summary-value--indigo">{{ newOrderCount }}</span>
                     </div>
                     <div class="summary-row">
-                        <span class="summary-label">Đơn hàng mới (chờ xử lý)</span>
-                        <span class="summary-value summary-value--indigo">{{ newOrderCount }}</span>
+                        <span class="summary-label">Yêu cầu tư vấn xe chưa xem</span>
+                        <span class="summary-value summary-value--amber">{{ newAdviseCount }}</span>
                     </div>
                     <div class="summary-divider"></div>
                     <div class="summary-row">
-                        <span class="summary-label">Doanh thu hôm nay</span>
+                        <span class="summary-label">Doanh thu cọc xe hôm nay</span>
                         <span class="summary-value summary-value--emerald">{{ formattedRevenue }}</span>
                     </div>
                 </div>
                 <div class="summary-card__footer">
                     <a :href="route('admin.orders.index')" class="summary-link summary-link--indigo">
-                        Xem tất cả đơn hàng →
+                        Quản lý danh sách đặt cọc xe →
                     </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tài nguyên hệ thống -->
+        <div class="summary-grid" style="margin-top: 24px;">
+            <div class="summary-card" style="grid-column: span 2;">
+                <div class="summary-card__header">
+                    <h2 class="summary-card__title">
+                        <svg viewBox="0 0 20 20" fill="currentColor" class="summary-icon summary-icon--emerald" style="color: #059669;">
+                            <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z"/>
+                        </svg>
+                        Thống Kê Tài Nguyên Ford Dongnaiford
+                    </h2>
+                </div>
+                <div class="summary-card__body" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                    <div class="summary-row" style="border-right: 1px solid #f3f4f6; padding-right: 20px;">
+                        <span class="summary-label" style="font-size: 16px; font-weight: 500;">Tổng số sản phẩm xe trong kho</span>
+                        <span class="summary-value summary-value--indigo" style="font-size: 24px;">{{ totalVehiclesCount }} xe</span>
+                    </div>
+                    <div class="summary-row" style="padding-left: 20px;">
+                        <span class="summary-label" style="font-size: 16px; font-weight: 500;">Tổng số bài viết tin tức &amp; thị trường</span>
+                        <span class="summary-value summary-value--emerald" style="font-size: 24px; color: #059669;">{{ totalPostsCount }} bài</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -183,11 +207,17 @@ export default {
         todayApplyCount() {
             return this.$page.props.data.today_apply_count ?? 0
         },
+        todayAdviseCount() {
+            return this.$page.props.data.today_advise_count ?? 0
+        },
         newContactCount() {
             return this.$page.props.data.new_contact_count ?? 0
         },
         newApplyCount() {
             return this.$page.props.data.new_apply_count ?? 0
+        },
+        newAdviseCount() {
+            return this.$page.props.data.new_advise_count ?? 0
         },
         todayOrderCount() {
             return this.$page.props.data.today_order_count ?? 0
@@ -197,6 +227,12 @@ export default {
         },
         todayOrderTotalPrice() {
             return this.$page.props.data.today_order_total_price ?? 0
+        },
+        totalVehiclesCount() {
+            return this.$page.props.data.total_vehicles_count ?? 0
+        },
+        totalPostsCount() {
+            return this.$page.props.data.total_posts_count ?? 0
         },
         formattedRevenue() {
             if (!this.todayOrderTotalPrice) return '0 ₫'

@@ -15,12 +15,21 @@ class Vehicle extends BaseModel
     public $translationModel = VehicleTranslation::class;
     public $translationForeignKey = 'vehicle_id';
     public $with = ['translations'];
+    protected $appends = ['url'];
 
     public $translatedAttributes = [
         'title',
         'slug',
         'tagline',
         'description',
+        'seo_meta_title',
+        'seo_slug',
+        'seo_meta_description',
+        'seo_meta_keywords',
+        'seo_meta_robots',
+        'seo_canonical',
+        'seo_image',
+        'seo_schemas',
     ];
 
     protected $fillable = [
@@ -156,5 +165,23 @@ class Vehicle extends BaseModel
         return $query->whereHas('translations', function ($q) use ($slug) {
             $q->where('slug', $slug);
         });
+    }
+
+    public function getUrlAttribute(): array
+    {
+        $urls = [];
+        if ($this->status === self::STATUS_ACTIVE) {
+            foreach ($this->translations as $translation) {
+                $urls[strtoupper($translation->locale)] = route("$translation->locale.products.show", [
+                    'slug' => $translation->seo_slug ?? $translation->slug,
+                ]);
+            }
+        }
+        return $urls;
+    }
+
+    public function transformSeo()
+    {
+        return transform_seo($this);
     }
 }
