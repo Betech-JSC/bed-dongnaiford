@@ -1,0 +1,343 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: 'Ford Antenna';
+  src: local('Ford Antenna'), local('FordAntenna'), local('Ford Antenna Regular'), local('FordAntenna-Regular');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Ford Antenna';
+  src: local('Ford Antenna Semibold'), local('FordAntenna-Semibold'), local('Ford Antenna Medium'), local('FordAntenna-Medium');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Ford Antenna';
+  src: local('Ford Antenna Bold'), local('FordAntenna-Bold');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Ford Antenna';
+  src: local('Ford Antenna Black'), local('FordAntenna-Black'), local('Ford Antenna ExtraBold'), local('FordAntenna-ExtraBold');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* Brand color tokens from Figma */
+  --brand-primary: #00095B;      /* Deep Navy Ford Blue */
+  --brand-secondary: #003478;    /* Classic Ford Blue */
+  --brand-accent: #066FEF;       /* Vivid Highlight Blue */
+  --brand-vivid: #0562D2;        /* Direct Action Blue */
+  --brand-orange: #F97316;       /* Warm CTA Orange */
+  --brand-red: #DC453A;          /* Accent Red / Promotions */
+  --brand-dark: #1A1A1A;         /* Figma Exact Dark Text */
+  --brand-gray-dark: #333333;    /* Figma Exact Slate */
+  --brand-gray-med: #424242;     /* Figma Exact Subtext */
+  --brand-gray-light: #E5E5E5;   /* Figma Exact Light border */
+  --brand-light: #F9FAFB;        /* Page Background */
+  
+  --background: var(--brand-light);
+  --foreground: var(--brand-dark);
+}
+
+@theme {
+  /* Typography */
+  --font-sans: "Ford Antenna", var(--font-inter), sans-serif;
+  --font-display: "Ford Antenna", var(--font-inter), sans-serif;
+
+  /* Theme Colors */
+  --color-primary: var(--brand-primary);
+  --color-secondary: var(--brand-secondary);
+  --color-accent: var(--brand-accent);
+  --color-vivid: var(--brand-vivid);
+  --color-orange: var(--brand-orange);
+  --color-red: var(--brand-red);
+  --color-dark: var(--brand-dark);
+  --color-gray-dark: var(--brand-gray-dark);
+  --color-gray-med: var(--brand-gray-med);
+  --color-gray-light: var(--brand-gray-light);
+  --color-light: var(--brand-light);
+  
+  /* Layout Radius (Sharp Geometry for Premium Feel) */
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+}
+
+/* Base resets & styles */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* Premium micro-interactions & utility styles */
+.transition-premium {
+  transition: all 300ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Custom interactive button base */
+.btn-ford-primary {
+  background-color: var(--brand-vivid);
+  color: #ffffff;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  transition: all 200ms ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn-ford-primary:hover {
+  background-color: var(--brand-secondary);
+  transform: translateY(-1px);
+}
+
+.btn-ford-secondary {
+  background-color: transparent;
+  color: var(--brand-vivid);
+  border: 1px solid var(--brand-vivid);
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  transition: all 200ms ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn-ford-secondary:hover {
+  background-color: var(--brand-vivid);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+/* Glass card style (v4 compatible solid border look) */
+.ford-card {
+  background-color: #ffffff;
+  border: 1px solid var(--brand-gray-light);
+  border-radius: var(--radius-xl);
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  transition: all 300ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ford-card:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+  transform: translateY(-2px);
+  border-color: var(--brand-vivid);
+}
+
+/* Scroll reveal helper classes */
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: reveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes reveal {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Figma 18-Level Typography System */
+.text-display-1 {
+  font-family: var(--font-display);
+  font-size: 72px;
+  line-height: 100.8px;
+  letter-spacing: -1.44px;
+}
+.text-display-2 {
+  font-family: var(--font-display);
+  font-size: 48px;
+  line-height: 57.6px;
+  letter-spacing: -0.96px;
+}
+.text-display-3 {
+  font-family: var(--font-display);
+  font-size: 36px;
+  line-height: 47.5px;
+}
+.text-headline-1 {
+  font-family: var(--font-display);
+  font-size: 32px;
+  line-height: 38.4px;
+}
+.text-headline-2 {
+  font-family: var(--font-display);
+  font-size: 28px;
+  line-height: 33.6px;
+}
+.text-headline-3 {
+  font-family: var(--font-display);
+  font-size: 24px;
+  line-height: 30px;
+}
+.text-title-1 {
+  font-family: var(--font-sans);
+  font-size: 22px;
+  line-height: 31.9px;
+  font-weight: 600;
+}
+.text-title-2 {
+  font-family: var(--font-sans);
+  font-size: 18px;
+  line-height: 26.1px;
+  letter-spacing: 0.18px;
+  font-weight: 600;
+}
+.text-title-3 {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+}
+.text-title-4 {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 19.6px;
+  font-weight: 600;
+}
+.text-button-1 {
+  font-family: var(--font-sans);
+  font-size: 18px;
+  line-height: 27px;
+  font-weight: 600;
+  letter-spacing: 0.18px;
+}
+.text-button-2 {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 19.6px;
+  font-weight: 600;
+  letter-spacing: 0.14px;
+}
+.text-body-1 {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+}
+.text-body-2 {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 19.6px;
+  font-weight: 400;
+}
+.text-body-3 {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 400;
+}
+.text-label-1 {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 500;
+}
+.text-label-2 {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 19.6px;
+  font-weight: 500;
+}
+.text-label-3 {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 500;
+}
+
+/* Custom variables for Popular Fleet slider responsive layout */
+:root {
+  --card-width-popular: 660px;
+  --card-gap-popular: 24px;
+}
+
+@media (max-width: 1200px) {
+  :root {
+    --card-width-popular: 500px;
+    --card-gap-popular: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --card-width-popular: 320px;
+    --card-gap-popular: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --card-width-popular: 280px;
+    --card-gap-popular: 12px;
+  }
+}
+
+/* Custom variables for Testimonials slider responsive layout */
+:root {
+  --card-width-testimonial: 480px;
+  --card-gap-testimonial: 32px;
+}
+
+@media (max-width: 640px) {
+  :root {
+    --card-width-testimonial: 280px;
+    --card-gap-testimonial: 16px;
+  }
+}
+
+/* Custom variables for News & Offers slider responsive layout */
+:root {
+  --card-width-news: 320px;
+  --card-gap-news: 24px;
+}
+
+@media (max-width: 480px) {
+  :root {
+    --card-width-news: 280px;
+    --card-gap-news: 16px;
+  }
+}
+
+/* News track horizontal translation on mobile only */
+.news-track {
+  transform: translateX(calc(-1 * var(--active-news-index) * (var(--card-width-news) + var(--card-gap-news))));
+}
+
+@media (min-width: 768px) {
+  .news-track {
+    transform: none !important;
+  }
+}
+

@@ -1,0 +1,43 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+@import "theme.scss";
+@import "primevue/resources/primevue.min.css";
+// @import "primeicons/primeicons.css";
+@import "components/accordion";
+@import "components/avatar";
+@import "components/button";
+@import "components/card";
+@import "components/dialog";
+@import "components/field";
+@import "components/icons";
+@import "components/modal";
+@import "components/select";
+@import "components/table";
+@import "components/toast";
+@import "components/type";
+// @import "components/badge";
+// @import "components/icons";
+// @import "components/table";
+// @import "components/tooltip";
+// @import "components/type";
+
+@layer base {
+    :root {
+        --primary: theme("colors.primary.DEFAULT");
+        --primary-light: theme("colors.primary.DEFAULT");
+        --primary-dark: theme("colors.primary.dark");
+        --primary-darker: theme("colors.primary.darker");
+    }
+
+    body {
+        --topbar-height: 4rem;
+        --sidebar-width: 16rem;
+        @apply bg-gray-100 text-gray-700 text-sm;
+    }
+
+    .sidebar {
+        @apply overflow-y-auto z-10;
+    }
+}

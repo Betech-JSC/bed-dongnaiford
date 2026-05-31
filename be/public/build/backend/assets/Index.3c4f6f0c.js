@@ -1,0 +1,1 @@
+import{_ as c}from"./Table.567d1af1.js";import{_ as n,o,f as s}from"./app.a835f05d.js";const r={props:["schema"]};function _(m,l,a,p,f,u){const e=c;return o(),s(e,{schema:a.schema,columns:["id",{field:"email",transform:t=>t.data_contact.Email},"status","created_at","updated_at"],config:{canCreate:!1}},null,8,["schema","columns"])}const h=n(r,[["render",_]]);export{h as default};

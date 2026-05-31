@@ -1,0 +1,204 @@
+/**
+ * CSS để bảo vệ nội dung khỏi Google Translate
+ * Đảm bảo các phần tử có class 'notranslate' không bị dịch
+ */
+
+/* Bảo vệ cơ bản cho tất cả phần tử notranslate */
+.notranslate,
+[translate="no"],
+[data-notranslate="true"] {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    /* Ngăn Google Translate can thiệp */
+}
+
+/* Bảo vệ tất cả phần tử con */
+.notranslate *,
+[translate="no"] *,
+[data-notranslate="true"] * {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+}
+
+/* Ẩn hoàn toàn Google Translate UI */
+.goog-te-banner-frame,
+.goog-te-menu-frame,
+.goog-te-balloon-frame,
+iframe.goog-te-banner-frame,
+#goog-gt-tt {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    position: absolute !important;
+    left: -9999px !important;
+    top: -9999px !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+/* Reset body position bị Google Translate thay đổi */
+body {
+    top: 0px !important;
+    position: static !important;
+}
+
+/* Bảo vệ các loại nội dung cụ thể */
+
+/* Nội dung blog/bài viết */
+.prose-blog.notranslate,
+.prose-policy.notranslate,
+.prose-member.notranslate {
+    /* Đảm bảo nội dung không bị thay đổi */
+    white-space: pre-wrap;
+}
+
+/* Nội dung sản phẩm */
+.product-content.notranslate,
+.service-content.notranslate {
+    /* Bảo vệ mô tả sản phẩm/dịch vụ */
+}
+
+/* Feedback và review */
+.feedback-content.notranslate {
+    /* Bảo vệ nội dung phản hồi */
+}
+
+/* Tiêu đề động */
+.title-dynamic.notranslate,
+h1.notranslate,
+h2.notranslate,
+h3.notranslate,
+h4.notranslate,
+h5.notranslate,
+h6.notranslate {
+    /* Bảo vệ tiêu đề */
+}
+
+/* Language switcher */
+.language-switcher.notranslate,
+.lang-selector.notranslate {
+    /* Đảm bảo language switcher không bị ảnh hưởng */
+}
+
+/* Form elements */
+input.notranslate,
+textarea.notranslate,
+select.notranslate {
+    /* Bảo vệ form input */
+}
+
+/* Navigation */
+.nav-link.notranslate,
+.menu-item.notranslate {
+    /* Bảo vệ navigation */
+}
+
+/* Đặc biệt cho Vue.js v-html */
+[v-html].notranslate {
+    /* Bảo vệ nội dung được render bởi v-html */
+}
+
+/* Animation để đảm bảo không bị flicker khi Google Translate load */
+.notranslate {
+    animation: preventTranslateFlicker 0.1s ease-in-out;
+}
+
+@keyframes preventTranslateFlicker {
+    0% { opacity: 0.99; }
+    100% { opacity: 1; }
+}
+
+/* Media queries để đảm bảo hoạt động trên mọi thiết bị */
+@media screen and (max-width: 768px) {
+    .goog-te-banner-frame {
+        display: none !important;
+    }
+    
+    body {
+        top: 0px !important;
+    }
+}
+
+/* Print styles */
+@media print {
+    .goog-te-banner-frame,
+    .goog-te-menu-frame,
+    .goog-te-balloon-frame {
+        display: none !important;
+    }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+    .notranslate {
+        /* Đảm bảo visibility trong high contrast mode */
+    }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .notranslate {
+        animation: none;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .goog-te-banner-frame,
+    .goog-te-menu-frame,
+    .goog-te-balloon-frame {
+        display: none !important;
+    }
+}
+
+/* Specific overrides for common Google Translate interference */
+.goog-text-highlight {
+    background-color: transparent !important;
+    box-shadow: none !important;
+}
+
+/* Prevent Google Translate from adding its own styles */
+font[style*="background-color: rgb(255, 255, 0)"] {
+    background-color: transparent !important;
+}
+
+/* Additional protection for dynamic content */
+.dynamic-content.notranslate,
+.user-generated-content.notranslate,
+.cms-content.notranslate {
+    /* Bảo vệ nội dung động và do người dùng tạo */
+}
+
+/* Ensure important text remains untranslated */
+.brand-name.notranslate,
+.company-name.notranslate,
+.product-name.notranslate {
+    /* Bảo vệ tên thương hiệu, công ty, sản phẩm */
+    font-weight: inherit;
+    color: inherit;
+}
+
+/* Code blocks and technical content */
+code.notranslate,
+pre.notranslate,
+.code-block.notranslate {
+    /* Bảo vệ code và nội dung kỹ thuật */
+    font-family: 'Courier New', Consolas, Monaco, monospace;
+}
+
+/* Accessibility improvements */
+.notranslate:focus {
+    /* Đảm bảo focus states vẫn hoạt động */
+    outline: inherit;
+}
+
+.notranslate[aria-label],
+.notranslate[title] {
+    /* Bảo vệ accessibility attributes */
+}
+
+/* Performance optimization */
+.notranslate {
+    will-change: auto;
+    contain: layout style;
+}

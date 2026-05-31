@@ -1,0 +1,15 @@
+.btn {
+    @apply inline-flex items-center text-center px-5 py-3 rounded-lg min-h-[36px] md:min-h-[51px] button-1 font-bold;
+}
+
+.btn-primary {
+    @apply text-white transition-all duration-300 ease-in-out;
+    background: linear-gradient(180deg, #EDA73A 0%, #AE6B00 100%);
+    &:hover {
+        background: linear-gradient(180deg, #FAC515 0%, #FAC515 100%);
+    }
+}
+
+.btn-secondary {
+    @apply bg-brand-300 text-brand-200 lg:hover:bg-primary-400 duration-300 ease-in-out;
+}
