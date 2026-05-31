@@ -1,0 +1,160 @@
+<?php
+
+namespace App\Models\Vehicle;
+
+use App\Models\BaseModel;
+use App\Traits\Translatable;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+class Vehicle extends BaseModel
+{
+    use SoftDeletes, Translatable;
+
+    protected $table = 'vehicles';
+
+    public $translationModel = VehicleTranslation::class;
+    public $translationForeignKey = 'vehicle_id';
+    public $with = ['translations'];
+
+    public $translatedAttributes = [
+        'title',
+        'slug',
+        'tagline',
+        'description',
+    ];
+
+    protected $fillable = [
+        'category_id',
+        'type',
+        'is_best_seller',
+        'base_price',
+        'image',
+        'images',
+        'colors',
+        'images_360_external',
+        'image_360_internal_url',
+        'status',
+        'sort_order',
+    ];
+
+    protected $casts = [
+        'base_price'     => 'decimal:2',
+        'is_best_seller' => 'boolean',
+    ];
+
+    public const STATUS_ACTIVE = 'ACTIVE';
+    public const STATUS_INACTIVE = 'INACTIVE';
+
+    public function rules(): array
+    {
+        $base = [
+            'vi.title'       => 'required|string|max:255',
+            'type'           => 'required|string|in:suv,pickup,commercial',
+            'base_price'     => 'nullable|numeric|min:0',
+            'image'          => 'nullable|array',
+            'images'         => 'nullable|array',
+            'colors'         => 'nullable|array',
+            'images_360_external' => 'nullable|array',
+            'image_360_internal_url' => 'nullable|string',
+            'status'         => 'required|string|in:ACTIVE,INACTIVE',
+            'sort_order'     => 'nullable|integer',
+        ];
+
+        return [
+            'store'      => $base,
+            'storeDraft' => $base,
+        ];
+    }
+
+    private function encodeJsonField($value): ?string
+    {
+        if (is_null($value)) return null;
+        return is_array($value) ? json_encode($value) : $value;
+    }
+
+    private function decodeJsonField($value): ?array
+    {
+        if (is_string($value) && !empty($value)) {
+            return json_decode($value, true);
+        }
+        return is_array($value) ? $value : null;
+    }
+
+    public function setImageAttribute($value): void
+    {
+        $this->attributes['image'] = $this->encodeJsonField($value);
+    }
+
+    public function getImageAttribute($value): ?array
+    {
+        if (is_null($value) || $value === '') return null;
+        $decoded = $this->decodeJsonField($value);
+        if (is_null($decoded) && is_string($value)) {
+            return ['path' => $value];
+        }
+        return $decoded;
+    }
+
+    public function getImageUrlAttribute(): ?string
+    {
+        return isset($this->image['path']) ? static_url($this->image['path']) : null;
+    }
+
+    public function setImagesAttribute($value): void
+    {
+        $this->attributes['images'] = $this->encodeJsonField($value);
+    }
+
+    public function getImagesAttribute($value): ?array
+    {
+        return $this->decodeJsonField($value);
+    }
+
+    public function setColorsAttribute($value): void
+    {
+        $this->attributes['colors'] = $this->encodeJsonField($value);
+    }
+
+    public function getColorsAttribute($value): ?array
+    {
+        return $this->decodeJsonField($value);
+    }
+
+    public function setImages360ExternalAttribute($value): void
+    {
+        $this->attributes['images_360_external'] = $this->encodeJsonField($value);
+    }
+
+    public function getImages360ExternalAttribute($value): ?array
+    {
+        return $this->decodeJsonField($value);
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(VehicleCategory::class, 'category_id');
+    }
+
+    public function versions()
+    {
+        return $this->hasMany(VehicleVersion::class, 'vehicle_id');
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(CustomerReview::class, 'vehicle_id');
+    }
+
+    public function scopeSortByPosition($query)
+    {
+        return $query->orderByRaw('ISNULL(sort_order) OR sort_order = 0, sort_order ASC')
+            ->orderBy('id', 'desc');
+    }
+
+    public function scopeWhereSlug($query, $slug)
+    {
+        return $query->whereHas('translations', function ($q) use ($slug) {
+            $q->where('slug', $slug);
+        });
+    }
+}

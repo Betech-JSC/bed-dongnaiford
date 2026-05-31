@@ -18,7 +18,7 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             RegionSeeder::class,
             ProductSeeder::class,
-            LotusTestSeeder::class,
+            VehicleTestSeeder::class,
         ]);
     }
 }
