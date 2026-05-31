@@ -1,1 +1,0 @@
-import{_ as t}from"./Table.567d1af1.js";import{_ as c,o,f as s}from"./app.a835f05d.js";const n={props:["schema"]};function _(r,m,e,p,f,u){const a=t;return o(),s(a,{schema:e.schema,columns:["id","name","rate_score","status","created_at","updated_at"],config:{canCreate:!1}},null,8,["schema"])}const i=c(n,[["render",_]]);export{i as default};

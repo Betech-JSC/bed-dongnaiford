@@ -25,7 +25,15 @@ return [
         'users' => 'Khách hàng',
         'settings' => 'Cấu hình',
         'posts' => 'Bài viết',
-        'files' => 'Quản lý Tệp'
+        'files' => 'Quản lý Tệp',
+        'banners' => 'Banners',
+        'vehicle-categories' => 'Vehicle Categories',
+        'vehicles' => 'Vehicles',
+        'customer-reviews' => 'Customer Reviews',
+        'partners' => 'Partners',
+        'sales-consultants' => 'Sales Consultants',
+        'dealer-activities' => 'Dealer Activities',
+        'awards' => 'Awards'
     ],
     'posts' => [
         'type' => [

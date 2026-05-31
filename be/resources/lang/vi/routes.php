@@ -5,7 +5,7 @@ return [
     'contact' => 'lien-he',
     'products' => 'san-pham',
     'product-categories' => 'danh-muc',
-    'about-us' => 've-lotus-institute',
+    'about-us' => 'gioi-thieu',
     'histories' => 'cot-moc-phat-trien',
     'services' => 'dich-vu',
     'posts' => 'thi-truong-dau-tu',

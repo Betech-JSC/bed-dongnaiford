@@ -26,56 +26,50 @@
     <span>{{ tt('models.table_list.contacts') }}</span>
     </Link>
 
-    <Link v-if="can('admin.lotus-banners.index')" :href="route('admin.lotus-banners.index')"
-        :class="{ active: isUrl('admin.lotus-banners.*') }" class="item">
+    <Link v-if="can('admin.banners.index')" :href="route('admin.banners.index')"
+        :class="{ active: isUrl('admin.banners.*') }" class="item">
     <bi:collection-play />
     <span>Banners</span>
     </Link>
 
-    <Link v-if="can('admin.lotus-categories.index')" :href="route('admin.lotus-categories.index')"
-        :class="{ active: isUrl('admin.lotus-categories.*') }" class="item">
+    <Link v-if="can('admin.vehicle-categories.index')" :href="route('admin.vehicle-categories.index')"
+        :class="{ active: isUrl('admin.vehicle-categories.*') }" class="item">
     <bx:category />
-    <span>Danh mục</span>
+    <span>Danh mục xe</span>
     </Link>
 
-    <Link v-if="can('admin.lotus-products.index')" :href="route('admin.lotus-products.index')"
-        :class="{ active: isUrl('admin.lotus-products.*') }" class="item">
+    <Link v-if="can('admin.vehicles.index')" :href="route('admin.vehicles.index')"
+        :class="{ active: isUrl('admin.vehicles.*') }" class="item">
     <fluent-mdl2:product-list />
-    <span>Khóa học</span>
+    <span>Sản phẩm xe</span>
     </Link>
 
-    <Link v-if="can('admin.lotus-reviews.index')" :href="route('admin.lotus-reviews.index')"
-        :class="{ active: isUrl('admin.lotus-reviews.*') }" class="item">
+    <Link v-if="can('admin.customer-reviews.index')" :href="route('admin.customer-reviews.index')"
+        :class="{ active: isUrl('admin.customer-reviews.*') }" class="item">
     <ph:star-light />
-    <span>Đánh giá</span>
+    <span>Ý kiến khách hàng</span>
     </Link>
 
-    <Link v-if="can('admin.lotus-sponsors.index')" :href="route('admin.lotus-sponsors.index')"
-        :class="{ active: isUrl('admin.lotus-sponsors.*') }" class="item">
+    <Link v-if="can('admin.partners.index')" :href="route('admin.partners.index')"
+        :class="{ active: isUrl('admin.partners.*') }" class="item">
     <bi:building />
-    <span>Nhà tài trợ</span>
+    <span>Đối tác</span>
     </Link>
 
-    <Link v-if="can('admin.lotus-teams.index')" :href="route('admin.lotus-teams.index')"
-        :class="{ active: isUrl('admin.lotus-teams.*') }" class="item">
+    <Link v-if="can('admin.sales-consultants.index')" :href="route('admin.sales-consultants.index')"
+        :class="{ active: isUrl('admin.sales-consultants.*') }" class="item">
     <ph:users-three-light />
-    <span>Đội ngũ</span>
+    <span>Đội ngũ tư vấn</span>
     </Link>
 
-    <Link v-if="can('admin.lotus-guides.index')" :href="route('admin.lotus-guides.index')"
-        :class="{ active: isUrl('admin.lotus-guides.*') }" class="item">
-    <ph:book-open-light />
-    <span>Hướng dẫn CMS</span>
-    </Link>
-
-    <Link v-if="can('admin.lotus-activities.index')" :href="route('admin.lotus-activities.index')"
-        :class="{ active: isUrl('admin.lotus-activities.*') }" class="item">
+    <Link v-if="can('admin.dealer-activities.index')" :href="route('admin.dealer-activities.index')"
+        :class="{ active: isUrl('admin.dealer-activities.*') }" class="item">
     <ph:image-light />
-    <span>Hoạt động</span>
+    <span>Hoạt động đại lý</span>
     </Link>
 
-    <Link v-if="can('admin.lotus-awards.index')" :href="route('admin.lotus-awards.index')"
-        :class="{ active: isUrl('admin.lotus-awards.*') }" class="item">
+    <Link v-if="can('admin.awards.index')" :href="route('admin.awards.index')"
+        :class="{ active: isUrl('admin.awards.*') }" class="item">
     <ph:medal-light />
     <span>Giải thưởng</span>
     </Link>

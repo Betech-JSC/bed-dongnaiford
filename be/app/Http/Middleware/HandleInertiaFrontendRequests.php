@@ -2,7 +2,7 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\Lotus\LotusCategory;
+use App\Models\Vehicle\VehicleCategory;
 use Illuminate\Support\Facades\App;
 use Inertia\Middleware;
 use Illuminate\Http\Request;
@@ -20,9 +20,9 @@ class HandleInertiaFrontendRequests extends Middleware
         app()->setLocale($locale);
 
         try {
-            $lotusCategories = LotusCategory::where('status', LotusCategory::STATUS_ACTIVE)
+            $lotusCategories = VehicleCategory::where('status', VehicleCategory::STATUS_ACTIVE)
                 ->whereLocaleActive()
-                ->with(['products' => function ($query) {
+                ->with(['vehicles' => function ($query) {
                     $query->where('status', 'ACTIVE')->orderBy('sort_order');
                 }])
                 ->orderBy('sort_order')
@@ -32,6 +32,17 @@ class HandleInertiaFrontendRequests extends Middleware
                     $translation = $category->getTranslation($locale);
                     $arr['title'] = $translation?->title ?? $category->title;
                     $arr['slug'] = $translation?->slug ?? $category->slug;
+                    // Map 'vehicles' relation to 'products' key for frontend compatibility
+                    $arr['products'] = collect($arr['vehicles'] ?? [])->map(function($v) use ($locale) {
+                        return [
+                            'id' => $v['id'],
+                            'title' => $v['title'],
+                            'slug' => $v['slug'],
+                            'base_price' => $v['base_price'],
+                            'image' => $v['image'],
+                            'image_url' => isset($v['image']['path']) ? static_url($v['image']['path']) : null,
+                        ];
+                    })->toArray();
                     return $arr;
                 })
                 ->toArray();

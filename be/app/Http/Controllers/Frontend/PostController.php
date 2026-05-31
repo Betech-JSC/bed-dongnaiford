@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Frontend;
 
 use App\Models\Post\Post;
 use App\Models\Post\PostCategory;
-use App\Models\Lotus\LotusBanner;
+use App\Models\Vehicle\Banner;
 use Inertia\Inertia;
 use Illuminate\Routing\Controller;
 
@@ -41,9 +41,9 @@ class PostController extends Controller
                 ->get()
                 ->map(fn($item) => $item->transform());
 
-            $banners = LotusBanner::query()
-                ->where('status', LotusBanner::STATUS_ACTIVE)
-                ->whereJsonContains('location', LotusBanner::LOCATION_NEWS)
+            $banners = Banner::query()
+                ->where('status', Banner::STATUS_ACTIVE)
+                ->whereJsonContains('location', Banner::LOCATION_NEWS)
                 ->sortByPosition()
                 ->get()
                 ->map(fn($b) => [
