@@ -87,7 +87,7 @@ trait EloquentBuilderTrait
 
             $queryBuilder->where(function ($query) use ($filters, $or, &$joins) {
                 foreach ($filters as $filter) {
-                    $this->applyFilter($query, $filter, $or, $joins);
+                    $this->applyFilter($query, $filter, $joins, $or);
                 }
             });
         }
@@ -105,7 +105,7 @@ trait EloquentBuilderTrait
      * @param bool|false $or
      * @param array $joins
      */
-    protected function applyFilter($queryBuilder, array $filter, $or = false, array &$joins)
+    protected function applyFilter($queryBuilder, array $filter, array &$joins, $or = false)
     {
         // Destructure Shorthand Filtering Syntax if filter is Shorthand
         if (! array_key_exists('key', $filter) && count($filter) >= 3) {
