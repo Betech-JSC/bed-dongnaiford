@@ -4,14 +4,14 @@ namespace App\Http\Controllers\Frontend;
 
 use Inertia\Inertia;
 use Illuminate\Routing\Controller;
-use App\Models\Lotus\LotusBanner;
-use App\Models\Lotus\LotusProduct;
-use App\Models\Lotus\LotusTeam;
-use App\Models\Lotus\LotusSponsor;
-use App\Models\Lotus\LotusReview;
+use App\Models\Vehicle\Banner;
+use App\Models\Vehicle\Vehicle;
+use App\Models\Vehicle\SalesConsultant;
+use App\Models\Vehicle\Partner;
+use App\Models\Vehicle\CustomerReview;
 use App\Models\Post\Post;
-use App\Models\Lotus\LotusActivity;
-use App\Models\Lotus\LotusAward;
+use App\Models\Vehicle\DealerActivity;
+use App\Models\Vehicle\Award;
 
 class HomeController extends Controller
 {
@@ -20,9 +20,9 @@ class HomeController extends Controller
         try {
             $locale = current_locale();
 
-            $bannerHero = LotusBanner::query()
-                ->where('status', LotusBanner::STATUS_ACTIVE)
-                ->whereJsonContains('location', LotusBanner::LOCATION_HOMEPAGE)
+            $bannerHero = Banner::query()
+                ->where('status', Banner::STATUS_ACTIVE)
+                ->whereJsonContains('location', Banner::LOCATION_HOMEPAGE)
                 ->sortByPosition()
                 ->get(['id', 'title', 'subtitle', 'image', 'image_mobile', 'video', 'button_text', 'button_link'])
                 ->map(fn($banner) => [
@@ -37,9 +37,9 @@ class HomeController extends Controller
                 ]);
 
             // Banner giới thiệu Học Viện 
-            $bannerEdu = LotusBanner::query()
-                ->where('status', LotusBanner::STATUS_ACTIVE)
-                ->whereJsonContains('location', LotusBanner::LOCATION_HOMEPAGE_EDU)
+            $bannerEdu = Banner::query()
+                ->where('status', Banner::STATUS_ACTIVE)
+                ->whereJsonContains('location', Banner::LOCATION_HOMEPAGE_EDU)
                 ->sortByPosition()
                 ->first(['id', 'title', 'image', 'image_mobile', 'video']);
 
@@ -52,9 +52,9 @@ class HomeController extends Controller
             ] : null;
 
             // Banner quảng cáo / Giáo trình quốc tế
-            $bannerAdvise = LotusBanner::query()
-                ->where('status', LotusBanner::STATUS_ACTIVE)
-                ->whereJsonContains('location', LotusBanner::LOCATION_HOMEPAGE_HERO)
+            $bannerAdvise = Banner::query()
+                ->where('status', Banner::STATUS_ACTIVE)
+                ->whereJsonContains('location', Banner::LOCATION_HOMEPAGE_HERO)
                 ->sortByPosition()
                 ->first(['id', 'title', 'subtitle', 'image', 'image_mobile', 'video', 'button_text', 'button_link']);
 
@@ -70,16 +70,16 @@ class HomeController extends Controller
             ] : null;
 
             // Đội ngũ nổi bật trên homepage
-            $teams = LotusTeam::query()
-                ->where('status', LotusTeam::STATUS_ACTIVE)
+            $teams = SalesConsultant::query()
+                ->where('status', SalesConsultant::STATUS_ACTIVE)
                 ->sortByPosition()
                 ->take(6)
                 ->get()
                 ->map(fn($t) => $t->toLocalizedSummary($locale));
 
             // Nhà tài trợ / đối tác
-            $sponsors = LotusSponsor::query()
-                ->where('status', LotusSponsor::STATUS_ACTIVE)
+            $sponsors = Partner::query()
+                ->where('status', Partner::STATUS_ACTIVE)
                 ->sortByPosition()
                 ->get(['id', 'name', 'logo', 'link'])
                 ->map(fn($s) => [
@@ -90,38 +90,35 @@ class HomeController extends Controller
                 ]);
 
             // Phản hồi học viên (homepage)
-            $reviews = LotusReview::query()
-                ->with(['product:id,title,slug', 'translations'])
-                ->where('status', LotusReview::STATUS_ACTIVE)
+            $reviews = CustomerReview::query()
+                ->with(['vehicle:id', 'translations'])
+                ->where('status', CustomerReview::STATUS_ACTIVE)
                 ->sortByPosition()
                 ->take(10)
                 ->get()
                 ->map(fn($r) => array_merge($r->transform(), [
-                    'course_title' => $r->product?->title,
-                    'course_slug'  => $r->product?->slug,
+                    'course_title' => optional($r->vehicle)->title,
+                    'course_slug'  => optional($r->vehicle)->slug,
                 ]));
 
-            // 3 khoá học nổi bật (is_hot) cho trang chủ
-            $courses = LotusProduct::query()
-                ->where('status', LotusProduct::STATUS_ACTIVE)
-                ->where('is_hot', true)
+            // 3 xe nổi bật (is_best_seller) cho trang chủ
+            $courses = Vehicle::query()
+                ->where('status', Vehicle::STATUS_ACTIVE)
+                ->where('is_best_seller', true)
                 ->sortByPosition()
                 ->take(3)
-                ->get(['id', 'category_id', 'title', 'slug', 'image', 'author', 'author_title', 'author_avatar', 'price', 'price_sale'])
+                ->get()
                 ->map(fn($p) => [
                     'id'                => $p->id,
                     'title'             => $p->title,
                     'slug'              => $p->slug,
                     'image_url'         => $p->image_url,
-                    'author'            => $p->author,
-                    'author_title'      => $p->author_title,
-                    'author_avatar_url' => $p->author_avatar_url,
-                    'price'             => $p->price,
-                    'price_sale'        => $p->price_sale,
+                    'price'             => $p->base_price,
+                    'price_sale'        => 0,
                 ]);
 
             // Hoạt động khóa học
-            $activities = LotusActivity::query()
+            $activities = DealerActivity::query()
                 ->active()
                 ->sortByPosition()
                 ->get()
@@ -150,7 +147,7 @@ class HomeController extends Controller
                 ->map(fn($item) => $item->transform());
 
             // Chứng nhận / giải thưởng
-            $certificates = LotusAward::query()
+            $certificates = Award::query()
                 ->active()
                 ->sortByPosition()
                 ->get()

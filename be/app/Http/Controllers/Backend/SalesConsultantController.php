@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Backend;
 
-use App\Models\Lotus\LotusAward;
+use App\Models\Vehicle\SalesConsultant;
 use App\Traits\HasCrudActions;
 use Illuminate\Routing\Controller;
 
-class LotusAwardController extends Controller
+class SalesConsultantController extends Controller
 {
     use HasCrudActions;
 
-    public $model = LotusAward::class;
+    public $model = SalesConsultant::class;
 }

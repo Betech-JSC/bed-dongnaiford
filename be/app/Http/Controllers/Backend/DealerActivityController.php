@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Backend;
 
-use App\Models\Lotus\LotusActivity;
+use App\Models\Vehicle\DealerActivity;
 use App\Traits\HasCrudActions;
 use Illuminate\Routing\Controller;
 
-class LotusActivityController extends Controller
+class DealerActivityController extends Controller
 {
     use HasCrudActions;
 
-    public $model = LotusActivity::class;
+    public $model = DealerActivity::class;
 }

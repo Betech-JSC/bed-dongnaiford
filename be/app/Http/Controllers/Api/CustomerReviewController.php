@@ -5,26 +5,25 @@ namespace App\Http\Controllers\Api;
 use Illuminate\Routing\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use App\Models\Lotus\LotusReview;
+use App\Models\Vehicle\CustomerReview;
 use JamstackVietnam\Core\Traits\ApiResponse;
 
-class LotusReviewController extends Controller
+class CustomerReviewController extends Controller
 {
     use ApiResponse;
 
     /**
-     * GET /api/lotus/reviews
-     * GET /api/lotus/reviews?product_id=1
-     * Trả về danh sách reviews active, đã dịch theo locale hiện tại
+     * GET /api/vehicles/reviews
+     * GET /api/vehicles/reviews?vehicle_id=1
      */
     public function index(Request $request): JsonResponse
     {
-        $query = LotusReview::query()
-            ->where('status', LotusReview::STATUS_ACTIVE)
+        $query = CustomerReview::query()
+            ->where('status', CustomerReview::STATUS_ACTIVE)
             ->sortByPosition();
 
-        if ($productId = $request->query('product_id')) {
-            $query->where('product_id', $productId);
+        if ($vehicleId = $request->query('vehicle_id')) {
+            $query->where('vehicle_id', $vehicleId);
         }
 
         $reviews = $query->get()->map(fn($r) => $r->transform());

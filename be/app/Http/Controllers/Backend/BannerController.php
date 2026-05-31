@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Backend;
 
-use App\Models\Lotus\LotusCategory;
+use App\Models\Vehicle\Banner;
 use App\Traits\HasCrudActions;
 use Illuminate\Routing\Controller;
 
-class LotusCategoryController extends Controller
+class BannerController extends Controller
 {
     use HasCrudActions;
 
-    public $model = LotusCategory::class;
+    public $model = Banner::class;
 }

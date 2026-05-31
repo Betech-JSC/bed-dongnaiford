@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Backend;
 
-use App\Models\Lotus\LotusSponsor;
+use App\Models\Vehicle\Award;
 use App\Traits\HasCrudActions;
 use Illuminate\Routing\Controller;
 
-class LotusSponsorController extends Controller
+class AwardController extends Controller
 {
     use HasCrudActions;
 
-    public $model = LotusSponsor::class;
+    public $model = Award::class;
 }

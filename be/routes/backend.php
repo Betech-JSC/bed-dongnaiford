@@ -23,15 +23,14 @@ use App\Http\Controllers\Backend\ServiceController;
 use App\Http\Controllers\Backend\RegionController;
 use App\Http\Controllers\Backend\ConfigController;
 use App\Http\Controllers\Backend\FeedbackController;
-use App\Http\Controllers\Backend\LotusBannerController;
-use App\Http\Controllers\Backend\LotusCategoryController;
-use App\Http\Controllers\Backend\LotusProductController;
-use App\Http\Controllers\Backend\LotusReviewController;
-use App\Http\Controllers\Backend\LotusSponsorController;
-use App\Http\Controllers\Backend\LotusTeamController;
-use App\Http\Controllers\Backend\LotusGuideController;
-use App\Http\Controllers\Backend\LotusActivityController;
-use App\Http\Controllers\Backend\LotusAwardController;
+use App\Http\Controllers\Backend\BannerController;
+use App\Http\Controllers\Backend\VehicleCategoryController;
+use App\Http\Controllers\Backend\VehicleController;
+use App\Http\Controllers\Backend\CustomerReviewController;
+use App\Http\Controllers\Backend\PartnerController;
+use App\Http\Controllers\Backend\SalesConsultantController;
+use App\Http\Controllers\Backend\DealerActivityController;
+use App\Http\Controllers\Backend\AwardController;
 
 Route::localized(function () {
     Route::middleware(['auth:admin'])->name('admin.')->group(function () {
@@ -57,15 +56,14 @@ Route::localized(function () {
         Route::module(FlashSaleController::class);
         Route::module(ConfigController::class);
 
-        // Lotus Institute Modules
-        Route::module(LotusBannerController::class);
-        Route::module(LotusCategoryController::class);
-        Route::module(LotusProductController::class);
-        Route::module(LotusReviewController::class);
-        Route::module(LotusSponsorController::class);
-        Route::module(LotusTeamController::class);
-        Route::module(LotusGuideController::class);
-        Route::module(LotusActivityController::class);
-        Route::module(LotusAwardController::class);
+        // Ford DNF Modules
+        Route::module(BannerController::class);
+        Route::module(VehicleCategoryController::class);
+        Route::module(VehicleController::class);
+        Route::module(CustomerReviewController::class);
+        Route::module(PartnerController::class);
+        Route::module(SalesConsultantController::class);
+        Route::module(DealerActivityController::class);
+        Route::module(AwardController::class);
     });
 });

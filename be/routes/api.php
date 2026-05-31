@@ -5,12 +5,12 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\KeywordController;
 use App\Http\Controllers\Api\SepayWebhookController;
-use App\Http\Controllers\Api\LotusProductController;
-use App\Http\Controllers\Api\LotusCategoryController;
-use App\Http\Controllers\Api\LotusReviewController;
-use App\Http\Controllers\Api\LotusBannerController;
-use App\Http\Controllers\Api\LotusSponsorController;
-use App\Http\Controllers\Api\LotusTeamController;
+use App\Http\Controllers\Api\VehicleController;
+use App\Http\Controllers\Api\VehicleCategoryController;
+use App\Http\Controllers\Api\CustomerReviewController;
+use App\Http\Controllers\Api\BannerController;
+use App\Http\Controllers\Api\PartnerController;
+use App\Http\Controllers\Api\SalesConsultantController;
 
 Route::localized(function () {
     Route::controller(ProductController::class)->group(function () {
@@ -21,27 +21,27 @@ Route::localized(function () {
         Route::post('sepay-webhook', [SepayWebhookController::class, 'storeTransaction'])->name('api.sepay.webhook');
     });
 
-    Route::prefix('lotus')->name('api.lotus.')->group(function () {
-        // Khoá học
-        Route::get('courses/featured', [LotusProductController::class, 'featured'])->name('courses.featured');
-        Route::get('courses', [LotusProductController::class, 'index'])->name('courses.index');
-        Route::get('courses/{slug}', [LotusProductController::class, 'show'])->name('courses.show');
+    Route::prefix('vehicles')->name('api.vehicles.')->group(function () {
+        // Dòng xe
+        Route::get('featured', [VehicleController::class, 'featured'])->name('featured');
+        Route::get('/', [VehicleController::class, 'index'])->name('index');
+        Route::get('{slug}', [VehicleController::class, 'show'])->name('show');
 
-        // Danh mục
-        Route::get('categories', [LotusCategoryController::class, 'index'])->name('categories.index');
+        // Danh mục xe
+        Route::get('categories', [VehicleCategoryController::class, 'index'])->name('categories.index');
 
-        // Đánh giá
-        Route::get('reviews', [LotusReviewController::class, 'index'])->name('reviews.index');
+        // Đánh giá khách hàng
+        Route::get('reviews', [CustomerReviewController::class, 'index'])->name('reviews.index');
 
-        // Banners (filter by location: ?location=homepage, ?location=homepage_hero, ...)
-        Route::get('banners', [LotusBannerController::class, 'index'])->name('banners.index');
+        // Banners
+        Route::get('banners', [BannerController::class, 'index'])->name('banners.index');
 
-        // Nhà tài trợ
-        Route::get('sponsors', [LotusSponsorController::class, 'index'])->name('sponsors.index');
+        // Đối tác
+        Route::get('partners', [PartnerController::class, 'index'])->name('partners.index');
 
-        // Đội ngũ
-        Route::get('teams', [LotusTeamController::class, 'index'])->name('teams.index');
-        Route::get('teams/{slug}', [LotusTeamController::class, 'show'])->name('teams.show');
+        // Đội ngũ cố vấn
+        Route::get('consultants', [SalesConsultantController::class, 'index'])->name('consultants.index');
+        Route::get('consultants/{slug}', [SalesConsultantController::class, 'show'])->name('consultants.show');
     });
 });
 

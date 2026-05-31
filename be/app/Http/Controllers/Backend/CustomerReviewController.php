@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers\Backend;
 
-use App\Models\Lotus\LotusReview;
-use App\Models\Lotus\LotusProduct;
+use App\Models\Vehicle\CustomerReview;
+use App\Models\Vehicle\Vehicle;
 use App\Traits\HasCrudActions;
 use Illuminate\Routing\Controller;
 
-class LotusReviewController extends Controller
+class CustomerReviewController extends Controller
 {
     use HasCrudActions;
 
-    public $model = LotusReview::class;
+    public $model = CustomerReview::class;
 
     private function beforeIndex($query)
     {
@@ -22,8 +22,8 @@ class LotusReviewController extends Controller
 
     private function beforeForm($data)
     {
-        $data['products'] = LotusProduct::withoutGlobalScopes()
-            ->where('status', LotusProduct::STATUS_ACTIVE)
+        $data['products'] = Vehicle::withoutGlobalScopes()
+            ->where('status', Vehicle::STATUS_ACTIVE)
             ->with('translations')
             ->orderBy('sort_order')
             ->get()

@@ -3,26 +3,24 @@
 namespace App\Http\Controllers\Backend;
 
 use Inertia\Inertia;
-use App\Models\Lotus\LotusProduct;
-use App\Models\Lotus\LotusCategory;
-use App\Models\Lotus\LotusReview;
+use App\Models\Vehicle\Vehicle;
+use App\Models\Vehicle\VehicleCategory;
+use App\Models\Vehicle\CustomerReview;
 use App\Traits\HasCrudActions;
 use Illuminate\Routing\Controller;
 
-class LotusProductController extends Controller
+class VehicleController extends Controller
 {
     use HasCrudActions;
 
-    public $model = LotusProduct::class;
+    public $model = Vehicle::class;
 
     public $with = [
         'form' => ['category', 'translations'],
     ];
 
     /**
-     * Admin list: load translations để hiển thị title theo locale.
-     * Không dùng withoutGlobalScopes() vì Astrotomic không có global scope,
-     * và việc bỏ nó sẽ khiến SoftDeletingScope bị vô hiệu.
+     * Admin list: load translations to display title by locale.
      */
     public function index()
     {
@@ -42,7 +40,7 @@ class LotusProductController extends Controller
                 ],
                 'schema' => $this->getSchema(),
                 'data' => [
-                    'categories' => LotusCategory::where('status', LotusCategory::STATUS_ACTIVE)
+                    'categories' => VehicleCategory::where('status', VehicleCategory::STATUS_ACTIVE)
                         ->orderBy('sort_order')
                         ->get()
                         ->map(fn($cat) => ['id' => $cat->id, 'title' => $cat->title]),
@@ -62,22 +60,22 @@ class LotusProductController extends Controller
 
     private function beforeForm($data)
     {
-        $data['categories'] = LotusCategory::where('status', LotusCategory::STATUS_ACTIVE)
+        $data['categories'] = VehicleCategory::where('status', VehicleCategory::STATUS_ACTIVE)
             ->orderBy('sort_order')
             ->get()
             ->map(fn($cat) => ['id' => $cat->id, 'title' => $cat->title]);
 
-        // Danh sách reviews để chọn trong form (kèm category_id qua product)
-        $data['reviews'] = LotusReview::query()
+        // List reviews to select in form
+        $data['reviews'] = CustomerReview::query()
             ->withoutGlobalScopes()
-            ->with(['product:id,category_id', 'translations'])
-            ->where('status', LotusReview::STATUS_ACTIVE)
+            ->with(['vehicle:id,category_id', 'translations'])
+            ->where('status', CustomerReview::STATUS_ACTIVE)
             ->orderBy('id', 'desc')
             ->get()
             ->map(fn($r) => [
                 'id'          => $r->id,
-                'product_id'  => $r->product_id,
-                'category_id' => optional($r->product)->category_id,
+                'product_id'  => $r->vehicle_id,
+                'category_id' => optional($r->vehicle)->category_id,
                 'label'       => "#{$r->id} — {$r->customer_name} (" . str_repeat('★', $r->rating ?? 0) . ")",
             ]);
 

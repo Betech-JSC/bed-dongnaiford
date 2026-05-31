@@ -4,17 +4,17 @@ namespace App\Http\Controllers\Frontend;
 
 use Inertia\Inertia;
 use Illuminate\Routing\Controller;
-use App\Models\Lotus\LotusBanner;
-use App\Models\Lotus\LotusCategory;
-use App\Models\Lotus\LotusProduct;
-use App\Models\Lotus\LotusReview;
+use App\Models\Vehicle\Banner;
+use App\Models\Vehicle\VehicleCategory;
+use App\Models\Vehicle\Vehicle;
+use App\Models\Vehicle\CustomerReview;
 
 class ProductController extends Controller
 {
     /**
-     * Format product sang dạng chuẩn cho list view — nhất quán với LotusProductController::formatList()
+     * Format product/vehicle to standard format
      */
-    private function formatProduct(LotusProduct $p): array
+    private function formatProduct(Vehicle $p): array
     {
         return [
             'id'                => $p->id,
@@ -22,50 +22,41 @@ class ProductController extends Controller
             'title'             => $p->title,
             'slug'              => $p->slug,
             'image_url'         => $p->image_url,
-            'author'            => $p->author,
-            'author_title'      => $p->author_title,
-            'author_avatar_url' => $p->author_avatar_url,
-            'price'             => $p->price,
-            'price_sale'        => $p->price_sale,
-            'highlights'        => $p->highlights,
+            'author'            => $p->tagline ?? 'FORD DNF',
+            'author_title'      => '',
+            'author_avatar_url' => '',
+            'price'             => $p->base_price,
+            'price_sale'        => 0,
+            'highlights'        => [],
         ];
     }
 
     /**
-     * GET /products — Trang Sản phẩm Lotus (khoá học, sách, ứng dụng)
+     * GET /products — Trang xe Ford
      */
     public function index()
     {
         try {
-            // Danh mục Lotus cho sidebar
-            $categories = LotusCategory::where('status', LotusCategory::STATUS_ACTIVE)
+            // Danh mục xe cho sidebar
+            $categoriesList = VehicleCategory::where('status', VehicleCategory::STATUS_ACTIVE)
                 ->sortByPosition()
-                ->get()
-                ->map(fn($cat) => [
-                    'key'       => $cat->getTranslation(app()->getLocale())?->slug ?? $cat->slug,
-                    'label'     => mb_strtoupper($cat->getTranslation(app()->getLocale())?->title ?? $cat->title, 'UTF-8'),
-                    'id'        => $cat->id,
-                    'image_url' => $cat->image_url,
-                ]);
+                ->get();
 
-            // Khoá học
-            $courseCat = LotusCategory::whereSlug(LotusCategory::SLUG_COURSES)
-                ->where('status', LotusCategory::STATUS_ACTIVE)
-                ->first();
+            $categories = $categoriesList->map(fn($cat) => [
+                'key'       => $cat->slug,
+                'label'     => mb_strtoupper($cat->title, 'UTF-8'),
+                'id'        => $cat->id,
+                'image_url' => isset($cat->image['path']) ? static_url($cat->image['path']) : null,
+            ]);
 
-            // Sách
-            $bookCat = LotusCategory::whereSlug(LotusCategory::SLUG_BOOKS)
-                ->where('status', LotusCategory::STATUS_ACTIVE)
-                ->first();
+            // Map categories to courses/books/apps props for retro-compatibility with original templates
+            $courseCat = $categoriesList->get(0);
+            $bookCat = $categoriesList->get(1);
+            $appCat = $categoriesList->get(2);
 
-            // Ứng dụng iLotus
-            $appCat = LotusCategory::whereSlug(LotusCategory::SLUG_APPS)
-                ->where('status', LotusCategory::STATUS_ACTIVE)
-                ->first();
-
-            // Helper: lấy products theo category
+            // Helper: lấy vehicles theo category
             $getProducts = fn($cat) => $cat
-                ? LotusProduct::where('status', LotusProduct::STATUS_ACTIVE)
+                ? Vehicle::where('status', Vehicle::STATUS_ACTIVE)
                     ->where('category_id', $cat->id)
                     ->with('translations')
                     ->sortByPosition()
@@ -78,20 +69,32 @@ class ProductController extends Controller
             $data = [
                 'categories' => $categories,
                 'courses'    => $courseCat ? [
-                    'title'    => $courseCat->getTranslation(app()->getLocale())?->title ?? $courseCat->title,
-                    'slug'     => $courseCat->getTranslation(app()->getLocale())?->slug ?? $courseCat->slug ?? 'khoa-hoc',
+                    'title'    => $courseCat->title,
+                    'slug'     => $courseCat->slug,
                     'products' => $getProducts($courseCat),
-                ] : null,
+                ] : [
+                    'title'    => 'SUV',
+                    'slug'     => 'suv',
+                    'products' => [],
+                ],
                 'books'      => $bookCat ? [
-                    'title'    => $bookCat->getTranslation(app()->getLocale())?->title ?? $bookCat->title,
-                    'slug'     => $bookCat->getTranslation(app()->getLocale())?->slug ?? $bookCat->slug ?? 'sach',
+                    'title'    => $bookCat->title,
+                    'slug'     => $bookCat->slug,
                     'products' => $getProducts($bookCat),
-                ] : null,
+                ] : [
+                    'title'    => 'Bán tải',
+                    'slug'     => 'ban-tai',
+                    'products' => [],
+                ],
                 'apps'       => $appCat ? [
-                    'title'    => $appCat->getTranslation(app()->getLocale())?->title ?? $appCat->title,
-                    'slug'     => $appCat->getTranslation(app()->getLocale())?->slug ?? $appCat->slug ?? 'ung-dung-giao-dich',
+                    'title'    => $appCat->title,
+                    'slug'     => $appCat->slug,
                     'products' => $getProducts($appCat),
-                ] : null,
+                ] : [
+                    'title'    => 'Thương mại',
+                    'slug'     => 'thuong-mai',
+                    'products' => [],
+                ],
             ];
 
             if (request()->wantsJson()) {
@@ -105,14 +108,14 @@ class ProductController extends Controller
     }
 
     /**
-     * GET /products/{slug} — Trang chi tiết khoá học / sản phẩm Lotus
+     * GET /products/{slug} — Trang chi tiết xe Ford DNF
      */
     public function show($slug)
     {
         try {
-            $product = LotusProduct::query()
-                ->where('status', LotusProduct::STATUS_ACTIVE)
-                ->with('translations')
+            $product = Vehicle::query()
+                ->where('status', Vehicle::STATUS_ACTIVE)
+                ->with(['translations', 'versions'])
                 ->whereHas('translations', fn($q) => $q->where('slug', $slug))
                 ->first();
 
@@ -120,20 +123,37 @@ class ProductController extends Controller
                 abort(404);
             }
 
-            // Reviews: ưu tiên review_ids nếu admin đã chọn, fallback về product_id
-            $reviewQuery = LotusReview::query()
+            // Reviews: load customer reviews for this vehicle
+            $reviews = CustomerReview::query()
                 ->with('translations')
-                ->where('status', LotusReview::STATUS_ACTIVE)
-                ->sortByPosition();
-
-            if (!empty($product->review_ids)) {
-                $reviewQuery->whereIn('id', $product->review_ids);
-            } else {
-                $reviewQuery->where('product_id', $product->id);
-            }
-
-            $reviews = $reviewQuery->get()
+                ->where('status', CustomerReview::STATUS_ACTIVE)
+                ->where('vehicle_id', $product->id)
+                ->sortByPosition()
+                ->get()
                 ->map(fn($r) => $r->transform());
+
+            // Build specifications and detail texts to display in tabs
+            $overviewHtml = '<p>' . e($product->description) . '</p>';
+            $specsHtml = '<table class="table-auto w-full text-left mt-4 border-collapse">';
+            $specsHtml .= '<thead><tr class="border-b border-gray-700"><th class="pb-2 font-bold text-yellow-500">Phiên bản</th><th class="pb-2 font-bold text-yellow-500">Giá bán</th></tr></thead>';
+            $specsHtml .= '<tbody>';
+            foreach ($product->versions as $v) {
+                $formattedPrice = number_format($v->price) . ' VND';
+                $specsHtml .= "<tr class='border-b border-gray-800'><td class='py-2 font-semibold'>{$v->name}</td><td class='py-2'>{$formattedPrice}</td></tr>";
+            }
+            $specsHtml .= '</tbody></table>';
+
+            $colorsHtml = '<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">';
+            foreach ($product->colors ?? [] as $color) {
+                $colorsHtml .= "<div class='flex items-center gap-2'><span class='inline-block w-6 h-6 rounded-full border border-white' style='background-color: {$color['hex']};'></span><span>{$color['name']}</span></div>";
+            }
+            $colorsHtml .= '</div>';
+
+            // Build sections slider from colors
+            $sections = collect($product->colors ?? [])->map(fn($color) => [
+                'image_url' => isset($color['image_path']) ? static_url($color['image_path']) : null,
+                'text'      => $color['name'] ?? '',
+            ])->values()->all();
 
             $data = [
                 'product' => [
@@ -142,37 +162,19 @@ class ProductController extends Controller
                     'title'               => $product->title,
                     'slug'                => $product->slug,
                     'image_url'           => $product->image_url,
-                    'banner_detail_url'   => $product->banner_detail_url,
-                    'overview'            => $product->overview,
-                    'overview_courses'    => $product->overview_courses,
-                    'overview_future'     => $product->overview_future,
-                    'author'              => $product->author,
-                    'author_title'        => $product->author_title,
-                    'author_avatar_url'   => $product->author_avatar_url,
-                    'author_description'  => $product->author_description,
-                    'sections'            => collect($product->getTranslation('vi')?->sections ?? [])->map(function($defaultSec, $index) use ($product) {
-                        $s = $product->sections[$index] ?? null;
-                        
-                        $image_url = null;
-                        if (!empty($s['image']['path'])) {
-                            $image_url = static_url($s['image']['path']);
-                        } elseif (!empty($s['image_url'])) {
-                            $image_url = $s['image_url'];
-                        } elseif (!empty($defaultSec['image']['path'])) {
-                            $image_url = static_url($defaultSec['image']['path']);
-                        } elseif (!empty($defaultSec['image_url'])) {
-                            $image_url = $defaultSec['image_url'];
-                        }
-
-                        return [
-                            'image_url' => $image_url,
-                            'text'      => !empty($s['text']) ? $s['text'] : ($defaultSec['text'] ?? ''),
-                        ];
-                    })->values()->all(),
-                    'sections_title'      => $product->sections_title,
-                    'price'               => $product->price,
-                    'price_sale'          => $product->price_sale,
-                    'highlights'          => $product->highlights,
+                    'banner_detail_url'   => $product->image_url,
+                    'overview'            => $overviewHtml,
+                    'overview_courses'    => $specsHtml,
+                    'overview_future'     => $colorsHtml,
+                    'author'              => 'ĐẠI LÝ FORD ĐỒNG NAI',
+                    'author_title'        => 'Đồng Nai Ford',
+                    'author_avatar_url'   => '/assets/logo.png',
+                    'author_description'  => $product->tagline ?? 'Đồng hành cùng bạn trên mọi nẻo đường.',
+                    'sections'            => $sections,
+                    'sections_title'      => 'Hình ảnh màu sắc xe thực tế',
+                    'price'               => $product->base_price,
+                    'price_sale'          => 0,
+                    'highlights'          => [],
                 ],
                 'reviews' => $reviews,
             ];
@@ -189,24 +191,23 @@ class ProductController extends Controller
     }
 
     /**
-     * GET /product-categories/{slug} — Trang danh mục sản phẩm Lotus
+     * GET /product-categories/{slug} — Trang danh mục xe Ford DNF
      */
     public function categories($slug)
     {
         try {
-            // Banner trang danh mục sản phẩm:
-            // ưu tiên vị trí mới "products", fallback "courses" để tương thích dữ liệu cũ.
-            $banner = LotusBanner::query()
-                ->where('status', LotusBanner::STATUS_ACTIVE)
+            // Banner trang danh mục
+            $banner = Banner::query()
+                ->where('status', Banner::STATUS_ACTIVE)
                 ->sortByPosition()
-                ->whereJsonContains('location', LotusBanner::LOCATION_PRODUCTS)
+                ->whereJsonContains('location', Banner::LOCATION_PRODUCTS)
                 ->first(['id', 'title', 'subtitle', 'image', 'image_mobile', 'video', 'button_text', 'button_link']);
 
             if (!$banner) {
-                $banner = LotusBanner::query()
-                    ->where('status', LotusBanner::STATUS_ACTIVE)
+                $banner = Banner::query()
+                    ->where('status', Banner::STATUS_ACTIVE)
                     ->sortByPosition()
-                    ->whereJsonContains('location', LotusBanner::LOCATION_COURSES)
+                    ->whereJsonContains('location', Banner::LOCATION_COURSES)
                     ->first(['id', 'title', 'subtitle', 'image', 'image_mobile', 'video', 'button_text', 'button_link']);
             }
 
@@ -222,24 +223,25 @@ class ProductController extends Controller
                 'location'         => $banner->location ?? [],
             ] : null;
 
-            $categories = LotusCategory::where('status', LotusCategory::STATUS_ACTIVE)
+            $categoriesList = VehicleCategory::where('status', VehicleCategory::STATUS_ACTIVE)
                 ->sortByPosition()
-                ->get()
-                ->map(fn($cat) => [
-                    'key'       => $cat->getTranslation(app()->getLocale())->slug ?? $cat->slug,
-                    'label'     => mb_strtoupper($cat->getTranslation(app()->getLocale())->title ?? $cat->title, 'UTF-8'),
-                    'id'        => $cat->id,
-                    'image_url' => $cat->image_url,
-                ]);
+                ->get();
 
-            $category = LotusCategory::where('status', LotusCategory::STATUS_ACTIVE)
+            $categories = $categoriesList->map(fn($cat) => [
+                'key'       => $cat->slug,
+                'label'     => mb_strtoupper($cat->title, 'UTF-8'),
+                'id'        => $cat->id,
+                'image_url' => isset($cat->image['path']) ? static_url($cat->image['path']) : null,
+            ]);
+
+            $category = VehicleCategory::where('status', VehicleCategory::STATUS_ACTIVE)
                 ->whereSlug($slug)
                 ->first();
 
             $products = [];
 
             if ($category) {
-                $products = LotusProduct::where('status', LotusProduct::STATUS_ACTIVE)
+                $products = Vehicle::where('status', Vehicle::STATUS_ACTIVE)
                     ->where('category_id', $category->id)
                     ->with('translations')
                     ->sortByPosition()
@@ -255,7 +257,7 @@ class ProductController extends Controller
                     'id'        => $category->id,
                     'title'     => $category->title,
                     'slug'      => $category->slug,
-                    'image_url' => $category->image_url,
+                    'image_url' => isset($category->image['path']) ? static_url($category->image['path']) : null,
                 ] : null,
                 'categorySlug' => $slug,
                 'categories'   => $categories,

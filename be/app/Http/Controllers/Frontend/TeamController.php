@@ -4,26 +4,26 @@ namespace App\Http\Controllers\Frontend;
 
 use Inertia\Inertia;
 use Illuminate\Routing\Controller;
-use App\Models\Lotus\LotusTeam;
+use App\Models\Vehicle\SalesConsultant;
 
 class TeamController extends Controller
 {
     /**
-     * GET /giang-vien/{slug} — Trang chi tiết giảng viên
+     * GET /tu-van-vien/{slug} — Trang chi tiết cố vấn bán hàng
      */
     public function show(string $slug)
     {
         try {
             $locale = current_locale();
 
-            $member = LotusTeam::query()
-                ->where('status', LotusTeam::STATUS_ACTIVE)
+            $member = SalesConsultant::query()
+                ->where('status', SalesConsultant::STATUS_ACTIVE)
                 ->whereSlug($slug, $locale)
                 ->firstOrFail();
 
-            // Các thành viên khác (sidebar)
-            $otherMembers = LotusTeam::query()
-                ->where('status', LotusTeam::STATUS_ACTIVE)
+            // Các cố vấn khác (sidebar)
+            $otherMembers = SalesConsultant::query()
+                ->where('status', SalesConsultant::STATUS_ACTIVE)
                 ->where('id', '!=', $member->id)
                 ->sortByPosition()
                 ->get()

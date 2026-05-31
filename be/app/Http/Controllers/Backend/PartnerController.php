@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Backend;
 
-use App\Models\Lotus\LotusTeam;
+use App\Models\Vehicle\Partner;
 use App\Traits\HasCrudActions;
 use Illuminate\Routing\Controller;
 
-class LotusTeamController extends Controller
+class PartnerController extends Controller
 {
     use HasCrudActions;
 
-    public $model = LotusTeam::class;
+    public $model = Partner::class;
 }

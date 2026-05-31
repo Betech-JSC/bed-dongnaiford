@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Frontend;
 
 use App\Models\Post\Post;
-use App\Models\Lotus\LotusTeam;
-use App\Models\Lotus\LotusBanner;
-use App\Models\Lotus\LotusActivity;
-use App\Models\Lotus\LotusAward;
+use App\Models\Vehicle\SalesConsultant;
+use App\Models\Vehicle\Banner;
+use App\Models\Vehicle\DealerActivity;
+use App\Models\Vehicle\Award;
 use Inertia\Inertia;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Route;
@@ -18,9 +18,9 @@ class HistoryController extends Controller
     {
         $locale = current_locale();
 
-        $bannerAbout = LotusBanner::query()
-            ->where('status', LotusBanner::STATUS_ACTIVE)
-            ->whereJsonContains('location', LotusBanner::LOCATION_ABOUT)
+        $bannerAbout = Banner::query()
+            ->where('status', Banner::STATUS_ACTIVE)
+            ->whereJsonContains('location', Banner::LOCATION_ABOUT)
             ->sortByPosition()
             ->first(['id', 'title', 'subtitle', 'image', 'image_mobile', 'video', 'button_text', 'button_link']);
 
@@ -44,8 +44,8 @@ class HistoryController extends Controller
             ->get()
             ->map(fn($item) => $item->transform());
 
-        $teams = LotusTeam::query()
-            ->where('status', LotusTeam::STATUS_ACTIVE)
+        $teams = SalesConsultant::query()
+            ->where('status', SalesConsultant::STATUS_ACTIVE)
             ->sortByPosition()
             ->get()
             ->map(function ($m) use ($locale) {
@@ -64,14 +64,14 @@ class HistoryController extends Controller
             });
 
         // Hoạt động khóa học
-        $activities = LotusActivity::query()
+        $activities = DealerActivity::query()
             ->active()
             ->sortByPosition()
             ->get()
             ->map(fn($a) => $a->transform());
 
         // Giải thưởng
-        $awards = LotusAward::query()
+        $awards = Award::query()
             ->active()
             ->sortByPosition()
             ->get()

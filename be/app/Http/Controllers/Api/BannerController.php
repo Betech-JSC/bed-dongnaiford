@@ -5,22 +5,21 @@ namespace App\Http\Controllers\Api;
 use Illuminate\Routing\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use App\Models\Lotus\LotusBanner;
+use App\Models\Vehicle\Banner;
 use JamstackVietnam\Core\Traits\ApiResponse;
 
-class LotusBannerController extends Controller
+class BannerController extends Controller
 {
     use ApiResponse;
 
     /**
-     * GET /api/lotus/banners
-     * GET /api/lotus/banners?location=homepage
-     * Trả về danh sách banners active, có thể filter theo vị trí hiển thị
+     * GET /api/vehicles/banners
+     * GET /api/vehicles/banners?location=homepage
      */
     public function index(Request $request): JsonResponse
     {
-        $query = LotusBanner::query()
-            ->where('status', LotusBanner::STATUS_ACTIVE)
+        $query = Banner::query()
+            ->where('status', Banner::STATUS_ACTIVE)
             ->sortByPosition();
 
         if ($location = $request->query('location')) {
@@ -33,9 +32,9 @@ class LotusBannerController extends Controller
                     'id'               => $b->id,
                     'title'            => $b->title,
                     'subtitle'         => $b->subtitle,
-                    'image_url'        => $b->image_url,        // URL desktop
-                    'image_mobile_url' => $b->image_mobile_url, // URL mobile (null nếu không có)
-                    'video_url'        => $b->video_url,        // URL video (null nếu không có)
+                    'image_url'        => $b->image_url,
+                    'image_mobile_url' => $b->image_mobile_url,
+                    'video_url'        => $b->video_url,
                     'location'         => $b->location ?? [],
                     'button_text'      => $b->button_text,
                     'button_link'      => $b->button_link,
@@ -44,5 +43,4 @@ class LotusBannerController extends Controller
 
         return $this->success($banners);
     }
-
 }
