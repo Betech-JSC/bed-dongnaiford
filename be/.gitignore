@@ -2,7 +2,7 @@
 /node_modules
 /public/vite.frontend.hot
 /public/vite.backend.hot
-/public/build/ziggy.frontend.js
+/public/build/
 /public/storage
 /storage/*.key
 /vendor

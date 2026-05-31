@@ -1,1 +1,0 @@
-import{_ as s,o as t,c,j as r}from"./app.11efa666.js";const n={},o={class:"flex flex-col items-center min-h-screen bg-gray-100 sm:justify-center"};function a(e,l){return t(),c("div",o,[r(e.$slots,"default")])}const f=s(n,[["render",a]]);export{f as G};
