@@ -437,50 +437,14 @@ export default function InstallmentCalculatorPage() {
             </button>
           </div>
 
-          {/* Right Column: Dynamic Showcase Card (14144:5327) */}
-          <div className="aspect-[400/500] flex-1 min-w-px relative rounded-[12px] bg-[#e8ebf0] border border-[#d6d6d6] flex flex-col justify-between p-6 overflow-hidden shadow-sm" data-node-id="14144:5327">
-            {/* Background Image / Render for New Territory */}
-            {selectedVehicle.id === "new-territory" ? (
-              <div className="absolute inset-0 pointer-events-none rounded-[12px] w-full h-full overflow-hidden">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img 
-                  alt="" 
-                  className="absolute h-[128.39%] left-[-6.57%] max-w-none top-[-28.44%] w-[121.26%] object-cover rounded-[12px]" 
-                  src="/assets/figma_car_territory.png" 
-                />
-              </div>
-            ) : (
-              <div className="absolute inset-0 pointer-events-none rounded-[12px] w-full h-full overflow-hidden flex items-center justify-center">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img 
-                  alt="" 
-                  className="max-h-[75%] max-w-[85%] object-contain" 
-                  src={selectedVehicle.images[0] || "/assets/figma_car_territory.png"} 
-                />
-              </div>
-            )}
-
-            {/* Top Badge */}
-            <div className="absolute top-4 left-4 z-10">
-              <span className="bg-[#424242] text-white text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider font-sans">
-                {selectedVehicle.id === "new-territory" ? "NEW TERRITORY" : selectedVehicle.name}
-              </span>
-            </div>
-
-            {/* Bottom Card */}
-            <div className="absolute bottom-4 left-4 right-4 z-10 bg-white/95 backdrop-blur-sm p-4 rounded-xl border border-gray-100 shadow-md flex justify-between items-center">
-              <div className="flex flex-col gap-0.5 min-w-0">
-                <span className="text-[10px] text-gray-400 block font-semibold uppercase tracking-wider leading-none mb-1">
-                  Giá niêm yết
-                </span>
-                <span className="text-sm font-bold text-gray-800 truncate block max-w-[180px]">
-                  {selectedVersion.name}
-                </span>
-              </div>
-              <span className="text-base font-extrabold text-[#0562d2] whitespace-nowrap shrink-0 ml-2">
-                {formatCurrency(listPrice)}
-              </span>
-            </div>
+          {/* Right Column: Interactive Image Card (14144:5327) */}
+          <div className="aspect-[400/500] flex-1 min-w-px relative rounded-[12px] overflow-hidden" data-node-id="14144:5327" data-name="image 140">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img 
+              alt="Mua xe trả góp" 
+              className="absolute inset-0 w-full h-full object-cover rounded-[12px]" 
+              src="/assets/figma_card_visual.png" 
+            />
           </div>
         </div>
 
