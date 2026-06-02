@@ -146,6 +146,13 @@ export default function Navbar() {
         { name: "Thư viện Media", href: "/media" },
       ],
     },
+    {
+      name: "Công cụ",
+      href: "/tools/installment",
+      dropdownItems: [
+        { name: "Ước tính trả góp", href: "/tools/installment" },
+      ],
+    },
     { name: "Liên hệ", href: "/contact" },
   ];
 
