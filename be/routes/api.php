@@ -43,6 +43,8 @@ Route::localized(function () {
         Route::get('consultants', [SalesConsultantController::class, 'index'])->name('consultants.index');
         Route::get('consultants/{slug}', [SalesConsultantController::class, 'show'])->name('consultants.show');
     });
+
+    Route::post('contacts', [App\Http\Controllers\Frontend\ContactController::class, 'store'])->name('api.contacts.store');
 });
 
 Route::get('keywords/index', [KeywordController::class, 'index'])

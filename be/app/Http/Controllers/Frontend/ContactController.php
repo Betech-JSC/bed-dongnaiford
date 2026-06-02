@@ -51,9 +51,16 @@ class ContactController extends Controller
 
             $this->model::create($requestData);
 
+            if ($request->wantsJson() || $request->ajax()) {
+                return $this->success($requestData, 'Gửi yêu cầu thành công!');
+            }
+
             return redirect()->back()->withSuccess('success');
         } catch (\Throwable $th) {
-            dd($th);
+            if ($request->wantsJson() || $request->ajax()) {
+                return $this->failure($th->getMessage(), 500);
+            }
+            throw $th;
         }
     }
 
