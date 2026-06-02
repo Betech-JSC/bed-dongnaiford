@@ -31,7 +31,7 @@ WORKDIR /var/www
 COPY composer.json composer.lock ./
 COPY packages ./packages
 COPY app/Helpers/Helper.php ./app/Helpers/Helper.php
-RUN --mount=type=cache,target=/root/.composer/cache composer install --no-interaction --no-scripts --no-dev --ignore-platform-reqs
+RUN --mount=type=cache,target=/root/.composer/cache composer install --no-interaction --no-scripts --no-autoloader --no-dev --ignore-platform-reqs
 
 # 2. Sao chép và cài đặt JS dependencies cho Admin panel (cache layer)
 COPY package.json yarn.lock ./
