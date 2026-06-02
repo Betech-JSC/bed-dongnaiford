@@ -10,13 +10,12 @@ import {
   ChevronDown,
   Plus,
   Minus,
-  Phone,
-  Calendar,
   RotateCcw,
   X
 } from "lucide-react";
 import { vehicles } from "@/data/vehicles";
 import { vehicleMediaAssets } from "@/data/vehicle-media";
+import BookingBanner from "@/components/services/BookingBanner";
 
 type ActiveTab = "overview" | "360" | "versions" | "features" | "compare" | "accessories";
 
@@ -371,6 +370,7 @@ export default function ProductDetailPage() {
   // Reset validation state when opening modals
   useEffect(() => {
     if (showDriveModal || showQuoteModal) {
+      /* eslint-disable-next-line react-hooks/set-state-in-effect */
       setErrorMessage("");
       setIsSubmitted(false);
     }
@@ -638,6 +638,7 @@ export default function ProductDetailPage() {
           setFormData({ fullName: "", phone: "", email: "", province: "Đồng Nai", note: "" });
         }, 2000);
       }
+      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
     } catch (error: any) {
       console.error("Vehicle advise submit error:", error);
       let errMsg = "Đã xảy ra lỗi kết nối. Vui lòng thử lại sau!";
@@ -1478,7 +1479,7 @@ export default function ProductDetailPage() {
                         window.scrollTo({ top: y, behavior: "smooth" });
                       }
                     }}
-                    className="bg-[#fafafa] flex flex-col items-center overflow-hidden rounded-[8px] text-left border-0 cursor-pointer p-0 hover:scale-[1.01] transition-transform focus:outline-none focus:ring-0 focus-visible:outline-none outline-none"
+                    className={`bg-[#fafafa] flex flex-col items-center overflow-hidden rounded-[8px] text-left border-0 cursor-pointer p-0 hover:scale-[1.01] transition-transform focus:outline-none focus:ring-0 focus-visible:outline-none outline-none ${isSelected ? "ring-2 ring-[#0562d2]/40" : ""}`}
                   >
                     {/* Background Gradient representation */}
                     <div className="aspect-[272/272] relative rounded-[12px] overflow-hidden w-full bg-gray-150">
@@ -1631,6 +1632,8 @@ export default function ProductDetailPage() {
         </section>
         )}
 
+        <BookingBanner />
+
         {/* 9. Collapsible FAQs Section */}
         <section className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full pt-16 border-t border-[#e5e5e5]">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-[80px] items-start justify-center">
@@ -1675,44 +1678,6 @@ export default function ProductDetailPage() {
               })}
             </div>
 
-          </div>
-        </section>
-
-        {/* 10. Connect Booking Action Banner */}
-        <section className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full pt-8">
-          <div className="bg-[#00095b] flex flex-col lg:flex-row gap-[40px] lg:gap-[80px] items-center justify-between px-4 sm:px-[48px] py-[32px] rounded-[12px] relative overflow-hidden shadow-sm">
-            
-            {/* Background Linear gradient exactly matching Figma */}
-            <div 
-              className="absolute inset-0 pointer-events-none opacity-90"
-              style={{ backgroundImage: "linear-gradient(-53.316deg, rgb(26, 136, 241) 4.0277%, rgb(0, 9, 91) 83.827%)" }}
-            />
-
-            <div className="relative z-10 flex flex-col gap-[16px] max-w-xl">
-              <h3 className="font-['Ford_Antenna',sans-serif] font-semibold text-white text-[32px] sm:text-[36px] leading-[1.32]">
-                Kết nối ngay với chuyên viên Đồng Nai Ford
-              </h3>
-              <p className="text-white/80 text-sm">
-                Nhận tư vấn chương trình ưu đãi mới nhất kèm lịch đăng ký lái thử xe tận nơi miễn phí hoàn toàn.
-              </p>
-            </div>
-
-            <div className="relative z-10 flex flex-wrap gap-[16px] sm:gap-[24px]">
-              <a 
-                href="tel:1800556858"
-                className="bg-[#0562d2] hover:bg-[#044ea7] border border-[#0562d2] border-solid flex gap-[8px] items-center justify-center overflow-clip px-[24px] py-[10px] rounded-[800px] text-white text-[18px] font-semibold transition-all cursor-pointer shadow-md no-underline"
-              >
-                <Phone className="w-5 h-5 text-white" />
-                <span>1800 55 68 58</span>
-              </a>
-              <button 
-                onClick={() => setShowDriveModal(true)}
-                className="bg-transparent hover:bg-white/10 border border-solid border-white flex gap-[8px] items-center justify-center overflow-clip px-[24px] py-[10px] rounded-[800px] text-white text-[18px] font-semibold transition-all cursor-pointer"
-              >
-                <Calendar className="w-5 h-5 text-white" />
-                <span>Đặt lịch hẹn</span>
-              </button>
-            </div>
           </div>
         </section>
 
