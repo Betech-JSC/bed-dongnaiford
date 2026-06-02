@@ -4,21 +4,18 @@ FROM php:8.3-fpm
 RUN apt-get update && apt-get install -y \
     git \
     curl \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
     zip \
-    unzip \
-    libzip-dev \
-    libjpeg-dev \
-    libfreetype6-dev
+    unzip
 
 # Xóa cache apt
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
+# Cài đặt script helper để cài đặt extension PHP (sử dụng pre-compiled binaries giúp tránh OOM và tăng tốc độ build)
+ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
+
 # Cài đặt các extension PHP cần thiết cho Laravel
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip opcache
+RUN chmod +x /usr/local/bin/install-php-extensions && \
+    install-php-extensions pdo_mysql mbstring exif pcntl bcmath gd zip opcache
 
 # Cài đặt Composer
 COPY --from=composer:2.5 /usr/bin/composer /usr/bin/composer
