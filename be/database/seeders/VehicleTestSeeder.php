@@ -136,8 +136,8 @@ class VehicleTestSeeder extends Seeder
             'type' => 'suv',
             'is_best_seller' => true,
             'base_price' => 1099000000,
-            'image' => ['path' => 'https://s3-alpha-sig.figma.com/img/6bc8/acc6/b8b79419ceb119c50c418b5618bcb8b1'],
-            'images' => [['path' => 'https://s3-alpha-sig.figma.com/img/6bc8/acc6/b8b79419ceb119c50c418b5618bcb8b1']],
+            'image' => ['path' => '/assets/car-everest.png'],
+            'images' => [['path' => '/assets/car-everest.png']],
             'colors' => [
                 ['name' => 'Đỏ Cam', 'hex' => '#c2410c', 'image_path' => 'orange'],
                 ['name' => 'Xám Falcon', 'hex' => '#4b5563', 'image_path' => 'gray'],
@@ -181,8 +181,8 @@ class VehicleTestSeeder extends Seeder
             'type' => 'pickup',
             'is_best_seller' => true,
             'base_price' => 1299000000,
-            'image' => ['path' => 'https://s3-alpha-sig.figma.com/img/db5c/e33b/b3043860266e5eef639a45cd28ba3cc0'],
-            'images' => [['path' => 'https://s3-alpha-sig.figma.com/img/db5c/e33b/b3043860266e5eef639a45cd28ba3cc0']],
+            'image' => ['path' => '/assets/car-ranger.png'],
+            'images' => [['path' => '/assets/car-ranger.png']],
             'colors' => [
                 ['name' => 'Cam Code Orange', 'hex' => '#ea580c', 'image_path' => 'orange'],
                 ['name' => 'Xám Meteor', 'hex' => '#374151', 'image_path' => 'gray'],
@@ -263,7 +263,7 @@ class VehicleTestSeeder extends Seeder
                 'button_text' => 'Khám phá ngay',
                 'button_link' => '/products/new-everest',
                 'location'    => ['homepage'],
-                'image'       => ['path' => 'https://s3-alpha-sig.figma.com/img/51d8/107c/5660736a8051e7bf365dbc9706b20b6f'],
+                'image'       => ['path' => '/assets/car-everest.png'],
                 'sort_order'  => 1,
             ],
             [
@@ -272,7 +272,7 @@ class VehicleTestSeeder extends Seeder
                 'button_text' => 'Nhận ưu đãi',
                 'button_link' => '/contact?reason=Nhận%20chương%20trình%20ưu%20đãi',
                 'location'    => ['homepage', 'homepage_hero'],
-                'image'       => ['path' => 'https://s3-alpha-sig.figma.com/img/36fa/383c/25017866e7fcb87834442bd95d253515'],
+                'image'       => ['path' => '/assets/img-gradient-2.png'],
                 'sort_order'  => 2,
             ],
             [
@@ -281,7 +281,7 @@ class VehicleTestSeeder extends Seeder
                 'button_text' => 'Hẹn lái thử',
                 'button_link' => '/contact?reason=Đăng%20ký%20lái%20thử',
                 'location'    => ['homepage'],
-                'image'       => ['path' => 'https://s3-alpha-sig.figma.com/img/cb5f/178a/ea3b60a6dc2c4dbc569d3a5319f244fe'],
+                'image'       => ['path' => '/assets/car-ranger.png'],
                 'sort_order'  => 3,
             ],
         ];

@@ -4,6 +4,7 @@ import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { MapPin, Phone, Mail, CheckCircle, X } from "lucide-react";
 import { vehicles } from "@/data/vehicles";
+import { siteAssets } from "@/lib/site-assets";
 
 function ContactFormContent() {
   const searchParams = useSearchParams();
@@ -74,7 +75,7 @@ function ContactFormContent() {
         <img
           alt="Showroom Ford Đồng Nai"
           className="absolute inset-0 object-cover w-full h-full"
-          src="/showroom_bg.png"
+          src={siteAssets.showroomBg}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent" />
       </div>

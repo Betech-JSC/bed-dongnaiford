@@ -19,7 +19,7 @@ export const articles: Article[] = [
     title: "Ford Everest Máy Xăng: Sự Thật Ít Ai Biết & Tư Vấn Mua Xe Tại Đồng Nai Ford",
     category: "Xe Ford",
     date: "18 Tháng 5, 2026",
-    image: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&q=80&w=800",
+    image: "/assets/car-everest.png",
     content: "Ford Everest luôn là cái tên hot trong phân khúc SUV 7 chỗ tại Việt Nam. Bài viết này sẽ phân tích chi tiết phiên bản máy xăng của Ford Everest thế hệ mới, so sánh hiệu năng, mức tiêu hao nhiên liệu thực tế và đưa ra lời khuyên chọn xe phù hợp nhất cho các gia dịch tại Đồng Nai.",
     body: [
       {
@@ -45,7 +45,7 @@ export const articles: Article[] = [
       },
       {
         type: "image",
-        value: "https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&q=80&w=800"
+        value: "/assets/car-everest.png"
       },
       {
         type: "heading",
@@ -66,7 +66,7 @@ export const articles: Article[] = [
     title: "CHƯƠNG TRÌNH KHUYẾN MÃI TRONG THÁNG 5",
     category: "Khuyến Mãi",
     date: "01 Tháng 5, 2026",
-    image: "https://images.unsplash.com/photo-1563013544-824ae1d704d3?auto=format&fit=crop&q=80&w=800",
+    image: "/images-dynamic/image-hero-2.jpg",
     content: "Đồng Nai Ford triển khai chương trình khuyến mãi cực khủng lớn nhất quý 2/2026: Hỗ trợ lên đến 100% lệ phí trước bạ cho các dòng xe SUV Territory, Ranger XLS, tặng gói bảo dưỡng 2 năm chính hãng và bảo hiểm thân vỏ miễn phí. Áp dụng từ ngày 01/05 đến hết 31/05/2026.",
     body: [
       {
@@ -93,7 +93,7 @@ export const articles: Article[] = [
       },
       {
         type: "image",
-        value: "https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&q=80&w=800"
+        value: "/service-support-customer.jpg"
       },
       {
         type: "heading",
@@ -132,7 +132,7 @@ export const articles: Article[] = [
     title: "Ford Ranger Raptor: Đánh Giá Chi Tiết & Báo Giá Mới Nhất Tại Đồng Nai Ford",
     category: "Xe Ford",
     date: "25 Tháng 4, 2026",
-    image: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&q=80&w=800",
+    image: "/assets/car-ranger.png",
     content: "Được phát triển bởi Ford Performance, dòng Ranger Raptor sở hữu những nâng cấp vượt trội về hệ thống lái và khung gầm. Cùng Đồng Nai Ford đánh giá chi tiết sức mạnh động cơ Bi-Turbo, 7 chế độ lái thông minh và bảng giá lăn bánh mới nhất.",
     body: [
       {
@@ -149,7 +149,7 @@ export const articles: Article[] = [
       },
       {
         type: "image",
-        value: "https://images.unsplash.com/photo-1583121274602-3e2820c69888?auto=format&fit=crop&q=80&w=800"
+        value: "/assets/car-ranger.png"
       },
       {
         type: "heading",
@@ -170,7 +170,7 @@ export const articles: Article[] = [
     title: "Đánh Giá Xe Ford Territory 2026: Lựa Chọn Cho Gia Đình Việt",
     category: "Xe Ford",
     date: "12 Tháng 4, 2026",
-    image: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&q=80&w=800",
+    image: "/assets/territory-hero.png",
     content: "Diện mạo mới đầy cuốn hút, công nghệ ngập tràn và không gian cabin rộng rãi bậc nhất phân khúc. Ford Territory là lựa chọn hoàn hảo cho gia đình trẻ năng động đang tìm kiếm SUV 5 chỗ chất lượng.",
     body: [
       {
@@ -187,7 +187,7 @@ export const articles: Article[] = [
       },
       {
         type: "image",
-        value: "https://images.unsplash.com/photo-1511919884226-fd3cad34687c?auto=format&fit=crop&q=80&w=800"
+        value: "/assets/territory-interior.png"
       },
       {
         type: "heading",
@@ -204,7 +204,7 @@ export const articles: Article[] = [
     title: "Giải pháp vận chuyển hành khách tối ưu cùng Ford Transit 2026",
     category: "Tin tức",
     date: "05 Tháng 4, 2026",
-    image: "https://images.unsplash.com/photo-1542282088-fe8426682b8f?auto=format&fit=crop&q=80&w=800",
+    image: "/assets/car-transit.png",
     content: "Ford Transit Thế hệ Mới được thiết kế tối ưu với không gian rộng rãi hơn, tiện nghi vượt trội cùng độ bền bỉ cao, giúp tối đa hóa hiệu quả kinh doanh của doanh nghiệp vận tải.",
     body: [
       {
@@ -234,7 +234,7 @@ export const articles: Article[] = [
     title: "Đồng Nai Ford đồng hành cùng chương trình Hướng dẫn Lái xe An toàn (DSFL)",
     category: "Tin tức",
     date: "20 Tháng 3, 2026",
-    image: "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&q=80&w=800",
+    image: "/service-fixed-car.jpg",
     content: "Chương trình Hướng dẫn Lái xe An toàn và Thân thiện với Môi trường (DSFL) do Ford Việt Nam phối hợp cùng Đồng Nai Ford tổ chức thu hút hơn 200 học viên tham gia tập huấn thực tế.",
     body: [
       {
@@ -251,7 +251,7 @@ export const articles: Article[] = [
       },
       {
         type: "image",
-        value: "https://images.unsplash.com/photo-1502877338535-766e1452684a?auto=format&fit=crop&q=80&w=800"
+        value: "/images-dynamic/image-hero-1.jpg"
       },
       {
         type: "paragraph",

@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Phone, Bookmark } from "lucide-react";
+import { siteAssets } from "@/lib/site-assets";
 
 export default function BookingBanner() {
   return (
@@ -37,7 +38,7 @@ export default function BookingBanner() {
         {/* Overlapping Car Image */}
         <div className="hidden lg:block absolute h-[420px] left-[576px] top-[-50px] w-[587px] pointer-events-none z-20">
           <Image
-            src="/assets/booking-car.png"
+            src={siteAssets.bookingCar}
             alt="Ford Booking Vehicle"
             fill
             sizes="587px"

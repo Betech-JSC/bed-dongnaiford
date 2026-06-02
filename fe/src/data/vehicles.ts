@@ -114,7 +114,7 @@ export const vehicles: Vehicle[] = [
     tagline: "Dấn bước. Dẫn đầu​.",
     description: "Được thiết kế để chinh phục mọi thử thách, Ford Everest thế hệ mới kết hợp khả năng vận hành mạnh mẽ ưu việt, nội thất sang trọng đỉnh cao và hệ thống an toàn thông minh bậc nhất.",
     images: [
-      "https://s3-alpha-sig.figma.com/img/6bc8/acc6/b8b79419ceb119c50c418b5618bcb8b1?Expires=1780272000&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=aPjUep1bPsKbm-5wA8WztI7SoMF6zdcKjrXs4W2KBV7UC8keQTGU7AsNuMs76YUScpeBZbfio0GaxsWgSF18C4LbsM5PzRNv4IMFFM9BgYnQZX9NBs0sT4Ld5q0hDJFDl6pSlLJT~eN4Y7pJyf9~mLaMlJ-CSLUoxpORUIJ6Pd7MPdniXBaS30jtqV8TnX8vbB9pyBeDqhvSS8nlXCKaZUja49E6zBG37aPLYsjBY4I5BkvS~nqymi0RAZNjIDG70r6QdId39dTfseitNLObMT~u~U4e2bcz0E700dXxgmJglZOlCClxOyjKyxO3NGfNaj4kdu1GMDYTMF0dKNyD7g__"
+      "/assets/car-everest.png"
     ],
     colors: [
       { name: "Đỏ Cam", hex: "#c2410c", image: "orange" },
@@ -149,8 +149,7 @@ export const vehicles: Vehicle[] = [
     tagline: "Tương lai của hiệu năng và phong cách.",
     description: "Dòng SUV thuần điện đầu tiên lấy cảm hứng từ biểu tượng xe cơ bắp Mỹ Mustang. Khả năng tăng tốc vượt trội, phạm vi di chuyển ấn tượng và thiết kế khí động học tương lai.",
     images: [
-      "https://s3-alpha-sig.figma.com/img/b036/60a7/de90989f6da708ad814bca9b8fee6280?Expires=1780272000&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=fqNMKoIey0pUWfj8zjdu2wxAlS-6DaXJoTi4SLh4fF1vVUF0fmSazLaNWh7oKRIolv7vqquT8SRECmxN4cPkgUucQk35v-NS-5Qwe3YcNQH8RhyIf~ua~zHoSrU-i2SAC0Z9eLeGIGP9lQvlfIdOb6OhMQexCM3N1VshL1ww6z-PJOnhmbYvstXjz8PnzXUsg6nJ1AuXf2jTnuAWNqjkUnJvBrj7gWvAN-kMNnR0aK4IKpKdyBfqMf6-0qYjsSj3hM1xHgmeS0ts-cOWcdBvrKFktNNIoBgSB9sCwiKdBAHP1yIVhD~pg7-4b~cRx2-Z9oFXuxwq~eoC5AAHQAxoHw__",
-      "https://s3-alpha-sig.figma.com/img/087a/7ee4/a495233292e0e592064b1b109a086c4e?Expires=1780272000&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=DHtKSrcZHZlz2hju7QqSnkL6VN1mFiI3qVE2jxEgFf61z654w49pSOKWEsJ2GU0FTdgQjoHdjaTXSDtOUD0yzrw5YcifKd9THiqB8NF2xyGfbTuizqPZqzNMQDuJXx6VHgVQV3AX6RHQ6pNgN8gx6RaWrho7lvWg5z5tO1oKqVB8ZjzSgrplERFC~8sGV3iva4iuwe7DLzwCGfeIT0Rh1ZZVw2uG1A02H6ZIHgx6r7ycTiIDXSM3ZfofPhUsGDxda9RvzEkcWsog3hhQdvs8k8SkapTHXIR99b0iGizvdTy~5m~X8rTvj8aKRCunXIAx7tizZIXyMfRhGEFrKeZAMA__"
+      "/assets/car-mach-e.png"
     ],
     colors: [
       { name: "Xanh Lucid", hex: "#0b3c5d", image: "lucid-blue" },
@@ -185,7 +184,7 @@ export const vehicles: Vehicle[] = [
     tagline: "Vua bán tải chinh phục mọi nẻo đường.",
     description: "Được phát triển để chinh phục những địa hình khắc nghiệt nhất. Ranger Raptor mang trong mình dòng máu hiệu năng cao đặc trưng cùng thiết kế hầm hố chuẩn Mỹ.",
     images: [
-      "https://s3-alpha-sig.figma.com/img/6005/615d/28ff40bb02ed32e823abec74c12889e2?Expires=1780272000&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=OXNciSZn0ZyfcQJ8-UMWl~jmnagnw2iEEKz9F0-xyyGRPdGNM4iMUwK8fJIzmZaHjXGY3lWdTOjam7YBF79bVAbdEA1KnLqGKh6y2VGyFfG6oVuKm8Ei50X8aQ7lf2NnzEgvvwlWMJaW7rTAztyd8PG4kkgwHMQHHecwpFz6siYJQxB3UAnJ3Imsje-RcmhwFQmUDsMMdopyVqkipVX2wHcHgxpqEd4oZ9sxFo8pzsUBPuUf-FRviGohrix1djh7DyZOigBrDuIINl6Jd-SHBqaYmPx7FVJ0vlJOVGTYLYSFzr40Q07XVuKjmLjx~ZYM2mMB4Ip~SiAn4I6JKwGBwQ__"
+      "/assets/car-ranger.png"
     ],
     colors: [
       { name: "Cam Code Orange", hex: "#ea580c", image: "orange" },
@@ -220,7 +219,7 @@ export const vehicles: Vehicle[] = [
     tagline: "Giải pháp vận chuyển hành khách chuyên nghiệp.",
     description: "Ford Transit Thế hệ Mới được thiết kế tối ưu với không gian rộng rãi hơn, tiện nghi vượt trội cùng độ bền bỉ cao, giúp tối đa hóa hiệu quả kinh doanh của doanh nghiệp.",
     images: [
-      "https://s3-alpha-sig.figma.com/img/d28c/9cd0/309568721e96df83d5167ea673699ae9?Expires=1780272000&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=Z1x9Kk6zArLy2180gAHabmdz34wOICu8bMU-lQUTBesnwWKGAVALCFYQusjf5dTxYfC3SnAczH3-XqTU6N66W0jUeuMi9pMtuG07aawq2yCIdSBRdwnC5fzwFXbe7ER-jMdSCPkw84jO9pI1WJnLVH5x9oOQshwTylcKDnpAceYKCH7vT3MitBQP7sNVaEWcNUeVGTDy~2O~xXWJ90Vi14VMxxuHGF3pfirgpW8HlInQ19eO3Hmwwe1isMjzd83ccu1BTzN4bWWpRUSbtx9jdZS5EJ-ude-L5syg3JPc5DatPvqk7v~oxRJvNOmmNS2csjsf1-4AYZ7VY6WzG7RLOg__"
+      "/assets/car-transit.png"
     ],
     colors: [
       { name: "Bạc Tinh Thể", hex: "#cbd5e1", image: "silver" },
@@ -254,7 +253,7 @@ export const vehicles: Vehicle[] = [
     tagline: "Độc bản hiệu năng. Chiến binh sa mạc.",
     description: "Được phát triển bởi bộ phận Ford Performance, NEW Ranger Raptor 2026 sở hữu động cơ Bi-Turbo cực đại kết hợp hệ thống treo FOX đỉnh cao.",
     images: [
-      "https://s3-alpha-sig.figma.com/img/db5c/e33b/b3043860266e5eef639a45cd28ba3cc0?Expires=1780272000&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=nLW5HQznivL2U-4gTGDj6gg84Oly46tVExPhNZ0h6k0R05ogwk3tQ0iu-SqHGWNboAHoxMful9zlac6wKqCgxZPqwgZahmBh160DuEiaiavUReIVCAHX3mKoLnUxsvPS6YJGDO0iPYEn71uf3iV7E0lLTcOlUUvoGrxE~SpvL58TciArkkA5kVKRqY9OjAvycB9LmbtAuVBXutYzAMLoGMGa4BKWaOPqwcQOLAtj2N94nDIGGNDmgoecbuyQjNg4DCgIYE6uwUHBbTggWkqZ-l72FcYQbIECZW8KKt0BdCSXMqMNs1F52Uw5tDk9TXv-VvKR2o17owBZasXHssa0HQ__"
+      "/assets/car-ranger.png"
     ],
     colors: [
       { name: "Cam Code Orange", hex: "#ea580c", image: "orange" },

@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, X } from "lucide-react";
+import { aboutAssets } from "@/lib/site-assets";
 
 // Recruitment position data
 interface JobPosition {
@@ -126,23 +127,23 @@ const teamVehicles: TeamVehicle[] = [
   {
     id: "everest-titanium",
     name: "Ford Everest Titanium",
-    image: "https://s3-alpha-sig.figma.com/img/7a96/45fa/2a4f0f27ed06d7ea04e8a0e0adb3542f?Expires=1780272000&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=apKCDKmIl6K8l30SvjGqo-Axf2BkR1Ge8v4gkvAFk~wOCVf~v6HqHPSdRYHJmPmYdRESqDAI1nFacdXxo~7-yIDveQeQ8CpScsnBAPpm29fss8Gdjz7iNNDUm3YxxyIQiTab6ABrVap2VyEwBTmzrqHCQDd1fQkH7Goj48KgrIGS8p28W95TwhVYC2DvjIg03RqVHxWY4E-AkOXw5vdJ8Dwt7W5imwxlFO3UDCyH6SJwOmXGIvE~624SoJGAB3K~npSanDugBnpHN-TfuqSQktGtR7u5C4xNhWjBgDbUkXo5vqygQlmRaEq~RDc01kyE7EW2n6pg830vl94ePzlSlA__",
-    link: "/vehicles/everest",
-    quoteLink: "/contact?vehicle=everest&reason=Báo giá"
+    image: "/assets/car-everest.png",
+    link: "/products/new-everest",
+    quoteLink: "/contact?vehicle=new-everest&reason=Báo giá"
   },
   {
     id: "mustang-mach-e-1",
     name: "Mustang Mach-E",
-    image: "https://s3-alpha-sig.figma.com/img/087a/7ee4/a495233292e0e592064b1b109a086c4e?Expires=1780272000&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=DHtKSrcZHZlz2hju7QqSnkL6VN1mFiI3qVE2jxEgFf61z654w49pSOKWEsJ2GU0FTdgQjoHdjaTXSDtOUD0yzrw5YcifKd9THiqB8NF2xyGfbTuizqPZqzNMQDuJXx6VHgVQV3AX6RHQ6pNgN8gx6RaWrho7lvWg5z5tO1oKqVB8ZjzSgrplERFC~8sGV3iva4iuwe7DLzwCGfeIT0Rh1ZZVw2uG1A02H6ZIHgx6r7ycTiIDXSM3ZfofPhUsGDxda9RvzEkcWsog3hhQdvs8k8SkapTHXIR99b0iGizvdTy~5m~X8rTvj8aKRCunXIAx7tizZIXyMfRhGEFrKeZAMA__",
-    link: "/vehicles/mustang-mach-e",
-    quoteLink: "/contact?vehicle=mustang-mach-e&reason=Báo giá"
+    image: "/assets/car-mach-e.png",
+    link: "/products/new-mustang-mach-e",
+    quoteLink: "/contact?vehicle=new-mustang-mach-e&reason=Báo giá"
   },
   {
-    id: "mustang-mach-e-2",
-    name: "Mustang Mach-E",
-    image: "https://s3-alpha-sig.figma.com/img/c1d3/eed9/49fa901dc71da0ae241737eca20bbc2d?Expires=1780272000&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=cEmFRyRyEJLYWJfOo61poKaXtHRAEHDEArTALUnmKGNCT066hbeUYuzF4dvJL~s2eQ6lK4bpYXsqGHfKpX-b~ia0T9f0zXHXkWoqcQuAkgtlLmESyqBJwY~yjj3jq81QGS2mRFReKFQwGd1O2ZSLD28BHV7xvFS1RrtIEUBvYXn~MunB1Tpz5wZYGKR2hFalJ-CsCjFnQOFTT96izAXMyMc9uL-ZxYU7ob15s-Ia39EraCz4X-VhZwebUWNNYtJTdjrPJcnfH5AKgc~uvhzkhn-Zh5957GBKQVQenLrOkiDW~S7EFFGeojS6qRTBH-hBqPpZlBk48Hrjy1DEv~vkZQ__",
-    link: "/vehicles/mustang-mach-e",
-    quoteLink: "/contact?vehicle=mustang-mach-e&reason=Báo giá"
+    id: "territory-titanium",
+    name: "Ford Territory",
+    image: "/assets/territory-hero.png",
+    link: "/products/new-territory",
+    quoteLink: "/contact?vehicle=new-territory&reason=Báo giá"
   }
 ];
 
@@ -275,7 +276,7 @@ export default function AboutPage() {
       <section className="relative w-full h-[480px] bg-slate-900 overflow-hidden flex items-end">
         <div className="absolute inset-0 z-0">
           <img
-            src="https://s3-alpha-sig.figma.com/img/0cab/4572/0c8e3e0391ba860f6c3f6348610c8d03?Expires=1780272000&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=q-l97tIDlMABDDcqH9P7a4lLl~acSukzPoHCRNRTTxWZniJ-0f8V7g1ukrd9NYn2XnRDSXxkaQEQSVGlJXtZIU1LAPuDJzqI0wEanKFTO9LHRJRE5dvXlAYT3TovdY6FJBH8ApSxf~rRq9M4b-QN3Fn46Tqo5LwjhlhGCkzeE6v2xUctFyz8chQREYaPLju7hVxMJKF5JDN0CWXhIV1GohFJujQ0HQvJFYC1VOMnkxC-dXN6asfQxyPNQoVeKFxqX5u1-CpYhtm11d9f9Ag9GyKboqTI~TOL81867UhyM0AbSB5uLw3HFTjnxGRXQh6mgA12pREaFB60OGXyw6zyaA__"
+            src="/images/about/banner.jpg"
             alt="Đồng Nai Ford Banner"
             className="w-full h-full object-cover object-center"
           />
@@ -295,7 +296,7 @@ export default function AboutPage() {
           {/* Showroom Image (Rectangle 2024 - 1152x576px, rounded-24) */}
           <div className="relative w-full aspect-[2/1] rounded-[24px] overflow-hidden shadow-md">
             <img
-              src="https://s3-alpha-sig.figma.com/img/e960/59ed/038ef0fed32320d14894c0d3ed173141?Expires=1780272000&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=qjR4uXIRa6bcXehIjwMK1kHbi2SQ02MpzmgUIohHsWd5wxqBnkpAkS7GehSTStscBRYMTVPQkwexdQ32cSzVDc6-6JZvRA5aMA6Z9QjTNlK4zt~EqADpGi2GGmGxXOMrqjG11lJ0bd7xkStQzw66uDrMF1xmICWCnunGAveurRWwlCCRWimMyD5JhpOfTlCDmpwkhiJ5s~C0h58Coq95uEXhFb49yE-cH8LUn1waOI1nJRA0bpoxBI2ul~T2iPDvVCrlsRohchWqbrZeScXlGm10xqSD3xGJUnVJ1X6vY6zUS12XLo1QpyD7wl3VSFP7vMUWfe09-YnuEmVdEfrX8w__"
+              src="/images/about/image-introduce.jpg"
               alt="Showroom Đồng Nai Ford"
               className="w-full h-full object-cover object-center"
             />
@@ -321,7 +322,7 @@ export default function AboutPage() {
           {/* Right Image */}
           <div className="w-full lg:w-[536px] h-[349.68px] relative rounded-xl overflow-hidden shadow-sm">
             <img
-              src="https://s3-alpha-sig.figma.com/img/bbb8/c6d3/b35a89fe504cbc86b2af006c685a62b6?Expires=1780272000&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=FEELP1QkchMX7S20wxeDcxMNUJ1oLcBCgoPI4cj6kBytj2DLdm37yZKwG6m0Ve9ZbOnMgS9yldAap~uRxQBygiNqfrnoTu6B8RGvEtL7p9MapHJZRl3utKgiv8aO5gbNocCkCm1FCTvqPjJSu2gORLsABO5jUr9VqgsozCzMZpnq3zDUqTf-~tv8KZkgfnKL8qHCsDnKxD4-mM-vGRoEef5zLQPclGiMcj4c17eTuUg3BOZl~8jqFU3vyAz4s3sRlIg6BRF-xANOA~gnUFvIUUCY2~2Uxo3sBWuf7aXgkGByBTtRDbaXVffgXI--5jjairXW0rXu6vadjQtekEjrJg__"
+              src="/images/about/image-about-1.jpg"
               alt="Xưởng Dịch vụ Đồng Nai Ford"
               className="w-full h-full object-cover object-center"
             />
@@ -347,7 +348,7 @@ export default function AboutPage() {
           {/* Left Image */}
           <div className="w-full lg:w-[536px] h-[349.68px] relative rounded-xl overflow-hidden shadow-sm">
             <img
-              src="https://s3-alpha-sig.figma.com/img/abde/1437/6141a44d1407f024d59c35b26c027a1f?Expires=1780272000&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=OUoZE7x4D4A6PVS2urS1B3vpH4FESAbSOibMbj62RxuS04-lBNwMozo54QYaNFLFxXx3bubR2s8b1eisx65LNJvth2x25TXZcj0fDsZAfwoYzpiWbk712at2vSEHRMePhxpvVFJUdZ45RfagrgXMj~GRiTrBCl9i1I~capbpF3X2zJZ7qPJbp-gjISkOgREkOMCfin3e62VhBzh9jiQ0iVF58qA7NBp4oyxKJgaIUmN57EGQ69aWqnWtR6LBp3Hg8SVut8h9uGziavAAOOAu9rx~zIi8duOmVXHEImIVwU-LMUq4AewJKu6V2SffvAjC2tLTyrcb1R9RMbzhpE1kxw__"
+              src="/images/about/image-about-2.jpg"
               alt="Thiết bị sửa chữa Đồng Nai Ford"
               className="w-full h-full object-cover object-center"
             />
@@ -373,7 +374,7 @@ export default function AboutPage() {
             {/* Left Column (500x600px image) */}
             <div className="w-full md:w-[500px] h-[350px] md:h-full relative rounded-xl overflow-hidden shadow-md">
               <img
-                src="https://s3-alpha-sig.figma.com/img/3ae3/c1c8/985a0c5200808df2c8f55bbf910c1a46?Expires=1780272000&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=Irv0SUwzz5kDEU7NWQD1fj-C5L4PfcmPJANd43embkMQXjg7UsnmULrJ~C6aYG8s5n~doy0LAqozMnbMsa89bxYHnoyn~nKvdibtV-zvPfQMP7ILNkhm4VW5QGDpZvg0sBT15M~NBuFeiT0EtsLQgS-6BNG2WZQkyrcOhycDkbIjAqLctlTrICwuWFYh-liPfxaVFPXb-mIZ2DgYjOV0OAHHHY3GmNR0iG3Gd0Bg6IU0VXQv0RjgBvBwsZfiwZgvXwbsVhDD8j69hWQU7DCj~yHOznYblI2ETUTFfC3pHX1Ur3JUQOie9MeD9EqaGazzcVMGJL4cBalah70TZG3S3A__"
+                src="/images/about/image-vision-1.jpg"
                 alt="Vision Gallery Left"
                 className="w-full h-full object-cover object-center"
               />
@@ -384,7 +385,7 @@ export default function AboutPage() {
               {/* Top row image (636x292px) */}
               <div className="w-full h-[180px] md:h-[292px] relative rounded-xl overflow-hidden shadow-md">
                 <img
-                  src="https://s3-alpha-sig.figma.com/img/5a4f/0bb8/7bbb4b8eed9a7a81d1ad177982abed9c?Expires=1780272000&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=G72McWDb5JE~A9cAv2skNW8ZqYdEJJmDoga-bzcRSc~joRVA5jUKxT8TpLn~cl8-n33CCiI54eSIITHYAoJkIddPVAa~T9JnTD8p0CdnUrUr-bXYL5H5vC5yYZSiGKlVKjhiuKHpvU0Q6dh-4UsL2x0AfvzATZuWmwgr62tau7Gq9so-mObKWdL7w-gtR-no-DgUWeScDOzZ0KEcLgdtm7EWaO8wzuNva-r2iguTBkkByUeEiRRxncA1xF8ndZZ50vIo5nXlZ7v5jAhy6H0IfbqF0FDeLAjIRhJkbp5UqQr5F~TUAkW0b-ga9xO8-fqCsehi8gbds32fE4A7sGU9zA__"
+                  src="/images/about/image-vision-2.jpg"
                   alt="Vision Gallery Top Right"
                   className="w-full h-full object-cover object-center"
                 />
@@ -394,14 +395,14 @@ export default function AboutPage() {
               <div className="grid grid-cols-2 gap-4 h-[150px] md:h-[292px]">
                 <div className="relative rounded-xl overflow-hidden shadow-md h-full">
                   <img
-                    src="https://s3-alpha-sig.figma.com/img/ab58/1bd5/60ac21336430b3ad007fa41bc78ef7df?Expires=1780272000&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=NG7KSwOnYQRG2yHDFM~2eP3UNoQh1nkJs6JNvTzaMjeRR2b3qiApAitMBDnNo7OMJtTJHvDvD45Em5QHnlxWJHT0tqKaLYqFsACOh6i3f6~Op3BUBLK2aVFYwI5dnaMFMA2siafS-XTAnZcIu4ehu9J5IRjmbKlC6-W7JlJ7R3hMLsUASMUZ0YdornNmPFO4vv7lzf2C0bSEoBLSf-hL39cBJ7-no0siOpzpDbRAXjGxRkQ8gsfuIdHeevkWz4QA0ZBhExLUub4CFAefQ1Qlv-bbC~juRGV8qUQYBQgGG4yDwfaF2xGaS5nvKt7n8c87mf7piokpadiuspqAoKofAg__"
+                    src="/images/about/image-vision-3.jpg"
                     alt="Vision Gallery Bottom Left"
                     className="w-full h-full object-cover object-center"
                   />
                 </div>
                 <div className="relative rounded-xl overflow-hidden shadow-md h-full">
                   <img
-                    src="https://s3-alpha-sig.figma.com/img/8f70/0aa5/c77b0c13b9382cbf5de8e2775ee35e64?Expires=1780272000&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=jpLckRfgtqG3iXHy7U6~wDwAdYNZlv74AxWmM~sTC0wdTdHwmoxbqiPUjQv-wHWtf6qDR65VzCR6LAd5NRsmL4UHJaqbZHPkH5XWSUqKhRbcJXz6jsHx1cE70e2gtOePt~-aV0iH7pVCWbn1BPsd2R53xeUbKaXbhZ-hdMtpz8phZUzrSod4pwgOE-uW~t1S9jRrHAw-PUxn1KA66dPhCJjr~At4ukmmUqlUnH6UKZna9YcJkkDeS22lVn2idPASnCYkSxCFWJCqJ1cIY4BsjWns44qn7uWC9ACGU0rffM-2X-AVkdwf7cCnwQSEFJFQWjJpNFF3Hv9m35MtiIYQPw__"
+                    src="/images/about/image-vision-4.jpg"
                     alt="Vision Gallery Bottom Right"
                     className="w-full h-full object-cover object-center"
                   />
@@ -511,9 +512,10 @@ export default function AboutPage() {
               const defaultWidth = origIdx === 0 ? 427 : origIdx === 1 ? 660 : 333;
 
               return (
-                <div
+                <Link
                   key={`${card.id}-${idx}`}
-                  className="h-[480px] relative flex-shrink-0 rounded-xl overflow-hidden group cursor-pointer"
+                  href={card.link}
+                  className="h-[480px] relative flex-shrink-0 rounded-xl overflow-hidden group cursor-pointer block"
                   style={{ width: `${defaultWidth}px` }}
                 >
                   <img
@@ -528,7 +530,7 @@ export default function AboutPage() {
                       {card.name}
                     </span>
                   </div>
-                </div>
+                </Link>
               );
             })}
           </div>
