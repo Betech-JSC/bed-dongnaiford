@@ -7,6 +7,7 @@ import { Search, Car, Wrench, FileText, ChevronRight, HelpCircle, X } from "luci
 import { vehicles } from "@/data/vehicles";
 import { accessoriesData } from "@/data/accessories";
 import { articles } from "@/data/articles";
+import { handleImageError } from "@/lib/site-assets";
 
 // Helper function to remove Vietnamese accents for fuzzy searching
 function removeAccents(str: string): string {
@@ -257,6 +258,7 @@ function SearchPageContent() {
                         src={v.images[0]}
                         alt={v.name}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        onError={handleImageError}
                       />
                       <div className="absolute top-3 left-3 bg-[#0562D2] text-white text-[10px] font-bold px-2 py-0.5 rounded-sm uppercase tracking-wider shadow-sm">
                         {v.typeName}
@@ -310,6 +312,7 @@ function SearchPageContent() {
                           src={v.images[0]}
                           alt={v.name}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          onError={handleImageError}
                         />
                         <div className="absolute top-3 left-3 bg-[#0562D2] text-white text-[10px] font-bold px-2 py-0.5 rounded-sm uppercase tracking-wider shadow-sm">
                           {v.typeName}
@@ -361,6 +364,7 @@ function SearchPageContent() {
                           src={a.images[0]}
                           alt={a.name}
                           className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500"
+                          onError={handleImageError}
                         />
                         <div className="absolute top-2.5 left-2.5 bg-black/65 backdrop-blur-xs text-white text-[9px] font-bold px-2 py-0.5 rounded-sm uppercase tracking-wider">
                           {a.categoryName.replace("Phụ Kiện ", "")}
@@ -405,6 +409,7 @@ function SearchPageContent() {
                           src={art.image}
                           alt={art.title}
                           className="absolute inset-0 object-cover w-full h-full group-hover:scale-[1.03] transition-transform duration-500"
+                          onError={handleImageError}
                         />
                         <div className="absolute top-3 left-3 bg-[#0562D2] text-white text-[10px] font-bold px-2.5 py-0.5 rounded-sm uppercase tracking-wider">
                           {art.category}

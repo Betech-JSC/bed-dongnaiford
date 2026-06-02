@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { articles } from "@/data/articles";
+import { handleImageError } from "@/lib/site-assets";
 
 const ITEMS_PER_PAGE = 3;
 
@@ -76,6 +77,7 @@ export default function NewsListPage() {
                   src={art.image}
                   alt={art.title}
                   className="absolute inset-0 object-cover w-full h-full group-hover:scale-[1.03] transition-transform duration-500"
+                  onError={handleImageError}
                 />
                 <div className="absolute top-4 left-4 bg-[#0562d2] text-white text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider">
                   {art.category}
@@ -157,6 +159,7 @@ export default function NewsListPage() {
                       src={art.image}
                       alt={art.title}
                       className="absolute inset-0 object-cover w-full h-full group-hover:scale-[1.03] transition-transform duration-500"
+                      onError={handleImageError}
                     />
                     <div className="absolute top-4 left-4 bg-[#0562d2] text-white text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider">
                       {art.category}

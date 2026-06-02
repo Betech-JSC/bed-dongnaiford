@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Share2, MessageCircle, Copy, Check, Calendar } from "lucide-react";
 import { getArticleById, articles } from "@/data/articles";
+import { handleImageError } from "@/lib/site-assets";
 
 const Facebook = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
@@ -93,6 +94,7 @@ export default function ArticleDetailPage() {
               src={article.image} 
               alt={article.title} 
               className="absolute inset-0 w-full h-full object-cover"
+              onError={handleImageError}
             />
           </div>
 
@@ -132,6 +134,7 @@ export default function ArticleDetailPage() {
                         src={block.value as string} 
                         alt="Hình ảnh bài viết" 
                         className="absolute inset-0 w-full h-full object-cover"
+                        onError={handleImageError}
                       />
                     </div>
                   );
@@ -220,6 +223,7 @@ export default function ArticleDetailPage() {
                     src={art.image}
                     alt={art.title}
                     className="absolute inset-0 object-cover w-full h-full group-hover:scale-[1.03] transition-transform duration-500"
+                    onError={handleImageError}
                   />
                   <div className="absolute top-4 left-4 bg-[#0562d2] text-white text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider">
                     {art.category}

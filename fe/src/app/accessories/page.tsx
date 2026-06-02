@@ -5,13 +5,14 @@ import Link from "next/link";
 import Image from "next/image";
 import { Search, ChevronRight, ChevronLeft, Plus, Minus } from "lucide-react";
 import { accessoriesData } from "@/data/accessories";
+import { handleImageError } from "@/lib/site-assets";
 
 const categories = [
-  { id: "interior", name: "Phụ Kiện Nội Thất", image: "https://images.unsplash.com/photo-1606577924048-a13f74040a62?auto=format&fit=crop&w=400&q=80" },
-  { id: "exterior", name: "Phụ Kiện Ngoại Thất", image: "https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&w=400&q=80" },
-  { id: "tech", name: "Công Nghệ & Điện Tử", image: "https://images.unsplash.com/photo-1506015391300-4802dc74de2e?auto=format&fit=crop&w=400&q=80" },
-  { id: "wheels", name: "Mâm & Lốp Xe", image: "https://images.unsplash.com/photo-1611245053278-65b1d4d3d2db?auto=format&fit=crop&w=400&q=80" },
-  { id: "performance", name: "Phụ Tùng Hiệu Suất", image: "https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&w=400&q=80" }
+  { id: "interior", name: "Phụ Kiện Nội Thất", image: "/images/categories/cat_interior.png" },
+  { id: "exterior", name: "Phụ Kiện Ngoại Thất", image: "/images/categories/cat_exterior.png" },
+  { id: "tech", name: "Công Nghệ & Điện Tử", image: "/images/categories/cat_tech.png" },
+  { id: "wheels", name: "Mâm & Lốp Xe", image: "/images/categories/cat_wheels.png" },
+  { id: "performance", name: "Phụ Tùng Hiệu Suất", image: "/images/categories/cat_performance.png" }
 ];
 
 const sidebarModels = [
@@ -156,6 +157,7 @@ export default function AccessoriesPage() {
                           fill
                           sizes="240px"
                           className="object-cover"
+                          onError={handleImageError}
                         />
                         {/* Overlay */}
                         <div className={`absolute inset-0 transition-colors duration-300 ${isActive ? "bg-black/10" : "bg-black/30 hover:bg-black/20"}`} />
@@ -295,6 +297,7 @@ export default function AccessoriesPage() {
                         fill
                         sizes="(max-width: 768px) 100vw, 30vw"
                         className="object-cover group-hover:scale-[1.03] transition-transform duration-500"
+                        onError={handleImageError}
                       />
                     </div>
                     {/* Content */}

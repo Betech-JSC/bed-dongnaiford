@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import { vehicles, Vehicle } from "@/data/vehicles";
 import { articles } from "@/data/articles";
-import { getPopularVehicleImage, siteAssets } from "@/lib/site-assets";
+import { getPopularVehicleImage, siteAssets, handleImageError } from "@/lib/site-assets";
 
 const homeArticles = articles.slice(0, 3);
 
@@ -522,6 +522,7 @@ export default function Home() {
                     fill
                     sizes="(max-width: 768px) 100vw, 30vw"
                     className="object-contain object-center group-hover:scale-105 transition-transform duration-500"
+                    onError={handleImageError}
                   />
                 </div>
 
@@ -932,6 +933,7 @@ export default function Home() {
                         fill
                         sizes="(max-width: 768px) var(--card-width-news), 30vw"
                         className="object-cover group-hover:scale-103 transition-transform duration-300"
+                        onError={handleImageError}
                       />
                     </div>
 

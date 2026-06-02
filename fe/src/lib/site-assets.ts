@@ -48,3 +48,12 @@ export function getPopularVehicleImage(vehicleId: string, fallback?: string) {
     siteAssets.carPlaceholder
   );
 }
+
+export const imageFallbackSvg = "/images/ford_placeholder.png";
+
+export function handleImageError(e: React.SyntheticEvent<HTMLImageElement, Event>) {
+  e.currentTarget.onerror = null;
+  e.currentTarget.srcset = "";
+  e.currentTarget.src = imageFallbackSvg;
+}
+

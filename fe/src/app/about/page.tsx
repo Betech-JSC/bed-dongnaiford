@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, X } from "lucide-react";
-import { aboutAssets } from "@/lib/site-assets";
+import { aboutAssets, handleImageError } from "@/lib/site-assets";
 
 // Recruitment position data
 interface JobPosition {
@@ -125,25 +125,25 @@ interface TeamVehicle {
 
 const teamVehicles: TeamVehicle[] = [
   {
-    id: "everest-titanium",
-    name: "Ford Everest Titanium",
-    image: "/assets/car-everest.png",
-    link: "/products/new-everest",
-    quoteLink: "/contact?vehicle=new-everest&reason=Báo giá"
+    id: "team-le-ban-giao",
+    name: "Lễ Bàn Giao Xe Mới Cho Khách Hàng",
+    image: "/images/team/team_1.png",
+    link: "/contact?reason=Tư vấn",
+    quoteLink: "/contact?reason=Tư vấn"
   },
   {
-    id: "mustang-mach-e-1",
-    name: "Mustang Mach-E",
-    image: "/assets/car-mach-e.png",
-    link: "/products/new-mustang-mach-e",
-    quoteLink: "/contact?vehicle=new-mustang-mach-e&reason=Báo giá"
+    id: "team-tu-van-sales",
+    name: "Đội Ngũ Tư Vấn Bán Hàng Chuyên Nghiệp",
+    image: "/images/team/team_3.png",
+    link: "/contact?reason=Tư vấn",
+    quoteLink: "/contact?reason=Tư vấn"
   },
   {
-    id: "territory-titanium",
-    name: "Ford Territory",
-    image: "/assets/territory-hero.png",
-    link: "/products/new-territory",
-    quoteLink: "/contact?vehicle=new-territory&reason=Báo giá"
+    id: "team-su-kien-lai-thu",
+    name: "Sự Kiện Trưng Bày & Trải Nghiệm Lái Thử Xe",
+    image: "/images/team/team_2.png",
+    link: "/contact?reason=Đăng ký lái thử",
+    quoteLink: "/contact?reason=Đăng ký lái thử"
   }
 ];
 
@@ -523,6 +523,7 @@ export default function AboutPage() {
                     alt={card.name}
                     className="absolute inset-0 h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
                     onLoad={measureCards}
+                    onError={handleImageError}
                   />
                   {/* Dark overlay showing text on hover */}
                   <div className="absolute inset-0 bg-black/60 flex items-center justify-center p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">

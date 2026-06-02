@@ -13,6 +13,7 @@ import {
   ArrowLeft
 } from "lucide-react";
 import { accessoriesData } from "@/data/accessories";
+import { handleImageError } from "@/lib/site-assets";
 
 export default function AccessoryDetailPage() {
   const params = useParams();
@@ -199,6 +200,7 @@ export default function AccessoryDetailPage() {
                     fill
                     sizes="80px"
                     className="object-cover"
+                    onError={handleImageError}
                   />
                 </button>
               ))}
@@ -213,6 +215,7 @@ export default function AccessoryDetailPage() {
                 priority
                 sizes="(max-width: 1024px) 100vw, 50vw"
                 className="object-cover"
+                onError={handleImageError}
               />
             </div>
           </div>
@@ -379,6 +382,7 @@ export default function AccessoryDetailPage() {
                     fill
                     sizes="(max-width: 768px) 100vw, 20vw"
                     className="object-cover group-hover:scale-[1.03] transition-transform duration-500"
+                    onError={handleImageError}
                   />
                 </div>
                 <div className="px-[16px] py-[12px] flex flex-col gap-[4px] items-center text-center flex-1 justify-between">

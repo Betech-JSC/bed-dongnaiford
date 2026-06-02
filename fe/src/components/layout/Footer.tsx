@@ -103,35 +103,19 @@ export default function Footer() {
           {/* Sub-column 2: Facebook Widget & Ford Đồng Nai Links */}
           <div className="space-y-8 flex-1">
             
-            {/* Facebook Widget */}
-            <div className="bg-white/5 border border-white/10 p-4 rounded-lg space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="bg-[#0562d2] text-white font-bold p-2 rounded-md w-10 h-10 flex items-center justify-center text-sm">
-                  F
-                </div>
-                <div>
-                  <p className="text-sm font-bold leading-tight text-white">Đồng Nai FORD</p>
-                  <p className="text-[11px] text-gray-400">21,050 followers</p>
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <a
-                  href="https://www.facebook.com/FordDongNai.Official"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex-1 py-1.5 px-3 bg-white border border-gray-300 hover:bg-gray-100 transition-colors text-[11px] uppercase font-bold text-center rounded-sm text-[#424242]"
-                >
-                  Follow us
-                </a>
-                <a
-                  href="https://m.me/FordDongNai.Official"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex-1 py-1.5 px-3 bg-white border border-gray-300 hover:bg-gray-100 transition-colors text-[11px] uppercase font-bold text-center rounded-sm text-[#424242] flex items-center justify-center gap-1"
-                >
-                  Message
-                </a>
-              </div>
+            {/* Facebook Fanpage Embed */}
+            <div className="w-full overflow-hidden rounded-lg bg-white/5 border border-white/10" style={{ height: "180px" }}>
+              <iframe
+                src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2FFordDongNai.Official&tabs&width=340&height=180&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=false&appId"
+                width="100%"
+                height="180"
+                style={{ border: "none", overflow: "hidden" }}
+                scrolling="no"
+                frameBorder="0"
+                allowFullScreen={true}
+                allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+                title="Facebook Fanpage Đồng Nai Ford"
+              ></iframe>
             </div>
 
             <div className="space-y-4">
@@ -214,10 +198,10 @@ export default function Footer() {
             Copyright © 2026 Ford Đồng Nai. Tất cả quyền được bảo lưu.
           </p>
           <div className="flex gap-6">
-            <Link href="/" className="hover:text-white/80 transition-colors">
+            <Link href="/terms" className="hover:text-white/80 transition-colors">
               Điều khoản và điều kiện
             </Link>
-            <Link href="/" className="hover:text-white/80 transition-colors">
+            <Link href="/privacy" className="hover:text-white/80 transition-colors">
               Chính sách bảo mật
             </Link>
           </div>
