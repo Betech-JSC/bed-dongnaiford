@@ -5,13 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { 
   ChevronDown, 
-  ChevronRight,
-  HelpCircle, 
-  Printer, 
-  Eye, 
-  Calculator,
-  ArrowRight,
-  TrendingDown
+  Eye
 } from "lucide-react";
 import { vehicles, Vehicle, Version } from "@/data/vehicles";
 
@@ -136,6 +130,11 @@ export default function InstallmentCalculatorPage() {
     return new Intl.NumberFormat("vi-VN").format(val) + " đ";
   };
 
+  const formatInputValue = (val: number) => {
+    if (!val) return "";
+    return new Intl.NumberFormat("vi-VN").format(val);
+  };
+
   // Compute Amortization Schedule
   const scheduleRows: RepaymentRow[] = [];
   let tempRemaining = loanAmount;
@@ -177,7 +176,6 @@ export default function InstallmentCalculatorPage() {
 
   const firstMonthTotal = scheduleRows[0]?.totalPaid || 0;
 
-  // Scroll to results section on click
   const handleCalculate = () => {
     setIsCalculated(true);
     setTimeout(() => {
@@ -219,491 +217,415 @@ export default function InstallmentCalculatorPage() {
         </div>
       </div>
 
-      <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full">
+      <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full flex flex-col items-center gap-[32px]">
         
         {/* Page Header (14144:5312) */}
-        <div className="mb-8 md:mb-12 print:hidden">
-          <h1 className="text-headline-1 text-vivid font-bold tracking-tight mb-2">
+        <div className="w-full flex flex-col gap-[12px] items-start print:hidden">
+          <h1 className="font-sans font-bold text-[#0562d2] text-[32px] leading-[1.2] tracking-tight">
             Ước tính chi phí trả góp
           </h1>
-          <p className="text-body-1 text-gray-med">
-            Nhập thông tin để tính toán khoản vay và kế hoạch trả nợ của bạn
+          <p className="font-sans font-normal text-[#424242] text-[16px] leading-[1.5]">
+            Nhập thông tin để tính toán khoản vay của bạn
           </p>
         </div>
 
-        {/* Main Grid Layout (14144:5315) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start w-full print:hidden">
+        {/* Form and Image row (14144:5315) - 50/50 flex layout with gap-80px */}
+        <div className="flex flex-col lg:flex-row gap-8 lg:gap-[80px] items-stretch w-full print:hidden">
           
-          {/* Left Column - Inputs Form (14144:5316) */}
-          <div className="lg:col-span-7 bg-white rounded-xl border border-gray-200 shadow-sm p-6 md:p-8 space-y-6">
+          {/* Left Column: Input Form (14144:5316) */}
+          <div className="flex-1 flex flex-col gap-[25px] items-start w-full">
             
-            {/* Row 1: Car Selection */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              
-              {/* Dropdown: Chọn mẫu xe */}
-              <div className="relative" ref={vehicleDropdownRef}>
-                <label className="block text-label-2 text-gray-dark font-medium mb-1.5">
-                  Chọn mẫu xe
-                </label>
-                <button
-                  type="button"
-                  onClick={() => setIsVehicleOpen(!isVehicleOpen)}
-                  className="w-full flex items-center justify-between bg-white border border-[#d6d6d6] rounded-lg px-4 py-2.5 text-body-1 text-gray-dark text-left focus:outline-none focus:ring-1 focus:ring-vivid cursor-pointer shadow-sm"
-                >
-                  <span className="truncate font-semibold">{selectedVehicle.name}</span>
-                  <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${isVehicleOpen ? "rotate-180" : ""}`} />
-                </button>
-                {isVehicleOpen && (
-                  <div className="absolute left-0 right-0 z-10 mt-1 max-h-60 overflow-y-auto bg-white border border-gray-200 rounded-lg shadow-lg py-1">
-                    {vehicles.map((car) => (
-                      <button
-                        key={car.id}
-                        type="button"
-                        onClick={() => handleVehicleChange(car)}
-                        className={`w-full px-4 py-2 text-left text-body-2 hover:bg-gray-50 flex items-center justify-between cursor-pointer ${
-                          selectedVehicle.id === car.id ? "text-vivid font-bold bg-blue-50/30" : "text-gray-dark"
-                        }`}
-                      >
-                        <span>{car.name}</span>
-                        <span className="text-xs text-gray-400">{car.typeName}</span>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Dropdown: Chọn phiên bản */}
-              <div className="relative" ref={versionDropdownRef}>
-                <label className="block text-label-2 text-gray-dark font-medium mb-1.5">
-                  Chọn phiên bản
-                </label>
-                <button
-                  type="button"
-                  disabled={selectedVehicle.versions.length <= 1 && selectedVehicle.versions[0]?.id === "none"}
-                  onClick={() => setIsVersionOpen(!isVersionOpen)}
-                  className="w-full flex items-center justify-between bg-white border border-[#d6d6d6] rounded-lg px-4 py-2.5 text-body-1 text-gray-dark text-left focus:outline-none focus:ring-1 focus:ring-vivid cursor-pointer shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
-                >
-                  <span className="truncate font-medium">{selectedVersion.name}</span>
-                  <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${isVersionOpen ? "rotate-180" : ""}`} />
-                </button>
-                {isVersionOpen && (
-                  <div className="absolute left-0 right-0 z-10 mt-1 max-h-60 overflow-y-auto bg-white border border-gray-200 rounded-lg shadow-lg py-1">
-                    {selectedVehicle.versions.map((ver) => (
-                      <button
-                        key={ver.id}
-                        type="button"
-                        onClick={() => handleVersionChange(ver)}
-                        className={`w-full px-4 py-2 text-left text-body-2 hover:bg-gray-50 flex items-center justify-between cursor-pointer ${
-                          selectedVersion.id === ver.id ? "text-vivid font-bold bg-blue-50/30" : "text-gray-dark"
-                        }`}
-                      >
-                        <span>{ver.name}</span>
-                        <span className="text-xs text-vivid font-bold">{formatCurrency(ver.price)}</span>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Row 2: List Price & Prepaid Amount */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              
-              {/* Input: Giá niêm yết */}
-              <div>
-                <label className="block text-label-2 text-gray-dark font-medium mb-1.5">
-                  Giá niêm yết (VNĐ)
-                </label>
-                <div className="relative rounded-lg shadow-sm">
-                  <input
-                    type="text"
-                    value={listPrice ? new Intl.NumberFormat("vi-VN").format(listPrice) : ""}
-                    onChange={handleListPriceChange}
-                    placeholder="Nhập giá xe..."
-                    className="w-full bg-white border border-[#d6d6d6] rounded-lg px-4 py-2 text-body-1 text-gray-dark font-semibold focus:outline-none focus:ring-1 focus:ring-vivid placeholder:text-gray-400"
-                  />
-                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                    <span className="text-gray-400 text-sm font-medium">đ</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Input: Khoản trả trước */}
-              <div>
-                <label className="block text-label-2 text-gray-dark font-medium mb-1.5 flex justify-between">
-                  <span>Khoản trả trước (VNĐ)</span>
-                  <span className="text-vivid font-bold text-xs bg-blue-50 px-1.5 py-0.5 rounded">
-                    {prepaidPercentage}%
-                  </span>
-                </label>
-                <div className="relative rounded-lg shadow-sm">
-                  <input
-                    type="text"
-                    value={prepaidAmount ? new Intl.NumberFormat("vi-VN").format(prepaidAmount) : ""}
-                    onChange={handlePrepaidAmountChange}
-                    placeholder="Nhập số tiền trả trước..."
-                    className="w-full bg-white border border-[#d6d6d6] rounded-lg px-4 py-2 text-body-1 text-gray-dark font-medium focus:outline-none focus:ring-1 focus:ring-vivid placeholder:text-gray-400"
-                  />
-                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                    <span className="text-gray-400 text-sm font-medium">đ</span>
-                  </div>
-                </div>
-
-                {/* Preset downpayment buttons */}
-                <div className="flex gap-2 mt-2">
-                  {[20, 30, 50, 70].map((pct) => (
+            {/* Input Select: Chọn mẫu xe */}
+            <div className="relative w-full" ref={vehicleDropdownRef}>
+              <label className="block text-[16px] font-medium text-[#424242] mb-[6px] text-left">
+                Chọn mẫu xe
+              </label>
+              <button
+                type="button"
+                onClick={() => setIsVehicleOpen(!isVehicleOpen)}
+                className="w-full bg-white border border-[#d6d6d6] rounded-[8px] px-[14px] py-[10px] text-[16px] text-[#333] text-left focus:outline-none focus:ring-1 focus:ring-vivid cursor-pointer shadow-[0px_1px_2px_rgba(16,24,40,0.05)] flex items-center justify-between"
+              >
+                <span className="truncate font-semibold">{selectedVehicle.name}</span>
+                <ChevronDown className="w-[20px] h-[20px] text-gray-400" />
+              </button>
+              {isVehicleOpen && (
+                <div className="absolute left-0 right-0 z-10 mt-1 max-h-60 overflow-y-auto bg-white border border-gray-200 rounded-[8px] shadow-lg py-1">
+                  {vehicles.map((car) => (
                     <button
-                      key={pct}
+                      key={car.id}
                       type="button"
-                      onClick={() => handlePrepaidPercentagePreset(pct)}
-                      className={`text-xs px-2.5 py-1 rounded border transition-colors cursor-pointer font-medium ${
-                        prepaidPercentage === pct
-                          ? "bg-vivid text-white border-vivid"
-                          : "bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100"
+                      onClick={() => handleVehicleChange(car)}
+                      className={`w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 flex items-center justify-between cursor-pointer ${
+                        selectedVehicle.id === car.id ? "text-vivid font-bold bg-blue-50/20" : "text-[#333]"
                       }`}
                     >
-                      {pct}%
+                      <span>{car.name}</span>
+                      <span className="text-xs text-gray-400">{car.typeName}</span>
                     </button>
                   ))}
                 </div>
+              )}
+            </div>
+
+            {/* Input Select: Chọn phiên bản */}
+            <div className="relative w-full" ref={versionDropdownRef}>
+              <label className="block text-[16px] font-medium text-[#424242] mb-[6px] text-left">
+                Chọn phiên bản
+              </label>
+              <button
+                type="button"
+                disabled={selectedVehicle.versions.length <= 1 && selectedVehicle.versions[0]?.id === "none"}
+                onClick={() => setIsVersionOpen(!isVersionOpen)}
+                className="w-full bg-white border border-[#d6d6d6] rounded-[8px] px-[14px] py-[10px] text-[16px] text-[#333] text-left focus:outline-none focus:ring-1 focus:ring-vivid cursor-pointer shadow-[0px_1px_2px_rgba(16,24,40,0.05)] flex items-center justify-between disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                <span className="truncate font-medium">{selectedVersion.name}</span>
+                <ChevronDown className="w-[20px] h-[20px] text-gray-400" />
+              </button>
+              {isVersionOpen && (
+                <div className="absolute left-0 right-0 z-10 mt-1 max-h-60 overflow-y-auto bg-white border border-gray-200 rounded-[8px] shadow-lg py-1">
+                  {selectedVehicle.versions.map((ver) => (
+                    <button
+                      key={ver.id}
+                      type="button"
+                      onClick={() => handleVersionChange(ver)}
+                      className={`w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 flex items-center justify-between cursor-pointer ${
+                        selectedVersion.id === ver.id ? "text-vivid font-bold bg-blue-50/20" : "text-[#333]"
+                      }`}
+                    >
+                      <span>{ver.name}</span>
+                      <span className="text-xs text-vivid font-bold">{formatCurrency(ver.price)}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Input Field: Giá niêm yết */}
+            <div className="w-full">
+              <label className="block text-[16px] font-medium text-[#424242] mb-[6px] text-left">
+                Giá niêm yết (VNĐ)
+              </label>
+              <div className="relative rounded-[8px] bg-white border border-[#d6d6d6] shadow-[0px_1px_2px_rgba(16,24,40,0.05)] overflow-hidden w-full flex items-center px-[14px] py-[10px]">
+                <input
+                  type="text"
+                  value={formatInputValue(listPrice)}
+                  onChange={handleListPriceChange}
+                  placeholder="Nhập giá xe..."
+                  className="w-full bg-transparent border-0 p-0 text-[16px] text-[#333] font-semibold focus:outline-none placeholder:text-[#808080]"
+                />
               </div>
             </div>
 
-            {/* Row 3: Term & Interest Rates */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              
-              {/* Dropdown: Thời gian vay */}
-              <div className="relative" ref={termDropdownRef}>
-                <label className="block text-label-2 text-gray-dark font-medium mb-1.5">
-                  Thời gian vay
+            {/* Input Field: Khoản trả trước */}
+            <div className="w-full">
+              <label className="block text-[16px] font-medium text-[#424242] mb-[6px] text-left flex justify-between">
+                <span>Khoản trả trước (VNĐ)</span>
+                <span className="text-vivid font-bold text-xs bg-blue-50 px-2 py-0.5 rounded">
+                  {prepaidPercentage}%
+                </span>
+              </label>
+              <div className="relative rounded-[8px] bg-white border border-[#d6d6d6] shadow-[0px_1px_2px_rgba(16,24,40,0.05)] overflow-hidden w-full flex items-center px-[14px] py-[10px] mb-2">
+                <input
+                  type="text"
+                  value={formatInputValue(prepaidAmount)}
+                  onChange={handlePrepaidAmountChange}
+                  placeholder="Nhập số tiền trả trước..."
+                  className="w-full bg-transparent border-0 p-0 text-[16px] text-[#333] font-medium focus:outline-none placeholder:text-[#808080]"
+                />
+              </div>
+              <div className="flex gap-2">
+                {[20, 30, 50, 70].map((pct) => (
+                  <button
+                    key={pct}
+                    type="button"
+                    onClick={() => handlePrepaidPercentagePreset(pct)}
+                    className={`text-xs px-3 py-1.5 rounded-full border transition-colors cursor-pointer font-medium ${
+                      prepaidPercentage === pct
+                        ? "bg-vivid text-white border-vivid"
+                        : "bg-gray-50 text-gray-600 border-gray-250 hover:bg-gray-100"
+                    }`}
+                  >
+                    {pct}%
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Input Select: Thời gian vay */}
+            <div className="relative w-full" ref={termDropdownRef}>
+              <label className="block text-[16px] font-medium text-[#424242] mb-[6px] text-left">
+                Thời gian vay
+              </label>
+              <button
+                type="button"
+                onClick={() => setIsTermOpen(!isTermOpen)}
+                className="w-full bg-white border border-[#d6d6d6] rounded-[8px] px-[14px] py-[10px] text-[16px] text-[#333] text-left focus:outline-none focus:ring-1 focus:ring-vivid cursor-pointer shadow-[0px_1px_2px_rgba(16,24,40,0.05)] flex items-center justify-between"
+              >
+                <span className="truncate font-medium">
+                  {termOptions.find((t) => t.months === loanTermMonths)?.label || `${loanTermMonths} tháng`}
+                </span>
+                <ChevronDown className="w-[20px] h-[20px] text-gray-400" />
+              </button>
+              {isTermOpen && (
+                <div className="absolute left-0 right-0 z-10 mt-1 max-h-60 overflow-y-auto bg-white border border-gray-200 rounded-[8px] shadow-lg py-1">
+                  {termOptions.map((opt) => (
+                    <button
+                      key={opt.months}
+                      type="button"
+                      onClick={() => {
+                        setLoanTermMonths(opt.months);
+                        setIsTermOpen(false);
+                      }}
+                      className={`w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 cursor-pointer ${
+                        loanTermMonths === opt.months ? "text-vivid font-bold" : "text-[#333]"
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Row: Lãi suất năm đầu & Lãi suất năm sau */}
+            <div className="grid grid-cols-2 gap-[25px] w-full">
+              {/* Lãi suất năm đầu */}
+              <div>
+                <label className="block text-[16px] font-medium text-[#424242] mb-[6px] text-left truncate">
+                  Lãi suất năm đầu tiên
                 </label>
-                <button
-                  type="button"
-                  onClick={() => setIsTermOpen(!isTermOpen)}
-                  className="w-full flex items-center justify-between bg-white border border-[#d6d6d6] rounded-lg px-4 py-2.5 text-body-1 text-gray-dark text-left focus:outline-none focus:ring-1 focus:ring-vivid cursor-pointer shadow-sm"
-                >
-                  <span className="truncate font-medium">
-                    {termOptions.find((t) => t.months === loanTermMonths)?.label || `${loanTermMonths} tháng`}
-                  </span>
-                  <ChevronDown className="w-5 h-5 text-gray-400" />
-                </button>
-                {isTermOpen && (
-                  <div className="absolute left-0 right-0 z-10 mt-1 max-h-60 overflow-y-auto bg-white border border-gray-200 rounded-lg shadow-lg py-1">
-                    {termOptions.map((opt) => (
-                      <button
-                        key={opt.months}
-                        type="button"
-                        onClick={() => {
-                          setLoanTermMonths(opt.months);
-                          setIsTermOpen(false);
-                        }}
-                        className={`w-full px-4 py-2 text-left text-body-2 hover:bg-gray-50 cursor-pointer ${
-                          loanTermMonths === opt.months ? "text-vivid font-bold" : "text-gray-dark"
-                        }`}
-                      >
-                        {opt.label}
-                      </button>
-                    ))}
-                  </div>
-                )}
+                <div className="relative rounded-[8px] bg-white border border-[#d6d6d6] shadow-[0px_1px_2px_rgba(16,24,40,0.05)] overflow-hidden w-full flex items-center px-[14px] py-[10px]">
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    max="30"
+                    value={rateYear1}
+                    onChange={(e) => setRateYear1(parseFloat(e.target.value) || 0)}
+                    className="w-full bg-transparent border-0 p-0 text-[16px] text-[#333] font-medium focus:outline-none text-center"
+                  />
+                  <span className="text-gray-400 text-sm ml-1">%</span>
+                </div>
               </div>
 
-              {/* Interest Rate row */}
-              <div className="grid grid-cols-2 gap-3">
-                
-                {/* Year 1 Rate */}
-                <div>
-                  <label className="block text-[13px] text-gray-dark font-medium mb-1.5 truncate">
-                    Lãi suất năm đầu
-                  </label>
-                  <div className="relative rounded-lg shadow-sm">
-                    <input
-                      type="number"
-                      step="0.1"
-                      min="0"
-                      max="30"
-                      value={rateYear1}
-                      onChange={(e) => setRateYear1(parseFloat(e.target.value) || 0)}
-                      className="w-full bg-white border border-[#d6d6d6] rounded-lg pl-3 pr-6 py-2 text-body-1 text-gray-dark font-medium focus:outline-none focus:ring-1 focus:ring-vivid text-center"
-                    />
-                    <div className="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
-                      <span className="text-gray-400 text-xs">%</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Subsequent Years Rate */}
-                <div>
-                  <label className="block text-[13px] text-gray-dark font-medium mb-1.5 truncate">
-                    Lãi suất năm sau
-                  </label>
-                  <div className="relative rounded-lg shadow-sm">
-                    <input
-                      type="number"
-                      step="0.1"
-                      min="0"
-                      max="30"
-                      value={rateSubsequent}
-                      onChange={(e) => setRateSubsequent(parseFloat(e.target.value) || 0)}
-                      className="w-full bg-white border border-[#d6d6d6] rounded-lg pl-3 pr-6 py-2 text-body-1 text-gray-dark font-medium focus:outline-none focus:ring-1 focus:ring-vivid text-center"
-                    />
-                    <div className="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
-                      <span className="text-gray-400 text-xs">%</span>
-                    </div>
-                  </div>
+              {/* Lãi suất năm sau */}
+              <div>
+                <label className="block text-[16px] font-medium text-[#424242] mb-[6px] text-left truncate">
+                  Lãi suất các năm sau
+                </label>
+                <div className="relative rounded-[8px] bg-white border border-[#d6d6d6] shadow-[0px_1px_2px_rgba(16,24,40,0.05)] overflow-hidden w-full flex items-center px-[14px] py-[10px]">
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    max="30"
+                    value={rateSubsequent}
+                    onChange={(e) => setRateSubsequent(parseFloat(e.target.value) || 0)}
+                    className="w-full bg-transparent border-0 p-0 text-[16px] text-[#333] font-medium focus:outline-none text-center"
+                  />
+                  <span className="text-gray-400 text-sm ml-1">%</span>
                 </div>
               </div>
             </div>
 
-            {/* Row 4: Repayment Method Segment Tab */}
-            <div>
-              <label className="block text-label-2 text-gray-dark font-medium mb-2">
+            {/* Repayment Method Select Block */}
+            <div className="w-full">
+              <label className="block text-[16px] font-medium text-[#424242] mb-[6px] text-left">
                 Phương thức trả góp
               </label>
-              <div className="bg-gray-100 p-1 rounded-lg grid grid-cols-2 gap-1.5">
+              <div className="bg-gray-100 p-1.5 rounded-lg grid grid-cols-2 gap-1.5 w-full">
                 <button
                   type="button"
                   onClick={() => setRepaymentMethod("declining")}
-                  className={`py-2 px-4 text-sm font-semibold rounded-md transition-all cursor-pointer ${
+                  className={`py-2 px-4 text-sm font-semibold rounded-md transition-all cursor-pointer border-0 ${
                     repaymentMethod === "declining"
-                      ? "bg-white text-vivid shadow-sm"
+                      ? "bg-white text-vivid shadow-sm font-bold"
                       : "text-gray-500 hover:text-gray-800"
                   }`}
                 >
-                  Dư nợ giảm dần (Khuyên dùng)
+                  Dư nợ giảm dần
                 </button>
                 <button
                   type="button"
                   onClick={() => setRepaymentMethod("flat")}
-                  className={`py-2 px-4 text-sm font-semibold rounded-md transition-all cursor-pointer ${
+                  className={`py-2 px-4 text-sm font-semibold rounded-md transition-all cursor-pointer border-0 ${
                     repaymentMethod === "flat"
-                      ? "bg-white text-vivid shadow-sm"
+                      ? "bg-white text-vivid shadow-sm font-bold"
                       : "text-gray-500 hover:text-gray-800"
                   }`}
                 >
-                  Dư nợ gốc cố định (Trả đều)
+                  Dư nợ gốc cố định
                 </button>
               </div>
-              <p className="text-[12px] text-gray-500 mt-2 flex items-start gap-1">
-                <HelpCircle className="w-3.5 h-3.5 text-gray-400 flex-shrink-0 mt-0.5" />
-                <span>
-                  {repaymentMethod === "declining" 
-                    ? "Dư nợ giảm dần: Tiền lãi giảm dần hàng tháng dựa trên số dư gốc thực tế còn lại. Hầu hết ngân hàng áp dụng phương thức này."
-                    : "Dư nợ gốc cố định: Tiền lãi cố định hàng tháng tính trên khoản vay ban đầu, số tiền thanh toán bằng nhau mỗi tháng."}
-                </span>
-              </p>
             </div>
 
-            {/* Submit Button */}
+            {/* Action button matching Figma node 5278 rounded-[800px] */}
             <button
               type="button"
               onClick={handleCalculate}
-              className="w-full bg-vivid hover:bg-secondary text-white py-3 px-6 rounded-lg text-title-3 font-semibold transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer border-0 mt-4 active:scale-[0.99]"
+              className="bg-[#0562d2] border border-[#0562d2] border-solid flex gap-[8px] items-center justify-center px-[24px] py-[12px] rounded-[800px] w-full text-white text-[18px] tracking-[0.18px] font-semibold cursor-pointer hover:bg-secondary transition-all active:scale-[0.99] border-0 mt-2"
             >
-              <Calculator className="w-5 h-5" />
-              Tính toán khoản vay của bạn
+              Tính số tiền phải trả
             </button>
           </div>
 
-          {/* Right Column - Selected Car Showcase Card (14144:5327) */}
-          <div className="lg:col-span-5 bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col h-full min-h-[500px]">
-            {/* Card Visual Header */}
-            <div className="bg-gradient-to-br from-primary to-secondary p-6 text-white text-center relative overflow-hidden flex-shrink-0">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_right,rgba(5,98,210,0.3),transparent)]" />
-              <div className="relative z-10">
-                <span className="text-[11px] font-bold tracking-widest uppercase bg-[#0562d2] px-2 py-0.5 rounded-full">
-                  Ưu đãi trả góp 2026
-                </span>
-                <h3 className="text-xl font-bold mt-2 font-display">{selectedVehicle.name}</h3>
-                <p className="text-xs text-white/80 font-medium">{selectedVersion.name}</p>
-              </div>
+          {/* Right Column: Interactive Image Card (14144:5327) - aspect-[400/500] and flex-1 */}
+          <div className="flex-1 aspect-[400/500] min-w-px relative rounded-[12px] overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 border border-gray-250 flex items-center justify-center p-6 shadow-sm">
+            
+            {/* Selected Vehicle Image */}
+            {selectedVehicle.images[0] ? (
+              <Image
+                src={selectedVehicle.images[0]}
+                alt={selectedVehicle.name}
+                fill
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                className="object-contain p-4 hover:scale-105 transition-transform duration-500"
+                priority
+              />
+            ) : (
+              <div className="text-xs text-gray-400">Hình ảnh đang cập nhật</div>
+            )}
+            
+            {/* Design badge */}
+            <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-sm text-white text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+              {selectedVehicle.name}
             </div>
 
-            {/* Vehicle Image Container */}
-            <div className="flex-1 p-6 flex flex-col justify-between gap-6 bg-gray-50/20">
-              <div className="w-full h-[180px] relative mt-2 flex items-center justify-center">
-                {selectedVehicle.images[0] ? (
-                  <Image
-                    src={selectedVehicle.images[0]}
-                    alt={selectedVehicle.name}
-                    fill
-                    sizes="(max-width: 1024px) 80vw, 30vw"
-                    className="object-contain hover:scale-105 transition-transform duration-500"
-                    priority
-                  />
-                ) : (
-                  <div className="text-xs text-gray-400">Hình ảnh đang cập nhật</div>
-                )}
+            {/* Premium quick summary block */}
+            <div className="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-sm p-4 rounded-xl border border-gray-100 shadow-md flex justify-between items-center">
+              <div>
+                <span className="text-[10px] text-gray-400 block font-semibold uppercase tracking-wider leading-none mb-1">
+                  Giá niêm yết
+                </span>
+                <span className="text-sm font-bold text-gray-800 truncate block max-w-[180px]">{selectedVersion.name}</span>
               </div>
-
-              {/* Loan Summary Listing */}
-              <div className="border-t border-gray-150 pt-4 space-y-3.5">
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-gray-500 font-medium">Giá xe (phiên bản):</span>
-                  <span className="font-bold text-gray-800">{formatCurrency(listPrice)}</span>
-                </div>
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-gray-500 font-medium">Khoản trả trước ({prepaidPercentage}%):</span>
-                  <span className="font-bold text-gray-800">{formatCurrency(prepaidAmount)}</span>
-                </div>
-                <div className="flex justify-between items-center text-sm border-b border-dashed border-gray-150 pb-3">
-                  <span className="text-gray-500 font-medium">Khoản vay ngân hàng:</span>
-                  <span className="font-bold text-vivid text-base">{formatCurrency(loanAmount)}</span>
-                </div>
-                
-                {/* Result Monthly Estimate */}
-                <div className="flex justify-between items-center pt-1.5">
-                  <div className="flex items-center gap-1.5">
-                    <TrendingDown className="w-5 h-5 text-green-500" />
-                    <div>
-                      <span className="text-xs text-gray-400 block leading-none">Thanh toán tháng đầu</span>
-                      <span className="text-[11px] text-gray-500">(Gốc + Lãi)</span>
-                    </div>
-                  </div>
-                  <span className="text-lg font-bold text-green-600">
-                    {formatCurrency(firstMonthTotal)}
-                  </span>
-                </div>
-              </div>
-
-              {/* Bottom Quick Action Link */}
-              <Link
-                href={`/products/${selectedVehicle.id}`}
-                className="w-full border border-gray-200 hover:border-vivid hover:bg-blue-50/10 text-gray-700 hover:text-vivid py-2.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1 mt-2 text-center"
-              >
-                <span>Xem chi tiết dòng sản phẩm này</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </Link>
+              <span className="text-base font-extrabold text-vivid whitespace-nowrap shrink-0">
+                {formatCurrency(listPrice)}
+              </span>
             </div>
           </div>
         </div>
 
-        {/* Results Block - Amortization Schedule (14144:5395) */}
+        {/* Results Block - Plan breakdown (Figma 14144:5395) - baby blue card bg-[#edf6ff] */}
         {isCalculated && loanAmount > 0 && (
-          <div ref={resultsRef} className="mt-12 bg-white rounded-xl border border-gray-200 shadow-sm p-6 md:p-8 space-y-6 scroll-mt-24 print:border-0 print:shadow-none print:p-0 print:mt-0">
+          <div ref={resultsRef} className="w-full flex flex-col items-center py-[32px] mt-8 scroll-mt-24">
             
-            {/* Header info */}
-            <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 border-b pb-5 print:border-b-0 print:pb-0">
-              <div>
-                <h3 className="text-headline-3 text-primary font-bold uppercase tracking-wide print:text-xl">
-                  Lịch trả nợ ước tính
-                </h3>
-                <p className="text-body-2 text-gray-med mt-1 print:text-xs">
-                  Chi tiết bảng thanh toán từng kỳ dựa trên phương thức <span className="text-vivid font-bold">{repaymentMethod === "declining" ? "Dư nợ giảm dần" : "Dư nợ gốc cố định"}</span>
-                </p>
+            {/* Card wrapper styled matching Figma: bg-[#edf6ff], rounded-[12px], p-[24px], gap-[32px] */}
+            <div className="bg-[#edf6ff] border border-blue-200/40 p-[24px] rounded-[12px] w-full max-w-[800px] flex flex-col gap-[32px] items-stretch shadow-md print:bg-white print:border-0 print:shadow-none print:p-0">
+              
+              {/* Title Header */}
+              <h3 className="font-sans font-bold text-[#0562d2] text-[32px] leading-[1.2] text-center w-full uppercase tracking-wide">
+                KẾ HOẠCH TRẢ GÓP
+              </h3>
+
+              {/* Metrics summary list */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-white/70 rounded-lg border border-blue-150 print:bg-white print:border print:border-gray-200">
+                <div className="space-y-1">
+                  <span className="text-[10px] text-gray-400 block font-bold uppercase tracking-wide">Mẫu xe & Phiên bản</span>
+                  <span className="text-xs font-bold text-gray-800 block truncate">{selectedVehicle.name} - {selectedVersion.name}</span>
+                </div>
+                <div className="space-y-1">
+                  <span className="text-[10px] text-gray-400 block font-bold uppercase tracking-wide">Số tiền vay</span>
+                  <span className="text-xs font-bold text-vivid block">{formatCurrency(loanAmount)}</span>
+                </div>
+                <div className="space-y-1">
+                  <span className="text-[10px] text-gray-400 block font-bold uppercase tracking-wide">Kỳ hạn vay</span>
+                  <span className="text-xs font-bold text-gray-800 block">{loanTermMonths} tháng ({loanTermMonths / 12} năm)</span>
+                </div>
+                <div className="space-y-1">
+                  <span className="text-[10px] text-gray-400 block font-bold uppercase tracking-wide">Trả tháng đầu</span>
+                  <span className="text-xs font-bold text-green-600 block">{formatCurrency(firstMonthTotal)}</span>
+                </div>
               </div>
 
-              {/* Print action buttons */}
-              <div className="flex items-center gap-3 print:hidden">
-                <button
-                  type="button"
-                  onClick={handlePrint}
-                  className="flex items-center gap-1.5 text-xs bg-gray-50 hover:bg-gray-100 text-gray-700 font-semibold px-4 py-2 rounded-lg border border-gray-200 shadow-sm cursor-pointer"
-                >
-                  <Printer className="w-4 h-4" />
-                  In / Xuất PDF
-                </button>
-                <Link
-                  href={`/contact?reason=Tư vấn trả góp&model=${selectedVehicle.name}`}
-                  className="flex items-center gap-1.5 text-xs bg-vivid hover:bg-secondary text-white font-semibold px-4 py-2 rounded-lg shadow-sm"
-                >
-                  Nhận báo giá chi tiết
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-              </div>
-            </div>
+              {/* Plan Table - border-[#94c5ff] */}
+              <div className="w-full overflow-x-auto">
+                <div className="min-w-[600px] flex flex-col gap-[16px] text-body-1 text-gray-dark font-medium w-full">
+                  
+                  {/* Table Header Row - border-[#94c5ff] */}
+                  <div className="border-b border-[#94c5ff] border-solid flex font-semibold gap-[12px] items-center pb-[12px] text-[#333] w-full text-xs uppercase tracking-wide">
+                    <p className="w-[64px] text-center">Kỳ</p>
+                    <p className="flex-1">Số dư nợ</p>
+                    <p className="flex-1 text-right">Gốc</p>
+                    <p className="flex-1 text-right">Lãi</p>
+                    <p className="flex-1 text-right">Gốc + Lãi</p>
+                  </div>
 
-            {/* Loan Metrics Grid for Print & Web Overview */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-blue-50/30 rounded-lg border border-blue-100/50 print:bg-white print:border print:border-gray-200">
-              <div className="space-y-1">
-                <span className="text-xs text-gray-400 block font-medium uppercase">Mẫu xe & Phiên bản</span>
-                <span className="text-sm font-bold text-gray-800 block truncate">{selectedVehicle.name} - {selectedVersion.name}</span>
-              </div>
-              <div className="space-y-1">
-                <span className="text-xs text-gray-400 block font-medium uppercase">Khoản vay ngân hàng</span>
-                <span className="text-sm font-bold text-vivid block">{formatCurrency(loanAmount)}</span>
-              </div>
-              <div className="space-y-1">
-                <span className="text-xs text-gray-400 block font-medium uppercase">Tổng thời gian vay</span>
-                <span className="text-sm font-bold text-gray-800 block">{loanTermMonths} tháng ({loanTermMonths / 12} năm)</span>
-              </div>
-              <div className="space-y-1">
-                <span className="text-xs text-gray-400 block font-medium uppercase">Tổng lãi phải trả</span>
-                <span className="text-sm font-bold text-green-600 block">{formatCurrency(totalInterest)}</span>
-              </div>
-            </div>
-
-            {/* Repayment Table */}
-            <div className="w-full overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="border-b-2 border-gray-150 text-label-2 text-gray-dark font-semibold">
-                    <th className="py-3 px-4 text-center w-16">Kỳ</th>
-                    <th className="py-3 px-4">Số dư nợ bắt đầu</th>
-                    <th className="py-3 px-4 text-right">Gốc trả</th>
-                    <th className="py-3 px-4 text-right">Lãi trả</th>
-                    <th className="py-3 px-4 text-right font-bold text-vivid">Tổng trả (Gốc + Lãi)</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100 text-body-2 text-gray-dark font-medium">
                   {/* Period 0 - Initial state */}
-                  <tr className="bg-gray-50/30">
-                    <td className="py-3 px-4 text-center text-gray-500 font-bold">0</td>
-                    <td className="py-3 px-4 font-semibold text-gray-600">{formatCurrency(loanAmount)}</td>
-                    <td className="py-3 px-4 text-right text-gray-400">-</td>
-                    <td className="py-3 px-4 text-right text-gray-400">-</td>
-                    <td className="py-3 px-4 text-right text-gray-400 font-bold">-</td>
-                  </tr>
+                  <div className="border-b border-[#94c5ff] border-solid flex gap-[12px] items-center pb-[12px] text-[#555] w-full text-[15px]">
+                    <p className="w-[64px] text-center font-bold">0</p>
+                    <p className="flex-1 font-semibold">{formatCurrency(loanAmount)}</p>
+                    <p className="flex-1 text-right text-gray-400">-</p>
+                    <p className="flex-1 text-right text-gray-400">-</p>
+                    <p className="flex-1 text-right text-gray-400 font-bold">-</p>
+                  </div>
 
                   {/* Render list of rows */}
                   {scheduleRows
                     .slice(0, showAllSchedule ? scheduleRows.length : 12)
                     .map((row) => (
-                      <tr key={row.period} className="hover:bg-gray-50/40">
-                        <td className="py-3 px-4 text-center text-gray-500 font-bold">{row.period}</td>
-                        <td className="py-3 px-4 text-gray-600">{formatCurrency(row.remainingPrincipal)}</td>
-                        <td className="py-3 px-4 text-right text-gray-700">{formatCurrency(row.principalPaid)}</td>
-                        <td className="py-3 px-4 text-right text-gray-700">{formatCurrency(row.interestPaid)}</td>
-                        <td className="py-3 px-4 text-right font-bold text-gray-800">{formatCurrency(row.totalPaid)}</td>
-                      </tr>
+                      <div key={row.period} className="border-b border-[#94c5ff] border-solid flex gap-[12px] items-center pb-[12px] text-[#333] w-full text-[15px]">
+                        <p className="w-[64px] text-center font-bold text-gray-500">{row.period}</p>
+                        <p className="flex-1">{formatCurrency(row.remainingPrincipal)}</p>
+                        <p className="flex-1 text-right">{formatCurrency(row.principalPaid)}</p>
+                        <p className="flex-1 text-right">{formatCurrency(row.interestPaid)}</p>
+                        <p className="flex-1 text-right font-semibold">{formatCurrency(row.totalPaid)}</p>
+                      </div>
                     ))}
                   
-                  {/* Totals row */}
-                  <tr className="bg-blue-50/20 border-t-2 border-gray-200 text-label-2 text-gray-800 font-bold">
-                    <td className="py-4 px-4 text-center">Tổng</td>
-                    <td className="py-4 px-4">-</td>
-                    <td className="py-4 px-4 text-right">{formatCurrency(totalPrincipal)}</td>
-                    <td className="py-4 px-4 text-right text-green-600">{formatCurrency(totalInterest)}</td>
-                    <td className="py-4 px-4 text-right text-vivid text-base">{formatCurrency(totalRepayment)}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+                  {/* Totals row - border-[#94c5ff] */}
+                  <div className="border-b border-[#94c5ff] border-solid flex font-bold gap-[12px] items-center pb-[12px] text-[#333] w-full text-[16px]">
+                    <p className="w-[64px] text-center">Tổng</p>
+                    <p className="flex-1"></p>
+                    <p className="flex-1 text-right">{formatCurrency(totalPrincipal)}</p>
+                    <p className="flex-1 text-right text-green-600">{formatCurrency(totalInterest)}</p>
+                    <p className="flex-1 text-right text-vivid text-base">{formatCurrency(totalRepayment)}</p>
+                  </div>
+                </div>
+              </div>
 
-            {/* Amortization Collapse Button */}
-            {loanTermMonths > 12 && (
-              <div className="flex justify-center pt-2 print:hidden">
+              {/* Amortization Collapse Button */}
+              {loanTermMonths > 12 && (
+                <div className="flex justify-center print:hidden">
+                  <button
+                    type="button"
+                    onClick={() => setShowAllSchedule(!showAllSchedule)}
+                    className="flex items-center gap-1.5 text-xs text-vivid font-bold hover:text-secondary bg-white hover:bg-gray-50 border border-blue-200 px-4 py-2 rounded-full cursor-pointer transition-colors shadow-sm"
+                  >
+                    <Eye className="w-4 h-4" />
+                    <span>
+                      {showAllSchedule 
+                        ? `Ẩn bớt lịch trả nợ (chỉ hiện 12 tháng đầu)` 
+                        : `Xem chi tiết tất cả lịch trả nợ (${loanTermMonths} tháng)`}
+                    </span>
+                  </button>
+                </div>
+              )}
+
+              {/* Action Buttons (Figma 14144:5412) - rounded-[800px] flex-row gap-24px */}
+              <div className="flex flex-col sm:flex-row gap-[24px] items-center w-full print:hidden">
+                <Link
+                  href={`/products/${selectedVehicle.id}`}
+                  className="bg-[#0562d2] border border-[#0562d2] border-solid rounded-[800px] text-white px-[24px] py-[10px] text-[18px] font-semibold flex-1 text-center hover:bg-secondary transition-colors cursor-pointer border-0 w-full"
+                >
+                  Xem sản phẩm
+                </Link>
                 <button
                   type="button"
-                  onClick={() => setShowAllSchedule(!showAllSchedule)}
-                  className="flex items-center gap-1 text-xs text-vivid font-bold hover:text-secondary bg-blue-50 hover:bg-blue-100/70 px-4 py-2 rounded-full cursor-pointer transition-colors"
+                  onClick={handlePrint}
+                  className="bg-white border border-[#d6d6d6] border-solid rounded-[800px] text-[#424242] px-[24px] py-[10px] text-[18px] font-semibold flex-1 text-center hover:bg-gray-50 transition-colors cursor-pointer w-full"
                 >
-                  <Eye className="w-4 h-4" />
-                  <span>
-                    {showAllSchedule 
-                      ? `Ẩn bớt lịch trả nợ (chỉ hiện 12 tháng đầu)` 
-                      : `Xem chi tiết tất cả lịch trả nợ (${loanTermMonths} tháng)`}
-                  </span>
+                  Xuất kết quả PDF
                 </button>
               </div>
-            )}
 
-            {/* Print Specific Footer Notes */}
-            <div className="hidden print:block text-[10px] text-gray-400 mt-8 border-t pt-4">
-              <p>* Bảng tính này chỉ mang tính chất tham khảo. Lãi suất thực tế sẽ được cập nhật cụ thể theo quy định của ngân hàng đối tác tại từng thời điểm.</p>
-              <p>Mọi chi tiết xin vui lòng liên hệ Đồng Nai Ford - Hotline KD: 0918 90 90 60 để nhận báo giá chính xác nhất.</p>
+              {/* Print Specific Footer Notes */}
+              <div className="hidden print:block text-[10px] text-gray-400 mt-4 border-t pt-4">
+                <p>* Bảng tính này chỉ mang tính chất tham khảo. Lãi suất thực tế sẽ được cập nhật cụ thể theo quy định của ngân hàng đối tác tại từng thời điểm.</p>
+                <p>Mọi chi tiết xin vui lòng liên hệ Đồng Nai Ford - Hotline KD: 0918 90 90 60 để nhận báo giá chính xác nhất.</p>
+              </div>
+              
             </div>
-            
           </div>
         )}
 
