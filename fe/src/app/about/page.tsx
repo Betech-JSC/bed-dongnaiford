@@ -276,7 +276,7 @@ export default function AboutPage() {
       <section className="relative w-full h-[480px] bg-slate-900 overflow-hidden flex items-end">
         <div className="absolute inset-0 z-0">
           <img
-            src={aboutAssets.hero}
+            src="/images/about/banner.jpg"
             alt="Đồng Nai Ford Banner"
             className="w-full h-full object-cover object-center"
           />
@@ -296,7 +296,7 @@ export default function AboutPage() {
           {/* Showroom Image (Rectangle 2024 - 1152x576px, rounded-24) */}
           <div className="relative w-full aspect-[2/1] rounded-[24px] overflow-hidden shadow-md">
             <img
-              src={aboutAssets.ourStory}
+              src="/images/about/image-introduce.jpg"
               alt="Showroom Đồng Nai Ford"
               className="w-full h-full object-cover object-center"
             />
@@ -322,7 +322,7 @@ export default function AboutPage() {
           {/* Right Image */}
           <div className="w-full lg:w-[536px] h-[349.68px] relative rounded-xl overflow-hidden shadow-sm">
             <img
-              src={aboutAssets.history}
+              src="/images/about/image-about-1.jpg"
               alt="Xưởng Dịch vụ Đồng Nai Ford"
               className="w-full h-full object-cover object-center"
             />
@@ -348,7 +348,7 @@ export default function AboutPage() {
           {/* Left Image */}
           <div className="w-full lg:w-[536px] h-[349.68px] relative rounded-xl overflow-hidden shadow-sm">
             <img
-              src={aboutAssets.facilities}
+              src="/images/about/image-about-2.jpg"
               alt="Thiết bị sửa chữa Đồng Nai Ford"
               className="w-full h-full object-cover object-center"
             />
@@ -374,7 +374,7 @@ export default function AboutPage() {
             {/* Left Column (500x600px image) */}
             <div className="w-full md:w-[500px] h-[350px] md:h-full relative rounded-xl overflow-hidden shadow-md">
               <img
-                src={aboutAssets.visionGallery[0]}
+                src="/images/about/image-vision-1.jpg"
                 alt="Vision Gallery Left"
                 className="w-full h-full object-cover object-center"
               />
@@ -385,7 +385,7 @@ export default function AboutPage() {
               {/* Top row image (636x292px) */}
               <div className="w-full h-[180px] md:h-[292px] relative rounded-xl overflow-hidden shadow-md">
                 <img
-                  src={aboutAssets.visionGallery[1]}
+                  src="/images/about/image-vision-2.jpg"
                   alt="Vision Gallery Top Right"
                   className="w-full h-full object-cover object-center"
                 />
@@ -395,14 +395,14 @@ export default function AboutPage() {
               <div className="grid grid-cols-2 gap-4 h-[150px] md:h-[292px]">
                 <div className="relative rounded-xl overflow-hidden shadow-md h-full">
                   <img
-                    src={aboutAssets.visionGallery[2]}
+                    src="/images/about/image-vision-3.jpg"
                     alt="Vision Gallery Bottom Left"
                     className="w-full h-full object-cover object-center"
                   />
                 </div>
                 <div className="relative rounded-xl overflow-hidden shadow-md h-full">
                   <img
-                    src={aboutAssets.visionGallery[3]}
+                    src="/images/about/image-vision-4.jpg"
                     alt="Vision Gallery Bottom Right"
                     className="w-full h-full object-cover object-center"
                   />
