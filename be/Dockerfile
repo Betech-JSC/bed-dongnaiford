@@ -30,17 +30,22 @@ RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
 
 WORKDIR /var/www
 
-# Copy toàn bộ source backend vào container
+# 1. Sao chép và cài đặt PHP dependencies (cache layer)
+COPY composer.json composer.lock ./
+COPY packages ./packages
+RUN composer install --no-interaction --no-scripts --no-autoloader --no-dev
+
+# 2. Sao chép và cài đặt JS dependencies cho Admin panel (cache layer)
+COPY package.json yarn.lock ./
+RUN yarn install --frozen-lockfile
+
+# 3. Sao chép toàn bộ source code còn lại
 COPY . .
 
-# Cài đặt PHP dependencies (bỏ qua dev dependencies)
-RUN composer install --no-interaction --optimize-autoloader --no-dev
-
-# Tạo file .env nếu chưa có
-RUN cp .env.example .env
-
-# Cài đặt JS packages, sinh Route Ziggy và build static assets cho Admin panel
-RUN yarn install && yarn build
+# 4. Dump autoloader, tạo .env và build static assets
+RUN composer dump-autoload --optimize --no-dev \
+    && cp .env.example .env \
+    && yarn build
 
 # Sao lưu thư mục public để entrypoint copy vào volume khi container chạy
 RUN cp -R /var/www/public /var/www/public_bootstrap
