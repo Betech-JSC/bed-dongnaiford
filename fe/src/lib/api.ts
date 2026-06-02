@@ -22,7 +22,12 @@ async function fetchAPI<T>(endpoint: string, options?: RequestInit): Promise<T> 
     });
 
     if (!response.ok) {
-      throw new Error(`API Error: ${response.status} ${response.statusText}`);
+      const errorData = await response.json().catch(() => null);
+      throw {
+        status: response.status,
+        statusText: response.statusText,
+        data: errorData,
+      };
     }
 
     const data = await response.json();
@@ -117,4 +122,19 @@ export const jobsAPI = {
 export const agenciesAPI = {
   getAll: () => fetchAPI('/agencies'),
   getBySlug: (slug: string) => fetchAPI(`/agencies/${slug}`),
+};
+
+/**
+ * Contacts API
+ */
+export const contactsAPI = {
+  submit: (payload: {
+    contact: {
+      type: 'CONTACT_FORM' | 'ADVISE_FORM';
+      data: Record<string, any>;
+    };
+  }) => fetchAPI<{ success: boolean; data: any; message?: string }>('/contacts', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  }),
 };

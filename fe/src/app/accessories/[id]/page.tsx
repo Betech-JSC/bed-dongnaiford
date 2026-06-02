@@ -4,6 +4,7 @@ import { useParams } from "next/navigation";
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { contactsAPI } from "@/lib/api";
 import { 
   Phone, 
   Plus, 
@@ -43,6 +44,7 @@ export default function AccessoryDetailPage() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   if (!accessory) {
     return (
@@ -68,24 +70,65 @@ export default function AccessoryDetailPage() {
     return new Intl.NumberFormat("vi-VN").format(price) + " VNĐ";
   };
 
-  const handleBookingSubmit = (e: React.FormEvent) => {
+  const handleBookingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setTimeout(() => {
+    setErrorMessage("");
+
+    try {
+      const response = await contactsAPI.submit({
+        contact: {
+          type: "ADVISE_FORM",
+          data: {
+            Name: bookingForm.fullName,
+            Phone: bookingForm.phone,
+            Product: {
+              id: accessory.id,
+              slug: accessory.id,
+              title: accessory.name,
+            },
+            CarModel: bookingForm.carModel,
+            InstallDate: bookingForm.date,
+            "Nội dung cần hỗ trợ": bookingForm.note || `Đăng ký tư vấn & lắp đặt phụ kiện ${accessory.name}`,
+          }
+        }
+      });
+
+      if (response && response.success === false) {
+        setErrorMessage(response.message || "Gửi yêu cầu tư vấn thất bại. Vui lòng thử lại!");
+      } else {
+        setIsSubmitted(true);
+        setTimeout(() => {
+          setIsSubmitted(false);
+          setShowBookingModal(false);
+          setBookingForm({
+            fullName: "",
+            phone: "",
+            carModel: "Ford Everest",
+            date: "",
+            note: ""
+          });
+        }, 2000);
+      }
+    } catch (error: any) {
+      console.error("Accessory booking submit error:", error);
+      let errMsg = "Đã xảy ra lỗi kết nối. Vui lòng thử lại sau!";
+      if (error && error.data && error.data.message) {
+        const backendMessage = error.data.message;
+        if (typeof backendMessage === "object") {
+          if (backendMessage.Phone) {
+            errMsg = "Số điện thoại không hợp lệ (yêu cầu từ 9 đến 12 chữ số)!";
+          } else if (backendMessage.Name) {
+            errMsg = "Họ và tên không hợp lệ!";
+          }
+        } else {
+          errMsg = backendMessage;
+        }
+      }
+      setErrorMessage(errMsg);
+    } finally {
       setIsSubmitting(false);
-      setIsSubmitted(true);
-      setTimeout(() => {
-        setIsSubmitted(false);
-        setShowBookingModal(false);
-        setBookingForm({
-          fullName: "",
-          phone: "",
-          carModel: "Ford Everest",
-          date: "",
-          note: ""
-        });
-      }, 2000);
-    }, 1200);
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -385,6 +428,11 @@ export default function AccessoryDetailPage() {
                 </div>
               ) : (
                 <form onSubmit={handleBookingSubmit} className="space-y-4">
+                  {errorMessage && (
+                    <div className="bg-red-50 border border-red-200 text-red-600 p-3 rounded-sm text-xs text-center font-semibold">
+                      {errorMessage}
+                    </div>
+                  )}
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-gray-dark uppercase tracking-wider block">Họ và tên của bạn *</label>
                     <input 

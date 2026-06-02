@@ -3,6 +3,7 @@
 import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
+import { contactsAPI } from "@/lib/api";
 import { 
   ArrowLeft, 
   Layers, 
@@ -82,6 +83,15 @@ export default function ProductDetailPage() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  // Reset validation state when opening modals
+  useEffect(() => {
+    if (showDriveModal || showQuoteModal) {
+      setErrorMessage("");
+      setIsSubmitted(false);
+    }
+  }, [showDriveModal, showQuoteModal]);
 
   // Calculator states
   const [selectedVehicleId, setSelectedVehicleId] = useState(vehicle?.id || "");
@@ -292,20 +302,79 @@ export default function ProductDetailPage() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    // Simulate API request
-    setTimeout(() => {
+    setErrorMessage("");
+
+    try {
+      let productTitle = "";
+      let productId = "";
+      let productSlug = "";
+      let note = "";
+
+      if (showDriveModal) {
+        productId = vehicle.id;
+        productSlug = vehicle.id;
+        productTitle = `${vehicle.name} - ${activeVersion.name}`;
+        note = formData.note || `Đăng ký lái thử xe ${vehicle.name} - ${activeVersion.name}`;
+      } else if (showQuoteModal) {
+        const selVeh = vehicles.find(v => v.id === selectedVehicleId) || vehicle;
+        const selVer = selVeh.versions.find(v => v.id === selectedVersionId) || selVeh.versions[0];
+        productId = selVeh.id;
+        productSlug = selVeh.id;
+        productTitle = `${selVeh.name} - ${selVer?.name}`;
+        note = formData.note || `Yêu cầu báo giá lăn bánh xe ${selVeh.name} - ${selVer?.name} tại ${selectedProvince}. Tổng dự toán: ${formatPrice(rollingCost.total)}`;
+      }
+
+      const response = await contactsAPI.submit({
+        contact: {
+          type: "ADVISE_FORM",
+          data: {
+            Name: formData.fullName,
+            Phone: formData.phone,
+            Email: formData.email || undefined,
+            Province: formData.province,
+            Product: {
+              id: productId,
+              slug: productSlug,
+              title: productTitle
+            },
+            "Nội dung cần hỗ trợ": note
+          }
+        }
+      });
+
+      if (response && response.success === false) {
+        setErrorMessage(response.message || "Gửi yêu cầu thất bại. Vui lòng thử lại!");
+      } else {
+        setIsSubmitted(true);
+        setTimeout(() => {
+          setIsSubmitted(false);
+          setShowQuoteModal(false);
+          setShowDriveModal(false);
+          setFormData({ fullName: "", phone: "", email: "", province: "Đồng Nai", note: "" });
+        }, 2000);
+      }
+    } catch (error: any) {
+      console.error("Vehicle advise submit error:", error);
+      let errMsg = "Đã xảy ra lỗi kết nối. Vui lòng thử lại sau!";
+      if (error && error.data && error.data.message) {
+        const backendMessage = error.data.message;
+        if (typeof backendMessage === "object") {
+          if (backendMessage.Phone) {
+            errMsg = "Số điện thoại không hợp lệ (yêu cầu từ 9 đến 12 chữ số)!";
+          } else if (backendMessage.Name) {
+            errMsg = "Họ và tên không hợp lệ!";
+          }
+        } else {
+          errMsg = backendMessage;
+        }
+      }
+      setErrorMessage(errMsg);
+    } finally {
       setIsSubmitting(false);
-      setIsSubmitted(true);
-      setTimeout(() => {
-        setIsSubmitted(false);
-        setShowQuoteModal(false);
-        setShowDriveModal(false);
-        setFormData({ fullName: "", phone: "", email: "", province: "Đồng Nai", note: "" });
-      }, 2000);
-    }, 1500);
+    }
   };
 
   const handleTabClick = (tab: ActiveTab) => {
@@ -1066,6 +1135,11 @@ export default function ProductDetailPage() {
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-4">
+                  {errorMessage && (
+                    <div className="bg-red-50 border border-red-200 text-red-600 p-3 rounded-sm text-xs text-center font-semibold">
+                      {errorMessage}
+                    </div>
+                  )}
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block text-left">Họ và tên của bạn *</label>
                     <input 
@@ -1359,6 +1433,11 @@ export default function ProductDetailPage() {
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
+                  {errorMessage && (
+                    <div className="bg-red-50 border border-red-200 text-red-600 p-3 rounded-sm text-xs text-center font-semibold">
+                      {errorMessage}
+                    </div>
+                  )}
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block text-left">Họ và tên của bạn *</label>
                     <input 

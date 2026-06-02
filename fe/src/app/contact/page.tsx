@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { MapPin, Phone, Mail, CheckCircle, X } from "lucide-react";
 import { vehicles } from "@/data/vehicles";
 import { siteAssets } from "@/lib/site-assets";
+import { contactsAPI } from "@/lib/api";
 
 function ContactFormContent() {
   const searchParams = useSearchParams();
@@ -27,8 +28,9 @@ function ContactFormContent() {
   
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formName || !formPhone) {
       setToastMessage("Vui lòng điền Họ tên và Số điện thoại!");
@@ -36,17 +38,57 @@ function ContactFormContent() {
       return;
     }
 
-    const selectedVehicleName = vehicles.find((v) => v.id === formVehicle)?.name || "";
-    setToastMessage(
-      `Đăng ký thành công! Đồng Nai Ford đã nhận được yêu cầu ${formReason.toLowerCase()} của quý khách cho dòng xe ${selectedVehicleName}. Chúng tôi sẽ liên hệ tư vấn trong vòng 15 phút.`
-    );
-    setShowToast(true);
+    setIsSubmitting(true);
+    try {
+      const response = await contactsAPI.submit({
+        contact: {
+          type: "CONTACT_FORM",
+          data: {
+            Name: formName,
+            Phone: formPhone,
+            Email: formEmail || undefined,
+            "Nội dung cần hỗ trợ": formNote || `Yêu cầu liên hệ: ${formReason} cho xe ${vehicles.find((v) => v.id === formVehicle)?.name || ""}`,
+          }
+        }
+      });
 
-    // Clear inputs
-    setFormName("");
-    setFormPhone("");
-    setFormEmail("");
-    setFormNote("");
+      if (response && response.success === false) {
+        setToastMessage(response.message || "Gửi yêu cầu thất bại. Vui lòng thử lại!");
+        setShowToast(true);
+      } else {
+        const selectedVehicleName = vehicles.find((v) => v.id === formVehicle)?.name || "";
+        setToastMessage(
+          `Đăng ký thành công! Đồng Nai Ford đã nhận được yêu cầu ${formReason.toLowerCase()} của quý khách cho dòng xe ${selectedVehicleName}. Chúng tôi sẽ liên hệ tư vấn trong vòng 15 phút.`
+        );
+        setShowToast(true);
+
+        // Clear inputs
+        setFormName("");
+        setFormPhone("");
+        setFormEmail("");
+        setFormNote("");
+      }
+    } catch (error: any) {
+      console.error("Contact submit error:", error);
+      let errMsg = "Đã xảy ra lỗi kết nối đến máy chủ. Vui lòng thử lại sau!";
+      if (error && error.data && error.data.message) {
+        const backendMessage = error.data.message;
+        if (typeof backendMessage === "object") {
+          // Validation error keys (Phone, Name)
+          if (backendMessage.Phone) {
+            errMsg = "Số điện thoại không hợp lệ (yêu cầu từ 9 đến 12 chữ số)!";
+          } else if (backendMessage.Name) {
+            errMsg = "Họ và tên không hợp lệ!";
+          }
+        } else {
+          errMsg = backendMessage;
+        }
+      }
+      setToastMessage(errMsg);
+      setShowToast(true);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -214,9 +256,10 @@ function ContactFormContent() {
             <div className="pt-2 flex justify-center lg:justify-start">
               <button
                 type="submit"
-                className="w-[240px] py-[10px] bg-[#0562d2] border border-[#0562d2] hover:bg-[#00095b] hover:border-[#00095b] text-white font-semibold text-[16px] tracking-wide rounded-[800px] shadow-md transition cursor-pointer text-center"
+                disabled={isSubmitting}
+                className="w-[240px] py-[10px] bg-[#0562d2] border border-[#0562d2] hover:bg-[#00095b] hover:border-[#00095b] disabled:bg-gray-400 disabled:border-gray-400 text-white font-semibold text-[16px] tracking-wide rounded-[800px] shadow-md transition cursor-pointer text-center"
               >
-                Đặt lịch
+                {isSubmitting ? "Đang gửi..." : "Đặt lịch"}
               </button>
             </div>
           </form>
