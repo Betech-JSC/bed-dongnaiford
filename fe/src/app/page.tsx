@@ -600,9 +600,14 @@ export default function Home() {
             >
               {[...vehicles, ...vehicles, ...vehicles].map((vehicle, idx) => {
                 return (
-                  <Link
+                  <div
                     key={`${vehicle.id}-${idx}`}
-                    href={`/products/${vehicle.id}`}
+                    onClick={(e) => {
+                      const target = e.target as HTMLElement;
+                      if (!target.closest('a')) {
+                        router.push(`/products/${vehicle.id}`);
+                      }
+                    }}
                     className="relative overflow-hidden rounded-xl h-[595px] group cursor-pointer bg-[#121824] flex-shrink-0 transition-all duration-300 block"
                     style={{
                       width: 'var(--card-width-popular)',
@@ -616,12 +621,26 @@ export default function Home() {
                       className="object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                     {/* Gradient overlay — Figma: top rgba(0,0,0,0) → bottom heavy */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
                     {/* Content — Figma: p-8 bottom */}
-                    <div className="absolute bottom-0 left-0 right-0 p-8 z-10 flex flex-col gap-3">
+                    <div className="absolute bottom-0 left-0 right-0 p-8 z-10 flex flex-col gap-4">
                       <h3 className="text-2xl md:text-3xl font-semibold text-white leading-[1.2]">{vehicle.name}</h3>
+                      <div className="flex gap-3 mt-1">
+                        <Link
+                          href={`/products/${vehicle.id}`}
+                          className="bg-[#0562D2] text-white text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-[#044ea7] transition-all duration-200"
+                        >
+                          Xem chi tiết
+                        </Link>
+                        <Link
+                          href={`/contact?vehicle=${vehicle.id}&reason=Báo giá`}
+                          className="bg-transparent border border-white text-white text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-white/10 transition-all duration-200"
+                        >
+                          Báo giá
+                        </Link>
+                      </div>
                     </div>
-                  </Link>
+                  </div>
                 );
               })}
             </div>
