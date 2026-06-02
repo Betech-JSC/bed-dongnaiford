@@ -786,8 +786,7 @@ export default function ProductDetailPage() {
                         window.scrollTo({ top: y, behavior: "smooth" });
                       }
                     }}
-                    className={`bg-[#fafafa] flex flex-col items-center overflow-hidden rounded-[8px] text-left border-0 cursor-pointer p-0 hover:scale-[1.01] transition-transform focus:outline-none focus:ring-0 focus-visible:outline-none outline-none
-                      ${isSelected ? "ring-2 ring-[#0562d2]/40" : ""}`}
+                    className="bg-[#fafafa] flex flex-col items-center overflow-hidden rounded-[8px] text-left border-0 cursor-pointer p-0 hover:scale-[1.01] transition-transform focus:outline-none focus:ring-0 focus-visible:outline-none outline-none"
                   >
                     {/* Background Gradient representation */}
                     <div className="aspect-[272/272] relative rounded-[12px] overflow-hidden w-full bg-gray-150">
