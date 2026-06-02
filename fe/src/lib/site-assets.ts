@@ -1,7 +1,7 @@
 export const siteAssets = {
   heroSlides: [
     "/images-dynamic/image-hero-1.jpg",
-    "/images-dynamic/image-hero-2.jpg",
+    "/images-dynamic/image-hero-2.webp",
     "/assets/car-mach-e.png",
   ],
   showroomBg: "/showroom_bg.png",
@@ -9,12 +9,13 @@ export const siteAssets = {
   serviceBannerFg: "/assets/service-banner-fg.png",
   serviceCustomerCare: "/service-support-customer.jpg",
   serviceMaintenance: "/service-fixed-car.jpg",
-  serviceDelivery: "/service-delivery.jpg",
+  serviceDelivery: "/service-delivery.png",
   bookingCar: "/assets/booking-car.png",
   qualityCareBadge: "/assets/quality-care-circle.png",
   expressFlow: "/assets/express-maintenance-flow.png",
   carPlaceholder: "/assets/car-mach-e.png",
   ourStoryBanner: "/showroom_bg.png",
+  testDriveBg: "/assets/test-drive-bg.png",
   googleMapsEmbed:
     "https://maps.google.com/maps?q=10.9511,106.8434&hl=vi&z=16&output=embed",
 } as const;

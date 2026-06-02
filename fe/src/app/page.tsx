@@ -672,10 +672,11 @@ export default function Home() {
               {/* Background wheel image */}
               <div className="absolute inset-0 z-0">
                 <Image
-                  src={siteAssets.heroSlides[1]}
+                  src={siteAssets.testDriveBg}
                   alt=""
                   fill
                   className="object-cover object-right"
+                  onError={handleImageError}
                 />
                 {/* Gradient overlay per Figma */}
                 <div className="absolute inset-0" style={{ backgroundImage: 'linear-gradient(-53.316deg, rgba(0,9,91,0) 31.896%, rgba(0,9,91,0.8) 83.827%)' }} />
