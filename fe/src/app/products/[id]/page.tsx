@@ -6,11 +6,7 @@ import Image from "next/image";
 import { contactsAPI } from "@/lib/api";
 import { 
   ArrowLeft, 
-  Layers, 
   Check, 
-  Settings, 
-  Fuel, 
-  Info,
   ChevronDown,
   Plus,
   Minus,
@@ -817,82 +813,7 @@ export default function ProductDetailPage() {
               })}
             </div>
 
-            {/* Version Detail specs card */}
-            <div className="bg-white rounded-lg p-6 md:p-8 border border-gray-200/60 shadow-xs max-w-5xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-center mt-6">
-              {/* Left specifications list */}
-              <div className="lg:col-span-5 space-y-6">
-                <div className="space-y-2">
-                  <span className="text-[11px] font-bold text-[#0562d2] uppercase tracking-wider block">Phiên bản đang chọn</span>
-                  <h3 className="text-xl md:text-2xl font-bold text-[#00095b] uppercase font-display leading-tight">
-                    {activeVersion.name}
-                  </h3>
-                  <div className="pt-2">
-                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Giá niêm yết:</p>
-                    <p className="text-2xl font-bold text-[#0562d2] font-display">{formatPrice(activeVersion.price)}</p>
-                  </div>
-                </div>
 
-                <div className="border-t border-gray-100 pt-4 space-y-3.5 text-xs text-gray-700">
-                  <div className="flex items-center gap-3">
-                    <Fuel className="w-4 h-4 text-[#0562d2] shrink-0" />
-                    <span>Động cơ: <strong className="text-black font-semibold">{activeVersion.specs.engine}</strong></span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Settings className="w-4 h-4 text-[#0562d2] shrink-0" />
-                    <span>Hộp số: <strong className="text-black font-semibold">{activeVersion.specs.transmission}</strong></span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Layers className="w-4 h-4 text-[#0562d2] shrink-0" />
-                    <span>Hệ dẫn động: <strong className="text-black font-semibold">{activeVersion.specs.drivetrain}</strong></span>
-                  </div>
-                </div>
-
-                <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                  <button 
-                    onClick={() => openQuoteDrawer(vehicle.id, activeVersion.id)}
-                    className="flex-1 bg-[#0562d2] hover:bg-[#044ea7] text-white py-3 rounded-[800px] font-bold text-xs uppercase tracking-wider cursor-pointer border-0 shadow-xs transition-colors"
-                  >
-                    Yêu cầu báo giá
-                  </button>
-                  <button 
-                    onClick={() => setShowDriveModal(true)}
-                    className="flex-1 bg-transparent hover:bg-gray-50 text-[#00095b] border border-gray-300 py-3 rounded-[800px] font-bold text-xs uppercase tracking-wider cursor-pointer"
-                  >
-                    Đăng ký lái thử
-                  </button>
-                </div>
-              </div>
-
-              {/* Right Specifications Table */}
-              <div className="lg:col-span-7 space-y-4">
-                <h4 className="text-sm font-bold text-[#00095b] uppercase border-b border-gray-100 pb-2 flex items-center gap-2">
-                  <Info className="w-4 h-4 text-[#0562d2]" />
-                  <span>Thông số kỹ thuật chi tiết</span>
-                </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2.5 text-xs text-gray-700">
-                  <div className="flex justify-between py-1.5 border-b border-gray-100/60">
-                    <span className="text-gray-400 font-medium">Công suất cực đại:</span>
-                    <span className="font-semibold text-black text-right">{activeVersion.specs.power}</span>
-                  </div>
-                  <div className="flex justify-between py-1.5 border-b border-gray-100/60">
-                    <span className="text-gray-400 font-medium">Mô-men xoắn:</span>
-                    <span className="font-semibold text-black text-right">{activeVersion.specs.torque}</span>
-                  </div>
-                  <div className="flex justify-between py-1.5 border-b border-gray-100/60">
-                    <span className="text-gray-400 font-medium">Kích thước DxRxC:</span>
-                    <span className="font-semibold text-black text-right">{activeVersion.specs.dimensions}</span>
-                  </div>
-                  <div className="flex justify-between py-1.5 border-b border-gray-100/60">
-                    <span className="text-gray-400 font-medium">Khoảng sáng gầm:</span>
-                    <span className="font-semibold text-black text-right">{activeVersion.specs.clearance}</span>
-                  </div>
-                  <div className="flex justify-between py-1.5 border-b border-gray-100/60 sm:col-span-2">
-                    <span className="text-gray-400 font-medium">Tiêu thụ nhiên liệu:</span>
-                    <span className="font-semibold text-black text-right">{activeVersion.specs.fuelEconomy}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
 
           </div>
         </section>
