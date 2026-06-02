@@ -1205,13 +1205,6 @@ export default function ProductDetailPage() {
                             }}
                           />
 
-                          {/* HUD instructions */}
-                          <div className="absolute top-4 left-4 md:left-24 bg-black/75 backdrop-blur-xs text-white text-[11px] font-bold px-3 py-1.5 rounded-full pointer-events-none flex items-center gap-2 z-30">
-                            <span>Xoay 3D Ngoại Thất (Kéo thả chuột)</span>
-                            <span className="bg-[#0562D2] px-2 py-0.5 rounded-sm text-[10px]">
-                              Frame: {String(Math.floor(((rotation % 360 + 360) % 360) / (360 / 28)) + 1).padStart(3, '0')} / 028
-                            </span>
-                          </div>
                         </div>
                       ) : (
                         // Interior 360 WebGL panorama (Three.js canvas) or 36-frame static sequence for Mustang
@@ -1267,13 +1260,6 @@ export default function ProductDetailPage() {
                               );
                             })}
                             
-                            {/* HUD instructions */}
-                            <div className="absolute top-4 left-4 md:left-24 bg-black/75 backdrop-blur-xs text-white text-[11px] font-bold px-3 py-1.5 rounded-full pointer-events-none flex items-center gap-2 z-30">
-                              <span>Xoay Nội Thất (Kéo thả chuột)</span>
-                              <span className="bg-[#0562D2] px-2 py-0.5 rounded-sm text-[10px]">
-                                Frame: {String(Math.floor(((rotation % 360 + 360) % 360) / (360 / 36)) + 1).padStart(3, '0')} / 036
-                              </span>
-                            </div>
                           </div>
                         ) : (
                           <div 
@@ -1287,10 +1273,6 @@ export default function ProductDetailPage() {
                               </div>
                             )}
                             
-                            {/* HUD instructions */}
-                            <div className="absolute top-4 left-4 md:left-24 bg-black/75 backdrop-blur-xs text-white text-[11px] font-bold px-3 py-1.5 rounded-full pointer-events-none z-30">
-                              Khoang Lái 360°: Kéo thả chuột để quay cabin 3D (Three.js)
-                            </div>
                           </div>
                         )
                       )
@@ -1320,7 +1302,7 @@ export default function ProductDetailPage() {
                           <span className="text-[10px] font-bold uppercase tracking-wider group-hover:underline">Bật 360°</span>
                         </button>
 
-                        <div className="absolute bottom-4 left-4 md:left-24 bg-[#1a1a1a]/85 backdrop-blur-xs text-white text-[12px] font-semibold px-4 py-2 rounded-[4px] shadow-sm z-10">
+                        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-[#1a1a1a]/85 backdrop-blur-xs text-white text-[12px] font-semibold px-4 py-2 rounded-[4px] shadow-sm z-10 whitespace-nowrap">
                           <span>Ngoại thất: {vehicle.colors[selectedColorIndex]?.name}</span>
                           <span className="mx-2 opacity-50">|</span>
                           <span>Phiên bản: {vehicle.versions[activeVersionIndex]?.name}</span>
@@ -1340,7 +1322,7 @@ export default function ProductDetailPage() {
                             setTilt(0);
                             setPan({ x: 0, y: 0 });
                           }}
-                          className="absolute top-4 right-4 md:right-24 bg-black/75 hover:bg-black text-white px-4 py-2 rounded-full border-0 cursor-pointer text-xs font-bold transition-all shadow-md z-20 flex items-center gap-1.5"
+                          className="absolute top-[80px] right-4 md:top-[28px] md:left-[368px] md:right-auto bg-black/75 hover:bg-black text-white px-4 py-2 rounded-full border-0 cursor-pointer text-xs font-bold transition-all shadow-md z-40 flex items-center gap-1.5 whitespace-nowrap"
                         >
                           <X className="w-3.5 h-3.5" />
                           <span>Tắt 360°</span>
@@ -1350,7 +1332,7 @@ export default function ProductDetailPage() {
                         <button
                           type="button"
                           onClick={() => setShowDriveModal(true)}
-                          className="absolute bottom-4 right-4 md:right-24 bg-[#0562D2] hover:bg-[#044ea7] text-white text-[13px] font-semibold px-5 py-2.5 rounded-full border-0 cursor-pointer shadow-md transition-all z-20"
+                          className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-[#0562D2] hover:bg-[#044ea7] text-white text-[13px] font-semibold px-5 py-2.5 rounded-full border-0 cursor-pointer shadow-md transition-all z-20 whitespace-nowrap"
                         >
                           Đăng ký lái thử thực tế
                         </button>
