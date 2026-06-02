@@ -21,7 +21,7 @@ auth.json
 be/bootstrap/ssr/
 be/public/vite.frontend.hot
 be/public/vite.backend.hot
-be/public/build/ziggy.frontend.js
+be/public/build/
 be/public/storage
 be/storage/*.key
 be/storage/logs/*
