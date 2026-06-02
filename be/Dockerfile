@@ -33,6 +33,7 @@ WORKDIR /var/www
 # 1. Sao chép và cài đặt PHP dependencies (cache layer)
 COPY composer.json composer.lock ./
 COPY packages ./packages
+COPY app/Helpers/Helper.php ./app/Helpers/Helper.php
 RUN --mount=type=cache,target=/root/.composer/cache composer install --no-interaction --no-scripts --no-autoloader --no-dev
 
 # 2. Sao chép và cài đặt JS dependencies cho Admin panel (cache layer)
