@@ -85,7 +85,7 @@ body {
   background-color: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -338,6 +338,19 @@ h1, h2, h3, h4, h5, h6 {
 @media (min-width: 768px) {
   .news-track {
     transform: none !important;
+  }
+}
+
+/* Sticky secondary navigation tab bar utility */
+.sticky-tabs {
+  position: sticky;
+  top: 72px;
+  z-index: 30;
+}
+
+@media (min-width: 1024px) {
+  .sticky-tabs {
+    top: 104px;
   }
 }
 

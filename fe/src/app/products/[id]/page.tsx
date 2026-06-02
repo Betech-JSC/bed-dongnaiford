@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { 
   ArrowLeft, 
@@ -14,7 +14,9 @@ import {
   Plus,
   Minus,
   Phone,
-  Calendar
+  Calendar,
+  RotateCcw,
+  X
 } from "lucide-react";
 import { vehicles } from "@/data/vehicles";
 
@@ -173,6 +175,10 @@ export default function ProductDetailPage() {
   // Find the vehicle based on ID
   const vehicle = vehicles.find((v) => v.id === id);
 
+  // Scroll references for programmatic scrolling
+  const isProgrammaticScroll = useRef(false);
+  const scrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   // States
   const [activeTab, setActiveTab] = useState<ActiveTab>("overview");
   const [selectedColorIndex, setSelectedColorIndex] = useState(0);
@@ -194,10 +200,164 @@ export default function ProductDetailPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
+  // Calculator states
+  const [selectedVehicleId, setSelectedVehicleId] = useState(vehicle?.id || "");
+  const [selectedVersionId, setSelectedVersionId] = useState(vehicle?.versions?.[0]?.id || "");
+  const [selectedProvince, setSelectedProvince] = useState("Đồng Nai");
+  const [drawerStep, setDrawerStep] = useState<"calculate" | "contact">("calculate");
+
+  // Keep calculator states synced if active version changes on the page
+  useEffect(() => {
+    if (vehicle && vehicle.versions[activeVersionIndex]) {
+      const vId = vehicle.id;
+      const verId = vehicle.versions[activeVersionIndex].id;
+      const timer = setTimeout(() => {
+        setSelectedVehicleId(vId);
+        setSelectedVersionId(verId);
+      }, 0);
+      return () => clearTimeout(timer);
+    }
+  }, [vehicle, activeVersionIndex]);
+
+  const openQuoteDrawer = (vehicleId?: string, versionId?: string) => {
+    if (vehicleId) {
+      setSelectedVehicleId(vehicleId);
+      const veh = vehicles.find(v => v.id === vehicleId);
+      if (veh) {
+        if (versionId && veh.versions.some(v => v.id === versionId)) {
+          setSelectedVersionId(versionId);
+        } else if (veh.versions.length > 0) {
+          setSelectedVersionId(veh.versions[0].id);
+        }
+      }
+    } else {
+      if (vehicle) {
+        setSelectedVehicleId(vehicle.id);
+        const activeVer = vehicle.versions[activeVersionIndex] || vehicle.versions[0];
+        if (activeVer) {
+          setSelectedVersionId(activeVer.id);
+        }
+      }
+    }
+    setDrawerStep("calculate");
+    setShowQuoteModal(true);
+  };
+
+  const handleVehicleChange = (vehicleId: string) => {
+    setSelectedVehicleId(vehicleId);
+    const veh = vehicles.find((v) => v.id === vehicleId);
+    if (veh && veh.versions.length > 0) {
+      setSelectedVersionId(veh.versions[0].id);
+    }
+  };
+
+  const getRollingCostDetails = () => {
+    const selVeh = vehicles.find((v) => v.id === selectedVehicleId) || vehicle;
+    if (!selVeh) {
+      return {
+        basePrice: 0,
+        registrationTax: 0,
+        plateFee: 0,
+        registryFee: 0,
+        roadFee: 0,
+        insuranceFee: 0,
+        total: 0,
+      };
+    }
+
+    const selVer = selVeh.versions?.find((ver) => ver.id === selectedVersionId) || selVeh.versions?.[0];
+    if (!selVer) {
+      return {
+        basePrice: 0,
+        registrationTax: 0,
+        plateFee: 0,
+        registryFee: 0,
+        roadFee: 0,
+        insuranceFee: 0,
+        total: 0,
+      };
+    }
+
+    const basePrice = selVer.price;
+    const registrationTaxRate = selVeh.type === "pickup" ? 0.06 : 0.10;
+    const registrationTax = basePrice * registrationTaxRate;
+    const plateFee = selectedProvince === "TP. Hồ Chí Minh" ? 20000000 : 1000000;
+    const registryFee = 340000;
+    const roadFee = 1560000;
+    const isSevenSeats = selVeh.id.includes("everest") || selVeh.id.includes("transit") || selVeh.typeName.includes("7 Chỗ") || selVeh.typeName.includes("16 Chỗ");
+    const insuranceFee = isSevenSeats ? 873400 : 480700;
+    const total = basePrice + registrationTax + plateFee + registryFee + roadFee + insuranceFee;
+
+    return {
+      basePrice,
+      registrationTax,
+      plateFee,
+      registryFee,
+      roadFee,
+      insuranceFee,
+      total,
+    };
+  };
+
+  const rollingCost = getRollingCostDetails();
+
+  // Handle body scroll locking
+  useEffect(() => {
+    if (showQuoteModal) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [showQuoteModal]);
+
   // Scroll to top on load
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [id]);
+
+  // Scroll Spy Observer to update active tab when scrolling
+  useEffect(() => {
+    const handleScrollSpy = () => {
+      if (isProgrammaticScroll.current) return;
+
+      const sections = [
+        { id: "overview", tab: "overview" },
+        { id: "360-viewer", tab: "360" },
+        { id: "versions-section", tab: "versions" },
+        { id: "features-section", tab: "features" }
+      ];
+
+      const isDesktop = window.innerWidth >= 1024;
+      const threshold = isDesktop ? 170 : 138;
+
+      let activeSectionTab: ActiveTab | null = null;
+
+      for (const section of sections) {
+        const element = document.getElementById(section.id);
+        if (element) {
+          const rect = element.getBoundingClientRect();
+          if (rect.top <= threshold) {
+            activeSectionTab = section.tab as ActiveTab;
+          }
+        }
+      }
+
+      if (activeSectionTab) {
+        setActiveTab((prev) => {
+          if (prev === "compare" || prev === activeSectionTab) return prev;
+          return activeSectionTab;
+        });
+      }
+    };
+
+    window.addEventListener("scroll", handleScrollSpy, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", handleScrollSpy);
+    };
+  }, []);
 
   if (!vehicle) {
     return (
@@ -221,6 +381,28 @@ export default function ProductDetailPage() {
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("vi-VN").format(price) + " VNĐ";
   };
+
+  const compareItems = vehicle.versions.length > 1
+    ? vehicle.versions.map((ver, idx) => ({
+        id: ver.id,
+        name: ver.name,
+        price: ver.price,
+        image: idx === 0 
+          ? "/assets/territory-hero.png" 
+          : idx === 1 
+            ? "/assets/territory-tech-split.png" 
+            : "/assets/territory-promo.png", 
+        specs: ver.specs,
+        isExternal: false
+      }))
+    : vehicles.slice(0, 3).map((v) => ({
+        id: v.id,
+        name: v.versions[0].name,
+        price: v.basePrice,
+        image: v.id === "new-territory" ? "/assets/territory-hero.png" : v.images[0],
+        specs: v.versions[0].specs,
+        isExternal: true
+      }));
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -251,6 +433,8 @@ export default function ProductDetailPage() {
     }
 
     setActiveTab(tab);
+    isProgrammaticScroll.current = true;
+    if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
 
     const elementId = tab === "overview" ? "overview"
                    : tab === "360" ? "360-viewer"
@@ -258,12 +442,23 @@ export default function ProductDetailPage() {
                    : tab === "features" ? "features-section"
                    : "compare-section";
 
-    const element = document.getElementById(elementId);
-    if (element) {
-      const yOffset = -80; 
-      const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
-      window.scrollTo({ top: y, behavior: "smooth" });
-    }
+    // Wait for React to toggle section visibility in case we switch from/to compare view
+    setTimeout(() => {
+      const element = document.getElementById(elementId);
+      if (element) {
+        const isDesktop = window.innerWidth >= 1024; // lg breakpoint
+        const yOffset = isDesktop ? -160 : -128; // -104px (header) - 56px (tabs) = -160px; -72px (header) - 56px (tabs) = -128px
+        const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+        window.scrollTo({ top: y, behavior: "smooth" });
+
+        // Reset programmatic scroll flag after smooth scroll finishes (approx 800ms)
+        scrollTimeoutRef.current = setTimeout(() => {
+          isProgrammaticScroll.current = false;
+        }, 800);
+      } else {
+        isProgrammaticScroll.current = false;
+      }
+    }, 50);
   };
 
 
@@ -327,7 +522,7 @@ export default function ProductDetailPage() {
                 Book Lái thử
               </button>
               <button 
-                onClick={() => setShowQuoteModal(true)}
+                onClick={() => openQuoteDrawer(vehicle.id, activeVersion.id)}
                 className="bg-transparent hover:bg-white/10 border border-solid border-white flex gap-[8px] items-center justify-center overflow-clip px-[24px] py-[10px] rounded-[800px] text-white text-[16px] font-semibold transition-all cursor-pointer"
               >
                 Tải Catalogue
@@ -338,9 +533,9 @@ export default function ProductDetailPage() {
       </section>
 
       {/* 3. Sticky Tab Navigation Bar */}
-      <div className="sticky top-0 z-30 bg-white border-b border-[#e5e5e5] shadow-xs">
+      <div className="sticky-tabs bg-white border-b border-[#e5e5e5] shadow-xs">
         <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full flex items-center gap-[32px] justify-between sm:justify-start">
-          <p className="font-['Ford_Antenna',sans-serif] font-semibold text-[#1a1a1a] text-[22px] whitespace-nowrap hidden sm:block">
+          <p className="font-['Ford_Antenna',sans-serif] font-semibold text-[#1a1a1a] text-[14px] whitespace-nowrap hidden sm:block">
             {vehicle.name}
           </p>
           <div className="h-[24px] w-[1px] bg-[#e5e5e5] hidden sm:block" />
@@ -375,9 +570,10 @@ export default function ProductDetailPage() {
 
       {/* Main unified layout sections */}
       <div className="space-y-16">
-
-        {/* 4. Promotions Section */}
-        <section id="overview" className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full pt-[72px]">
+        {activeTab !== "compare" ? (
+          <>
+            {/* 4. Promotions Section */}
+            <section id="overview" className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full pt-[72px]">
           <div className="flex flex-col gap-[32px] items-center">
             
             <div className="flex flex-col gap-[24px] items-start pt-[32px] w-full max-w-[1152px]">
@@ -390,7 +586,7 @@ export default function ProductDetailPage() {
                 </p>
               </div>
               <button 
-                onClick={() => setShowQuoteModal(true)}
+                onClick={() => openQuoteDrawer(vehicle.id, activeVersion.id)}
                 className="bg-[#0562d2] hover:bg-[#044ea7] border border-[#0562d2] border-solid flex gap-[8px] items-center justify-center overflow-clip px-[24px] py-[10px] rounded-[800px] text-white text-[16px] font-semibold transition-all cursor-pointer"
               >
                 Báo giá
@@ -638,7 +834,7 @@ export default function ProductDetailPage() {
                         window.scrollTo({ top: y, behavior: "smooth" });
                       }
                     }}
-                    className={`bg-[#fafafa] flex flex-col items-center overflow-hidden rounded-[8px] text-left border-0 cursor-pointer p-0 hover:scale-[1.01] transition-transform
+                    className={`bg-[#fafafa] flex flex-col items-center overflow-hidden rounded-[8px] text-left border-0 cursor-pointer p-0 hover:scale-[1.01] transition-transform focus:outline-none focus:ring-0 focus-visible:outline-none outline-none
                       ${isSelected ? "ring-2 ring-[#0562d2]/40" : ""}`}
                   >
                     {/* Background Gradient representation */}
@@ -702,7 +898,7 @@ export default function ProductDetailPage() {
 
                 <div className="flex flex-col sm:flex-row gap-3 pt-2">
                   <button 
-                    onClick={() => setShowQuoteModal(true)}
+                    onClick={() => openQuoteDrawer(vehicle.id, activeVersion.id)}
                     className="flex-1 bg-[#0562d2] hover:bg-[#044ea7] text-white py-3 rounded-[800px] font-bold text-xs uppercase tracking-wider cursor-pointer border-0 shadow-xs transition-colors"
                   >
                     Yêu cầu báo giá
@@ -749,102 +945,123 @@ export default function ProductDetailPage() {
 
           </div>
         </section>
-
-        {/* 8. Vehicle Comparison Section */}
-        <section id="compare-section" className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full pt-16 border-t border-[#e5e5e5]">
+          </>
+        ) : (
+          /* 8. Vehicle Comparison Section */
+          <section id="compare-section" className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full pt-12">
           <div className="space-y-12">
             
             <div className="text-center max-w-xl mx-auto space-y-2">
               <span className="text-xs font-bold uppercase tracking-wider text-[#0562d2] block">So sánh trực quan</span>
               <h2 className="font-['Ford_Antenna',sans-serif] font-semibold text-[#00095b] text-[36px] sm:text-[48px] uppercase tracking-[-0.96px] leading-[1.2]">
-                So sánh dòng xe Ford
+                {vehicle.versions.length > 1 ? `So sánh các dòng xe ${vehicle.name.replace("NEW ", "")}` : "So sánh dòng xe Ford"}
               </h2>
               <p className="text-xs text-gray-500 font-medium">
-                Bảng đối chiếu thông số kỹ thuật và trang bị trực quan giữa các mẫu xe trong phân khúc
+                {vehicle.versions.length > 1 
+                  ? `Bảng đối chiếu thông số kỹ thuật và trang bị trực quan giữa các phiên bản xe Ford ${vehicle.name.toLowerCase().replace("new ", "")}`
+                  : "Bảng đối chiếu thông số kỹ thuật và trang bị trực quan giữa các mẫu xe trong phân khúc"}
               </p>
             </div>
 
-            {/* Comparison Table Grid Card */}
-            <div className="bg-white rounded-lg overflow-hidden border border-gray-200/70 shadow-xs max-w-5xl mx-auto">
-              <div className="overflow-x-auto">
-                <table className="w-full text-xs md:text-sm text-left border-collapse">
-                  <thead>
-                    <tr className="bg-[#00095b] text-white">
-                      <th className="p-4 font-bold border border-white/10 w-1/4">Thông số / Dòng xe</th>
-                      {vehicles.slice(0, 3).map((v) => (
-                        <th key={v.id} className="p-4 font-bold border border-white/10 text-center">
-                          <p className="uppercase text-[10px] tracking-wider text-white/70">{v.typeName}</p>
-                          <p className="text-sm md:text-base font-bold font-display text-white mt-1">{v.name}</p>
-                          <p className="text-xs text-white/80 font-semibold mt-1">Từ {formatPrice(v.basePrice)}</p>
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr className="hover:bg-gray-50">
-                      <td className="p-4 font-semibold text-gray-700 border border-gray-100 bg-gray-50/50">Động cơ</td>
-                      {vehicles.slice(0, 3).map((v) => (
-                        <td key={v.id} className="p-4 text-center text-black border border-gray-100">{v.versions[0].specs.engine}</td>
-                      ))}
-                    </tr>
-                    <tr className="hover:bg-gray-50">
-                      <td className="p-4 font-semibold text-gray-700 border border-gray-100 bg-gray-50/50">Công suất cực đại</td>
-                      {vehicles.slice(0, 3).map((v) => (
-                        <td key={v.id} className="p-4 text-center text-black border border-gray-100">{v.versions[0].specs.power}</td>
-                      ))}
-                    </tr>
-                    <tr className="hover:bg-gray-50">
-                      <td className="p-4 font-semibold text-gray-700 border border-gray-100 bg-gray-50/50">Mô-men xoắn cực đại</td>
-                      {vehicles.slice(0, 3).map((v) => (
-                        <td key={v.id} className="p-4 text-center text-black border border-gray-100">{v.versions[0].specs.torque}</td>
-                      ))}
-                    </tr>
-                    <tr className="hover:bg-gray-50">
-                      <td className="p-4 font-semibold text-gray-700 border border-gray-100 bg-gray-50/50">Hộp số</td>
-                      {vehicles.slice(0, 3).map((v) => (
-                        <td key={v.id} className="p-4 text-center text-black border border-gray-100">{v.versions[0].specs.transmission}</td>
-                      ))}
-                    </tr>
-                    <tr className="hover:bg-gray-50">
-                      <td className="p-4 font-semibold text-gray-700 border border-gray-100 bg-gray-50/50">Hệ dẫn động</td>
-                      {vehicles.slice(0, 3).map((v) => (
-                        <td key={v.id} className="p-4 text-center text-black border border-gray-100">{v.versions[0].specs.drivetrain}</td>
-                      ))}
-                    </tr>
-                    <tr className="hover:bg-gray-50">
-                      <td className="p-4 font-semibold text-gray-700 border border-gray-100 bg-gray-50/50">Kích thước (DxRxC)</td>
-                      {vehicles.slice(0, 3).map((v) => (
-                        <td key={v.id} className="p-4 text-center text-black border border-gray-100">{v.versions[0].specs.dimensions}</td>
-                      ))}
-                    </tr>
-                    <tr className="hover:bg-gray-50">
-                      <td className="p-4 font-semibold text-gray-700 border border-gray-100 bg-gray-50/50">Khoảng sáng gầm xe</td>
-                      {vehicles.slice(0, 3).map((v) => (
-                        <td key={v.id} className="p-4 text-center text-black border border-gray-100">{v.versions[0].specs.clearance}</td>
-                      ))}
-                    </tr>
-                    <tr className="hover:bg-gray-50">
-                      <td className="p-4 font-semibold text-gray-700 border border-gray-100 bg-gray-50/50">Chi tiết xe</td>
-                      {vehicles.slice(0, 3).map((v) => (
-                        <td key={v.id} className="p-4 text-center border border-gray-100">
-                          <button
-                            onClick={() => {
-                              router.push(`/products/${v.id}`);
-                            }}
-                            className="bg-[#0562d2] hover:bg-[#044ea7] text-white text-[11px] font-bold uppercase tracking-wider py-2.5 px-4 rounded-[800px] transition-colors cursor-pointer border-0 shadow-xs"
-                          >
-                            Xem chi tiết
-                          </button>
-                        </td>
-                      ))}
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+            {/* Comparison Cards Grid */}
+            <div className="flex flex-col md:flex-row gap-6 justify-center items-stretch w-full overflow-x-auto pb-4 scrollbar-none">
+              {compareItems.map((item) => (
+                <div 
+                  key={item.id}
+                  className="bg-white border border-gray-200/60 drop-shadow-[0px_4px_4px_rgba(16,24,40,0.06)] flex flex-col items-stretch relative w-full md:w-[368px] min-w-[280px] md:min-w-[320px] rounded-[12px] overflow-hidden transition-all duration-300 hover:scale-[1.01] hover:shadow-lg"
+                >
+                  <div className="content-stretch flex flex-col items-start relative shrink-0 w-full">
+                    <div className="aspect-[800/550] relative shrink-0 w-full bg-gray-50 overflow-hidden">
+                      <Image 
+                        src={item.image} 
+                        alt={item.name}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 368px"
+                        className="object-cover transition-transform duration-500 hover:scale-105 pointer-events-none"
+                      />
+                    </div>
+                    <div className="content-stretch flex items-center justify-between p-[16px] relative shrink-0 w-full border-b border-gray-100 bg-white">
+                      <div className="[word-break:break-word] flex flex-[1_0_0] flex-col font-['Ford_Antenna',sans-serif] font-semibold justify-center leading-[1.3] text-[#0562d2] text-[18px] tracking-[0.18px]">
+                        <p>{item.name.replace("Territory ", "")}</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Detailed specs list */}
+                  {/* Động cơ */}
+                  <div className="p-[16px] flex flex-col gap-[12px] items-start relative bg-white border-b border-gray-100/50">
+                    <div className="font-['Ford_Antenna',sans-serif] font-semibold text-[#00095b] text-[14px]">
+                      <p>Động cơ & Hộp số</p>
+                    </div>
+                    <div className="font-['Ford_Antenna',sans-serif] font-normal text-[#1a1a1a] text-[12px]">
+                      <ul className="list-disc pl-4 space-y-1 text-gray-700">
+                        <li>Động cơ: <strong className="text-black font-semibold">{item.specs.engine}</strong></li>
+                        <li>Công suất: <strong className="text-black font-semibold">{item.specs.power}</strong></li>
+                        <li>Mô-men xoắn: <strong className="text-black font-semibold">{item.specs.torque}</strong></li>
+                        <li>Hộp số: <strong className="text-black font-semibold">{item.specs.transmission}</strong></li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  {/* Kích thước */}
+                  <div className="p-[16px] flex flex-col gap-[12px] items-start relative bg-[#f0f0f0]/50 border-b border-gray-100/50">
+                    <div className="font-['Ford_Antenna',sans-serif] font-semibold text-[#00095b] text-[14px]">
+                      <p>Kích thước & Trọng lượng</p>
+                    </div>
+                    <div className="font-['Ford_Antenna',sans-serif] font-normal text-[#1a1a1a] text-[12px]">
+                      <ul className="list-disc pl-4 space-y-1 text-gray-700">
+                        <li>Kích thước: <strong className="text-black font-semibold">{item.specs.dimensions}</strong></li>
+                        <li>Gầm xe: <strong className="text-black font-semibold">{item.specs.clearance}</strong></li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  {/* Dẫn động */}
+                  <div className="p-[16px] flex flex-col gap-[12px] items-start relative bg-white border-b border-gray-100/50">
+                    <div className="font-['Ford_Antenna',sans-serif] font-semibold text-[#00095b] text-[14px]">
+                      <p>Hệ thống dẫn động</p>
+                    </div>
+                    <div className="font-['Ford_Antenna',sans-serif] font-normal text-[#1a1a1a] text-[12px]">
+                      <ul className="list-disc pl-4 space-y-1 text-gray-700">
+                        <li>Hệ dẫn động: <strong className="text-black font-semibold">{item.specs.drivetrain}</strong></li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  {/* Nhiên liệu */}
+                  <div className="p-[16px] flex flex-col gap-[12px] items-start relative bg-[#f0f0f0]/50 border-b border-gray-100/50 flex-grow">
+                    <div className="font-['Ford_Antenna',sans-serif] font-semibold text-[#00095b] text-[14px]">
+                      <p>Tiêu thụ nhiên liệu</p>
+                    </div>
+                    <div className="font-['Ford_Antenna',sans-serif] font-normal text-[#1a1a1a] text-[12px]">
+                      <ul className="list-disc pl-4 space-y-1 text-gray-700">
+                        <li>Kết hợp: <strong className="text-black font-semibold">{item.specs.fuelEconomy}</strong></li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  {/* Action button */}
+                  <div className="p-4 bg-white flex flex-col items-center justify-center shrink-0 w-full border-t border-gray-100/50">
+                    <button 
+                      onClick={() => {
+                        if (item.isExternal) {
+                          router.push(`/products/${item.id}`);
+                        } else {
+                          openQuoteDrawer(vehicle.id, item.id);
+                        }
+                      }}
+                      className="bg-[#0562d2] hover:bg-[#044ea7] border border-[#0562d2] border-solid flex gap-[8px] items-center justify-center overflow-clip px-[24px] py-[10px] rounded-[800px] text-white text-[16px] font-semibold transition-all cursor-pointer shadow-xs w-full"
+                    >
+                      {item.isExternal ? "Xem chi tiết" : "Báo giá"}
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
 
           </div>
         </section>
+        )}
 
         {/* 9. Collapsible FAQs Section */}
         <section className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full pt-16 border-t border-[#e5e5e5]">
@@ -934,23 +1151,20 @@ export default function ProductDetailPage() {
       </div>
 
       {/* 11. Booking / Quote Modals */}
-      {(showQuoteModal || showDriveModal) && (
+      {showDriveModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-lg w-full max-w-[500px] max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-200 relative">
             
             {/* Modal Header */}
             <div className="bg-[#00095b] text-white p-6 relative">
               <h3 className="text-lg font-bold uppercase tracking-wide font-display">
-                {showQuoteModal ? "Yêu Cầu Báo Giá Lăn Bánh" : "Đăng Ký Lái Thử Xe"}
+                Đăng Ký Lái Thử Xe
               </h3>
               <p className="text-xs text-white/70 mt-1">
                 Dòng xe: <span className="text-white font-bold">{vehicle.name} - {activeVersion.name}</span>
               </p>
               <button 
-                onClick={() => {
-                  setShowQuoteModal(false);
-                  setShowDriveModal(false);
-                }}
+                onClick={() => setShowDriveModal(false)}
                 className="absolute top-4 right-4 text-white/70 hover:text-white text-lg cursor-pointer bg-transparent border-0"
               >
                 ✕
@@ -970,7 +1184,7 @@ export default function ProductDetailPage() {
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block">Họ và tên của bạn *</label>
+                    <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block text-left">Họ và tên của bạn *</label>
                     <input 
                       type="text" 
                       name="fullName"
@@ -983,7 +1197,7 @@ export default function ProductDetailPage() {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block">Số điện thoại *</label>
+                    <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block text-left">Số điện thoại *</label>
                     <input 
                       type="tel" 
                       name="phone"
@@ -996,7 +1210,7 @@ export default function ProductDetailPage() {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block">Địa chỉ Email</label>
+                    <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block text-left">Địa chỉ Email</label>
                     <input 
                       type="email" 
                       name="email"
@@ -1008,7 +1222,7 @@ export default function ProductDetailPage() {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block">Khu vực sinh sống</label>
+                    <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block text-left">Khu vực sinh sống</label>
                     <select 
                       name="province"
                       value={formData.province}
@@ -1024,7 +1238,7 @@ export default function ProductDetailPage() {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block">Ghi chú yêu cầu thêm</label>
+                    <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block text-left">Ghi chú yêu cầu thêm</label>
                     <textarea 
                       name="note"
                       value={formData.note}
@@ -1045,6 +1259,299 @@ export default function ProductDetailPage() {
                 </form>
               )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Quote sliding drawer */}
+      {showQuoteModal && (
+        <div className="fixed inset-0 z-50 flex justify-end">
+          {/* Backdrop */}
+          <div 
+            onClick={() => setShowQuoteModal(false)}
+            className="absolute inset-0 bg-black/40 transition-opacity duration-300"
+          />
+          
+          {/* Drawer Panel */}
+          <div className="relative bg-white w-full max-w-[637px] h-full flex flex-col p-8 overflow-y-auto shadow-2xl z-10 animate-in slide-in-from-right duration-300">
+            {/* Close button */}
+            <button 
+              onClick={() => setShowQuoteModal(false)}
+              className="absolute top-8 right-8 w-10 h-10 flex items-center justify-center text-gray-500 hover:text-black hover:bg-gray-100/80 rounded-full transition-colors bg-transparent border-0 cursor-pointer z-20"
+            >
+              <X className="w-6 h-6" />
+            </button>
+
+            {/* Header info */}
+            <div className="flex flex-col gap-3 items-start w-full mb-8">
+              <h2 className="font-['Ford_Antenna',sans-serif] font-semibold text-[#0562d2] text-[32px] leading-[1.2]">
+                Dự toán chi phí lăn bánh
+              </h2>
+              <p className="font-['Ford_Antenna',sans-serif] font-normal text-[#424242] text-[16px] leading-[1.5]">
+                Nhập thông tin để tính chi phí lăn bánh dự kiến
+              </p>
+            </div>
+
+            {isSubmitted ? (
+              <div className="flex-1 flex flex-col items-center justify-center py-12 text-center space-y-4">
+                <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
+                  <Check className="w-8 h-8" />
+                </div>
+                <h4 className="text-xl font-bold text-gray-900">Gửi yêu cầu thành công!</h4>
+                <p className="text-sm text-gray-500 max-w-sm">Đội ngũ tư vấn bán hàng của Đồng Nai Ford sẽ liên hệ lại với bạn trong vòng 15 phút để báo giá chính xác.</p>
+              </div>
+            ) : drawerStep === "calculate" ? (
+              <div className="flex-1 flex flex-col gap-6 w-full">
+                {/* Inputs block */}
+                <div className="flex flex-col gap-6 w-full">
+                  {/* Select Mẫu xe */}
+                  <div className="flex flex-col gap-[6px] items-start w-full relative">
+                    <label className="font-['Ford_Antenna',sans-serif] font-medium leading-[1.5] text-[#424242] text-[16px] text-left">
+                      Mẫu xe
+                    </label>
+                    <div className="relative w-full">
+                      <select
+                        value={selectedVehicleId}
+                        onChange={(e) => handleVehicleChange(e.target.value)}
+                        className="w-full bg-white border border-[#d6d6d6] border-solid px-[14px] py-[10px] pr-[40px] rounded-[8px] shadow-[0px_1px_2px_0px_rgba(16,24,40,0.05)] text-black text-[16px] leading-[1.5] appearance-none cursor-pointer focus:outline-none focus:border-[#0562d2]"
+                      >
+                        {vehicles.map((v) => (
+                          <option key={v.id} value={v.id}>
+                            {v.name}
+                          </option>
+                        ))}
+                      </select>
+                      <div className="absolute top-1/2 right-[14px] transform -translate-y-1/2 pointer-events-none text-gray-500">
+                        <ChevronDown className="w-5 h-5" />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Select Phiên bản */}
+                  <div className="flex flex-col gap-[6px] items-start w-full relative">
+                    <label className="font-['Ford_Antenna',sans-serif] font-medium leading-[1.5] text-[#424242] text-[16px] text-left">
+                      Phiên bản
+                    </label>
+                    <div className="relative w-full">
+                      <select
+                        value={selectedVersionId}
+                        onChange={(e) => setSelectedVersionId(e.target.value)}
+                        className="w-full bg-white border border-[#d6d6d6] border-solid px-[14px] py-[10px] pr-[40px] rounded-[8px] shadow-[0px_1px_2px_0px_rgba(16,24,40,0.05)] text-black text-[16px] leading-[1.5] appearance-none cursor-pointer focus:outline-none focus:border-[#0562d2]"
+                      >
+                        {vehicles.find(v => v.id === selectedVehicleId)?.versions.map((ver) => (
+                          <option key={ver.id} value={ver.id}>
+                            {ver.name} - {formatPrice(ver.price)}
+                          </option>
+                        ))}
+                      </select>
+                      <div className="absolute top-1/2 right-[14px] transform -translate-y-1/2 pointer-events-none text-gray-500">
+                        <ChevronDown className="w-5 h-5" />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Select Tỉnh/Thành phố */}
+                  <div className="flex flex-col gap-[6px] items-start w-full relative">
+                    <label className="font-['Ford_Antenna',sans-serif] font-medium leading-[1.5] text-[#424242] text-[16px] text-left">
+                      Tỉnh/ Thành phố
+                    </label>
+                    <div className="relative w-full">
+                      <select
+                        value={selectedProvince}
+                        onChange={(e) => setSelectedProvince(e.target.value)}
+                        className="w-full bg-white border border-[#d6d6d6] border-solid px-[14px] py-[10px] pr-[40px] rounded-[8px] shadow-[0px_1px_2px_0px_rgba(16,24,40,0.05)] text-black text-[16px] leading-[1.5] appearance-none cursor-pointer focus:outline-none focus:border-[#0562d2]"
+                      >
+                        <option value="Đồng Nai">Đồng Nai</option>
+                        <option value="TP. Hồ Chí Minh">TP. Hồ Chí Minh</option>
+                        <option value="Bình Dương">Bình Dương</option>
+                        <option value="Vũng Tàu">Bà Rịa - Vũng Tàu</option>
+                        <option value="Khác">Khu vực khác</option>
+                      </select>
+                      <div className="absolute top-1/2 right-[14px] transform -translate-y-1/2 pointer-events-none text-gray-500">
+                        <ChevronDown className="w-5 h-5" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Calculation results card block */}
+                <div className="bg-[#edf6ff] flex flex-col gap-6 items-start p-6 rounded-[12px] w-full border border-blue-100">
+                  <div className="flex gap-3 items-start justify-between w-full">
+                    <div className="flex flex-col gap-2 items-start">
+                      <p className="font-['Ford_Antenna',sans-serif] font-normal leading-[1.5] text-[#424242] text-[16px]">
+                        Chi phí lăn bánh dự kiến
+                      </p>
+                      <p className="font-['Ford_Antenna',sans-serif] font-semibold leading-[1.2] text-[#0562d2] text-[32px]">
+                        {formatPrice(rollingCost.total)}
+                      </p>
+                    </div>
+                    {/* Reset button inside card */}
+                    <button 
+                      onClick={() => {
+                        setSelectedVehicleId(vehicle.id);
+                        setSelectedVersionId(activeVersion.id);
+                        setSelectedProvince("Đồng Nai");
+                      }}
+                      title="Đặt lại"
+                      className="bg-[#fcfcfc] flex items-center justify-center p-[10px] rounded-full w-11 h-11 border border-gray-200 hover:bg-gray-50 transition-colors shadow-xs cursor-pointer"
+                    >
+                      <RotateCcw className="w-5 h-5 text-gray-500" />
+                    </button>
+                  </div>
+
+                  {/* Dynamic cost rows */}
+                  <div className="flex flex-col font-['Ford_Antenna',sans-serif] font-medium gap-3 items-start leading-[1.5] text-[#333] text-[16px] w-full">
+                    <div className="border-[#d6d6d6] border-b border-solid flex gap-3 items-start pb-3 w-full">
+                      <p className="flex-1 min-w-px text-left text-gray-700">Giá bán khuyến nghị</p>
+                      <p className="shrink-0 font-semibold">{formatPrice(rollingCost.basePrice)}</p>
+                    </div>
+                    <div className="border-[#d6d6d6] border-b border-solid flex gap-3 items-start pb-3 w-full">
+                      <p className="flex-1 min-w-px text-left text-gray-700">Lệ phí trước bạ</p>
+                      <p className="shrink-0 font-semibold">{formatPrice(rollingCost.registrationTax)}</p>
+                    </div>
+                    <div className="border-[#d6d6d6] border-b border-solid flex gap-3 items-start pb-3 w-full">
+                      <p className="flex-1 min-w-px text-left text-gray-700">Bảo hiểm trách nhiệm dân sự (1 năm)</p>
+                      <p className="shrink-0 font-semibold">{formatPrice(rollingCost.insuranceFee)}</p>
+                    </div>
+                    <div className="border-[#d6d6d6] border-b border-solid flex gap-3 items-start pb-3 w-full">
+                      <p className="flex-1 min-w-px text-left text-gray-700">Phí bảo trì đường bộ (1 năm)</p>
+                      <p className="shrink-0 font-semibold">{formatPrice(rollingCost.roadFee)}</p>
+                    </div>
+                    <div className="border-[#d6d6d6] border-b border-solid flex gap-3 items-start pb-3 w-full">
+                      <p className="flex-1 min-w-px text-left text-gray-700">Phí đăng kiểm</p>
+                      <p className="shrink-0 font-semibold">{formatPrice(rollingCost.registryFee)}</p>
+                    </div>
+                    <div className="border-[#d6d6d6] border-b border-solid flex gap-3 items-start pb-3 w-full">
+                      <p className="flex-1 min-w-px text-left text-gray-700">Phí biển số</p>
+                      <p className="shrink-0 font-semibold">{formatPrice(rollingCost.plateFee)}</p>
+                    </div>
+                  </div>
+
+                  {/* Form Action buttons */}
+                  <div className="flex gap-4 items-center w-full mt-4">
+                    <button 
+                      onClick={() => {
+                        setSelectedVehicleId(vehicle.id);
+                        setSelectedVersionId(activeVersion.id);
+                        setSelectedProvince("Đồng Nai");
+                      }}
+                      className="bg-white hover:bg-gray-50 border border-[#d6d6d6] border-solid flex flex-1 gap-2 items-center justify-center py-2.5 rounded-[800px] text-[#424242] text-[16px] font-semibold transition-all cursor-pointer shadow-xs h-11"
+                    >
+                      Chọn lại mẫu xe
+                    </button>
+                    <button 
+                      onClick={() => {
+                        // Prefill contact form values
+                        const selVeh = vehicles.find(v => v.id === selectedVehicleId) || vehicle;
+                        const selVer = selVeh.versions.find(v => v.id === selectedVersionId) || selVeh.versions[0];
+                        setFormData(prev => ({
+                          ...prev,
+                          province: selectedProvince,
+                          note: `Yêu cầu báo giá lăn bánh dự kiến cho xe ${selVeh.name} - ${selVer?.name} tại ${selectedProvince}.`
+                        }));
+                        setDrawerStep("contact");
+                      }}
+                      className="bg-[#0562d2] hover:bg-[#044ea7] border border-[#0562d2] border-solid flex flex-1 gap-2 items-center justify-center py-2.5 rounded-[800px] text-white text-[16px] font-semibold transition-all cursor-pointer shadow-xs h-11"
+                    >
+                      Báo giá
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="flex-1 flex flex-col gap-6 w-full">
+                {/* Back button */}
+                <button
+                  onClick={() => setDrawerStep("calculate")}
+                  className="flex items-center gap-2 text-[#0562d2] hover:text-[#044ea7] font-semibold cursor-pointer border-0 bg-transparent text-left"
+                >
+                  <ArrowLeft className="w-4 h-4" /> Quay lại bảng dự toán
+                </button>
+
+                {/* Subtitle details */}
+                <div className="p-4 bg-[#edf6ff] rounded-[8px] border border-blue-100 text-xs text-[#00095b] space-y-1">
+                  <p><strong>Xe đã chọn:</strong> {vehicles.find(v => v.id === selectedVehicleId)?.name} - {vehicles.find(v => v.id === selectedVehicleId)?.versions.find(ver => ver.id === selectedVersionId)?.name}</p>
+                  <p><strong>Khu vực đăng ký:</strong> {selectedProvince}</p>
+                  <p><strong>Dự toán chi phí lăn bánh:</strong> <strong className="text-[14px]">{formatPrice(rollingCost.total)}</strong></p>
+                </div>
+
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block text-left">Họ và tên của bạn *</label>
+                    <input 
+                      type="text" 
+                      name="fullName"
+                      value={formData.fullName}
+                      onChange={handleInputChange}
+                      required
+                      placeholder="Nguyễn Văn A"
+                      className="w-full px-4 py-2.5 rounded-[4px] border border-gray-200 text-xs focus:outline-none focus:border-[#0562d2] bg-white text-black"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block text-left">Số điện thoại *</label>
+                    <input 
+                      type="tel" 
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleInputChange}
+                      required
+                      placeholder="0918xxxxxx"
+                      className="w-full px-4 py-2.5 rounded-[4px] border border-gray-200 text-xs focus:outline-none focus:border-[#0562d2] bg-white text-black"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block text-left">Địa chỉ Email</label>
+                    <input 
+                      type="email" 
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      placeholder="example@mail.com"
+                      className="w-full px-4 py-2.5 rounded-[4px] border border-gray-200 text-xs focus:outline-none focus:border-[#0562d2] bg-white text-black"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block text-left">Khu vực sinh sống</label>
+                    <select 
+                      name="province"
+                      value={formData.province}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-2.5 rounded-[4px] border border-gray-200 text-xs bg-white focus:outline-none focus:border-[#0562d2] cursor-pointer text-black"
+                    >
+                      <option value="Đồng Nai">Đồng Nai</option>
+                      <option value="TP. Hồ Chí Minh">TP. Hồ Chí Minh</option>
+                      <option value="Bình Dương">Bình Dương</option>
+                      <option value="Vũng Tàu">Bà Rịa - Vũng Tàu</option>
+                      <option value="Khác">Khu vực khác</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block text-left">Ghi chú yêu cầu thêm</label>
+                    <textarea 
+                      name="note"
+                      value={formData.note}
+                      onChange={handleInputChange}
+                      rows={3}
+                      placeholder="Nhập yêu cầu chi tiết (ví dụ: cần lái thử lúc 9h sáng, cần tư vấn trả góp,...)"
+                      className="w-full px-4 py-2.5 rounded-[4px] border border-gray-200 text-xs focus:outline-none focus:border-[#0562d2] bg-white resize-none text-black"
+                    />
+                  </div>
+
+                  <button 
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full bg-[#0562d2] hover:bg-[#044ea7] disabled:bg-gray-400 text-white py-3 rounded-[800px] font-bold uppercase text-xs tracking-wider shadow-sm transition-colors cursor-pointer border-0 mt-2"
+                  >
+                    {isSubmitting ? "Đang gửi yêu cầu..." : "Gửi yêu cầu ngay"}
+                  </button>
+                </form>
+              </div>
+            )}
           </div>
         </div>
       )}
