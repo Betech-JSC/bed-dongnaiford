@@ -1,0 +1,453 @@
+"use client";
+
+import { useState, useEffect, useMemo, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import Link from "next/link";
+import { Search, Car, Wrench, FileText, ChevronRight, HelpCircle, X } from "lucide-react";
+import { vehicles } from "@/data/vehicles";
+import { accessoriesData } from "@/data/accessories";
+import { articles } from "@/data/articles";
+
+// Helper function to remove Vietnamese accents for fuzzy searching
+function removeAccents(str: string): string {
+  return str
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d")
+    .replace(/Đ/g, "D")
+    .toLowerCase();
+}
+
+const POPULAR_KEYWORDS = ["Everest", "Raptor", "Nắp thùng", "Khuyến mãi", "Bảo dưỡng"];
+
+function SearchPageContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const initialQuery = searchParams.get("q") || "";
+
+  const [searchQuery, setSearchQuery] = useState(initialQuery);
+  const [activeTab, setActiveTab] = useState<"all" | "vehicles" | "accessories" | "articles">("all");
+
+  // Keep search input state updated with URL changes
+  useEffect(() => {
+    setSearchQuery(initialQuery);
+  }, [initialQuery]);
+
+  // Handle search submit (updates URL query parameter)
+  const handleSearchSubmit = (e?: React.FormEvent, customQuery?: string) => {
+    if (e) e.preventDefault();
+    const queryToUse = customQuery !== undefined ? customQuery : searchQuery;
+    const trimmed = queryToUse.trim();
+
+    if (trimmed) {
+      router.push(`/search?q=${encodeURIComponent(trimmed)}`);
+    } else {
+      router.push("/search");
+    }
+  };
+
+  const clearSearch = () => {
+    setSearchQuery("");
+    router.push("/search");
+  };
+
+  const handleKeywordClick = (keyword: string) => {
+    setSearchQuery(keyword);
+    handleSearchSubmit(undefined, keyword);
+  };
+
+  // Perform search matching
+  const searchResults = useMemo(() => {
+    const query = removeAccents(initialQuery.trim());
+    if (!query) {
+      return { vehiclesList: [], accessoriesList: [], articlesList: [], totalCount: 0 };
+    }
+
+    // 1. Filter Vehicles
+    const vehiclesList = vehicles.filter((v) => {
+      const nameMatch = removeAccents(v.name).includes(query);
+      const typeMatch = removeAccents(v.typeName).includes(query);
+      const taglineMatch = removeAccents(v.tagline).includes(query);
+      const descMatch = removeAccents(v.description).includes(query);
+      const versionMatch = v.versions.some((ver) => removeAccents(ver.name).includes(query));
+      return nameMatch || typeMatch || taglineMatch || descMatch || versionMatch;
+    });
+
+    // 2. Filter Accessories
+    const accessoriesList = accessoriesData.filter((a) => {
+      const nameMatch = removeAccents(a.name).includes(query);
+      const codeMatch = removeAccents(a.code).includes(query);
+      const descMatch = removeAccents(a.description).includes(query);
+      const catMatch = removeAccents(a.categoryName).includes(query);
+      return nameMatch || codeMatch || descMatch || catMatch;
+    });
+
+    // 3. Filter Articles
+    const articlesList = articles.filter((art) => {
+      const titleMatch = removeAccents(art.title).includes(query);
+      const contentMatch = removeAccents(art.content).includes(query);
+      const catMatch = removeAccents(art.category).includes(query);
+      const bodyMatch = art.body.some((block) => {
+        if (typeof block.value === "string") {
+          return removeAccents(block.value).includes(query);
+        } else if (Array.isArray(block.value)) {
+          return block.value.some((v) => removeAccents(v).includes(query));
+        }
+        return false;
+      });
+      return titleMatch || contentMatch || catMatch || bodyMatch;
+    });
+
+    const totalCount = vehiclesList.length + accessoriesList.length + articlesList.length;
+
+    return { vehiclesList, accessoriesList, articlesList, totalCount };
+  }, [initialQuery]);
+
+  const { vehiclesList, accessoriesList, articlesList, totalCount } = searchResults;
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat("vi-VN").format(price) + " VNĐ";
+  };
+
+  // Best seller vehicles to suggest when no results are found
+  const suggestedVehicles = useMemo(() => {
+    return vehicles.filter((v) => v.isBestSeller).slice(0, 3);
+  }, []);
+
+  return (
+    <div className="bg-[#fafafa] min-h-screen pb-20 text-[#1a1a1a]">
+      {/* 1. HERO SEARCH CONTAINER (Deep Navy & Accent Blue) */}
+      <section className="bg-gradient-to-br from-[#00095B] via-[#00095B] to-[#00224b] text-white py-16 px-4">
+        <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full flex flex-col items-center gap-6">
+          <div className="text-center space-y-2">
+            <h1 className="font-['Ford_Antenna',sans-serif] font-bold text-[32px] md:text-[40px] leading-tight uppercase tracking-wide">
+              Tìm kiếm thông tin
+            </h1>
+            <p className="text-white/70 text-sm md:text-base font-normal font-sans max-w-xl mx-auto">
+              Nhập từ khóa để tìm nhanh dòng xe, phụ kiện chính hãng hoặc tin tức khuyến mãi mới nhất tại đại lý Đồng Nai Ford.
+            </p>
+          </div>
+
+          {/* Search Box Wrapper */}
+          <form onSubmit={handleSearchSubmit} className="w-full max-w-2xl relative mt-4">
+            <div className="relative flex items-center bg-white rounded-lg shadow-2xl overflow-hidden border border-white/10 group focus-within:ring-4 focus-within:ring-[#0562D2]/35 focus-within:border-[#0562D2] transition duration-200">
+              <Search className="absolute left-4 w-5 h-5 text-gray-400 pointer-events-none" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Nhập tên xe, phụ kiện, tin khuyến mãi..."
+                className="w-full pl-12 pr-12 py-4 text-gray-900 placeholder-gray-400 text-sm md:text-base outline-none bg-transparent"
+                autoFocus
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={clearSearch}
+                  className="absolute right-32 text-gray-400 hover:text-gray-600 transition-colors p-1 cursor-pointer bg-transparent border-0"
+                  aria-label="Xóa từ khóa"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              )}
+              <button
+                type="submit"
+                className="absolute right-2 top-2 bottom-2 bg-[#0562D2] hover:bg-[#003478] text-white px-6 font-semibold text-sm rounded-md transition-colors duration-200 cursor-pointer border-0 flex items-center justify-center gap-1.5 shadow-md"
+              >
+                <span>Tìm kiếm</span>
+              </button>
+            </div>
+          </form>
+
+          {/* Popular keywords tags list */}
+          <div className="flex flex-wrap items-center justify-center gap-2.5 text-xs mt-2">
+            <span className="text-white/60 font-semibold uppercase tracking-wider">Từ khóa gợi ý:</span>
+            {POPULAR_KEYWORDS.map((keyword) => (
+              <button
+                key={keyword}
+                onClick={() => handleKeywordClick(keyword)}
+                className="bg-white/10 hover:bg-white/20 active:scale-95 text-white/90 px-3.5 py-1.5 rounded-full border border-white/10 transition cursor-pointer text-xs font-semibold"
+              >
+                {keyword}
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 2. RESULTS FILTER TABS */}
+      {initialQuery.trim() && (
+        <section className="bg-white border-b border-[#e5e5e5] sticky top-[72px] lg:top-[104px] z-30 shadow-xs">
+          <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full flex items-center justify-start overflow-x-auto scrollbar-none gap-2">
+            {[
+              { id: "all", label: "Tất cả", count: totalCount, icon: HelpCircle },
+              { id: "vehicles", label: "Xe Ford", count: vehiclesList.length, icon: Car },
+              { id: "accessories", label: "Phụ Kiện", count: accessoriesList.length, icon: Wrench },
+              { id: "articles", label: "Tin tức", count: articlesList.length, icon: FileText }
+            ].map((tab) => {
+              const isActive = activeTab === tab.id;
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id as any)}
+                  className={`flex items-center gap-2 py-4 px-4 text-sm font-semibold tracking-wide border-b-2 transition-all cursor-pointer whitespace-nowrap bg-transparent border-0
+                    ${isActive 
+                      ? "text-[#0562D2] border-[#0562D2]" 
+                      : "text-gray-500 border-transparent hover:text-[#0562D2] hover:border-gray-300"}`}
+                >
+                  <Icon className="w-4 h-4 shrink-0" />
+                  <span>{tab.label}</span>
+                  <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full
+                    ${isActive ? "bg-[#0562D2]/10 text-[#0562D2]" : "bg-gray-100 text-gray-500"}`}>
+                    {tab.count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+      {/* 3. SEARCH RESULTS LISTING */}
+      <main className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full py-12">
+        {!initialQuery.trim() ? (
+          // Empty state: guide user to enter query
+          <div className="text-center py-20 bg-white border border-[#e5e5e5] rounded-xl shadow-xs max-w-3xl mx-auto space-y-4">
+            <div className="w-16 h-16 bg-[#0562D2]/10 text-[#0562D2] flex items-center justify-center rounded-full mx-auto">
+              <Search className="w-8 h-8" />
+            </div>
+            <h3 className="font-['Ford_Antenna',sans-serif] font-bold text-xl text-gray-800">
+              Bắt đầu tìm kiếm thông tin
+            </h3>
+            <p className="text-xs text-gray-500 max-w-sm mx-auto leading-relaxed">
+              Nhập từ khóa vào thanh tìm kiếm ở trên để bắt đầu tra cứu xe, phụ tùng phụ kiện, dịch vụ và thông tin khuyến mãi tại Đồng Nai Ford.
+            </p>
+          </div>
+        ) : totalCount === 0 ? (
+          // No results found page state
+          <div className="space-y-16">
+            <div className="text-center py-16 bg-white border border-[#e5e5e5] rounded-xl shadow-xs max-w-3xl mx-auto space-y-4">
+              <div className="w-16 h-16 bg-red-50 text-red-500 flex items-center justify-center rounded-full mx-auto">
+                <HelpCircle className="w-8 h-8" />
+              </div>
+              <h3 className="font-['Ford_Antenna',sans-serif] font-bold text-xl text-gray-800">
+                Không tìm thấy kết quả
+              </h3>
+              <p className="text-xs text-gray-500 max-w-md mx-auto leading-relaxed">
+                Chúng tôi không tìm thấy kết quả nào phù hợp với từ khóa <strong className="text-gray-900">"{initialQuery}"</strong>. 
+                Vui lòng thử lại với các từ khóa khác hoặc xem qua các dòng xe nổi bật bên dưới.
+              </p>
+            </div>
+
+            {/* CRO vehicle recommendations when empty */}
+            <div className="space-y-6">
+              <h3 className="font-['Ford_Antenna',sans-serif] font-bold text-[24px] text-gray-900 text-center uppercase tracking-wide">
+                Các mẫu xe Ford nổi bật
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {suggestedVehicles.map((v) => (
+                  <Link
+                    key={v.id}
+                    href={`/products/${v.id}`}
+                    className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-350 flex flex-col group"
+                  >
+                    <div className="aspect-[16/10] bg-gray-50 relative overflow-hidden">
+                      <img
+                        src={v.images[0]}
+                        alt={v.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="absolute top-3 left-3 bg-[#0562D2] text-white text-[10px] font-bold px-2 py-0.5 rounded-sm uppercase tracking-wider shadow-sm">
+                        {v.typeName}
+                      </div>
+                    </div>
+                    <div className="p-5 flex-1 flex flex-col justify-between">
+                      <div className="space-y-2">
+                        <h4 className="font-['Ford_Antenna',sans-serif] font-bold text-[18px] text-[#00095B] leading-tight uppercase">
+                          {v.name}
+                        </h4>
+                        <p className="text-[11px] text-[#424242] line-clamp-2 leading-relaxed">
+                          {v.tagline}
+                        </p>
+                      </div>
+                      <div className="pt-4 border-t border-gray-100 flex items-center justify-between mt-4">
+                        <div>
+                          <span className="text-[10px] text-gray-400 font-bold block uppercase tracking-wider">Giá khởi điểm:</span>
+                          <span className="text-sm font-bold text-[#0562D2]">{formatPrice(v.basePrice)}</span>
+                        </div>
+                        <span className="w-7 h-7 bg-[#0562D2]/5 text-[#0562D2] rounded-full flex items-center justify-center group-hover:bg-[#0562D2] group-hover:text-white transition-colors duration-300">
+                          <ChevronRight className="w-4 h-4" />
+                        </span>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
+        ) : (
+          // Results list section layout
+          <div className="space-y-12">
+            {/* 3.1. Vehicles Block */}
+            {(activeTab === "all" || activeTab === "vehicles") && vehiclesList.length > 0 && (
+              <div className="space-y-6">
+                <div className="flex items-center gap-2 pb-2 border-b border-[#e5e5e5]">
+                  <Car className="w-5 h-5 text-[#0562D2]" />
+                  <h2 className="font-['Ford_Antenna',sans-serif] font-bold text-[20px] text-[#00095B] uppercase tracking-wide">
+                    Dòng xe Ford ({vehiclesList.length})
+                  </h2>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {vehiclesList.map((v) => (
+                    <Link
+                      key={v.id}
+                      href={`/products/${v.id}`}
+                      className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-350 flex flex-col group"
+                    >
+                      <div className="aspect-[16/10] bg-gray-50 relative overflow-hidden">
+                        <img
+                          src={v.images[0]}
+                          alt={v.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                        <div className="absolute top-3 left-3 bg-[#0562D2] text-white text-[10px] font-bold px-2 py-0.5 rounded-sm uppercase tracking-wider shadow-sm">
+                          {v.typeName}
+                        </div>
+                      </div>
+                      <div className="p-5 flex-1 flex flex-col justify-between">
+                        <div className="space-y-2">
+                          <h4 className="font-['Ford_Antenna',sans-serif] font-bold text-[18px] text-[#00095B] leading-tight uppercase">
+                            {v.name}
+                          </h4>
+                          <p className="text-[11px] text-[#424242] line-clamp-2 leading-relaxed">
+                            {v.tagline}
+                          </p>
+                        </div>
+                        <div className="pt-4 border-t border-gray-100 flex items-center justify-between mt-4">
+                          <div>
+                            <span className="text-[10px] text-gray-400 font-bold block uppercase tracking-wider">Giá khởi điểm:</span>
+                            <span className="text-sm font-bold text-[#0562D2]">{formatPrice(v.basePrice)}</span>
+                          </div>
+                          <span className="w-7 h-7 bg-[#0562D2]/5 text-[#0562D2] rounded-full flex items-center justify-center group-hover:bg-[#0562D2] group-hover:text-white transition-colors duration-300">
+                            <ChevronRight className="w-4 h-4" />
+                          </span>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 3.2. Accessories Block */}
+            {(activeTab === "all" || activeTab === "accessories") && accessoriesList.length > 0 && (
+              <div className="space-y-6">
+                <div className="flex items-center gap-2 pb-2 border-b border-[#e5e5e5]">
+                  <Wrench className="w-5 h-5 text-[#0562D2]" />
+                  <h2 className="font-['Ford_Antenna',sans-serif] font-bold text-[20px] text-[#00095B] uppercase tracking-wide">
+                    Phụ kiện chính hãng ({accessoriesList.length})
+                  </h2>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+                  {accessoriesList.map((a) => (
+                    <Link
+                      key={a.id}
+                      href={`/accessories/${a.id}`}
+                      className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-xs hover:shadow-lg transition-all duration-300 flex flex-col group"
+                    >
+                      <div className="aspect-square bg-gray-50 relative overflow-hidden">
+                        <img
+                          src={a.images[0]}
+                          alt={a.name}
+                          className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500"
+                        />
+                        <div className="absolute top-2.5 left-2.5 bg-black/65 backdrop-blur-xs text-white text-[9px] font-bold px-2 py-0.5 rounded-sm uppercase tracking-wider">
+                          {a.categoryName.replace("Phụ Kiện ", "")}
+                        </div>
+                      </div>
+                      <div className="p-4 flex-1 flex flex-col justify-between">
+                        <div className="space-y-1">
+                          <h4 className="font-['Ford_Antenna',sans-serif] font-semibold text-[14px] text-gray-900 group-hover:text-[#0562D2] transition-colors leading-[1.4] line-clamp-2">
+                            {a.name}
+                          </h4>
+                          <span className="text-[10px] text-gray-400 block">Mã sản phẩm: {a.code}</span>
+                        </div>
+                        <div className="pt-2.5 border-t border-gray-100 flex items-center justify-between mt-3.5">
+                          <span className="text-sm font-bold text-[#0562D2]">{formatPrice(a.price)}</span>
+                          <span className="text-[11px] font-bold text-[#0562D2] group-hover:underline">Chi tiết</span>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 3.3. Articles Block */}
+            {(activeTab === "all" || activeTab === "articles") && articlesList.length > 0 && (
+              <div className="space-y-6">
+                <div className="flex items-center gap-2 pb-2 border-b border-[#e5e5e5]">
+                  <FileText className="w-5 h-5 text-[#0562D2]" />
+                  <h2 className="font-['Ford_Antenna',sans-serif] font-bold text-[20px] text-[#00095B] uppercase tracking-wide">
+                    Tin tức & Khuyến mãi ({articlesList.length})
+                  </h2>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {articlesList.map((art) => (
+                    <Link
+                      key={art.id}
+                      href={`/news/${art.id}`}
+                      className="bg-white rounded-lg overflow-hidden border border-[#e5e5e5] shadow-xs hover:shadow-md transition-premium group flex flex-col h-full"
+                    >
+                      <div className="aspect-[16/10] relative overflow-hidden w-full bg-gray-100">
+                        <img
+                          src={art.image}
+                          alt={art.title}
+                          className="absolute inset-0 object-cover w-full h-full group-hover:scale-[1.03] transition-transform duration-500"
+                        />
+                        <div className="absolute top-3 left-3 bg-[#0562D2] text-white text-[10px] font-bold px-2.5 py-0.5 rounded-sm uppercase tracking-wider">
+                          {art.category}
+                        </div>
+                      </div>
+                      <div className="p-5 flex flex-col flex-1 gap-2.5">
+                        <span className="text-[11px] font-medium text-gray-400">
+                          {art.date}
+                        </span>
+                        <h3 className="font-['Ford_Antenna',sans-serif] font-bold text-[16px] leading-[1.4] text-[#1a1a1a] group-hover:text-[#0562D2] transition-colors duration-200 line-clamp-2">
+                          {art.title}
+                        </h3>
+                        <p className="text-xs text-[#424242] leading-relaxed line-clamp-3 mt-1">
+                          {art.content}
+                        </p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </main>
+    </div>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="bg-[#fafafa] min-h-screen py-24 text-center">
+          <div
+            className="animate-spin inline-block w-8 h-8 border-4 border-[#0562D2] border-t-transparent rounded-full"
+            role="status"
+          >
+            <span className="sr-only">Đang tải...</span>
+          </div>
+        </div>
+      }
+    >
+      <SearchPageContent />
+    </Suspense>
+  );
+}

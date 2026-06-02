@@ -325,13 +325,16 @@ export default function Navbar() {
 
           {/* Search Icon & Call to Action */}
           <div className="hidden md:flex items-center gap-4">
-            <button className="p-2 text-[#333333] hover:text-[#0562d2] transition-colors cursor-pointer" aria-label="Search">
+            <Link href="/search" className="p-2 text-[#333333] hover:text-[#0562d2] transition-colors cursor-pointer" aria-label="Search">
               <Search className="w-5 h-5" />
-            </button>
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}
           <div className="md:hidden flex items-center gap-3">
+            <Link href="/search" className="p-2 text-[#333333] hover:text-[#0562d2] transition-colors cursor-pointer" aria-label="Search">
+              <Search className="w-5 h-5" />
+            </Link>
             <Link
               href="/contact?reason=Đăng ký lái thử"
               className="btn-ford-primary text-xs py-1.5 px-3 uppercase tracking-wider font-bold"
