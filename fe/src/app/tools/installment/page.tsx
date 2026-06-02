@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { 
   ChevronDown, 
   Eye
@@ -31,7 +30,7 @@ export default function InstallmentCalculatorPage() {
   const [loanTermMonths, setLoanTermMonths] = useState<number>(60); // 5 years (60 months)
   const [rateYear1, setRateYear1] = useState<number>(8.5); // 8.5%
   const [rateSubsequent, setRateSubsequent] = useState<number>(11.0); // 11%
-  const [repaymentMethod, setRepaymentMethod] = useState<"declining" | "flat">("declining");
+  const repaymentMethod = "declining";
   
   // UI States
   const [isVehicleOpen, setIsVehicleOpen] = useState(false);
@@ -237,13 +236,13 @@ export default function InstallmentCalculatorPage() {
             
             {/* Input Select: Chọn mẫu xe */}
             <div className="relative w-full" ref={vehicleDropdownRef}>
-              <label className="block text-[16px] font-medium text-[#424242] mb-[6px] text-left">
+              <label className="block text-[14px] font-medium text-[#424242] mb-[6px] text-left">
                 Chọn mẫu xe
               </label>
               <button
                 type="button"
                 onClick={() => setIsVehicleOpen(!isVehicleOpen)}
-                className="w-full bg-white border border-[#d6d6d6] rounded-[8px] px-[14px] py-[10px] text-[16px] text-[#333] text-left focus:outline-none focus:ring-1 focus:ring-vivid cursor-pointer shadow-[0px_1px_2px_rgba(16,24,40,0.05)] flex items-center justify-between"
+                className="w-full bg-white border border-[#d6d6d6] rounded-[8px] px-[14px] py-[10px] text-[14px] text-[#333] text-left focus:outline-none focus:ring-1 focus:ring-vivid cursor-pointer shadow-[0px_1px_2px_rgba(16,24,40,0.05)] flex items-center justify-between"
               >
                 <span className="truncate font-semibold">{selectedVehicle.name}</span>
                 <ChevronDown className="w-[20px] h-[20px] text-gray-400" />
@@ -269,14 +268,14 @@ export default function InstallmentCalculatorPage() {
 
             {/* Input Select: Chọn phiên bản */}
             <div className="relative w-full" ref={versionDropdownRef}>
-              <label className="block text-[16px] font-medium text-[#424242] mb-[6px] text-left">
+              <label className="block text-[14px] font-medium text-[#424242] mb-[6px] text-left">
                 Chọn phiên bản
               </label>
               <button
                 type="button"
                 disabled={selectedVehicle.versions.length <= 1 && selectedVehicle.versions[0]?.id === "none"}
                 onClick={() => setIsVersionOpen(!isVersionOpen)}
-                className="w-full bg-white border border-[#d6d6d6] rounded-[8px] px-[14px] py-[10px] text-[16px] text-[#333] text-left focus:outline-none focus:ring-1 focus:ring-vivid cursor-pointer shadow-[0px_1px_2px_rgba(16,24,40,0.05)] flex items-center justify-between disabled:opacity-60 disabled:cursor-not-allowed"
+                className="w-full bg-white border border-[#d6d6d6] rounded-[8px] px-[14px] py-[10px] text-[14px] text-[#333] text-left focus:outline-none focus:ring-1 focus:ring-vivid cursor-pointer shadow-[0px_1px_2px_rgba(16,24,40,0.05)] flex items-center justify-between disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 <span className="truncate font-medium">{selectedVersion.name}</span>
                 <ChevronDown className="w-[20px] h-[20px] text-gray-400" />
@@ -302,7 +301,7 @@ export default function InstallmentCalculatorPage() {
 
             {/* Input Field: Giá niêm yết */}
             <div className="w-full">
-              <label className="block text-[16px] font-medium text-[#424242] mb-[6px] text-left">
+              <label className="block text-[14px] font-medium text-[#424242] mb-[6px] text-left">
                 Giá niêm yết (VNĐ)
               </label>
               <div className="relative rounded-[8px] bg-white border border-[#d6d6d6] shadow-[0px_1px_2px_rgba(16,24,40,0.05)] overflow-hidden w-full flex items-center px-[14px] py-[10px]">
@@ -311,14 +310,14 @@ export default function InstallmentCalculatorPage() {
                   value={formatInputValue(listPrice)}
                   onChange={handleListPriceChange}
                   placeholder="Nhập giá xe..."
-                  className="w-full bg-transparent border-0 p-0 text-[16px] text-[#333] font-semibold focus:outline-none placeholder:text-[#808080]"
+                  className="w-full bg-transparent border-0 p-0 text-[14px] text-[#333] font-semibold focus:outline-none placeholder:text-[#808080]"
                 />
               </div>
             </div>
 
             {/* Input Field: Khoản trả trước */}
             <div className="w-full">
-              <label className="block text-[16px] font-medium text-[#424242] mb-[6px] text-left flex justify-between">
+              <label className="block text-[14px] font-medium text-[#424242] mb-[6px] text-left flex justify-between">
                 <span>Khoản trả trước (VNĐ)</span>
                 <span className="text-vivid font-bold text-xs bg-blue-50 px-2 py-0.5 rounded">
                   {prepaidPercentage}%
@@ -330,7 +329,7 @@ export default function InstallmentCalculatorPage() {
                   value={formatInputValue(prepaidAmount)}
                   onChange={handlePrepaidAmountChange}
                   placeholder="Nhập số tiền trả trước..."
-                  className="w-full bg-transparent border-0 p-0 text-[16px] text-[#333] font-medium focus:outline-none placeholder:text-[#808080]"
+                  className="w-full bg-transparent border-0 p-0 text-[14px] text-[#333] font-medium focus:outline-none placeholder:text-[#808080]"
                 />
               </div>
               <div className="flex gap-2">
@@ -353,13 +352,13 @@ export default function InstallmentCalculatorPage() {
 
             {/* Input Select: Thời gian vay */}
             <div className="relative w-full" ref={termDropdownRef}>
-              <label className="block text-[16px] font-medium text-[#424242] mb-[6px] text-left">
+              <label className="block text-[14px] font-medium text-[#424242] mb-[6px] text-left">
                 Thời gian vay
               </label>
               <button
                 type="button"
                 onClick={() => setIsTermOpen(!isTermOpen)}
-                className="w-full bg-white border border-[#d6d6d6] rounded-[8px] px-[14px] py-[10px] text-[16px] text-[#333] text-left focus:outline-none focus:ring-1 focus:ring-vivid cursor-pointer shadow-[0px_1px_2px_rgba(16,24,40,0.05)] flex items-center justify-between"
+                className="w-full bg-white border border-[#d6d6d6] rounded-[8px] px-[14px] py-[10px] text-[14px] text-[#333] text-left focus:outline-none focus:ring-1 focus:ring-vivid cursor-pointer shadow-[0px_1px_2px_rgba(16,24,40,0.05)] flex items-center justify-between"
               >
                 <span className="truncate font-medium">
                   {termOptions.find((t) => t.months === loanTermMonths)?.label || `${loanTermMonths} tháng`}
@@ -391,7 +390,7 @@ export default function InstallmentCalculatorPage() {
             <div className="grid grid-cols-2 gap-[25px] w-full">
               {/* Lãi suất năm đầu */}
               <div>
-                <label className="block text-[16px] font-medium text-[#424242] mb-[6px] text-left truncate">
+                <label className="block text-[14px] font-medium text-[#424242] mb-[6px] text-left truncate">
                   Lãi suất năm đầu tiên
                 </label>
                 <div className="relative rounded-[8px] bg-white border border-[#d6d6d6] shadow-[0px_1px_2px_rgba(16,24,40,0.05)] overflow-hidden w-full flex items-center px-[14px] py-[10px]">
@@ -402,7 +401,7 @@ export default function InstallmentCalculatorPage() {
                     max="30"
                     value={rateYear1}
                     onChange={(e) => setRateYear1(parseFloat(e.target.value) || 0)}
-                    className="w-full bg-transparent border-0 p-0 text-[16px] text-[#333] font-medium focus:outline-none text-center"
+                    className="w-full bg-transparent border-0 p-0 text-[14px] text-[#333] font-medium focus:outline-none text-center"
                   />
                   <span className="text-gray-400 text-sm ml-1">%</span>
                 </div>
@@ -410,7 +409,7 @@ export default function InstallmentCalculatorPage() {
 
               {/* Lãi suất năm sau */}
               <div>
-                <label className="block text-[16px] font-medium text-[#424242] mb-[6px] text-left truncate">
+                <label className="block text-[14px] font-medium text-[#424242] mb-[6px] text-left truncate">
                   Lãi suất các năm sau
                 </label>
                 <div className="relative rounded-[8px] bg-white border border-[#d6d6d6] shadow-[0px_1px_2px_rgba(16,24,40,0.05)] overflow-hidden w-full flex items-center px-[14px] py-[10px]">
@@ -421,41 +420,10 @@ export default function InstallmentCalculatorPage() {
                     max="30"
                     value={rateSubsequent}
                     onChange={(e) => setRateSubsequent(parseFloat(e.target.value) || 0)}
-                    className="w-full bg-transparent border-0 p-0 text-[16px] text-[#333] font-medium focus:outline-none text-center"
+                    className="w-full bg-transparent border-0 p-0 text-[14px] text-[#333] font-medium focus:outline-none text-center"
                   />
                   <span className="text-gray-400 text-sm ml-1">%</span>
                 </div>
-              </div>
-            </div>
-
-            {/* Repayment Method Select Block */}
-            <div className="w-full">
-              <label className="block text-[16px] font-medium text-[#424242] mb-[6px] text-left">
-                Phương thức trả góp
-              </label>
-              <div className="bg-gray-100 p-1.5 rounded-lg grid grid-cols-2 gap-1.5 w-full">
-                <button
-                  type="button"
-                  onClick={() => setRepaymentMethod("declining")}
-                  className={`py-2 px-4 text-sm font-semibold rounded-md transition-all cursor-pointer border-0 ${
-                    repaymentMethod === "declining"
-                      ? "bg-white text-vivid shadow-sm font-bold"
-                      : "text-gray-500 hover:text-gray-800"
-                  }`}
-                >
-                  Dư nợ giảm dần
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setRepaymentMethod("flat")}
-                  className={`py-2 px-4 text-sm font-semibold rounded-md transition-all cursor-pointer border-0 ${
-                    repaymentMethod === "flat"
-                      ? "bg-white text-vivid shadow-sm font-bold"
-                      : "text-gray-500 hover:text-gray-800"
-                  }`}
-                >
-                  Dư nợ gốc cố định
-                </button>
               </div>
             </div>
 
@@ -463,43 +431,53 @@ export default function InstallmentCalculatorPage() {
             <button
               type="button"
               onClick={handleCalculate}
-              className="bg-[#0562d2] border border-[#0562d2] border-solid flex gap-[8px] items-center justify-center px-[24px] py-[12px] rounded-[800px] w-full text-white text-[18px] tracking-[0.18px] font-semibold cursor-pointer hover:bg-secondary transition-all active:scale-[0.99] border-0 mt-2"
+              className="bg-[#0562d2] border border-[#0562d2] border-solid flex gap-[8px] items-center justify-center px-[24px] py-[12px] rounded-[800px] w-full text-white text-[16px] tracking-[0.18px] font-semibold cursor-pointer hover:bg-[#0451b0] transition-all active:scale-[0.99] border-0 mt-2"
             >
               Tính số tiền phải trả
             </button>
           </div>
 
-          {/* Right Column: Interactive Image Card (14144:5327) - aspect-[400/500] and flex-1 */}
-          <div className="flex-1 aspect-[400/500] min-w-px relative rounded-[12px] overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 border border-gray-250 flex items-center justify-center p-6 shadow-sm">
-            
-            {/* Selected Vehicle Image */}
-            {selectedVehicle.images[0] ? (
-              <Image
-                src={selectedVehicle.images[0]}
-                alt={selectedVehicle.name}
-                fill
-                sizes="(max-width: 1024px) 100vw, 50vw"
-                className="object-contain p-4 hover:scale-105 transition-transform duration-500"
-                priority
-              />
+          {/* Right Column: Dynamic Showcase Card (14144:5327) */}
+          <div className="aspect-[400/500] flex-1 min-w-px relative rounded-[12px] bg-[#e8ebf0] border border-[#d6d6d6] flex flex-col justify-between p-6 overflow-hidden shadow-sm" data-node-id="14144:5327">
+            {/* Background Image / Render for New Territory */}
+            {selectedVehicle.id === "new-territory" ? (
+              <div className="absolute inset-0 pointer-events-none rounded-[12px] w-full h-full overflow-hidden">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img 
+                  alt="" 
+                  className="absolute h-[128.39%] left-[-6.57%] max-w-none top-[-28.44%] w-[121.26%] object-cover rounded-[12px]" 
+                  src="/assets/figma_car_territory.png" 
+                />
+              </div>
             ) : (
-              <div className="text-xs text-gray-400">Hình ảnh đang cập nhật</div>
+              <div className="absolute inset-0 pointer-events-none rounded-[12px] w-full h-full overflow-hidden flex items-center justify-center">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img 
+                  alt="" 
+                  className="max-h-[75%] max-w-[85%] object-contain" 
+                  src={selectedVehicle.images[0] || "/assets/figma_car_territory.png"} 
+                />
+              </div>
             )}
-            
-            {/* Design badge */}
-            <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-sm text-white text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-              {selectedVehicle.name}
+
+            {/* Top Badge */}
+            <div className="absolute top-4 left-4 z-10">
+              <span className="bg-[#424242] text-white text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider font-sans">
+                {selectedVehicle.id === "new-territory" ? "NEW TERRITORY" : selectedVehicle.name}
+              </span>
             </div>
 
-            {/* Premium quick summary block */}
-            <div className="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-sm p-4 rounded-xl border border-gray-100 shadow-md flex justify-between items-center">
-              <div>
+            {/* Bottom Card */}
+            <div className="absolute bottom-4 left-4 right-4 z-10 bg-white/95 backdrop-blur-sm p-4 rounded-xl border border-gray-100 shadow-md flex justify-between items-center">
+              <div className="flex flex-col gap-0.5 min-w-0">
                 <span className="text-[10px] text-gray-400 block font-semibold uppercase tracking-wider leading-none mb-1">
                   Giá niêm yết
                 </span>
-                <span className="text-sm font-bold text-gray-800 truncate block max-w-[180px]">{selectedVersion.name}</span>
+                <span className="text-sm font-bold text-gray-800 truncate block max-w-[180px]">
+                  {selectedVersion.name}
+                </span>
               </div>
-              <span className="text-base font-extrabold text-vivid whitespace-nowrap shrink-0">
+              <span className="text-base font-extrabold text-[#0562d2] whitespace-nowrap shrink-0 ml-2">
                 {formatCurrency(listPrice)}
               </span>
             </div>
@@ -519,14 +497,14 @@ export default function InstallmentCalculatorPage() {
               </h3>
 
               {/* Metrics summary list */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-white/70 rounded-lg border border-blue-150 print:bg-white print:border print:border-gray-200">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-white rounded-lg border border-[#d6d6d6] print:bg-white print:border print:border-gray-205">
                 <div className="space-y-1">
                   <span className="text-[10px] text-gray-400 block font-bold uppercase tracking-wide">Mẫu xe & Phiên bản</span>
                   <span className="text-xs font-bold text-gray-800 block truncate">{selectedVehicle.name} - {selectedVersion.name}</span>
                 </div>
                 <div className="space-y-1">
                   <span className="text-[10px] text-gray-400 block font-bold uppercase tracking-wide">Số tiền vay</span>
-                  <span className="text-xs font-bold text-vivid block">{formatCurrency(loanAmount)}</span>
+                  <span className="text-xs font-bold text-[#0562d2] block">{formatCurrency(loanAmount)}</span>
                 </div>
                 <div className="space-y-1">
                   <span className="text-[10px] text-gray-400 block font-bold uppercase tracking-wide">Kỳ hạn vay</span>
