@@ -33,11 +33,11 @@ WORKDIR /var/www
 # 1. Sao chép và cài đặt PHP dependencies (cache layer)
 COPY composer.json composer.lock ./
 COPY packages ./packages
-RUN composer install --no-interaction --no-scripts --no-autoloader --no-dev
+RUN --mount=type=cache,target=/root/.composer/cache composer install --no-interaction --no-scripts --no-autoloader --no-dev
 
 # 2. Sao chép và cài đặt JS dependencies cho Admin panel (cache layer)
 COPY package.json yarn.lock ./
-RUN yarn install --frozen-lockfile
+RUN --mount=type=cache,target=/root/.cache/yarn yarn install --frozen-lockfile
 
 # 3. Sao chép toàn bộ source code còn lại
 COPY . .
