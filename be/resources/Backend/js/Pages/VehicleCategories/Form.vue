@@ -40,6 +40,8 @@
                             label: 'Ảnh danh mục',
                         }"
                     />
+                </div>
+            </div>
 
             <!-- SEO Settings -->
             <SeoFields :modelValue="form[currentTab]" @update:modelValue="form[currentTab] = $event" />
