@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex" />
 
+    <link rel="shortcut icon" type="image/png" href="/favicon.png" />
     <script src="/tinymce/tinymce.min.js"></script>
 
 

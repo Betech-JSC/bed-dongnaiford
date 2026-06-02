@@ -416,7 +416,7 @@ export default function AboutPage() {
       {/* SECTION 6: TUYỂN DỤNG NHÂN SỰ (Frame 1000005586) */}
       <section id="recruitment" className="bg-[#f0f0f0] py-16 scroll-mt-20">
         <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full flex flex-col gap-8">
-          <h2 className="text-[36px] font-semibold leading-[47.52px] text-[#1a1a1a] font-antenna uppercase">
+          <h2 className="text-[36px] font-semibold leading-[47.52px] text-[#1a1a1a] font-antenna uppercase text-center">
             TUYỂN DỤNG NHÂN SỰ
           </h2>
 
