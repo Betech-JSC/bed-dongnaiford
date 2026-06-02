@@ -127,6 +127,25 @@ export const vehicleMediaAssets: Record<string, VehicleMediaAssets> = {
       "Không gian hành lý mở rộng phía sau thông minh",
     ],
   },
+  "mustang-fastback": {
+    promoTitle: "Biểu tượng xe cơ bắp Mỹ thế hệ mới.",
+    promoDesc:
+      "Trải nghiệm sức mạnh Coyote V8 huyền thoại cùng khoang lái kỹ thuật số lấy cảm hứng từ máy bay chiến đấu phản lực.",
+    promoImage: "/images/360/mustang/ecoboostfastback/exterior/desktop/adriatic-blue-green/64f/001-adriatic-blue-green-64f.jpeg",
+    grid1: "/assets/cat_exterior_1780394164078.png",
+    grid2: "/assets/cat_tech_1780394190516.png",
+    grid3: "/assets/cat_wheels_1780394211840.png",
+    bannerLarge: "/assets/cat_interior_1780394142653.png",
+    splitLeft: "/assets/cat_performance_1780394235184.png",
+    splitTitle: "Buồng lái kỹ thuật số lấy cảm hứng từ máy bay chiến đấu",
+    splitDesc:
+      "Màn hình cong kép cỡ lớn hướng về người lái, tích hợp hệ thống thông tin giải trí SYNC 4 hiện đại nhất.",
+    features: [
+      "12.4” Màn hình cụm đồng hồ kỹ thuật số",
+      "13.2” Màn hình trung tâm đặt nghiêng",
+      "Động cơ Coyote V8 thế hệ thứ 4 mạnh mẽ",
+    ],
+  },
 };
 
 export function getVehicleMediaAssets(vehicleId: string): VehicleMediaAssets | undefined {

@@ -47,6 +47,69 @@ const localFaqs = [
   }
 ];
 
+const initThreeInterior = (container: HTMLDivElement, imageSrc: string) => {
+  const THREE = (window as any).THREE;
+  if (!THREE) return;
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 1, 1100);
+  camera.target = new THREE.Vector3(0, 0, 0);
+
+  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.setSize(container.clientWidth, container.clientHeight);
+  container.appendChild(renderer.domElement);
+
+  const geometry = new THREE.SphereGeometry(500, 60, 40);
+  geometry.scale(-1, 1, 1);
+
+  const textureLoader = new THREE.TextureLoader();
+  const texture = textureLoader.load(imageSrc, () => {
+    renderer.render(scene, camera);
+  });
+
+  const material = new THREE.MeshBasicMaterial({ map: texture });
+  const mesh = new THREE.Mesh(geometry, material);
+  scene.add(mesh);
+
+  let controls: any = null;
+  if (THREE.OrbitControls) {
+    controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.rotateSpeed = -0.25;
+    controls.enableZoom = false;
+  }
+
+  camera.position.set(0, 0, 0.1);
+
+  let animationFrameId: number;
+  const animate = () => {
+    animationFrameId = requestAnimationFrame(animate);
+    if (controls) {
+      controls.update();
+    }
+    renderer.render(scene, camera);
+  };
+  animate();
+
+  const handleResize = () => {
+    camera.aspect = container.clientWidth / container.clientHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(container.clientWidth, container.clientHeight);
+  };
+  window.addEventListener('resize', handleResize);
+
+  return () => {
+    cancelAnimationFrame(animationFrameId);
+    window.removeEventListener('resize', handleResize);
+    renderer.dispose();
+    if (container.contains(renderer.domElement)) {
+      container.removeChild(renderer.domElement);
+    }
+  };
+};
+
 export default function ProductDetailPage() {
   const params = useParams();
   const router = useRouter();
@@ -54,6 +117,7 @@ export default function ProductDetailPage() {
 
   // Find the vehicle based on ID
   const vehicle = vehicles.find((v) => v.id === id);
+  const media = vehicle ? (vehicleMediaAssets[vehicle.id] || vehicleMediaAssets["new-territory"]) : vehicleMediaAssets["new-territory"];
 
   // Scroll references for programmatic scrolling
   const isProgrammaticScroll = useRef(false);
@@ -64,7 +128,230 @@ export default function ProductDetailPage() {
   const [selectedColorIndex, setSelectedColorIndex] = useState(0);
   const [activeVersionIndex, setActiveVersionIndex] = useState(0);
   const [viewType, setViewType] = useState<"exterior" | "interior">("exterior");
+  const isImageSequence = viewType === "exterior" || (vehicle?.id === "mustang-fastback" && viewType === "interior");
   
+  // 360 Interactive Viewer States
+  const [is360Active, setIs360Active] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [rotation, setRotation] = useState(0); // in degrees
+  const [tilt, setTilt] = useState(0); // in degrees
+  const [pan, setPan] = useState({ x: 0, y: 0 }); // offset in px
+
+  // Three.js Dynamic CDN Loader
+  const [threeLoaded, setThreeLoaded] = useState(false);
+  const threeRef = useRef<HTMLDivElement>(null);
+
+  // 360 Colorizer State variables
+  const [selectedWheel, setSelectedWheel] = useState("64f");
+  const [isTrimDropdownOpen, setIsTrimDropdownOpen] = useState(false);
+  const [isMobileColorOpen, setIsMobileColorOpen] = useState(false);
+  const [isMobileInteriorColorOpen, setIsMobileInteriorColorOpen] = useState(false);
+  const [isMobileWheelOpen, setIsMobileWheelOpen] = useState(false);
+  const [selectedInteriorColorIndex, setSelectedInteriorColorIndex] = useState(0);
+  const [failedImages, setFailedImages] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    if (!is360Active || viewType !== "interior" || threeLoaded) return;
+    let isMounted = true;
+
+    const loadThreeScripts = async () => {
+      try {
+        if (!(window as any).THREE) {
+          await new Promise((resolve, reject) => {
+            const script = document.createElement("script");
+            script.src = "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js";
+            script.onload = resolve;
+            script.onerror = reject;
+            document.head.appendChild(script);
+          });
+        }
+        if (!(window as any).THREE.OrbitControls) {
+          await new Promise((resolve, reject) => {
+            const script = document.createElement("script");
+            script.src = "https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js";
+            script.onload = resolve;
+            script.onerror = reject;
+            document.head.appendChild(script);
+          });
+        }
+        if (isMounted) {
+          setThreeLoaded(true);
+        }
+      } catch (err) {
+        console.error("Failed to load Three.js scripts from CDN", err);
+      }
+    };
+
+    loadThreeScripts();
+    return () => {
+      isMounted = false;
+    };
+  }, [is360Active, viewType, threeLoaded]);
+
+  useEffect(() => {
+    if (!threeLoaded || !is360Active || viewType !== "interior" || !threeRef.current) return;
+    const interiorImg = vehicle?.id === "new-territory" 
+      ? "/assets/territory-interior.png" 
+      : media.bannerLarge || "/assets/territory-interior.png";
+
+    const cleanUpThree = initThreeInterior(threeRef.current, interiorImg);
+    return () => {
+      if (cleanUpThree) cleanUpThree();
+    };
+  }, [threeLoaded, is360Active, viewType, vehicle, media]);
+
+  const renderCarPicture = () => {
+    if (!vehicle) return null;
+    // 28 frames rotation logic
+    const frameIdx = Math.floor(((rotation % 360 + 360) % 360) / (360 / 28)) + 1;
+    
+    if (vehicle.id === "mustang-fastback") {
+      const activeTrim = vehicle.versions[activeVersionIndex]?.id || "ecoboostfastback";
+      const colorId = vehicle.colors[selectedColorIndex]?.image || "adriatic-blue-green";
+      const wheelId = selectedWheel || "64f";
+      
+      return (
+        <div className="cmp-360-image-container w-full h-full relative" id={`${activeTrim}-exterior-${colorId}-${wheelId}`} tabIndex={0}>
+          {Array.from({ length: 28 }, (_, i) => {
+            const currentIdx = i + 1;
+            const isActive = currentIdx === frameIdx;
+            
+            let desktopUrl = `https://www.ford.com/acslibs/content/dam/na/ford/en_us/images/mustang/2026/360/${activeTrim}/exterior/desktop/${colorId}/${wheelId}/00${currentIdx}-${colorId}-${wheelId}.jpeg`;
+            let tabletUrl = `https://www.ford.com/acslibs/content/dam/na/ford/en_us/images/mustang/2026/360/${activeTrim}/exterior/tablet/${colorId}/${wheelId}/00${currentIdx}-${colorId}-${wheelId}.jpeg`;
+            let mobileUrl = `https://www.ford.com/acslibs/content/dam/na/ford/en_us/images/mustang/2026/360/${activeTrim}/exterior/mobile/${colorId}/${wheelId}/00${currentIdx}-${colorId}-${wheelId}.jpeg`;
+            
+            // Map to downloaded local files for the EcoBoost Adriatic Blue combination
+            if (activeTrim === "ecoboostfastback" && colorId === "adriatic-blue-green" && wheelId === "64f") {
+              const localPath = `/images/360/mustang/${activeTrim}/exterior/desktop/${colorId}/${wheelId}/00${currentIdx}-${colorId}-${wheelId}.jpeg`;
+              if (!failedImages[localPath]) {
+                desktopUrl = localPath;
+                tabletUrl = localPath;
+                mobileUrl = localPath;
+              }
+            }
+            
+            return (
+              <picture 
+                key={currentIdx}
+                id={`${activeTrim}-exterior-${colorId}-${wheelId}~${currentIdx}`} 
+                className="cmp-360-image absolute inset-0 w-full h-full flex items-center justify-center"
+                style={{ 
+                  opacity: isActive ? 1 : 0,
+                  pointerEvents: isActive ? 'auto' : 'none',
+                  zIndex: isActive ? 10 : 0
+                }}
+              >
+                <source media="(min-width: 1024px)" srcSet={desktopUrl} />
+                <source media="(min-width: 768px)" srcSet={tabletUrl} />
+                <source media="(max-width: 767px)" srcSet={mobileUrl} />
+                <img 
+                  src={desktopUrl} 
+                  alt={`${colorId}-${wheelId}`} 
+                  className="max-h-[420px] md:max-h-[480px] w-auto object-contain select-none pointer-events-none"
+                  loading="eager"
+                  onError={() => {
+                    const localPath = `/images/360/mustang/${activeTrim}/exterior/desktop/${colorId}/${wheelId}/00${currentIdx}-${colorId}-${wheelId}.jpeg`;
+                    setFailedImages((prev) => ({ ...prev, [localPath]: true }));
+                  }}
+                />
+              </picture>
+            );
+          })}
+        </div>
+      );
+    }
+    
+    // Fallback for other vehicles
+    return (
+      <div 
+        className="relative w-[700px] h-[400px] transition-transform duration-100 ease-out"
+        style={{
+          transform: `perspective(1000px) rotateY(${rotation}deg) rotateX(${tilt}deg) scale(0.95)`,
+        }}
+      >
+        <Image 
+          src={vehicle.id === "new-territory" ? "/assets/territory-3d.png" : vehicle.images[0]}
+          alt="3D Exterior rotation fallback"
+          fill
+          priority
+          className="object-contain pointer-events-none"
+        />
+        
+        {/* Glossy Metallic highlight reflection sweep */}
+        <div 
+          className="absolute inset-0 pointer-events-none mix-blend-overlay opacity-30 rounded-xl"
+          style={{
+            background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.8) 50%, transparent 100%)',
+            transform: `translateX(${(rotation % 360) * 2 - 360}px)`,
+            width: '100%',
+          }}
+        />
+      </div>
+    );
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    setDragStart({ x: e.clientX, y: e.clientY });
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging) return;
+    const deltaX = e.clientX - dragStart.x;
+    const deltaY = e.clientY - dragStart.y;
+    setDragStart({ x: e.clientX, y: e.clientY });
+
+    if (isImageSequence) {
+      setRotation((prev) => (prev + deltaX * 0.5) % 360);
+      if (viewType === "exterior") {
+        setTilt((prev) => Math.max(-10, Math.min(10, prev - deltaY * 0.2)));
+      }
+    } else {
+      setPan((prev) => ({
+        x: Math.max(-300, Math.min(300, prev.x + deltaX)),
+        y: Math.max(-150, Math.min(150, prev.y + deltaY)),
+      }));
+    }
+  };
+
+  const handleMouseUpOrLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 1) {
+      setIsDragging(true);
+      setDragStart({ x: e.touches[0].clientX, y: e.touches[0].clientY });
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging || e.touches.length !== 1) return;
+    const deltaX = e.touches[0].clientX - dragStart.x;
+    const deltaY = e.touches[0].clientY - dragStart.y;
+    setDragStart({ x: e.touches[0].clientX, y: e.touches[0].clientY });
+
+    if (isImageSequence) {
+      setRotation((prev) => (prev + deltaX * 0.5) % 360);
+      if (viewType === "exterior") {
+        setTilt((prev) => Math.max(-10, Math.min(10, prev - deltaY * 0.2)));
+      }
+    } else {
+      setPan((prev) => ({
+        x: Math.max(-300, Math.min(300, prev.x + deltaX)),
+        y: Math.max(-150, Math.min(150, prev.y + deltaY)),
+      }));
+    }
+  };
+
+  useEffect(() => {
+    setRotation(0);
+    setTilt(0);
+    setPan({ x: 0, y: 0 });
+    setIsDragging(false);
+  }, [viewType]);
+
   const [showQuoteModal, setShowQuoteModal] = useState(false);
   const [showDriveModal, setShowDriveModal] = useState(false);
   const [expandedFaqIndex, setExpandedFaqIndex] = useState<number | null>(0);
@@ -265,7 +552,6 @@ export default function ProductDetailPage() {
 
   const selectedColor = vehicle.colors[selectedColorIndex] || vehicle.colors[0];
   const activeVersion = vehicle.versions[activeVersionIndex] || vehicle.versions[0];
-  const media = vehicleMediaAssets[vehicle.id] || vehicleMediaAssets["new-territory"];
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("vi-VN").format(price) + " VNĐ";
@@ -557,110 +843,520 @@ export default function ProductDetailPage() {
 
         {/* 5. 360-Viewer & Color Picker Section */}
         <section id="360-viewer" className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full pt-16 border-t border-[#e5e5e5]">
-          <div className="flex flex-col gap-[32px] items-start">
+          <div className="flex flex-col gap-[32px] items-start w-full">
             
             <div className="flex flex-col items-start pt-[32px] w-full max-w-[1152px] gap-[12px]">
-              <h2 className="font-['Ford_Antenna',sans-serif] font-semibold text-[#0562d2] text-[36px] sm:text-[48px] tracking-[-0.96px] leading-[1.2]">
-                Khám phá không gian đa chiều
+              <h2 className="font-['Ford_Antenna',sans-serif] font-semibold text-[#0562d2] text-[36px] sm:text-[48px] tracking-[-0.96px] leading-[1.2] uppercase">
+                {vehicle.id === "mustang-fastback" ? "360° Colorizer & Viewer" : "Khám phá không gian đa chiều"}
               </h2>
               <p className="font-['Ford_Antenna',sans-serif] font-normal text-[#1a1a1a] text-[18px] leading-[1.5]">
-                {vehicle.id === "new-territory" 
-                  ? "Diện mạo mới năm 2026! Bảng màu độc đáo: Đỏ Hỏa Tinh, Xanh Biển Sâu, và Xám Ánh Trăng."
-                  : `Khám phá các sắc màu ngoại thất và chi tiết phiên bản của xe ${vehicle.name}.`}
+                {vehicle.id === "mustang-fastback" 
+                  ? "Tùy biến ngoại thất và nội thất theo phong cách riêng của bạn. Kéo để xoay 360 độ hoặc chọn màu sơn và mâm xe."
+                  : vehicle.id === "new-territory" 
+                    ? "Diện mạo mới đầy cuốn hút! Bảng màu độc đáo: Đỏ Hỏa Tinh, Xanh Biển Sâu, và Xám Ánh Trăng."
+                    : `Khám phá các sắc màu ngoại thất và chi tiết phiên bản của xe ${vehicle.name}.`}
               </p>
             </div>
 
-            {/* Selector Controls bar */}
-            <div className="flex flex-wrap gap-[24px] items-end w-full">
-              {/* Dropdown Version selection */}
-              <div className="flex flex-col gap-[12px] items-start w-[220px]">
-                <p className="font-['Ford_Antenna',sans-serif] font-medium text-[#1a1a1a] text-[16px]">
-                  Phiên bản
-                </p>
-                <div className="relative w-full">
-                  <select
-                    value={activeVersionIndex}
-                    onChange={(e) => setActiveVersionIndex(Number(e.target.value))}
-                    className="w-full bg-white border border-[#d6d6d6] rounded-[8px] px-[14px] py-[10px] pr-10 text-[16px] font-medium text-[#044ea7] focus:outline-none focus:border-[#0562d2] appearance-none cursor-pointer shadow-xs"
-                  >
-                    {vehicle.versions.map((v, idx) => (
-                      <option key={v.id} value={idx}>{v.name.replace("Territory ", "")}</option>
-                    ))}
-                  </select>
-                  <ChevronDown className="w-5 h-5 absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-                </div>
-              </div>
-
-              {/* Color dots picker */}
-              <div className="flex flex-col gap-[12px] items-start">
-                <p className="font-['Ford_Antenna',sans-serif] font-medium text-[#1a1a1a] text-[16px]">
-                  Bảng màu
-                </p>
-                <div className="flex gap-[18px] items-center h-[44px]">
-                  {vehicle.colors.map((color, idx) => {
-                    const isSelected = selectedColorIndex === idx;
-                    return (
-                      <button
-                        key={color.name}
-                        onClick={() => setSelectedColorIndex(idx)}
-                        className={`rounded-[4px] cursor-pointer size-[44px] transition-all flex items-center justify-center border-0
-                          ${isSelected ? "ring-2 ring-offset-2 ring-black border border-black" : "border border-gray-200"}`}
-                        style={{ backgroundColor: color.hex }}
-                        title={color.name}
+            {/* Official Ford 360 Colorizer wrapper */}
+            <div className="cmp-360-colorizer-wrapper w-full">
+              <div id="360Colorizer" aria-label="360 Viewer" className="cmp-360-colorizer">
+                <div className={`model-wrapper ${viewType}`}>
+                  
+                  {/* Trim dropdown selector */}
+                  <div className="cmp-360-colorizer__vehicle-variation-container">
+                    <div 
+                      className="dropdown trimAware__dropdown dropdown-trim dropdownWrapper" 
+                      aria-expanded={isTrimDropdownOpen}
+                    >
+                      <div id="trimAware-label" className="sr-only">"Select A Trim"</div>
+                      <div 
+                        className="dropdown-trigger" 
+                        role="combobox" 
+                        tabIndex={0} 
+                        aria-controls="listbox1" 
+                        aria-expanded={isTrimDropdownOpen}
+                        aria-haspopup="listbox"
+                        onClick={() => setIsTrimDropdownOpen(!isTrimDropdownOpen)}
+                        onBlur={() => setTimeout(() => setIsTrimDropdownOpen(false), 200)}
                       >
-                        {isSelected && (
-                          <div className="w-[10px] h-[10px] rounded-full bg-white mix-blend-difference" />
-                        )}
-                      </button>
-                    );
-                  })}
+                        <div className="dropdown-activeTrim">{vehicle.versions[activeVersionIndex]?.name || vehicle.name}</div>
+                        <div className="dropdown-active__icon">
+                          <ChevronDown className="w-5 h-5" />
+                        </div>
+                      </div>
+                      
+                      <div className="dropdown-menu-wrapper" id="dropdown-menu-wrapper" role="listbox" aria-labelledby="trimAware-label" tabIndex={-1}>
+                        {vehicle.versions.map((ver, idx) => (
+                          <div 
+                            key={ver.id}
+                            id={`option-${idx}`} 
+                            className={`dropdown-item trimAware__item trimAware__item--enable ${activeVersionIndex === idx ? "active-option" : ""}`}
+                            role="option" 
+                            aria-selected={activeVersionIndex === idx}
+                            onClick={() => {
+                              setActiveVersionIndex(idx);
+                              setIsTrimDropdownOpen(false);
+                            }}
+                          >
+                            {ver.name}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Exterior / Interior View Toggle */}
+                  <div className="toggle-wrapper">
+                    <div className="model-view toggle-container">
+                      <div className="toggle" role="tablist">
+                        <button 
+                          type="button"
+                          className={`toggle-option border-0 cursor-pointer ${viewType === "exterior" ? "active" : "bg-transparent"}`} 
+                          role="tab" 
+                          aria-selected={viewType === "exterior"}
+                          tabIndex={0} 
+                          aria-label="Exterior"
+                          onClick={() => setViewType("exterior")}
+                        >
+                          Exterior
+                        </button>
+                        <button 
+                          type="button"
+                          className={`toggle-option border-0 cursor-pointer ${viewType === "interior" ? "active" : "bg-transparent"}`} 
+                          role="tab" 
+                          aria-selected={viewType === "interior"}
+                          tabIndex={0} 
+                          aria-label="Interior"
+                          onClick={() => {
+                            setViewType("interior");
+                            setIs360Active(true);
+                          }}
+                        >
+                          Interior
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* View wrappers based on view type */}
+                  <div>
+                    {/* EXTERIOR VIEW SELECTORS */}
+                    <div className={`view-wrapper ${viewType === "exterior" ? "show" : ""}`} data-toggle="exterior">
+                      {/* Desktop Color Selector */}
+                      <div className="exteriorPaint">
+                        <div className="color-selector-container">
+                          <div className="color-selector" role="radiogroup">
+                            {vehicle.colors.map((color, idx) => (
+                              <div 
+                                key={color.name}
+                                className={`color-container ${selectedColorIndex === idx ? "selected" : ""}`}
+                                role="radio" 
+                                aria-checked={selectedColorIndex === idx}
+                                tabIndex={0}
+                                onClick={() => setSelectedColorIndex(idx)}
+                                title={color.name}
+                              >
+                                <div className="color" style={{ backgroundColor: color.hex }}></div>
+                                <span className="sr-only">{color.name}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="paint-color">
+                          Paint Color: <span className="uppercase text-[#0562D2]">{vehicle.colors[selectedColorIndex]?.name}</span>
+                        </div>
+                      </div>
+
+                      {/* Mobile Color Selector trigger & popover */}
+                      <div className="exterior-paint-mobile">
+                        <div 
+                          className="selector-small" 
+                          role="button" 
+                          aria-label="Expand colors" 
+                          onClick={() => setIsMobileColorOpen(!isMobileColorOpen)}
+                        >
+                          <div className="selector-container-mobile">
+                            <div className="color" style={{ backgroundColor: vehicle.colors[selectedColorIndex]?.hex }}></div>
+                          </div>
+                        </div>
+                        <div className={`popover ${isMobileColorOpen ? "" : "closed"}`}>
+                          <div className="flex justify-between items-start border-b border-gray-100 pb-2">
+                            <div>
+                              <div className="paint-color-label text-[10px] font-bold text-gray-400 uppercase">Paint Color:</div>
+                              <div className="paint-color-name text-xs font-semibold">{vehicle.colors[selectedColorIndex]?.name}</div>
+                            </div>
+                            <button 
+                              type="button"
+                              className="popover_cross-btn border-0 bg-transparent" 
+                              onClick={() => setIsMobileColorOpen(false)}
+                            >
+                              <div className="popover_cross"></div>
+                            </button>
+                          </div>
+                          <div className="color-selector flex flex-wrap gap-2 pt-2">
+                            {vehicle.colors.map((color, idx) => (
+                              <div 
+                                key={color.name}
+                                className={`color-container ${selectedColorIndex === idx ? "selected" : ""}`}
+                                role="radio" 
+                                aria-checked={selectedColorIndex === idx}
+                                onClick={() => {
+                                  setSelectedColorIndex(idx);
+                                  setIsMobileColorOpen(false);
+                                }}
+                              >
+                                <div className="color" style={{ backgroundColor: color.hex }}></div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Desktop Wheel Selector */}
+                      <div className="wheelTypes">
+                        <div className="wheel-selector-container">
+                          <div className="cmp-360-wheeltype" role="radiogroup">
+                            <div 
+                              className={`wheel-container ${selectedWheel === "64f" ? "selected" : ""}`}
+                              role="radio" 
+                              aria-checked={selectedWheel === "64f"} 
+                              tabIndex={0}
+                              onClick={() => setSelectedWheel("64f")}
+                              title='18" Painted Shadow Silver Cast Aluminum Wheels'
+                            >
+                              <img 
+                                className="wheel-image" 
+                                src="/assets/figma_card_bg.png" 
+                                alt='18" Painted Shadow Silver Cast Aluminum Wheels'
+                                onError={(e) => {
+                                  // fallback image if figma_card_bg doesn't load
+                                  (e.target as HTMLImageElement).src = "/images/ford_placeholder.png";
+                                }}
+                              />
+                            </div>
+                          </div>
+                          <div className="wheel-name text-[10px] font-bold text-gray-700">
+                            18" Shadow Silver
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Mobile Wheel Selector trigger & popover */}
+                      <div className="wheelTypesMobile">
+                        <div 
+                          className="selector-small" 
+                          role="button" 
+                          aria-label="Expand wheels" 
+                          onClick={() => setIsMobileWheelOpen(!isMobileWheelOpen)}
+                        >
+                          <div className="selector-container-mobile">
+                            <img className="wheel-image bg-white" src="/assets/figma_card_bg.png" alt="Wheel option" />
+                          </div>
+                        </div>
+                        <div className={`popover ${isMobileWheelOpen ? "" : "closed"}`}>
+                          <div className="flex justify-between items-start border-b border-gray-100 pb-2">
+                            <div>
+                              <div className="wheel-label text-[10px] font-bold text-gray-400 uppercase">Wheels and Tires:</div>
+                              <div className="wheel-name text-xs font-semibold">18" Painted Shadow Silver Cast Aluminum Wheels</div>
+                            </div>
+                            <button 
+                              type="button"
+                              className="popover_cross-btn border-0 bg-transparent" 
+                              onClick={() => setIsMobileWheelOpen(false)}
+                            >
+                              <div className="popover_cross"></div>
+                            </button>
+                          </div>
+                          <div className="cmp-360-wheeltype pt-2">
+                            <div 
+                              className="wheel-container selected" 
+                              role="radio" 
+                              aria-checked={true}
+                              onClick={() => setIsMobileWheelOpen(false)}
+                            >
+                              <img className="wheel-image" src="/assets/figma_card_bg.png" alt='18" Wheels' />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* INTERIOR VIEW SELECTORS */}
+                    <div className={`view-wrapper ${viewType === "interior" ? "show" : ""}`} data-toggle="interior">
+                      {/* Desktop Interior Colors */}
+                      <div className="interiorColors">
+                        <div className="color-selector-container">
+                          <div className="color-selector interior" role="radiogroup">
+                            <div 
+                              className={`color-container ${selectedInteriorColorIndex === 0 ? "selected" : ""}`} 
+                              role="radio" 
+                              aria-checked={selectedInteriorColorIndex === 0} 
+                              tabIndex={0}
+                              onClick={() => setSelectedInteriorColorIndex(0)}
+                              title="Black Onyx"
+                            >
+                              <div className="color" style={{ backgroundColor: "#1b1a1a" }}></div>
+                            </div>
+                            <div 
+                              className={`color-container ${selectedInteriorColorIndex === 1 ? "selected" : ""}`} 
+                              role="radio" 
+                              aria-checked={selectedInteriorColorIndex === 1} 
+                              tabIndex={0}
+                              onClick={() => setSelectedInteriorColorIndex(1)}
+                              title="Space Gray"
+                            >
+                              <div className="color" style={{ backgroundColor: "#c8c6c4" }}></div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="paint-color interior">
+                          Interior: <span className="uppercase text-[#0562D2]">{selectedInteriorColorIndex === 0 ? "Black Onyx" : "Space Gray"}</span>
+                        </div>
+                      </div>
+
+                      {/* Mobile Interior Colors trigger & popover */}
+                      <div className="interior-paint-mobile">
+                        <div 
+                          className="selector-small" 
+                          role="button" 
+                          aria-label="Expand interior colors" 
+                          onClick={() => setIsMobileInteriorColorOpen(!isMobileInteriorColorOpen)}
+                        >
+                          <div className="selector-container-mobile">
+                            <div className="color" style={{ backgroundColor: selectedInteriorColorIndex === 0 ? "#1b1a1a" : "#c8c6c4" }}></div>
+                          </div>
+                        </div>
+                        <div className={`popover ${isMobileInteriorColorOpen ? "" : "closed"}`}>
+                          <div className="flex justify-between items-start border-b border-gray-100 pb-2">
+                            <div>
+                              <div className="paint-color-label text-[10px] font-bold text-gray-400 uppercase">Interior Cabin:</div>
+                              <div className="paint-color-name text-xs font-semibold">{selectedInteriorColorIndex === 0 ? "Black Onyx" : "Space Gray"}</div>
+                            </div>
+                            <button 
+                              type="button"
+                              className="popover_cross-btn border-0 bg-transparent" 
+                              onClick={() => setIsMobileInteriorColorOpen(false)}
+                            >
+                              <div className="popover_cross"></div>
+                            </button>
+                          </div>
+                          <div className="color-selector flex gap-2 pt-2">
+                            <div 
+                              className={`color-container ${selectedInteriorColorIndex === 0 ? "selected" : ""}`}
+                              onClick={() => {
+                                setSelectedInteriorColorIndex(0);
+                                setIsMobileInteriorColorOpen(false);
+                              }}
+                            >
+                              <div className="color" style={{ backgroundColor: "#1b1a1a" }}></div>
+                            </div>
+                            <div 
+                              className={`color-container ${selectedInteriorColorIndex === 1 ? "selected" : ""}`}
+                              onClick={() => {
+                                setSelectedInteriorColorIndex(1);
+                                setIsMobileInteriorColorOpen(false);
+                              }}
+                            >
+                              <div className="color" style={{ backgroundColor: "#c8c6c4" }}></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Interactive Preview Canvas */}
+                  <div 
+                    className="car-image-container select-none cursor-grab active:cursor-grabbing w-full h-[400px] md:h-[580px] relative overflow-hidden"
+                    onMouseDown={is360Active && isImageSequence ? handleMouseDown : undefined}
+                    onMouseMove={is360Active && isImageSequence ? handleMouseMove : undefined}
+                    onMouseUp={is360Active && isImageSequence ? handleMouseUpOrLeave : undefined}
+                    onMouseLeave={is360Active && isImageSequence ? handleMouseUpOrLeave : undefined}
+                    onTouchStart={is360Active && isImageSequence ? handleTouchStart : undefined}
+                    onTouchMove={is360Active && isImageSequence ? handleTouchMove : undefined}
+                    onTouchEnd={is360Active && isImageSequence ? handleMouseUpOrLeave : undefined}
+                  >
+                    {is360Active ? (
+                      // 360 ACTIVE MODE
+                      viewType === "exterior" ? (
+                        // Exterior 360 rotation view (Loads either real Mustang frames or fallback)
+                        <div className="relative w-full h-full flex flex-col items-center justify-center bg-gray-50/50">
+                          
+                          {/* Warped drop shadow that reacts to rotation */}
+                          <div 
+                            className="absolute bottom-8 w-[60%] h-6 bg-black/15 blur-md rounded-[100%] transition-transform duration-100 pointer-events-none"
+                            style={{
+                              transform: `scaleX(${1 - Math.abs(tilt) / 40}) scaleY(${1 - Math.abs(rotation % 180 - 90) / 180}) rotateZ(${rotation * 0.05}deg)`,
+                            }}
+                          />
+
+                          {/* Responsive rotation picture tag */}
+                          {renderCarPicture()}
+
+                          {/* Glossy Metallic light reflection sweep */}
+                          <div 
+                            className="absolute inset-0 pointer-events-none mix-blend-overlay opacity-25"
+                            style={{
+                              background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.8) 50%, transparent 100%)',
+                              transform: `translateX(${(rotation % 360) * 3 - 540}px)`,
+                              width: '100%',
+                            }}
+                          />
+
+                          {/* HUD instructions */}
+                          <div className="absolute top-4 left-4 md:left-24 bg-black/75 backdrop-blur-xs text-white text-[11px] font-bold px-3 py-1.5 rounded-full pointer-events-none flex items-center gap-2 z-30">
+                            <span>Xoay 3D Ngoại Thất (Kéo thả chuột)</span>
+                            <span className="bg-[#0562D2] px-2 py-0.5 rounded-sm text-[10px]">
+                              Frame: {String(Math.floor(((rotation % 360 + 360) % 360) / (360 / 28)) + 1).padStart(3, '0')} / 028
+                            </span>
+                          </div>
+                        </div>
+                      ) : (
+                        // Interior 360 WebGL panorama (Three.js canvas) or 36-frame static sequence for Mustang
+                        vehicle.id === "mustang-fastback" ? (
+                          <div className="cmp-360-image-container w-full h-full relative" id={`${vehicle.versions[activeVersionIndex]?.id || "ecoboostfastback"}-interior-${selectedInteriorColorIndex === 0 ? "black-onyx" : "space-gray"}`} tabIndex={0}>
+                            {Array.from({ length: 36 }, (_, i) => {
+                              const currentIdx = i + 1;
+                              const interiorFrameIdx = Math.floor(((rotation % 360 + 360) % 360) / (360 / 36)) + 1;
+                              const isActive = currentIdx === interiorFrameIdx;
+                              
+                              const activeTrim = vehicle.versions[activeVersionIndex]?.id || "ecoboostfastback";
+                              const colorId = selectedInteriorColorIndex === 0 ? "black-onyx" : "space-gray";
+                              
+                              let desktopUrl = `https://www.ford.com/acslibs/content/dam/na/ford/en_us/images/mustang/2026/360/${activeTrim}/interior/desktop/${colorId}/00${currentIdx}-${colorId}.jpeg`;
+                              let tabletUrl = `https://www.ford.com/acslibs/content/dam/na/ford/en_us/images/mustang/2026/360/${activeTrim}/interior/tablet/${colorId}/00${currentIdx}-${colorId}.jpeg`;
+                              let mobileUrl = `https://www.ford.com/acslibs/content/dam/na/ford/en_us/images/mustang/2026/360/${activeTrim}/interior/mobile/${colorId}/00${currentIdx}-${colorId}.jpeg`;
+                              
+                              // Use local paths for EcoBoost Fastback combination if downloaded
+                              if (activeTrim === "ecoboostfastback") {
+                                const localPath = `/images/360/mustang/${activeTrim}/interior/desktop/${colorId}/00${currentIdx}-${colorId}.jpeg`;
+                                if (!failedImages[localPath]) {
+                                  desktopUrl = localPath;
+                                  tabletUrl = localPath;
+                                  mobileUrl = localPath;
+                                }
+                              }
+                              
+                              return (
+                                <picture 
+                                  key={currentIdx}
+                                  id={`${activeTrim}-interior-${colorId}~${currentIdx}`} 
+                                  className="cmp-360-image absolute inset-0 w-full h-full flex items-center justify-center"
+                                  style={{ 
+                                    opacity: isActive ? 1 : 0,
+                                    pointerEvents: isActive ? 'auto' : 'none',
+                                    zIndex: isActive ? 10 : 0
+                                  }}
+                                >
+                                  <source media="(min-width: 1024px)" srcSet={desktopUrl} />
+                                  <source media="(min-width: 768px)" srcSet={tabletUrl} />
+                                  <source media="(max-width: 767px)" srcSet={mobileUrl} />
+                                  <img 
+                                    src={desktopUrl} 
+                                    alt={`${colorId}-${currentIdx}`} 
+                                    className="max-h-[420px] md:max-h-[480px] w-auto object-contain select-none pointer-events-none"
+                                    loading="eager"
+                                    onError={() => {
+                                      const localPath = `/images/360/mustang/${activeTrim}/interior/desktop/${colorId}/00${currentIdx}-${colorId}.jpeg`;
+                                      setFailedImages((prev) => ({ ...prev, [localPath]: true }));
+                                    }}
+                                  />
+                                </picture>
+                              );
+                            })}
+                            
+                            {/* HUD instructions */}
+                            <div className="absolute top-4 left-4 md:left-24 bg-black/75 backdrop-blur-xs text-white text-[11px] font-bold px-3 py-1.5 rounded-full pointer-events-none flex items-center gap-2 z-30">
+                              <span>Xoay Nội Thất (Kéo thả chuột)</span>
+                              <span className="bg-[#0562D2] px-2 py-0.5 rounded-sm text-[10px]">
+                                Frame: {String(Math.floor(((rotation % 360 + 360) % 360) / (360 / 36)) + 1).padStart(3, '0')} / 036
+                              </span>
+                            </div>
+                          </div>
+                        ) : (
+                          <div 
+                            ref={threeRef}
+                            className="relative w-full h-full overflow-hidden bg-black"
+                          >
+                            {!threeLoaded && (
+                              <div className="absolute inset-0 flex flex-col items-center justify-center bg-black text-white gap-3 z-10">
+                                <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                <span className="text-xs font-bold uppercase tracking-wider">Đang khởi tạo cabin 3D...</span>
+                              </div>
+                            )}
+                            
+                            {/* HUD instructions */}
+                            <div className="absolute top-4 left-4 md:left-24 bg-black/75 backdrop-blur-xs text-white text-[11px] font-bold px-3 py-1.5 rounded-full pointer-events-none z-30">
+                              Khoang Lái 360°: Kéo thả chuột để quay cabin 3D (Three.js)
+                            </div>
+                          </div>
+                        )
+                      )
+                    ) : (
+                      // 360 STATIC PREVIEW WITH PLAY TRIGGER
+                      <>
+                        <Image 
+                          src={vehicle.id === "mustang-fastback"
+                            ? `/images/360/mustang/ecoboostfastback/exterior/desktop/adriatic-blue-green/64f/001-adriatic-blue-green-64f.jpeg`
+                            : vehicle.id === "new-territory"
+                              ? (viewType === "exterior" ? "/assets/territory-3d.png" : "/assets/territory-interior.png")
+                              : (viewType === "exterior" ? vehicle.images[0] : media.splitLeft)}
+                          alt="3D vehicle preview"
+                          fill
+                          sizes="(max-width: 1440px) 100vw, 1152px"
+                          className="object-cover pointer-events-none"
+                        />
+                        
+                        {/* Play / Interactive Overlay Trigger */}
+                        <button 
+                          type="button"
+                          onClick={() => setIs360Active(true)}
+                          className="absolute bg-black/40 hover:bg-black/60 hover:scale-105 active:scale-95 transition-all p-[12px] rounded-[800px] border-0 cursor-pointer flex flex-col items-center justify-center size-[96px] z-10 text-white gap-1 group left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+                          aria-label="Play 3D viewer"
+                        >
+                          <Image src="/assets/play-icon.svg" alt="Play" width={32} height={32} className="size-[32px] brightness-0 invert" />
+                          <span className="text-[10px] font-bold uppercase tracking-wider group-hover:underline">Bật 360°</span>
+                        </button>
+
+                        <div className="absolute bottom-4 left-4 md:left-24 bg-[#1a1a1a]/85 backdrop-blur-xs text-white text-[12px] font-semibold px-4 py-2 rounded-[4px] shadow-sm z-10">
+                          <span>Ngoại thất: {vehicle.colors[selectedColorIndex]?.name}</span>
+                          <span className="mx-2 opacity-50">|</span>
+                          <span>Phiên bản: {vehicle.versions[activeVersionIndex]?.name}</span>
+                        </div>
+                      </>
+                    )}
+
+                    {/* 360 Control Toolbar Buttons */}
+                    {is360Active && (
+                      <>
+                        {/* Close / Quit 360 mode button */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIs360Active(false);
+                            setRotation(0);
+                            setTilt(0);
+                            setPan({ x: 0, y: 0 });
+                          }}
+                          className="absolute top-4 right-4 md:right-24 bg-black/75 hover:bg-black text-white px-4 py-2 rounded-full border-0 cursor-pointer text-xs font-bold transition-all shadow-md z-20 flex items-center gap-1.5"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                          <span>Tắt 360°</span>
+                        </button>
+
+                        {/* Register drive button */}
+                        <button
+                          type="button"
+                          onClick={() => setShowDriveModal(true)}
+                          className="absolute bottom-4 right-4 md:right-24 bg-[#0562D2] hover:bg-[#044ea7] text-white text-[13px] font-semibold px-5 py-2.5 rounded-full border-0 cursor-pointer shadow-md transition-all z-20"
+                        >
+                          Đăng ký lái thử thực tế
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
-              </div>
-
-              {/* View toggle (Exterior / Interior) */}
-              <div className="ml-auto bg-white border border-[#d6d6d6] flex gap-[4px] h-[44px] items-center justify-center p-[4px] rounded-[800px] w-[264px]">
-                <button
-                  onClick={() => setViewType("exterior")}
-                  className={`flex-[1_0_0] gap-[8px] h-full items-center justify-center overflow-clip py-[8px] rounded-[800px] text-[14px] font-semibold tracking-[0.14px] whitespace-nowrap cursor-pointer border-0 transition-all
-                    ${viewType === "exterior" ? "bg-[#1a1a1a] text-white" : "bg-transparent text-[#424242]"}`}
-                >
-                  Vẻ ngoài
-                </button>
-                <button
-                  onClick={() => setViewType("interior")}
-                  className={`flex-[1_0_0] gap-[8px] h-full items-center justify-center overflow-clip py-[8px] rounded-[800px] text-[14px] font-semibold tracking-[0.14px] whitespace-nowrap cursor-pointer border-0 transition-all
-                    ${viewType === "interior" ? "bg-[#1a1a1a] text-white" : "bg-transparent text-[#424242]"}`}
-                >
-                  Khoang Lái
-                </button>
-              </div>
-            </div>
-
-            {/* Interactive Preview Canvas */}
-            <div className="w-full h-[550px] relative rounded-[12px] overflow-hidden bg-gray-50 flex items-center justify-center shadow-xs mt-4">
-              <Image 
-                src={vehicle.id === "new-territory"
-                  ? (viewType === "exterior" ? "/assets/territory-3d.png" : "/assets/territory-interior.png")
-                  : (viewType === "exterior" ? vehicle.images[0] : media.splitLeft)}
-                alt="3D vehicle preview"
-                fill
-                sizes="(max-width: 1440px) 100vw, 1152px"
-                className="object-cover"
-              />
-              
-              {/* Play / Interactive Overlay Trigger */}
-              <button 
-                onClick={() => setShowDriveModal(true)}
-                className="absolute bg-[rgba(0,0,0,0.3)] hover:bg-[rgba(0,0,0,0.45)] hover:scale-105 active:scale-95 transition-all p-[12px] rounded-[800px] border-0 cursor-pointer flex items-center justify-center size-[72px]"
-                aria-label="Play 3D viewer"
-              >
-                <Image src="/assets/play-icon.svg" alt="Play" width={48} height={48} className="size-[48px]" />
-              </button>
-
-              <div className="absolute bottom-4 left-4 bg-[#1a1a1a]/80 backdrop-blur-xs text-white text-[12px] font-medium px-4 py-2 rounded-[4px] shadow-sm">
-                <span>Ngoại thất: {selectedColor.name}</span>
-                <span className="mx-2 opacity-50">|</span>
-                <span>Phiên bản: {activeVersion.name.replace("Territory ", "")}</span>
               </div>
             </div>
 

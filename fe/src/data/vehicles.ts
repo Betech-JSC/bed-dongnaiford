@@ -277,6 +277,107 @@ export const vehicles: Vehicle[] = [
         }
       }
     ]
+  },
+  {
+    id: "mustang-fastback",
+    name: "MUSTANG FASTBACK",
+    type: "suv",
+    typeName: "Xe Thể Thao 2 Cửa",
+    isBestSeller: true,
+    basePrice: 1150000000,
+    tagline: "Biểu tượng xe cơ bắp Mỹ thế hệ mới.",
+    description: "Trải nghiệm sức mạnh huyền thoại từ khối động cơ Coyote V8 kết hợp với thiết kế đột phá và khoang lái kỹ thuật số tối tân hướng trọn về người lái.",
+    images: [
+      "/images/360/mustang/ecoboostfastback/exterior/desktop/adriatic-blue-green/64f/001-adriatic-blue-green-64f.jpeg"
+    ],
+    colors: [
+      { name: "Adriatic Blue Metallic", hex: "#15444c", image: "adriatic-blue-green" },
+      { name: "Orange Fury Metallic", hex: "#ff7e00", image: "orange-fury" },
+      { name: "Avalanche Gray", hex: "#dadbce", image: "avalanche-gray" },
+      { name: "Shadow Black", hex: "#10101d", image: "shadow-black" },
+      { name: "Carbonized Gray", hex: "#8c8989", image: "carbonized-gray" },
+      { name: "Vapor Blue Metallic", hex: "#424e5a", image: "vapor-blue" },
+      { name: "Molten Magenta Metallic", hex: "#850034", image: "molten-magenta" },
+      { name: "Race Red", hex: "#d50f00", image: "race-red" },
+      { name: "Oxford White", hex: "#e4e2e5", image: "oxford-white" }
+    ],
+    versions: [
+      {
+        id: "ecoboostfastback",
+        name: "Mustang® EcoBoost® Fastback",
+        price: 1150000000,
+        specs: {
+          engine: "2.3L EcoBoost® I4 tăng áp",
+          power: "315 Hp @ 5500 rpm",
+          torque: "475 Nm @ 3000 rpm",
+          transmission: "Tự động 10 cấp SelectShift®",
+          drivetrain: "Cầu sau (RWD)",
+          dimensions: "4.811 x 1.915 x 1.397 mm",
+          clearance: "140 mm",
+          fuelEconomy: "9.5 L/100km"
+        }
+      },
+      {
+        id: "ecoboostpremiumfastback",
+        name: "Mustang® EcoBoost® Premium Fastback",
+        price: 1350000000,
+        specs: {
+          engine: "2.3L EcoBoost® I4 tăng áp",
+          power: "315 Hp @ 5500 rpm",
+          torque: "475 Nm @ 3000 rpm",
+          transmission: "Tự động 10 cấp SelectShift®",
+          drivetrain: "Cầu sau (RWD)",
+          dimensions: "4.811 x 1.915 x 1.397 mm",
+          clearance: "140 mm",
+          fuelEconomy: "9.5 L/100km"
+        }
+      },
+      {
+        id: "gtfastback",
+        name: "Mustang® GT Fastback",
+        price: 1850000000,
+        specs: {
+          engine: "5.0L Coyote V8 thế hệ thứ 4",
+          power: "480 Hp @ 7150 rpm",
+          torque: "563 Nm @ 4900 rpm",
+          transmission: "Số sàn 6 cấp Getrag hoặc 10 cấp SelectShift®",
+          drivetrain: "Cầu sau (RWD)",
+          dimensions: "4.811 x 1.915 x 1.397 mm",
+          clearance: "140 mm",
+          fuelEconomy: "11.8 L/100km"
+        }
+      },
+      {
+        id: "gtpremiumfastback",
+        name: "Mustang® GT Premium Fastback",
+        price: 2150000000,
+        specs: {
+          engine: "5.0L Coyote V8 thế hệ thứ 4",
+          power: "480 Hp @ 7150 rpm",
+          torque: "563 Nm @ 4900 rpm",
+          transmission: "Số sàn 6 cấp Getrag hoặc 10 cấp SelectShift®",
+          drivetrain: "Cầu sau (RWD)",
+          dimensions: "4.811 x 1.915 x 1.397 mm",
+          clearance: "140 mm",
+          fuelEconomy: "11.8 L/100km"
+        }
+      },
+      {
+        id: "dark-horse",
+        name: "Mustang® Dark Horse®",
+        price: 2950000000,
+        specs: {
+          engine: "5.0L Coyote V8 hiệu năng cao",
+          power: "500 Hp @ 7250 rpm",
+          torque: "567 Nm @ 4900 rpm",
+          transmission: "Số sàn 6 cấp TREMEC® hoặc 10 cấp SelectShift®",
+          drivetrain: "Cầu sau (RWD)",
+          dimensions: "4.817 x 1.915 x 1.397 mm",
+          clearance: "135 mm",
+          fuelEconomy: "12.5 L/100km"
+        }
+      }
+    ]
   }
 ];
 
