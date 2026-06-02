@@ -24,7 +24,7 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
 COPY --from=composer:2.5 /usr/bin/composer /usr/bin/composer
 
 # Cài đặt Node.js và Yarn (để build assets của Admin panel)
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs \
     && npm install --global yarn
 
