@@ -7,9 +7,14 @@ if [ -d "/var/www/public_bootstrap" ]; then
     cp -rp /var/www/public_bootstrap/. /var/www/public/
 fi
 
-# 2. Tạo liên kết lưu trữ (storage:link)
+# 2. Tạo liên kết lưu trữ (storage:link) và kiểm tra APP_KEY
 echo "Creating storage symlink..."
 php artisan storage:link --force || true
+
+if [ -z "$APP_KEY" ] && ! grep -q "APP_KEY=base64:" /var/www/.env; then
+    echo "APP_KEY is not defined. Generating Laravel application key..."
+    php artisan key:generate --force
+fi
 
 # 3. Tối ưu hóa hiệu năng (Cache config, routes, views) cho môi trường Production
 if [ "$APP_ENV" = "production" ]; then
