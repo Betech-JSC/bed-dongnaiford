@@ -260,6 +260,7 @@ class Post extends BaseModel
             'description' => $this->description,
             'content' => transform_richtext($this->content),
             'image' => $this->getImageDetail($this->image),
+            'category' => $this->category,
             'url' => $this->current_url
         ];
 

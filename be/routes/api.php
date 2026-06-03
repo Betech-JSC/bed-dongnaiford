@@ -48,6 +48,7 @@ Route::localized(function () {
 
     Route::post('contacts', [App\Http\Controllers\Frontend\ContactController::class, 'store'])->name('api.contacts.store');
     Route::get('posts', [\App\Http\Controllers\Frontend\PostController::class, 'index'])->name('api.posts');
+    Route::get('posts/{slug}', [\App\Http\Controllers\Frontend\PostController::class, 'show'])->name('api.posts.show');
 });
 
 Route::get('keywords/index', [KeywordController::class, 'index'])

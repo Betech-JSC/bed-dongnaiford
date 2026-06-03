@@ -96,7 +96,10 @@ export const productsAPI = {
  * Posts/News API (assuming there's a posts endpoint)
  */
 export const postsAPI = {
-  getAll: () => fetchAPI('/posts'),
+  getAll: (params?: Record<string, any>) => {
+    const query = params ? '?' + new URLSearchParams(params as any).toString() : '';
+    return fetchAPI(`/posts${query}`);
+  },
   getBySlug: (slug: string) => fetchAPI(`/posts/${slug}`),
 };
 

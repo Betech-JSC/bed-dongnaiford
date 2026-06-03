@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Share2, MessageCircle, Copy, Check, Calendar } from "lucide-react";
-import { getArticleById, articles } from "@/data/articles";
 import { handleImageError } from "@/lib/site-assets";
+import { postsAPI } from "@/lib/api";
 
 const Facebook = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
@@ -25,18 +25,31 @@ const Facebook = (props: React.SVGProps<SVGSVGElement>) => (
 
 export default function ArticleDetailPage() {
   const params = useParams();
-  const id = params?.id as string;
-  const article = useMemo(() => getArticleById(id), [id]);
+  const id = params?.id as string; // in our route it is folder [id] which matches the slug in the URL
 
+  const [article, setArticle] = useState<any>(null);
+  const [relatedArticles, setRelatedArticles] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
 
-  // Filter 3 related articles (excluding the current one)
-  const relatedArticles = useMemo(() => {
-    if (!article) return [];
-    return articles
-      .filter((art) => art.id !== article.id)
-      .slice(0, 3);
-  }, [article]);
+  useEffect(() => {
+    if (!id) return;
+    const fetchPostDetail = async () => {
+      setLoading(true);
+      try {
+        const res: any = await postsAPI.getBySlug(id).catch(() => null);
+        if (res && res.post) {
+          setArticle(res.post);
+          setRelatedArticles(res.related_posts || []);
+        }
+      } catch (error) {
+        console.error("Error fetching post details:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPostDetail();
+  }, [id]);
 
   const handleCopyLink = () => {
     if (typeof window !== "undefined") {
@@ -46,12 +59,34 @@ export default function ArticleDetailPage() {
     }
   };
 
+  const formatDate = (dateStr: string) => {
+    if (!dateStr) return "";
+    try {
+      const date = new Date(dateStr);
+      return date.toLocaleDateString("vi-VN", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric"
+      });
+    } catch {
+      return dateStr;
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] py-24 text-center">
+        <h2 className="text-2xl font-semibold text-gray-900 mb-4">Đang tải bài viết...</h2>
+      </div>
+    );
+  }
+
   if (!article) {
     return (
       <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] py-24 text-center">
         <h2 className="text-2xl font-semibold text-gray-900 mb-4">Không tìm thấy bài viết</h2>
         <p className="text-gray-600 mb-8">Bài viết bạn yêu cầu không tồn tại hoặc đã bị xóa.</p>
-        <Link href="/news" className="btn-ford-primary">
+        <Link href="/news" className="inline-flex items-center gap-2 bg-[#0562d2] hover:bg-[#00095b] text-white px-6 py-2.5 rounded-full text-sm font-semibold transition">
           <ArrowLeft className="w-4 h-4" /> Quay lại danh sách tin tức
         </Link>
       </div>
@@ -76,73 +111,37 @@ export default function ArticleDetailPage() {
           
           {/* Header Metadata */}
           <div className="flex flex-col items-center gap-4 text-center">
-            <span className="text-[#0562d2] text-sm font-semibold uppercase tracking-wider">
-              {article.category}
-            </span>
+            {article.category && (
+              <span className="text-[#0562d2] text-sm font-semibold uppercase tracking-wider">
+                {article.category.title}
+              </span>
+            )}
             <h1 className="font-['Ford_Antenna',sans-serif] font-semibold text-[28px] md:text-[36px] leading-[1.25] text-[#00095b] max-w-[760px]">
               {article.title}
             </h1>
             <div className="flex items-center gap-2 text-sm text-[#424242] mt-2">
               <Calendar className="w-4 h-4 text-[#808080]" />
-              <span>{article.date}</span>
+              <span>{formatDate(article.published_at)}</span>
             </div>
           </div>
 
           {/* Featured Image */}
-          <div className="aspect-[16/9] relative rounded-[12px] overflow-hidden w-full bg-gray-50 border border-gray-100">
-            <img 
-              src={article.image} 
-              alt={article.title} 
-              className="absolute inset-0 w-full h-full object-cover"
-              onError={handleImageError}
-            />
-          </div>
+          {article.image?.url && (
+            <div className="aspect-[16/9] relative rounded-[12px] overflow-hidden w-full bg-gray-50 border border-gray-100">
+              <img 
+                src={article.image.url} 
+                alt={article.title} 
+                className="absolute inset-0 w-full h-full object-cover"
+                onError={handleImageError}
+              />
+            </div>
+          )}
 
           {/* Article Content Body */}
-          <div className="font-sans text-[#1a1a1a] leading-relaxed text-[16px] max-w-[760px] mx-auto w-full">
-            {article.body.map((block, idx) => {
-              switch (block.type) {
-                case "paragraph":
-                  return (
-                    <p key={`p-${idx}`} className="mb-6 text-[#424242] leading-relaxed whitespace-pre-line">
-                      {block.value}
-                    </p>
-                  );
-                case "heading":
-                  return (
-                    <h3 
-                      key={`h-${idx}`} 
-                      className="font-['Ford_Antenna',sans-serif] font-semibold text-[22px] leading-snug text-[#00095b] mt-8 mb-4"
-                    >
-                      {block.value}
-                    </h3>
-                  );
-                case "list":
-                  return (
-                    <ul key={`list-${idx}`} className="list-disc pl-6 space-y-2.5 mb-6 text-[#424242]">
-                      {(block.value as string[]).map((item, lIdx) => (
-                        <li key={`li-${idx}-${lIdx}`} className="leading-relaxed">
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
-                  );
-                case "image":
-                  return (
-                    <div key={`img-${idx}`} className="aspect-[16/9] relative rounded-[12px] overflow-hidden my-8 border border-gray-100 shadow-xs">
-                      <img 
-                        src={block.value as string} 
-                        alt="Hình ảnh bài viết" 
-                        className="absolute inset-0 w-full h-full object-cover"
-                        onError={handleImageError}
-                      />
-                    </div>
-                  );
-                default:
-                  return null;
-              }
-            })}
-          </div>
+          <div 
+            className="font-sans text-[#1a1a1a] leading-relaxed text-[16px] max-w-[760px] mx-auto w-full prose prose-blue whitespace-pre-line"
+            dangerouslySetInnerHTML={{ __html: article.content }}
+          />
 
           {/* Call to Action Booking Box */}
           <div className="bg-gray-50 rounded-[12px] p-6 border border-[#e5e5e5] text-center flex flex-col items-center gap-4 mt-4">
@@ -150,7 +149,7 @@ export default function ArticleDetailPage() {
               Bạn đang quan tâm tới dòng xe hoặc dịch vụ của Ford?
             </h4>
             <p className="text-sm text-[#424242] max-w-[500px]">
-              Đặt lịch hẹn ngay hôm nay tại đại lý Đồng Nai Ford để được tư vấn giá lăn bánh tốt nhất cùng các chương trình khuyến mãi tháng 5.
+              Đặt lịch hẹn ngay hôm nay tại đại lý Đồng Nai Ford để được tư vấn giá lăn bánh tốt nhất cùng các chương trình khuyến mãi tốt nhất.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 mt-2 w-full justify-center">
               <Link 
@@ -206,45 +205,49 @@ export default function ArticleDetailPage() {
       </section>
 
       {/* 3. RELATED ARTICLES */}
-      <section className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full bg-[#fafafa] py-12 border-t border-[#e5e5e5]">
-        <div className="flex flex-col gap-8">
-          <h2 className="font-['Ford_Antenna',sans-serif] font-semibold text-[32px] leading-[1.32] text-[#1a1a1a] text-center">
-            Tin tức & Ưu Đãi liên quan
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {relatedArticles.map((art) => (
-              <Link
-                key={art.id}
-                href={`/news/${art.id}`}
-                className="bg-white rounded-[12px] overflow-hidden border border-[#e5e5e5] shadow-sm hover:shadow-md transition-premium group flex flex-col h-full"
-              >
-                <div className="aspect-[600/400] relative overflow-hidden w-full bg-gray-100">
-                  <img
-                    src={art.image}
-                    alt={art.title}
-                    className="absolute inset-0 object-cover w-full h-full group-hover:scale-[1.03] transition-transform duration-500"
-                    onError={handleImageError}
-                  />
-                  <div className="absolute top-4 left-4 bg-[#0562d2] text-white text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider">
-                    {art.category}
+      {relatedArticles.length > 0 && (
+        <section className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full bg-[#fafafa] py-12 border-t border-[#e5e5e5]">
+          <div className="flex flex-col gap-8">
+            <h2 className="font-['Ford_Antenna',sans-serif] font-semibold text-[32px] leading-[1.32] text-[#1a1a1a] text-center">
+              Tin tức & Ưu Đãi liên quan
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {relatedArticles.map((art) => (
+                <Link
+                  key={art.id}
+                  href={`/news/${art.slug}`}
+                  className="bg-white rounded-[12px] overflow-hidden border border-[#e5e5e5] shadow-sm hover:shadow-md transition-premium group flex flex-col h-full"
+                >
+                  <div className="aspect-[600/400] relative overflow-hidden w-full bg-gray-100">
+                    <img
+                      src={art.image?.url || "/placeholder-news.jpg"}
+                      alt={art.title}
+                      className="absolute inset-0 object-cover w-full h-full group-hover:scale-[1.03] transition-transform duration-500"
+                      onError={handleImageError}
+                    />
+                    {art.category && (
+                      <div className="absolute top-4 left-4 bg-[#0562d2] text-white text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider">
+                        {art.category.title}
+                      </div>
+                    )}
                   </div>
-                </div>
-                <div className="p-5 flex flex-col flex-1 gap-2.5">
-                  <span className="text-xs font-medium text-[#424242]">
-                    {art.date}
-                  </span>
-                  <h3 className="font-['Ford_Antenna',sans-serif] font-semibold text-[16px] leading-[1.4] text-[#1a1a1a] group-hover:text-[#0562d2] transition-colors duration-200 line-clamp-2">
-                    {art.title}
-                  </h3>
-                  <p className="text-xs text-[#424242] leading-relaxed line-clamp-3 mt-1">
-                    {art.content}
-                  </p>
-                </div>
-              </Link>
-            ))}
+                  <div className="p-5 flex flex-col flex-1 gap-2.5">
+                    <span className="text-xs font-medium text-[#424242]">
+                      {formatDate(art.published_at)}
+                    </span>
+                    <h3 className="font-['Ford_Antenna',sans-serif] font-semibold text-[16px] leading-[1.4] text-[#1a1a1a] group-hover:text-[#0562d2] transition-colors duration-200 line-clamp-2">
+                      {art.title}
+                    </h3>
+                    <p className="text-xs text-[#424242] leading-relaxed line-clamp-3 mt-1">
+                      {art.description}
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
     </div>
   );
 }
