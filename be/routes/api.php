@@ -25,7 +25,6 @@ Route::localized(function () {
         // Dòng xe
         Route::get('featured', [VehicleController::class, 'featured'])->name('featured');
         Route::get('/', [VehicleController::class, 'index'])->name('index');
-        Route::get('{slug}', [VehicleController::class, 'show'])->name('show');
 
         // Danh mục xe
         Route::get('categories', [VehicleCategoryController::class, 'index'])->name('categories.index');
@@ -42,9 +41,13 @@ Route::localized(function () {
         // Đội ngũ cố vấn
         Route::get('consultants', [SalesConsultantController::class, 'index'])->name('consultants.index');
         Route::get('consultants/{slug}', [SalesConsultantController::class, 'show'])->name('consultants.show');
+
+        // Chi tiết xe (Đặt ở dưới cùng để tránh tranh chấp wildcard {slug})
+        Route::get('{slug}', [VehicleController::class, 'show'])->name('show');
     });
 
     Route::post('contacts', [App\Http\Controllers\Frontend\ContactController::class, 'store'])->name('api.contacts.store');
+    Route::get('posts', [\App\Http\Controllers\Frontend\PostController::class, 'index'])->name('api.posts');
 });
 
 Route::get('keywords/index', [KeywordController::class, 'index'])

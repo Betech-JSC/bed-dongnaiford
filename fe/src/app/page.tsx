@@ -22,10 +22,8 @@ import {
   Mail
 } from "lucide-react";
 import { vehicles, Vehicle } from "@/data/vehicles";
-import { articles } from "@/data/articles";
 import { getPopularVehicleImage, siteAssets, handleImageError } from "@/lib/site-assets";
-
-const homeArticles = articles.slice(0, 3);
+import { bannersAPI, reviewsAPI, postsAPI } from "@/lib/api";
 
 // Custom SVG Icons matching Figma design
 const WheelIcon = ({ className }: { className?: string }) => (
@@ -63,69 +61,7 @@ const WrenchIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-// Hero slides data
-const heroSlides = [
-  {
-    title: "Ford Everest Mới",
-    subtitle: "Dấn bước. Dẫn đầu​",
-    tagline: "SUV 7 Chỗ Đích Thực Chinh Phục Mọi Địa Terrain",
-    image: siteAssets.heroSlides[0],
-    linkVehicleId: "new-everest"
-  },
-  {
-    title: "Khuyến Mãi Tháng 5",
-    subtitle: "Ưu Đãi Lệ Phí Trước Bạ & Quà Tặng Đặc Biệt",
-    tagline: "Sở Hữu Xe Ford Yêu Thích Với Gói Ưu Đãi Tài Chính Tốt Nhất Năm",
-    image: siteAssets.heroSlides[1],
-    linkVehicleId: "new-territory"
-  },
-  {
-    title: "Ford Raptor Nhập Mỹ",
-    subtitle: "Chiến binh sa mạc - Độc bản hiệu năng​",
-    tagline: "Động Cơ Bi-Turbo Siêu Cường Kết Hợp Hệ Thống Treo FOX Racing Đỉnh Cao",
-    image: siteAssets.heroSlides[2],
-    linkVehicleId: "new-raptor"
-  }
-];
 
-// Testimonials Data
-const testimonials = [
-  {
-    name: "Trần Minh",
-    role: "Quản lý dự án công ty XYZ",
-    avatarText: "TM",
-    stars: 5,
-    comment: "Chất lượng dịch vụ xuất sắc, rất hài lòng với sự hỗ trợ từ đội ngũ nhân viên. Xe giao nhanh và đúng yêu cầu."
-  },
-  {
-    name: "Lê Văn",
-    role: "Chủ doanh nghiệp nhỏ",
-    avatarText: "LV",
-    stars: 5,
-    comment: "Mua xe lần đầu, không thất vọng. Từ tư vấn đến giao hàng đều rất chuyên nghiệp."
-  },
-  {
-    name: "Phạm Hương",
-    role: "Nhà báo tự do",
-    avatarText: "PH",
-    stars: 5,
-    comment: "Dịch vụ khách hàng tuyệt vời, xe giao đầy đủ và đúng hẹn. Sẽ giới thiệu cho bạn bè!"
-  },
-  {
-    name: "Ngô Bảo",
-    role: "Kỹ sư phần mềm",
-    avatarText: "NB",
-    stars: 4,
-    comment: "Trải nghiệm mua xe rất tốt. Nhân viên hỗ trợ nhiệt tình và cung cấp thông tin rõ ràng."
-  },
-  {
-    name: "Đặng Thái",
-    role: "Giáo viên trung học",
-    avatarText: "DT",
-    stars: 5,
-    comment: "Thời gian giao xe nhanh chóng, chất lượng xe đảm bảo. Tôi hoàn toàn hài lòng với dịch vụ."
-  }
-];
 
 // FAQs Data
 const faqs = [
@@ -154,8 +90,6 @@ const faqs = [
     a: "Tất cả kỹ thuật viên và tư vấn bán hàng của chúng tôi đều trải qua các khóa đào tạo khắt khe và đạt chứng chỉ từ Ford Việt Nam, sẵn sàng lắng nghe và giải đáp mọi yêu cầu của quý khách hàng."
   }
 ];
-
-
 
 const quickActions = [
   {
@@ -186,6 +120,58 @@ const quickActions = [
 
 export default function Home() {
   const router = useRouter();
+
+  const [heroSlides, setHeroSlides] = useState<any[]>([]);
+  const [testimonials, setTestimonials] = useState<any[]>([]);
+  const [homeArticles, setHomeArticles] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [bannersData, reviewsData, postsData] = await Promise.all([
+          bannersAPI.getAll().catch(() => null),
+          reviewsAPI.getAll().catch(() => null),
+          postsAPI.getAll().catch(() => null)
+        ]);
+
+        const bannersItems = (bannersData as any)?.data || bannersData;
+        if (Array.isArray(bannersItems) && bannersItems.length > 0) {
+          setHeroSlides(bannersItems.map((item: any) => ({
+            title: item.title || "",
+            subtitle: item.subtitle || "",
+            tagline: "",
+            image: item.image_url || siteAssets.heroSlides[0],
+            linkVehicleId: item.button_link || ""
+          })));
+        }
+
+        const reviewsItems = (reviewsData as any)?.data || reviewsData;
+        if (Array.isArray(reviewsItems) && reviewsItems.length > 0) {
+          setTestimonials(reviewsItems.map((item: any) => ({
+            name: item.customer_name || "Khách hàng",
+            role: "Khách hàng",
+            avatarText: (item.customer_name || "KH").substring(0, 2).toUpperCase(),
+            stars: item.rating || 5,
+            comment: item.content || ""
+          })));
+        }
+
+        const postsItems = (postsData as any)?.posts?.data || (postsData as any)?.data || postsData;
+        if (Array.isArray(postsItems) && postsItems.length > 0) {
+          setHomeArticles(postsItems.slice(0, 3).map((item: any) => ({
+            id: item.id || item.slug || String(Math.random()),
+            title: item.title || "",
+            image: item.image?.url || "/placeholder-news.jpg",
+          })));
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   // Hero Banner Active Slide
   const [activeHeroIndex, setActiveHeroIndex] = useState(0);
 
@@ -283,12 +269,12 @@ export default function Home() {
 
   // Auto-play news/offers every 4.5 seconds, pause on hover
   useEffect(() => {
-    if (isNewsHovered) return;
+    if (isNewsHovered || homeArticles.length === 0) return;
     const timer = setInterval(() => {
       setActiveNewsIndex((prev) => (prev + 1) % homeArticles.length);
     }, 4500);
     return () => clearInterval(timer);
-  }, [isNewsHovered]);
+  }, [isNewsHovered, homeArticles.length]);
 
   // Filter vehicles based on active showroom category
   const getFilteredVehicles = () => {
@@ -370,12 +356,10 @@ export default function Home() {
             className={`absolute inset-0 transition-opacity duration-1000 ease-in-out pointer-events-none ${activeHeroIndex === idx ? "opacity-95 scale-100" : "opacity-0 scale-105"
               }`}
           >
-            <Image
+            <img
               src={slide.image}
               alt={slide.title}
-              fill
-              priority={idx === 0}
-              className="object-cover object-center transform transition-transform duration-10000"
+              className="object-cover w-full h-full object-center transform transition-transform duration-10000"
             />
             {/* Linear dark gradient overlay */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
@@ -387,10 +371,10 @@ export default function Home() {
           {/* Slide Text Block */}
           <div key={activeHeroIndex} className="max-w-3xl flex flex-col items-center text-center reveal-on-scroll">
             <h1 className="text-4xl sm:text-5xl lg:text-[48px] font-bold tracking-[-0.96px] leading-[1.2] text-white">
-              {heroSlides[activeHeroIndex].title}
+              {heroSlides[activeHeroIndex]?.title || ""}
             </h1>
             <p className="mt-[4px] text-lg sm:text-xl md:text-[24px] font-medium text-white/80 leading-[1.25]">
-              {heroSlides[activeHeroIndex].subtitle}
+              {heroSlides[activeHeroIndex]?.subtitle || ""}
             </p>
 
             {/* CTAs */}
@@ -403,7 +387,9 @@ export default function Home() {
               </button>
               <button
                 onClick={() => {
-                  router.push(`/products/${heroSlides[activeHeroIndex].linkVehicleId}`);
+                  if (heroSlides[activeHeroIndex]?.linkVehicleId) {
+                    router.push(`/products/${heroSlides[activeHeroIndex].linkVehicleId}`);
+                  }
                 }}
                 className="bg-transparent hover:bg-white/10 border border-white text-white px-[24px] py-[10px] rounded-full text-base font-semibold tracking-[0.16px] transition-all duration-300 cursor-pointer"
               >
@@ -902,14 +888,14 @@ export default function Home() {
               <div className="flex items-center gap-6 mt-4 md:mt-0">
                 <div className="flex md:hidden gap-2">
                   <button
-                    onClick={() => setActiveNewsIndex((prev) => (prev - 1 + homeArticles.length) % homeArticles.length)}
+                    onClick={() => homeArticles.length > 0 && setActiveNewsIndex((prev) => (prev - 1 + homeArticles.length) % homeArticles.length)}
                     className="p-2 border border-white/20 hover:bg-white/10 text-white rounded-full transition-colors cursor-pointer bg-transparent"
                     aria-label="Previous article"
                   >
                     <ChevronLeft className="w-5 h-5" />
                   </button>
                   <button
-                    onClick={() => setActiveNewsIndex((prev) => (prev + 1) % homeArticles.length)}
+                    onClick={() => homeArticles.length > 0 && setActiveNewsIndex((prev) => (prev + 1) % homeArticles.length)}
                     className="p-2 border border-white/20 hover:bg-white/10 text-white rounded-full transition-colors cursor-pointer bg-transparent"
                     aria-label="Next article"
                   >
