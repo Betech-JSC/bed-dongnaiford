@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import { vehicles, Vehicle } from "@/data/vehicles";
 import { getPopularVehicleImage, siteAssets, handleImageError } from "@/lib/site-assets";
-import { bannersAPI, reviewsAPI, postsAPI } from "@/lib/api";
+import { bannersAPI, reviewsAPI, postsAPI, vehiclesAPI } from "@/lib/api";
 
 // Custom SVG Icons matching Figma design
 const WheelIcon = ({ className }: { className?: string }) => (
@@ -124,14 +124,18 @@ export default function Home() {
   const [heroSlides, setHeroSlides] = useState<any[]>([]);
   const [testimonials, setTestimonials] = useState<any[]>([]);
   const [homeArticles, setHomeArticles] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [vehiclesList, setVehiclesList] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [bannersData, reviewsData, postsData] = await Promise.all([
+        const [bannersData, reviewsData, postsData, categoriesData, vehiclesData] = await Promise.all([
           bannersAPI.getAll().catch(() => null),
           reviewsAPI.getAll().catch(() => null),
-          postsAPI.getAll().catch(() => null)
+          postsAPI.getAll().catch(() => null),
+          vehiclesAPI.getCategories().catch(() => null),
+          vehiclesAPI.getAll().catch(() => null)
         ]);
 
         const bannersItems = (bannersData as any)?.data || bannersData;
@@ -164,6 +168,16 @@ export default function Home() {
             image: item.image?.url || "/placeholder-news.jpg",
           })));
         }
+
+        const categoriesItems = (categoriesData as any)?.data || categoriesData;
+        if (Array.isArray(categoriesItems)) {
+          setCategories(categoriesItems);
+        }
+
+        const vehiclesItems = (vehiclesData as any)?.data || vehiclesData;
+        if (Array.isArray(vehiclesItems)) {
+          setVehiclesList(vehiclesItems);
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -176,18 +190,29 @@ export default function Home() {
   const [activeHeroIndex, setActiveHeroIndex] = useState(0);
 
   // Showroom Filter State
-  const [selectedCategory, setSelectedCategory] = useState<"all" | "best-seller" | "suv" | "commercial">("all");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
   // Testimonials Carousel Slide State
   const [activeTestimonialIndex, setActiveTestimonialIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const [isTestimonialInteracted, setIsTestimonialInteracted] = useState(false);
 
+  // Popular Fleet: use API data if available, fallback to static
+  const popularVehicles = vehiclesList.length > 0 ? vehiclesList : vehicles;
+
   // Popular Fleet Carousel State (Infinite Loop support)
   const [activePopularIndex, setActivePopularIndex] = useState(vehicles.length);
   const [isPopularTransitioning, setIsPopularTransitioning] = useState(true);
   const [isPopularHovered, setIsPopularHovered] = useState(false);
   const [isPopularInteracted, setIsPopularInteracted] = useState(false);
+
+  // Re-initialize carousel index when API data loads
+  useEffect(() => {
+    if (popularVehicles.length > 0) {
+      setIsPopularTransitioning(false);
+      setActivePopularIndex(popularVehicles.length);
+    }
+  }, [popularVehicles.length]);
 
   // News & Offers Carousel State
   const [activeNewsIndex, setActiveNewsIndex] = useState(0);
@@ -278,16 +303,26 @@ export default function Home() {
 
   // Filter vehicles based on active showroom category
   const getFilteredVehicles = () => {
-    switch (selectedCategory) {
-      case "best-seller":
-        return vehicles.filter(v => v.isBestSeller);
-      case "suv":
-        return vehicles.filter(v => v.type === "suv");
-      case "commercial":
-        return vehicles.filter(v => v.type === "commercial");
-      default:
-        return vehicles;
+    if (vehiclesList.length === 0) {
+      // Fallback to static data if API vehicles not loaded
+      switch (selectedCategory) {
+        case "best-seller":
+          return vehicles.filter(v => v.isBestSeller);
+        case "suv":
+          return vehicles.filter(v => v.type === "suv");
+        case "commercial":
+          return vehicles.filter(v => v.type === "commercial");
+        default:
+          return vehicles;
+      }
     }
+
+    if (selectedCategory === "all") {
+      return vehiclesList;
+    }
+    const cat = categories.find(c => c.slug === selectedCategory);
+    if (!cat) return [];
+    return vehiclesList.filter(v => v.category_id === cat.id);
   };
 
   const handlePrevHero = () => {
@@ -331,17 +366,20 @@ export default function Home() {
   };
 
   const handlePopularTransitionEnd = () => {
-    if (activePopularIndex >= vehicles.length * 2) {
+    if (activePopularIndex >= popularVehicles.length * 2) {
       setIsPopularTransitioning(false);
-      setActivePopularIndex(activePopularIndex - vehicles.length);
-    } else if (activePopularIndex < vehicles.length) {
+      setActivePopularIndex(activePopularIndex - popularVehicles.length);
+    } else if (activePopularIndex < popularVehicles.length) {
       setIsPopularTransitioning(false);
-      setActivePopularIndex(activePopularIndex + vehicles.length);
+      setActivePopularIndex(activePopularIndex + popularVehicles.length);
     }
   };
 
-  const getPopularVehicleImageForSlide = (vehicle: Vehicle) =>
-    getPopularVehicleImage(vehicle.id, vehicle.images[0]);
+  const getPopularVehicleImageForSlide = (vehicle: any) => {
+    // API vehicles have image_url, static vehicles have images array
+    if (vehicle.image_url) return vehicle.image_url;
+    return getPopularVehicleImage(vehicle.id, vehicle.images?.[0] || "");
+  };
 
   return (
     <div className="relative min-h-screen bg-light overflow-x-hidden font-sans">
@@ -473,19 +511,26 @@ export default function Home() {
           {/* Underline tab switcher — centered */}
           <div className="flex justify-center mb-12 border-b border-gray-200 w-full">
             <div className="flex gap-8 md:gap-12">
-              {(["all", "best-seller", "suv", "commercial"] as const).map((cat) => {
-                const label = cat === "all" ? "Tất cả" : cat === "best-seller" ? "Bán chạy" : cat === "suv" ? "SUV" : "Thương mại";
-                const isActive = selectedCategory === cat;
+              {(categories.length > 0
+                ? [{ slug: "all", title: "Tất cả" }, ...categories]
+                : [
+                    { slug: "all", title: "Tất cả" },
+                    { slug: "best-seller", title: "Bán chạy" },
+                    { slug: "suv", title: "SUV" },
+                    { slug: "commercial", title: "Thương mại" }
+                  ]
+              ).map((cat) => {
+                const isActive = selectedCategory === cat.slug;
                 return (
                   <button
-                    key={cat}
-                    onClick={() => setSelectedCategory(cat)}
+                    key={cat.slug}
+                    onClick={() => setSelectedCategory(cat.slug)}
                     className={`pb-4 text-sm md:text-base font-semibold transition-all duration-300 relative cursor-pointer ${isActive
                       ? "text-[#0562D2] border-b-2 border-[#0562D2] -mb-[2px]"
                       : "text-gray-500 hover:text-[#0562D2] border-b-2 border-transparent -mb-[2px]"
                       }`}
                   >
-                    {label}
+                    {cat.title}
                   </button>
                 );
               })}
@@ -494,37 +539,44 @@ export default function Home() {
 
           {/* Vehicles Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {getFilteredVehicles().map((vehicle) => (
-              <Link
-                key={vehicle.id}
-                href={`/products/${vehicle.id}`}
-                className="bg-white border border-[#EAECF0] rounded-2xl p-6 flex flex-col justify-between hover:shadow-lg transition-all duration-300 relative group cursor-pointer h-full"
-              >
-                {/* Image Section */}
-                <div className="relative h-48 w-full bg-white overflow-hidden mb-6 flex items-center justify-center">
-                  <Image
-                    src={getPopularVehicleImage(vehicle.id, vehicle.images[0])}
-                    alt={vehicle.name}
-                    fill
-                    sizes="(max-width: 768px) 100vw, 30vw"
-                    className="object-contain object-center group-hover:scale-105 transition-transform duration-500"
-                    onError={handleImageError}
-                  />
-                </div>
+            {getFilteredVehicles().map((vehicle) => {
+              const vehicleId = vehicle.slug || vehicle.id;
+              const vehicleName = vehicle.title || vehicle.name;
+              const vehicleImage = vehicle.image_url || getPopularVehicleImage(vehicle.slug || vehicle.id, vehicle.images?.[0] || "");
+              const vehiclePrice = vehicle.base_price || vehicle.basePrice || 0;
 
-                {/* Title & Price */}
-                <div className="space-y-2 mt-auto">
-                  <h3 className={`text-base font-bold tracking-tight uppercase ${vehicle.id === "new-mustang-mach-e" ? "text-[#0562D2]" : "text-[#1A1A1A]"
-                    }`}>
-                    {vehicle.name}
-                  </h3>
-                  <div className="text-xs text-gray-500 font-medium">
-                    <span>Giá khởi điểm: </span>
-                    <span className="text-sm font-bold text-[#0562D2]">{formatPrice(vehicle.basePrice)}</span>
+              return (
+                <Link
+                  key={vehicle.id}
+                  href={`/products/${vehicleId}`}
+                  className="bg-white border border-[#EAECF0] rounded-2xl p-6 flex flex-col justify-between hover:shadow-lg transition-all duration-300 relative group cursor-pointer h-full"
+                >
+                  {/* Image Section */}
+                  <div className="relative h-48 w-full bg-white overflow-hidden mb-6 flex items-center justify-center">
+                    <Image
+                      src={vehicleImage}
+                      alt={vehicleName}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 30vw"
+                      className="object-contain object-center group-hover:scale-105 transition-transform duration-500"
+                      onError={handleImageError}
+                    />
                   </div>
-                </div>
-              </Link>
-            ))}
+
+                  {/* Title & Price */}
+                  <div className="space-y-2 mt-auto">
+                    <h3 className={`text-base font-bold tracking-tight uppercase ${vehicleId === "new-mustang-mach-e" ? "text-[#0562D2]" : "text-[#1A1A1A]"
+                      }`}>
+                      {vehicleName}
+                    </h3>
+                    <div className="text-xs text-gray-500 font-medium">
+                      <span>Giá khởi điểm: </span>
+                      <span className="text-sm font-bold text-[#0562D2]">{formatPrice(vehiclePrice)}</span>
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -584,14 +636,16 @@ export default function Home() {
               onTouchStart={() => setIsPopularHovered(true)}
               onTouchEnd={() => setIsPopularHovered(false)}
             >
-              {[...vehicles, ...vehicles, ...vehicles].map((vehicle, idx) => {
+              {[...popularVehicles, ...popularVehicles, ...popularVehicles].map((vehicle, idx) => {
+                const vSlug = vehicle.slug || vehicle.id;
+                const vName = vehicle.title || vehicle.name;
                 return (
                   <div
                     key={`${vehicle.id}-${idx}`}
                     onClick={(e) => {
                       const target = e.target as HTMLElement;
                       if (!target.closest('a')) {
-                        router.push(`/products/${vehicle.id}`);
+                        router.push(`/products/${vSlug}`);
                       }
                     }}
                     className="relative overflow-hidden rounded-xl h-[595px] group cursor-pointer bg-[#121824] flex-shrink-0 transition-all duration-300 block"
@@ -601,7 +655,7 @@ export default function Home() {
                   >
                     <Image
                       src={getPopularVehicleImageForSlide(vehicle)}
-                      alt={vehicle.name}
+                      alt={vName}
                       fill
                       sizes="var(--card-width-popular)"
                       className="object-cover group-hover:scale-105 transition-transform duration-500"
@@ -610,16 +664,16 @@ export default function Home() {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
                     {/* Content — Figma: p-8 bottom */}
                     <div className="absolute bottom-0 left-0 right-0 p-8 z-10 flex flex-col gap-4">
-                      <h3 className="text-2xl md:text-3xl font-semibold text-white leading-[1.2]">{vehicle.name}</h3>
+                      <h3 className="text-2xl md:text-3xl font-semibold text-white leading-[1.2]">{vName}</h3>
                       <div className="flex gap-3 mt-1">
                         <Link
-                          href={`/products/${vehicle.id}`}
+                          href={`/products/${vSlug}`}
                           className="bg-[#0562D2] text-white text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-[#044ea7] transition-all duration-200"
                         >
                           Xem chi tiết
                         </Link>
                         <Link
-                          href={`/contact?vehicle=${vehicle.id}&reason=Báo giá`}
+                          href={`/contact?vehicle=${vSlug}&reason=Báo giá`}
                           className="bg-transparent border border-white text-white text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-white/10 transition-all duration-200"
                         >
                           Báo giá
@@ -634,15 +688,15 @@ export default function Home() {
 
           {/* Dots Pagination Indicators for Popular Fleet */}
           <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] flex justify-center gap-2 mt-4 mb-8">
-            {vehicles.map((_, idx) => (
+            {popularVehicles.map((_, idx) => (
               <button
                 key={idx}
                 onClick={() => {
                   setIsPopularTransitioning(true);
-                  setActivePopularIndex(idx + vehicles.length);
+                  setActivePopularIndex(idx + popularVehicles.length);
                   setIsPopularInteracted(true);
                 }}
-                className={`h-2 transition-all rounded-full cursor-pointer ${activePopularIndex % vehicles.length === idx ? "w-6 bg-[#0562d2]" : "w-2 bg-gray-300"
+                className={`h-2 transition-all rounded-full cursor-pointer ${activePopularIndex % popularVehicles.length === idx ? "w-6 bg-[#0562d2]" : "w-2 bg-gray-300"
                   }`}
                 aria-label={`Go to vehicle slide ${idx + 1}`}
               />
