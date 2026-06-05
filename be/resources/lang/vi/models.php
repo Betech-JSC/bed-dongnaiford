@@ -66,6 +66,7 @@ return [
         'dashboard' => 'Thống kê',
         'Flash-sales' => 'Flash Sale',
         'flash-sales' => 'Flash Sale',
+        'accessories' => 'Phụ kiện',
 
     ],
     'common' => [

@@ -44,6 +44,12 @@
     <span>Sản phẩm xe</span>
     </Link>
 
+    <Link v-if="can('admin.accessories.index')" :href="route('admin.accessories.index')"
+        :class="{ active: isUrl('admin.accessories.*') }" class="item">
+    <ph:wrench-light />
+    <span>Phụ kiện</span>
+    </Link>
+
     <Link v-if="can('admin.customer-reviews.index')" :href="route('admin.customer-reviews.index')"
         :class="{ active: isUrl('admin.customer-reviews.*') }" class="item">
     <ph:star-light />
