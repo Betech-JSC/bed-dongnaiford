@@ -32,6 +32,7 @@ use App\Http\Controllers\Backend\SalesConsultantController;
 use App\Http\Controllers\Backend\DealerActivityController;
 use App\Http\Controllers\Backend\AwardController;
 use App\Http\Controllers\Backend\AccessoryController;
+use App\Http\Controllers\Backend\AccessoryCategoryController;
 
 Route::localized(function () {
     Route::middleware(['auth:admin'])->name('admin.')->group(function () {
@@ -67,5 +68,6 @@ Route::localized(function () {
         Route::module(DealerActivityController::class);
         Route::module(AwardController::class);
         Route::module(AccessoryController::class);
+        Route::module(AccessoryCategoryController::class);
     });
 });

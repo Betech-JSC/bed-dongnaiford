@@ -44,6 +44,12 @@
     <span>Sản phẩm xe</span>
     </Link>
 
+    <Link v-if="can('admin.accessory-categories.index')" :href="route('admin.accessory-categories.index')"
+        :class="{ active: isUrl('admin.accessory-categories.*') }" class="item">
+    <bx:category />
+    <span>Danh mục phụ kiện</span>
+    </Link>
+
     <Link v-if="can('admin.accessories.index')" :href="route('admin.accessories.index')"
         :class="{ active: isUrl('admin.accessories.*') }" class="item">
     <ph:wrench-light />

@@ -14,7 +14,7 @@ class AccessoryController extends Controller
     public $model = Accessory::class;
 
     public $with = [
-        'form' => ['translations'],
+        'form' => ['translations', 'categories'],
     ];
 
     /**
@@ -36,13 +36,7 @@ class AccessoryController extends Controller
                         'name' => 'models.table_list.' . $this->getTable(),
                     ]
                 ],
-                'schema' => $this->getSchema(),
-                'data' => [
-                    'categories' => collect(Accessory::CATEGORY_LIST)->map(fn($label, $key) => [
-                        'id' => $key,
-                        'label' => $label,
-                    ])->values(),
-                ]
+                'schema' => $this->getSchema()
             ]);
         } catch (\Throwable $th) {
             dd($th);
@@ -52,17 +46,7 @@ class AccessoryController extends Controller
     private function beforeIndex($query)
     {
         return $query
-            ->with(['translations'])
+            ->with(['translations', 'categories'])
             ->orderBy('id', 'DESC');
-    }
-
-    private function beforeForm($data)
-    {
-        $data['categories'] = collect(Accessory::CATEGORY_LIST)->map(fn($label, $key) => [
-            'id' => $key,
-            'label' => $label,
-        ])->values();
-
-        return $data;
     }
 }

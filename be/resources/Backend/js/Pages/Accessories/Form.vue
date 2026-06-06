@@ -131,14 +131,16 @@
         <template #aside="{ form }">
             <div class="card">
                 <div class="card-body">
-                    <Field v-model="form.category" :field="{
-                        type: 'dropdown',
-                        name: 'category',
+                    <Field v-model="form.categories" :field="{
+                        type: 'select_multiple',
+                        name: 'categories',
                         label: 'Danh mục phụ kiện',
-                        keyBy: 'id',
-                        labelBy: 'label',
-                        options: categories,
-                        emptyLabel: '-- Chọn danh mục --',
+                        labelBy: 'title',
+                        source: {
+                            model: 'App\\Models\\Vehicle\\AccessoryCategory',
+                            method: 'get',
+                            only: ['id', 'title'],
+                        },
                     }" />
 
                     <Field v-model="form.code" :field="{
@@ -179,7 +181,6 @@ export default {
     data() {
         return {
             currentTab: this.getCurrentLocale?.() ?? 'vi',
-            categories: this.data?.categories ?? [],
             formData: this.initFormData(this.item),
         }
     },
@@ -197,7 +198,7 @@ export default {
                 sort_order: 0,
                 price: 0,
                 code: '',
-                category: 'exterior',
+                categories: [],
                 image: null,
                 images: [],
                 fit_vehicles: [],

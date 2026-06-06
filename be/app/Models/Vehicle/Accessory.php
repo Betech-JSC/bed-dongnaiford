@@ -17,16 +17,7 @@ class Accessory extends BaseModel
     public $with = ['translations'];
     protected $appends = ['url'];
 
-    public const STATUS_ACTIVE = 'ACTIVE';
-    public const STATUS_INACTIVE = 'INACTIVE';
 
-    public const CATEGORY_LIST = [
-        'interior'    => 'Phụ Kiện Nội Thất',
-        'exterior'    => 'Phụ Kiện Ngoại Thất',
-        'tech'        => 'Công Nghệ & Điện Tử',
-        'wheels'      => 'Mâm & Lốp Xe',
-        'performance' => 'Phụ Tùng Hiệu Suất',
-    ];
 
     public $translatedAttributes = [
         'title',
@@ -47,7 +38,6 @@ class Accessory extends BaseModel
 
     protected $fillable = [
         'code',
-        'category',
         'price',
         'image',
         'images',
@@ -68,7 +58,6 @@ class Accessory extends BaseModel
         $base = [
             'vi.title'   => 'required|string|max:255',
             'code'       => 'nullable|string|max:50',
-            'category'   => 'required|string|in:interior,exterior,tech,wheels,performance',
             'price'      => 'nullable|numeric|min:0',
             'image'      => 'nullable|array',
             'images'     => 'nullable|array',
@@ -80,6 +69,20 @@ class Accessory extends BaseModel
             'store'      => $base,
             'storeDraft' => $base,
         ];
+    }
+
+    protected static function booted()
+    {
+        static::saved(function (self $model) {
+            if (request()->route() === null) return;
+            $model->saveCategories($model);
+        });
+    }
+
+    public function saveCategories($model)
+    {
+        $categories = array_column(request()->input('categories', []), 'id');
+        $model->categories()->sync($categories, 'id');
     }
 
     // ── JSON field accessors (same pattern as Vehicle) ──
@@ -145,14 +148,24 @@ class Accessory extends BaseModel
 
     // ── Helpers ──
 
-    public function getImageUrlAttribute(): ?string
+    public function categories()
     {
-        return isset($this->image['path']) ? static_url($this->image['path']) : null;
+        return $this->belongsToMany(
+            AccessoryCategory::class,
+            'accessory_ref_categories',
+            'accessory_id',
+            'accessory_category_id'
+        );
     }
 
     public function getCategoryNameAttribute(): string
     {
-        return self::CATEGORY_LIST[$this->category] ?? $this->category;
+        return $this->categories->pluck('title')->implode(', ');
+    }
+
+    public function getImageUrlAttribute(): ?string
+    {
+        return isset($this->image['path']) ? static_url($this->image['path']) : null;
     }
 
     public function getUrlAttribute(): array
@@ -197,7 +210,10 @@ class Accessory extends BaseModel
             'title'         => $this->title,
             'slug'          => $this->seo_slug ?? $this->slug,
             'code'          => $this->code,
-            'category'      => $this->category,
+            'categories'    => $this->categories->map(fn($item) => [
+                'id' => $item->id,
+                'title' => $item->title,
+            ]),
             'category_name' => $this->category_name,
             'price'         => $this->price,
             'description'   => $this->description,

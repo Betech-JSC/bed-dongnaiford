@@ -67,6 +67,8 @@ return [
         'Flash-sales' => 'Flash Sale',
         'flash-sales' => 'Flash Sale',
         'accessories' => 'Phụ kiện',
+        'accessory-categories' => 'Danh mục phụ kiện',
+        'accessory_categories' => 'Danh mục phụ kiện',
 
     ],
     'common' => [
