@@ -64,6 +64,8 @@ class Vehicle extends BaseModel
             'type'           => 'required|string|in:suv,pickup,commercial',
             'base_price'     => 'nullable|numeric|min:0',
             'image'          => 'nullable|array',
+            'image_thumbnail' => 'nullable|array',
+            'image_featured'  => 'nullable|array',
             'images'         => 'nullable|array',
             'colors'         => 'nullable|array',
             'images_360_external' => 'nullable|array',

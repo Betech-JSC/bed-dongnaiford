@@ -19,34 +19,6 @@
                     <!-- Thông tin cơ bản -->
                     <div class="card-body">
                         <p class="text-sm font-semibold text-gray-500 uppercase mb-3">Thông tin dòng xe</p>
-            <!-- Ảnh & Thư viện ảnh (KHÔNG dịch) -->
-            <div class="card mt-4">
-                <div class="card-header">Hình ảnh & Thư viện ảnh</div>
-                <div class="card-body">
-                    <Field v-model="form.image" :field="{
-                        type: 'file_upload',
-                        name: 'image',
-                        label: 'Ảnh đại diện (Thumbnail danh sách)',
-                    }" />
-                    <Field v-model="form.image_thumbnail" :field="{
-                        type: 'file_upload',
-                        name: 'image_thumbnail',
-                        label: 'Ảnh Thumbnail tách nền (Dùng hiển thị card sản phẩm)',
-                    }" />
-                    <Field v-model="form.image_featured" :field="{
-                        type: 'file_upload',
-                        name: 'image_featured',
-                        label: 'Ảnh Nổi bật (Featured - Dùng hiển thị slider trang chủ)',
-                    }" />
-                    <Field v-model="form.images" :field="{
-                        type: 'file_upload',
-                        name: 'images',
-                        label: 'Thư viện ảnh chi tiết',
-                        multiple: true,
-                    }" />
-                </div>
-            </div>
-
                         <Field v-model="form[currentTab].title" :field="{
                             type: 'text',
                             name: `title_${currentTab}`,
@@ -67,39 +39,19 @@
                     </div>
                 </div>
 
-                <!-- Ảnh & Thư viện ảnh (KHÔNG dịch) -->
+                <!-- Hình ảnh dòng xe (KHÔNG dịch) -->
                 <div class="card mt-4">
-                    <div class="card-header">Hình ảnh & Thư viện ảnh</div>
+                    <div class="card-header font-bold text-gray-700">Hình ảnh dòng xe</div>
                     <div class="card-body">
-                        <Field v-model="form.image" :field="{
+                        <Field v-model="form.image_thumbnail" :field="{
                             type: 'file_upload',
-                            name: 'image',
-                            label: 'Ảnh đại diện (Thumbnail danh sách)',
+                            name: 'image_thumbnail',
+                            label: 'Ảnh Thumbnail đại diện ở các card',
                         }" />
-                        <Field v-model="form.images" :field="{
+                        <Field v-model="form.image_featured" :field="{
                             type: 'file_upload',
-                            name: 'images',
-                            label: 'Thư viện ảnh chi tiết',
-                            multiple: true,
-                        }" />
-                    </div>
-                </div>
-
-                <!-- Xoay 360 độ (KHÔNG dịch) -->
-                <div class="card mt-4">
-                    <div class="card-header">Tính năng xem xe 360 độ (Legacy / Toàn xe)</div>
-                    <div class="card-body">
-                        <Field v-model="form.images_360_external" :field="{
-                            type: 'file_upload',
-                            name: 'images_360_external',
-                            label: 'Bộ ảnh xoay 360 độ (Ngoại thất - Chọn nhiều ảnh xếp thứ tự xoay)',
-                            multiple: true,
-                        }" />
-                        <Field v-model="form.image_360_internal_url" :field="{
-                            type: 'text',
-                            name: 'image_360_internal_url',
-                            label: 'Đường dẫn liên kết ảnh 360 độ (Nội thất)',
-                            placeholder: 'vd: https://kuula.co/share/...',
+                            name: 'image_featured',
+                            label: 'Ảnh Thumbnail hiển thị ở slider homepage',
                         }" />
                     </div>
                 </div>

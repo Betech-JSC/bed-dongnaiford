@@ -84,6 +84,16 @@ class VehicleController extends Controller
         return $data;
     }
 
+    private function beforeStore(Request $request, array $rules): array
+    {
+        if ($request->has('image_thumbnail')) {
+            $request->merge([
+                'image' => $request->input('image_thumbnail')
+            ]);
+        }
+        return $rules;
+    }
+
     private function afterStore($request, $resource)
     {
         DB::transaction(function () use ($request, $resource) {
