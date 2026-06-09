@@ -3,7 +3,7 @@
 import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import { contactsAPI, vehiclesAPI } from "@/lib/api";
+import { contactsAPI, vehiclesAPI, mediaAPI } from "@/lib/api";
 import { 
   ArrowLeft, 
   Check, 
@@ -11,7 +11,10 @@ import {
   Plus,
   Minus,
   RotateCcw,
-  X
+  X,
+  Monitor,
+  Tablet,
+  Smartphone
 } from "lucide-react";
 import { vehicles } from "@/data/vehicles";
 import { vehicleMediaAssets } from "@/data/vehicle-media";
@@ -212,6 +215,19 @@ export default function ProductDetailPage() {
   const [currentBlocks, setCurrentBlocks] = useState<any[]>([]);
   const [saving, setSaving] = useState(false);
 
+  // visual page builder states
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [builderTab, setBuilderTab] = useState<"sections" | "library">("sections");
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [draggedOverIndex, setDraggedOverIndex] = useState<number | null>(null);
+
+  // responsive preview & drag resize states
+  const [previewViewport, setPreviewViewport] = useState<"pc" | "tablet" | "mobile" | "custom">("pc");
+  const [previewWidth, setPreviewWidth] = useState<number | string>("100%");
+  const [isPreviewResizing, setIsPreviewResizing] = useState(false);
+  const previewContainerRef = useRef<HTMLDivElement>(null);
+  const isResizingRef = useRef(false);
+
   // Initialize blocks when vehicle loads
   useEffect(() => {
     if (vehicle) {
@@ -348,11 +364,162 @@ export default function ProductDetailPage() {
     updated[targetIndex] = temp;
     
     setCurrentBlocks(updated);
+
+    if (activeIndex === index) {
+      setActiveIndex(targetIndex);
+    } else if (activeIndex === targetIndex) {
+      setActiveIndex(index);
+    }
   };
 
   const handleBlockDelete = (index: number) => {
-    const updated = currentBlocks.filter((_, i) => i !== index);
+    if (confirm("Bạn có chắc chắn muốn xóa khối nội dung này không?")) {
+      const updated = currentBlocks.filter((_, i) => i !== index);
+      setCurrentBlocks(updated);
+      if (activeIndex === index) {
+        setActiveIndex(null);
+      } else if (activeIndex !== null && activeIndex > index) {
+        setActiveIndex(activeIndex - 1);
+      }
+    }
+  };
+
+  const handleDuplicateBlock = (index: number) => {
+    const blockCopy = JSON.parse(JSON.stringify(currentBlocks[index]));
+    const updated = [...currentBlocks];
+    updated.splice(index + 1, 0, blockCopy);
     setCurrentBlocks(updated);
+    setActiveIndex(index + 1);
+  };
+
+  // Drag and Drop Event Handlers
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    e.dataTransfer.setData("text/plain", index.toString());
+    setDraggedIndex(index);
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    setDraggedOverIndex(index);
+  };
+
+  const handleDrop = (e: React.DragEvent, targetIndex: number) => {
+    e.preventDefault();
+    const sourceIndexStr = e.dataTransfer.getData("text/plain");
+    const sourceIndex = parseInt(sourceIndexStr, 10);
+    if (isNaN(sourceIndex) || sourceIndex === targetIndex) return;
+
+    const updated = [...currentBlocks];
+    const [draggedBlock] = updated.splice(sourceIndex, 1);
+    updated.splice(targetIndex, 0, draggedBlock);
+
+    setCurrentBlocks(updated);
+    
+    if (activeIndex === sourceIndex) {
+      setActiveIndex(targetIndex);
+    } else if (activeIndex !== null) {
+      if (sourceIndex < activeIndex && targetIndex >= activeIndex) {
+        setActiveIndex(activeIndex - 1);
+      } else if (sourceIndex > activeIndex && targetIndex <= activeIndex) {
+        setActiveIndex(activeIndex + 1);
+      }
+    }
+
+    setDraggedIndex(null);
+    setDraggedOverIndex(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null);
+    setDraggedOverIndex(null);
+  };
+
+  // Resize Preview Event Handlers
+  const handleResizeStart = (e: React.MouseEvent, direction: "left" | "right") => {
+    e.preventDefault();
+    e.stopPropagation();
+    isResizingRef.current = true;
+    setIsPreviewResizing(true);
+    
+    const container = previewContainerRef.current;
+    if (!container) return;
+    
+    const startWidth = container.getBoundingClientRect().width;
+    const startX = e.clientX;
+    
+    const handleMouseMove = (moveEvent: MouseEvent) => {
+      if (!isResizingRef.current) return;
+      const deltaX = moveEvent.clientX - startX;
+      
+      let newWidth: number;
+      if (direction === "right") {
+        newWidth = startWidth + deltaX * 2;
+      } else {
+        newWidth = startWidth - deltaX * 2;
+      }
+      
+      const parentWidth = container.parentElement?.getBoundingClientRect().width || 1200;
+      const maxWidth = Math.max(1000, parentWidth - 48); // cap at parent width minus paddings
+      const finalWidth = Math.max(320, Math.min(maxWidth, newWidth));
+      
+      setPreviewWidth(finalWidth);
+      setPreviewViewport("custom");
+    };
+    
+    const handleMouseUp = () => {
+      isResizingRef.current = false;
+      setIsPreviewResizing(false);
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+      document.body.style.cursor = "default";
+      document.body.style.userSelect = "auto";
+    };
+    
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+    
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+  };
+
+  const handleResizeTouchStart = (e: React.TouchEvent, direction: "left" | "right") => {
+    isResizingRef.current = true;
+    setIsPreviewResizing(true);
+    
+    const container = previewContainerRef.current;
+    if (!container) return;
+    
+    const startWidth = container.getBoundingClientRect().width;
+    const startX = e.touches[0].clientX;
+    
+    const handleTouchMove = (moveEvent: TouchEvent) => {
+      if (!isResizingRef.current) return;
+      const deltaX = moveEvent.touches[0].clientX - startX;
+      
+      let newWidth: number;
+      if (direction === "right") {
+        newWidth = startWidth + deltaX * 2;
+      } else {
+        newWidth = startWidth - deltaX * 2;
+      }
+      
+      const parentWidth = container.parentElement?.getBoundingClientRect().width || 1200;
+      const maxWidth = Math.max(1000, parentWidth - 48);
+      const finalWidth = Math.max(320, Math.min(maxWidth, newWidth));
+      
+      setPreviewWidth(finalWidth);
+      setPreviewViewport("custom");
+    };
+    
+    const handleTouchEnd = () => {
+      isResizingRef.current = false;
+      setIsPreviewResizing(false);
+      document.removeEventListener("touchmove", handleTouchMove);
+      document.removeEventListener("touchend", handleTouchEnd);
+    };
+    
+    document.addEventListener("touchmove", handleTouchMove);
+    document.addEventListener("touchend", handleTouchEnd);
   };
 
   const handleAddBlock = (type: string) => {
@@ -442,7 +609,10 @@ export default function ProductDetailPage() {
       type,
       data: defaultData
     };
-    setCurrentBlocks([...currentBlocks, newBlock]);
+    const updated = [...currentBlocks, newBlock];
+    setCurrentBlocks(updated);
+    setActiveIndex(updated.length - 1);
+    setBuilderTab("sections");
   };
 
   const handleSaveLayout = async () => {
@@ -453,6 +623,7 @@ export default function ProductDetailPage() {
         alert("Lưu giao diện thành công!");
         setOriginalBlocks(JSON.parse(JSON.stringify(currentBlocks)));
         setIsEditMode(false);
+        setActiveIndex(null);
         if (typeof window !== "undefined") {
           const url = new URL(window.location.href);
           url.searchParams.delete("edit");
@@ -469,6 +640,7 @@ export default function ProductDetailPage() {
   const handleCancelEdit = () => {
     setCurrentBlocks(JSON.parse(JSON.stringify(originalBlocks)));
     setIsEditMode(false);
+    setActiveIndex(null);
     if (typeof window !== "undefined") {
       const url = new URL(window.location.href);
       url.searchParams.delete("edit");
@@ -1134,6 +1306,1030 @@ export default function ProductDetailPage() {
     navigationTabs.push({ id: "compare", label: "So sánh" });
   }
   navigationTabs.push({ id: "accessories", label: "Phụ kiện" });
+
+  if (isEditMode) {
+    const activeBlock = activeIndex !== null ? currentBlocks[activeIndex] : null;
+
+    const updateActiveBlockData = (key: string, value: any) => {
+      if (activeIndex === null) return;
+      const updatedData = { ...currentBlocks[activeIndex].data, [key]: value };
+      handleBlockChange(activeIndex, updatedData);
+    };
+
+    const addSplitFeature = () => {
+      if (activeIndex === null) return;
+      const list = currentBlocks[activeIndex].data.split_features || [];
+      updateActiveBlockData("split_features", [...list, { value: "", label: "" }]);
+    };
+    const removeSplitFeature = (idx: number) => {
+      if (activeIndex === null) return;
+      const list = currentBlocks[activeIndex].data.split_features || [];
+      updateActiveBlockData("split_features", list.filter((_: any, i: number) => i !== idx));
+    };
+    const updateSplitFeature = (idx: number, key: string, val: string) => {
+      if (activeIndex === null) return;
+      const list = [...(currentBlocks[activeIndex].data.split_features || [])];
+      list[idx] = { ...list[idx], [key]: val };
+      updateActiveBlockData("split_features", list);
+    };
+
+    const updateVersionDesc = (idx: number, val: string) => {
+      if (activeIndex === null) return;
+      const descs = [...(currentBlocks[activeIndex].data.descriptions || [])];
+      while (descs.length <= idx) {
+        descs.push("");
+      }
+      descs[idx] = val;
+      updateActiveBlockData("descriptions", descs);
+    };
+
+    const addFeature = () => {
+      if (activeIndex === null) return;
+      const list = currentBlocks[activeIndex].data.features || [];
+      updateActiveBlockData("features", [...list, { title: "", description: "", image: "" }]);
+    };
+    const removeFeature = (idx: number) => {
+      if (activeIndex === null) return;
+      const list = currentBlocks[activeIndex].data.features || [];
+      updateActiveBlockData("features", list.filter((_: any, i: number) => i !== idx));
+    };
+    const updateFeature = (idx: number, key: string, val: any) => {
+      if (activeIndex === null) return;
+      const list = [...(currentBlocks[activeIndex].data.features || [])];
+      list[idx] = { ...list[idx], [key]: val };
+      updateActiveBlockData("features", list);
+    };
+
+    const addFaq = () => {
+      if (activeIndex === null) return;
+      const list = currentBlocks[activeIndex].data.faqs || [];
+      updateActiveBlockData("faqs", [...list, { q: "", a: "" }]);
+    };
+    const removeFaq = (idx: number) => {
+      if (activeIndex === null) return;
+      const list = currentBlocks[activeIndex].data.faqs || [];
+      updateActiveBlockData("faqs", list.filter((_: any, i: number) => i !== idx));
+    };
+    const updateFaq = (idx: number, key: string, val: string) => {
+      if (activeIndex === null) return;
+      const list = [...(currentBlocks[activeIndex].data.faqs || [])];
+      list[idx] = { ...list[idx], [key]: val };
+      updateActiveBlockData("faqs", list);
+    };
+
+    const getBlockLabel = (type: string) => {
+      switch (type) {
+        case "HeroBanner": return "Banner lớn (Hero Banner)";
+        case "Promotions": return "Khuyến mãi lớn (Promotions)";
+        case "ThreeSixtyViewer": return "Xoay 360 độ (360 Viewer)";
+        case "FeaturesGrid": return "Khung lưới tính năng (Features Grid)";
+        case "VersionsGrid": return "Danh sách các phiên bản (Versions Grid)";
+        case "SpecsGrid": return "Bảng so sánh thông số (Specs Grid)";
+        case "FeaturesList": return "Danh sách công nghệ (Features List)";
+        case "AccordionFAQs": return "Câu hỏi thường gặp (Accordion FAQs)";
+        case "BookingBanner": return "Tư vấn & Đặt lịch (Booking Banner)";
+        default: return type;
+      }
+    };
+
+    const getBlockIcon = (type: string) => {
+      switch (type) {
+        case "HeroBanner": return "📢";
+        case "Promotions": return "🎁";
+        case "ThreeSixtyViewer": return "🔄";
+        case "FeaturesGrid": return "🔲";
+        case "VersionsGrid": return "🚗";
+        case "SpecsGrid": return "📊";
+        case "FeaturesList": return "✨";
+        case "AccordionFAQs": return "❓";
+        case "BookingBanner": return "📞";
+        default: return "📦";
+      }
+    };
+
+    const libraryBlocks = [
+      { type: 'HeroBanner', icon: '📢', name: 'Banner lớn (Hero)', desc: 'Banner trần viền ấn tượng, có chữ và nút bấm hành động' },
+      { type: 'Promotions', icon: '🎁', name: 'Ưu đãi khuyến mãi', desc: 'Thông tin quà tặng tiền mặt, bảo hiểm và quà độc quyền' },
+      { type: 'ThreeSixtyViewer', icon: '🔄', name: 'Trình xem xoay 360°', desc: 'Mô phỏng đổi màu ngoại thất xe và tự do xoay góc nhìn' },
+      { type: 'FeaturesGrid', icon: '🔲', name: 'Khung lưới tính năng', desc: 'Bố cục ghép ảnh dạng lưới cho Thiết kế, Nội thất, Công nghệ' },
+      { type: 'VersionsGrid', icon: '🚗', name: 'Danh sách các phiên bản', desc: 'So sánh ngắn và hiển thị các phiên bản cùng mức giá' },
+      { type: 'SpecsGrid', icon: '📊', name: 'Bảng so sánh thông số', desc: 'So sánh song song thông số chi tiết động cơ, hộp số...' },
+      { type: 'FeaturesList', icon: '✨', name: 'Danh sách công nghệ', desc: 'Liệt kê so le các tính năng lái an toàn chủ động' },
+      { type: 'AccordionFAQs', icon: '❓', name: 'Câu hỏi thường gặp', desc: 'Các thắc mắc xếp gập về bảo dưỡng, giá lăn bánh' },
+      { type: 'BookingBanner', icon: '📞', name: 'Tư vấn & Đặt lịch', desc: 'Khối liên hệ hotline và liên kết đặt lịch hẹn bảo dưỡng' },
+    ];
+
+    return (
+      <div className="page-builder-container flex flex-col lg:flex-row h-screen w-screen bg-slate-900 border-t border-slate-800 overflow-hidden font-sans text-slate-200 select-none">
+        
+        {/* LEFT PANEL: Sidebar Settings */}
+        <div className="w-full lg:w-[420px] flex flex-col bg-slate-950 border-r border-slate-800 h-full overflow-hidden shrink-0 select-none">
+          {/* Sidebar Header */}
+          <div className="px-5 py-4 border-b border-slate-800 flex justify-between items-center bg-slate-900 select-none">
+            <div className="flex items-center space-x-2">
+              <span className="flex h-3 w-3 rounded-full bg-blue-500 animate-pulse"></span>
+              <h3 className="text-sm font-bold text-slate-200 tracking-wide uppercase">Cấu hình giao diện</h3>
+            </div>
+            {activeIndex !== null && (
+              <button 
+                type="button" 
+                className="flex items-center text-xs font-semibold text-slate-400 hover:text-white transition bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg border border-slate-700 cursor-pointer"
+                onClick={() => setActiveIndex(null)}
+              >
+                <span className="mr-1">←</span> Danh sách
+              </button>
+            )}
+          </div>
+
+          {/* Tab Buttons (Only shown when not editing a specific block) */}
+          {activeIndex === null && (
+            <div className="flex border-b border-slate-800 bg-slate-950/60 p-2 select-none">
+              <button 
+                type="button"
+                className={`flex-1 text-center py-2.5 rounded-lg text-xs font-bold transition duration-200 cursor-pointer ${builderTab === 'sections' ? 'bg-[#0562D2] text-white shadow-md' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'}`}
+                onClick={() => setBuilderTab('sections')}
+              >
+                📁 Khối hiển thị ({currentBlocks.length})
+              </button>
+              <button 
+                type="button"
+                className={`flex-1 text-center py-2.5 rounded-lg text-xs font-bold transition duration-200 cursor-pointer ${builderTab === 'library' ? 'bg-[#0562D2] text-white shadow-md' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'}`}
+                onClick={() => setBuilderTab('library')}
+              >
+                ✨ Thêm khối mới
+              </button>
+            </div>
+          )}
+
+          {/* Scrollable Content of Left Sidebar */}
+          <div className="flex-1 overflow-y-auto p-5 scrollbar-thin scrollbar-thumb-slate-850 scrollbar-track-transparent">
+            {/* SCENE A: ACTIVE BLOCK DETAILS EDITOR */}
+            {activeIndex !== null && activeBlock ? (
+              <div className="space-y-5">
+                <div className="bg-slate-900 p-4 border border-slate-800 rounded-xl">
+                  <div className="text-[10px] uppercase font-bold text-blue-400 mb-1">Đang chỉnh sửa</div>
+                  <h4 className="text-sm font-black text-white flex items-center gap-2">
+                    <span>{getBlockIcon(activeBlock.type)}</span>
+                    <span>{getBlockLabel(activeBlock.type)}</span>
+                  </h4>
+                </div>
+
+                <div className="space-y-4">
+                  {/* HeroBanner Fields */}
+                  {activeBlock.type === "HeroBanner" && (
+                    <div className="space-y-4">
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-xs font-bold text-slate-400 uppercase">Tiêu đề lớn</label>
+                        <input 
+                          type="text"
+                          className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                          value={activeBlock.data.title || ""}
+                          onChange={(e) => updateActiveBlockData("title", e.target.value)}
+                          placeholder="vd: FORD EVEREST MỚI"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-xs font-bold text-slate-400 uppercase">Tagline / Slogan</label>
+                        <input 
+                          type="text"
+                          className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                          value={activeBlock.data.tagline || ""}
+                          onChange={(e) => updateActiveBlockData("tagline", e.target.value)}
+                          placeholder="vd: Dấn bước. Dẫn đầu."
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="flex flex-col gap-1.5">
+                          <label className="text-xs font-bold text-slate-400 uppercase">Nhãn nút</label>
+                          <input 
+                            type="text"
+                            className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            value={activeBlock.data.button_text || ""}
+                            onChange={(e) => updateActiveBlockData("button_text", e.target.value)}
+                          />
+                        </div>
+                        <div className="flex flex-col gap-1.5">
+                          <label className="text-xs font-bold text-slate-400 uppercase">Liên kết</label>
+                          <input 
+                            type="text"
+                            className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            value={activeBlock.data.button_link || ""}
+                            onChange={(e) => updateActiveBlockData("button_link", e.target.value)}
+                          />
+                        </div>
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-xs font-bold text-slate-400 uppercase">Ảnh nền Banner</label>
+                        {activeBlock.data.background_image && (
+                          <img src={activeBlock.data.background_image} className="w-full h-32 object-cover rounded-lg border border-slate-800 mb-2" />
+                        )}
+                        <input 
+                          type="file"
+                          accept="image/*"
+                          className="w-full text-xs text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white cursor-pointer"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              const res = await mediaAPI.upload(file);
+                              if (res && res.url) updateActiveBlockData("background_image", res.url);
+                            }
+                          }}
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Promotions Fields */}
+                  {activeBlock.type === "Promotions" && (
+                    <div className="space-y-4">
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-xs font-bold text-slate-400 uppercase">Tiêu đề khuyến mãi</label>
+                        <input 
+                          type="text"
+                          className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                          value={activeBlock.data.title || ""}
+                          onChange={(e) => updateActiveBlockData("title", e.target.value)}
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-xs font-bold text-slate-400 uppercase">Mô tả ngắn</label>
+                        <textarea 
+                          className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-blue-500 h-20 resize-none"
+                          value={activeBlock.data.description || ""}
+                          onChange={(e) => updateActiveBlockData("description", e.target.value)}
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-xs font-bold text-slate-400 uppercase">Nhãn nút</label>
+                        <input 
+                          type="text"
+                          className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                          value={activeBlock.data.button_text || ""}
+                          onChange={(e) => updateActiveBlockData("button_text", e.target.value)}
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-xs font-bold text-slate-400 uppercase">Ảnh khuyến mãi</label>
+                        {activeBlock.data.image && (
+                          <img src={activeBlock.data.image} className="w-full h-32 object-cover rounded-lg border border-slate-800 mb-2" />
+                        )}
+                        <input 
+                          type="file"
+                          accept="image/*"
+                          className="w-full text-xs text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white cursor-pointer"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              const res = await mediaAPI.upload(file);
+                              if (res && res.url) updateActiveBlockData("image", res.url);
+                            }
+                          }}
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ThreeSixtyViewer Fields */}
+                  {activeBlock.type === "ThreeSixtyViewer" && (
+                    <div className="space-y-4">
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-xs font-bold text-slate-400 uppercase">Tiêu đề khối 360</label>
+                        <input 
+                          type="text"
+                          className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                          value={activeBlock.data.title || ""}
+                          onChange={(e) => updateActiveBlockData("title", e.target.value)}
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-xs font-bold text-slate-400 uppercase">Mô tả ngắn</label>
+                        <textarea 
+                          className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-blue-500 h-20 resize-none"
+                          value={activeBlock.data.description || ""}
+                          onChange={(e) => updateActiveBlockData("description", e.target.value)}
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* FeaturesGrid Fields */}
+                  {activeBlock.type === "FeaturesGrid" && (
+                    <div className="space-y-4">
+                      <div className="border-b border-slate-800 pb-3 mb-3">
+                        <span className="text-xs font-bold text-blue-400"># PHẦN 1: THIẾT KẾ</span>
+                        <div className="mt-2 space-y-3">
+                          <div className="flex flex-col gap-1">
+                            <label className="text-[10px] text-slate-400">Tiêu đề nhóm 1</label>
+                            <input 
+                              type="text" 
+                              className="w-full bg-slate-900 border border-slate-800 rounded p-2.5 text-xs text-white focus:outline-none" 
+                              value={activeBlock.data.title_1 || ""} 
+                              onChange={(e) => updateActiveBlockData("title_1", e.target.value)} 
+                            />
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            <label className="text-[10px] text-slate-400">Ảnh 1 (Ảnh lớn trên)</label>
+                            <input 
+                              type="file" 
+                              accept="image/*" 
+                              className="w-full text-xs text-slate-400" 
+                              onChange={async (e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  const res = await mediaAPI.upload(file);
+                                  if (res && res.url) updateActiveBlockData("image_1", res.url);
+                                }
+                              }} 
+                            />
+                          </div>
+                          <div className="grid grid-cols-2 gap-2">
+                            <div className="flex flex-col gap-1">
+                              <label className="text-[10px] text-slate-400">Ảnh 2 (dưới trái)</label>
+                              <input 
+                                type="file" 
+                                accept="image/*" 
+                                className="w-full text-xs text-slate-400" 
+                                onChange={async (e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) {
+                                    const res = await mediaAPI.upload(file);
+                                    if (res && res.url) updateActiveBlockData("image_2", res.url);
+                                  }
+                                }} 
+                              />
+                            </div>
+                            <div className="flex flex-col gap-1">
+                              <label className="text-[10px] text-slate-400">Ảnh 3 (dưới phải)</label>
+                              <input 
+                                type="file" 
+                                accept="image/*" 
+                                className="w-full text-xs text-slate-400" 
+                                onChange={async (e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) {
+                                    const res = await mediaAPI.upload(file);
+                                    if (res && res.url) updateActiveBlockData("image_3", res.url);
+                                  }
+                                }} 
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="border-b border-slate-800 pb-3 mb-3">
+                        <span className="text-xs font-bold text-blue-400"># PHẦN 2: NỘI THẤT</span>
+                        <div className="mt-2 space-y-3">
+                          <div className="flex flex-col gap-1">
+                            <label className="text-[10px] text-slate-400">Tiêu đề nhóm 2</label>
+                            <input 
+                              type="text" 
+                              className="w-full bg-slate-900 border border-slate-800 rounded p-2.5 text-xs text-white focus:outline-none" 
+                              value={activeBlock.data.title_2 || ""} 
+                              onChange={(e) => updateActiveBlockData("title_2", e.target.value)} 
+                            />
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            <label className="text-[10px] text-slate-400">Ảnh nội thất lớn</label>
+                            <input 
+                              type="file" 
+                              accept="image/*" 
+                              className="w-full text-xs text-slate-400" 
+                              onChange={async (e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  const res = await mediaAPI.upload(file);
+                                  if (res && res.url) updateActiveBlockData("image_large", res.url);
+                                }
+                              }} 
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div>
+                        <span className="text-xs font-bold text-blue-400"># PHẦN 3: ĐỘNG CƠ & CÔNG NGHỆ</span>
+                        <div className="mt-2 space-y-3">
+                          <div className="flex flex-col gap-1">
+                            <label className="text-[10px] text-slate-400">Tiêu đề nhóm 3</label>
+                            <input 
+                              type="text" 
+                              className="w-full bg-slate-900 border border-slate-800 rounded p-2.5 text-xs text-white focus:outline-none" 
+                              value={activeBlock.data.title_3 || ""} 
+                              onChange={(e) => updateActiveBlockData("title_3", e.target.value)} 
+                            />
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            <label className="text-[10px] text-slate-400">Ảnh công nghệ (Trái)</label>
+                            <input 
+                              type="file" 
+                              accept="image/*" 
+                              className="w-full text-xs text-slate-400" 
+                              onChange={async (e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  const res = await mediaAPI.upload(file);
+                                  if (res && res.url) updateActiveBlockData("split_image", res.url);
+                                }
+                              }} 
+                            />
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            <label className="text-[10px] text-slate-400">Tiêu đề cột thông số (Phải)</label>
+                            <input 
+                              type="text" 
+                              className="w-full bg-slate-900 border border-slate-800 rounded p-2.5 text-xs text-white focus:outline-none" 
+                              value={activeBlock.data.split_title || ""} 
+                              onChange={(e) => updateActiveBlockData("split_title", e.target.value)} 
+                            />
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <div className="flex justify-between items-center">
+                              <label className="text-xs font-bold text-slate-400">Các chỉ số nổi bật:</label>
+                              <button 
+                                type="button" 
+                                className="text-xs text-blue-400 hover:text-blue-300 font-bold cursor-pointer"
+                                onClick={addSplitFeature}
+                              >
+                                + Thêm chỉ số
+                              </button>
+                            </div>
+                            {(activeBlock.data.split_features || []).map((feat: any, idx: number) => (
+                              <div key={idx} className="flex gap-2 items-center bg-slate-900 border border-slate-855 p-2 rounded-lg relative">
+                                <input 
+                                  type="text" 
+                                  value={feat.value || ""} 
+                                  onChange={(e) => updateSplitFeature(idx, "value", e.target.value)} 
+                                  className="w-1/3 bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs text-white focus:outline-none" 
+                                  placeholder="vd: 12-inch" 
+                                />
+                                <input 
+                                  type="text" 
+                                  value={feat.label || ""} 
+                                  onChange={(e) => updateSplitFeature(idx, "label", e.target.value)} 
+                                  className="w-2/3 bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs text-white focus:outline-none" 
+                                  placeholder="vd: Màn hình" 
+                                />
+                                <button 
+                                  type="button" 
+                                  className="text-red-400 hover:text-red-500 font-bold ml-1 text-xs bg-slate-950/60 w-5 h-5 flex items-center justify-center rounded cursor-pointer" 
+                                  onClick={() => removeSplitFeature(idx)}
+                                >
+                                  ✕
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* VersionsGrid Fields */}
+                  {activeBlock.type === "VersionsGrid" && (
+                    <div className="space-y-4">
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-xs font-bold text-slate-400 uppercase">Tiêu đề danh sách phiên bản</label>
+                        <input 
+                          type="text"
+                          className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-xs text-white focus:outline-none"
+                          value={activeBlock.data.title || ""}
+                          onChange={(e) => updateActiveBlockData("title", e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-3">
+                        <label className="text-xs font-semibold text-slate-300 block">Mô tả ngắn từng phiên bản:</label>
+                        {vehicle.versions.map((ver: any, idx: number) => (
+                          <div key={ver.id} className="space-y-1 bg-slate-900/50 p-3 border border-slate-800 rounded-xl">
+                            <span className="text-[10px] text-slate-400 uppercase font-bold">{ver.name}</span>
+                            <textarea 
+                              value={activeBlock.data.descriptions?.[idx] || ""}
+                              onChange={(e) => updateVersionDesc(idx, e.target.value)}
+                              className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-xs text-white resize-none h-16 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                              placeholder={`Nhập thông tin giới thiệu cho phiên bản ${ver.name}`}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* SpecsGrid Info */}
+                  {activeBlock.type === "SpecsGrid" && (
+                    <div className="p-4 bg-slate-900 border border-slate-800 rounded-xl text-slate-300 text-xs leading-relaxed">
+                      💡 **Bảng so sánh thông số:** Khối này tự động đồng bộ và lấy dữ liệu các phiên bản của xe để hiển thị trực tiếp. Không cần cấu hình dữ liệu thủ công.
+                    </div>
+                  )}
+
+                  {/* FeaturesList Fields */}
+                  {activeBlock.type === "FeaturesList" && (
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center">
+                        <label className="text-xs font-bold text-slate-300">Danh sách tính năng:</label>
+                        <button 
+                          type="button" 
+                          className="text-xs text-blue-400 hover:text-blue-300 font-bold cursor-pointer" 
+                          onClick={addFeature}
+                        >
+                          + Thêm tính năng
+                        </button>
+                      </div>
+                      {(activeBlock.data.features || []).map((feat: any, idx: number) => (
+                        <div key={idx} className="bg-slate-900/80 border border-slate-800 rounded-xl p-4 space-y-3 relative">
+                          <button 
+                            type="button" 
+                            className="absolute top-2.5 right-2.5 text-red-400 hover:text-red-500 font-bold text-xs cursor-pointer" 
+                            onClick={() => removeFeature(idx)}
+                          >
+                            ✕ Xóa
+                          </button>
+                          <span className="text-[9px] uppercase font-bold text-slate-400 bg-slate-950 px-2 py-0.5 rounded border border-slate-800">Tính năng #{idx + 1}</span>
+                          
+                          <div className="flex flex-col gap-1">
+                            <label className="text-[10px] text-slate-400">Tên tính năng</label>
+                            <input 
+                              type="text" 
+                              value={feat.title || ""} 
+                              onChange={(e) => updateFeature(idx, "title", e.target.value)} 
+                              className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-xs text-white focus:outline-none" 
+                            />
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            <label className="text-[10px] text-slate-400">Mô tả ngắn</label>
+                            <textarea 
+                              value={feat.description || ""} 
+                              onChange={(e) => updateFeature(idx, "description", e.target.value)} 
+                              className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-xs text-white h-16 resize-none focus:outline-none" 
+                            />
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            <label className="text-[10px] text-slate-400">Ảnh minh họa</label>
+                            {feat.image && (
+                              <img src={feat.image} className="w-full h-20 object-cover rounded border border-slate-800 mb-1" />
+                            )}
+                            <input 
+                              type="file" 
+                              accept="image/*" 
+                              className="w-full text-xs text-slate-400" 
+                              onChange={async (e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  const res = await mediaAPI.upload(file);
+                                  if (res && res.url) updateFeature(idx, "image", res.url);
+                                }
+                              }} 
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* AccordionFAQs Fields */}
+                  {activeBlock.type === "AccordionFAQs" && (
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center">
+                        <label className="text-xs font-bold text-slate-300">Danh sách câu hỏi:</label>
+                        <button 
+                          type="button" 
+                          className="text-xs text-blue-400 hover:text-blue-300 font-bold cursor-pointer" 
+                          onClick={addFaq}
+                        >
+                          + Thêm câu hỏi
+                        </button>
+                      </div>
+                      {(activeBlock.data.faqs || []).map((faq: any, idx: number) => (
+                        <div key={idx} className="bg-slate-900/80 border border-slate-800 rounded-xl p-4 space-y-3 relative">
+                          <button 
+                            type="button" 
+                            className="absolute top-2.5 right-2.5 text-red-400 hover:text-red-500 font-bold text-xs cursor-pointer" 
+                            onClick={() => removeFaq(idx)}
+                          >
+                            ✕ Xóa
+                          </button>
+                          <span className="text-[9px] uppercase font-bold text-slate-400 bg-slate-950 px-2 py-0.5 rounded border border-slate-800">Câu hỏi #{idx + 1}</span>
+                          
+                          <div className="flex flex-col gap-1">
+                            <label className="text-[10px] text-slate-400">Câu hỏi (Question)</label>
+                            <input 
+                              type="text" 
+                              value={faq.q || ""} 
+                              onChange={(e) => updateFaq(idx, "q", e.target.value)} 
+                              className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-xs text-white focus:outline-none" 
+                            />
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            <label className="text-[10px] text-slate-400">Câu trả lời (Answer)</label>
+                            <textarea 
+                              value={faq.a || ""} 
+                              onChange={(e) => updateFaq(idx, "a", e.target.value)} 
+                              className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-xs text-white h-20 resize-none focus:outline-none" 
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* BookingBanner Fields */}
+                  {activeBlock.type === "BookingBanner" && (
+                    <div className="space-y-4">
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-xs font-bold text-slate-400 uppercase">Tiêu đề Banner</label>
+                        <input 
+                          type="text"
+                          className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-xs text-white focus:outline-none"
+                          value={activeBlock.data.title || ""}
+                          onChange={(e) => updateActiveBlockData("title", e.target.value)}
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="flex flex-col gap-1.5">
+                          <label className="text-xs font-bold text-slate-400 uppercase">Số điện thoại</label>
+                          <input 
+                            type="text"
+                            className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-xs text-white focus:outline-none"
+                            value={activeBlock.data.phone || ""}
+                            onChange={(e) => updateActiveBlockData("phone", e.target.value)}
+                          />
+                        </div>
+                        <div className="flex flex-col gap-1.5">
+                          <label className="text-xs font-bold text-slate-400 uppercase">Nhãn nút đặt lịch</label>
+                          <input 
+                            type="text"
+                            className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-xs text-white focus:outline-none"
+                            value={activeBlock.data.btn_text || ""}
+                            onChange={(e) => updateActiveBlockData("btn_text", e.target.value)}
+                          />
+                        </div>
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-xs font-bold text-slate-400 uppercase">Liên kết đặt lịch</label>
+                        <input 
+                          type="text"
+                          className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-xs text-white focus:outline-none"
+                          value={activeBlock.data.btn_link || ""}
+                          onChange={(e) => updateActiveBlockData("btn_link", e.target.value)}
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-xs font-bold text-slate-400 uppercase">Ảnh xe đè</label>
+                        {activeBlock.data.car_image && (
+                          <img src={activeBlock.data.car_image} className="w-full h-24 object-contain rounded border border-slate-800 mb-1" />
+                        )}
+                        <input 
+                          type="file" 
+                          accept="image/*" 
+                          className="w-full text-xs text-slate-400" 
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              const res = await mediaAPI.upload(file);
+                              if (res && res.url) updateActiveBlockData("car_image", res.url);
+                            }
+                          }} 
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : builderTab === 'sections' ? (
+              /* SCENE B1: SECTIONS LIST */
+              <div className="space-y-3">
+                {currentBlocks && currentBlocks.length > 0 ? (
+                  currentBlocks.map((block, index) => (
+                    <div 
+                      key={`sidebar-item-${index}`}
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, index)}
+                      onDragOver={(e) => handleDragOver(e, index)}
+                      onDrop={(e) => handleDrop(e, index)}
+                      onDragEnd={handleDragEnd}
+                      onClick={() => setActiveIndex(index)}
+                      className={`flex items-center justify-between bg-slate-900 border p-3.5 rounded-xl cursor-pointer transition select-none group
+                        ${activeIndex === index ? 'border-blue-500 ring-2 ring-blue-500/20' : 'border-slate-800 hover:border-slate-700'}
+                        ${draggedIndex === index ? 'opacity-30 border-dashed border-gray-500' : ''}
+                        ${draggedOverIndex === index ? 'border-amber-400 bg-amber-500/5' : ''}
+                      `}
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div className="cursor-move p-1 text-slate-500 hover:text-slate-300 transition">
+                          <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
+                            <path d="M7 2a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm7 0a2 2 0 1 1-4 0 2 2 0 0 1 4 0zM7 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm7 0a2 2 0 1 1-4 0 2 2 0 0 1 4 0zM7 14a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm7 0a2 2 0 1 1-4 0 2 2 0 0 1 4 0z"/>
+                          </svg>
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-slate-400 text-[9px] font-bold uppercase tracking-wider">Khối số {index + 1}</span>
+                          <span className="text-xs font-bold text-white flex items-center gap-1.5 mt-0.5">
+                            <span>{getBlockIcon(block.type)}</span>
+                            <span>{getBlockLabel(block.type)}</span>
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition">
+                        <button 
+                          type="button" 
+                          className="text-xs text-slate-400 hover:text-white bg-slate-800 p-1.5 rounded-lg border border-slate-700 cursor-pointer" 
+                          title="Chỉnh sửa"
+                        >
+                          ⚙️
+                        </button>
+                        <button 
+                          type="button" 
+                          className="text-xs text-slate-400 hover:text-white bg-slate-800 p-1.5 rounded-lg border border-slate-700 cursor-pointer" 
+                          title="Nhân bản"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDuplicateBlock(index);
+                          }}
+                        >
+                          ➕
+                        </button>
+                        <button 
+                          type="button" 
+                          className="text-xs text-red-400 hover:text-red-300 bg-slate-800 p-1.5 rounded-lg border border-slate-700 cursor-pointer" 
+                          title="Xóa"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleBlockDelete(index);
+                          }}
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="border border-dashed border-slate-800 rounded-2xl p-8 text-center text-slate-500 italic text-xs">
+                    Chưa có khối giao diện nào được thêm vào trang xe này. Hãy chọn tab "Thêm khối mới" để bắt đầu thiết kế.
+                  </div>
+                )}
+              </div>
+            ) : (
+              /* SCENE B2: LIBRARY TABS */
+              <div className="grid grid-cols-1 gap-3">
+                {libraryBlocks.map((tpl) => (
+                  <div 
+                    key={tpl.type} 
+                    className="flex items-center p-3.5 bg-slate-900 border border-slate-800 hover:border-blue-500 hover:bg-slate-900/60 rounded-xl cursor-pointer transition select-none group"
+                    onClick={() => handleAddBlock(tpl.type)}
+                  >
+                    <div className="h-10 w-10 flex items-center justify-center bg-slate-950 border border-slate-850 rounded-lg text-lg group-hover:bg-[#0562D2]/10 group-hover:border-[#0562D2] transition">
+                      {tpl.icon}
+                    </div>
+                    <div className="ml-3.5 flex-1">
+                      <h4 className="text-xs font-bold text-white group-hover:text-blue-400 transition">{tpl.name}</h4>
+                      <p className="text-[10px] text-slate-500 mt-0.5">{tpl.desc}</p>
+                    </div>
+                    <span className="text-slate-600 group-hover:text-blue-400 text-xs font-black transition">＋</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Sticky Bottom Actions inside left panel */}
+          <div className="p-4 border-t border-slate-800 bg-slate-950 flex items-center gap-2 select-none">
+            <button 
+              type="button"
+              onClick={handleSaveLayout}
+              disabled={saving}
+              className="bg-[#0562d2] hover:bg-[#044ea7] disabled:bg-slate-700 text-white text-xs font-bold px-4 py-2.5 rounded-lg flex-1 cursor-pointer transition-colors shadow-md border-0 h-10 flex items-center justify-center"
+            >
+              {saving ? "Đang lưu..." : "Lưu thay đổi"}
+            </button>
+            <button 
+              type="button"
+              onClick={handleCancelEdit}
+              className="bg-transparent hover:bg-white/5 text-slate-400 hover:text-white text-xs font-semibold px-4 py-2.5 rounded-lg cursor-pointer transition-colors border border-solid border-slate-800 h-10 flex items-center justify-center"
+            >
+              Hủy bỏ
+            </button>
+          </div>
+        </div>
+
+        {/* RIGHT PANEL: Live Preview Container */}
+        <div className="flex-1 flex flex-col bg-slate-950 h-full overflow-hidden relative select-none">
+          {/* Address Bar Mockup */}
+          <div className="flex items-center px-4 py-3 bg-slate-900 border-b border-slate-800 shrink-0 select-none">
+            <div className="flex space-x-1.5 mr-4 select-none">
+              <span className="w-3 h-3 rounded-full bg-red-500/80 inline-block"></span>
+              <span className="w-3 h-3 rounded-full bg-yellow-500/80 inline-block"></span>
+              <span className="w-3 h-3 rounded-full bg-green-500/80 inline-block"></span>
+            </div>
+            <div className="flex-1 bg-slate-950 border border-slate-800 rounded-lg py-1 px-4 text-slate-500 text-xs font-mono truncate select-all flex items-center space-x-2">
+              <span className="text-slate-600">🌐 https://dongnaiford.com.vn/san-pham/{id}</span>
+            </div>
+            
+            {/* Viewport controls */}
+            <div className="flex items-center bg-slate-950 border border-slate-800 rounded-lg p-0.5 ml-4 select-none shrink-0 shadow-inner">
+              <button
+                type="button"
+                onClick={() => {
+                  setPreviewViewport("pc");
+                  setPreviewWidth("100%");
+                }}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[10px] uppercase font-black tracking-wider transition-all cursor-pointer ${previewViewport === 'pc' ? 'bg-[#0562D2] text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'}`}
+                title="Màn hình PC (100%)"
+              >
+                <Monitor className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">PC</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setPreviewViewport("tablet");
+                  setPreviewWidth(768);
+                }}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[10px] uppercase font-black tracking-wider transition-all cursor-pointer ${previewViewport === 'tablet' ? 'bg-[#0562D2] text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'}`}
+                title="Màn hình Tablet (768px)"
+              >
+                <Tablet className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Tablet</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setPreviewViewport("mobile");
+                  setPreviewWidth(375);
+                }}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[10px] uppercase font-black tracking-wider transition-all cursor-pointer ${previewViewport === 'mobile' ? 'bg-[#0562D2] text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'}`}
+                title="Màn hình Mobile (375px)"
+              >
+                <Smartphone className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Mobile</span>
+              </button>
+            </div>
+
+            {/* Current width badge */}
+            {typeof previewWidth === 'number' && (
+              <span className="text-[10px] text-blue-400 font-mono font-bold uppercase ml-3 select-none tracking-widest bg-blue-950/80 border border-blue-900 px-2.5 py-1.5 rounded-lg shadow-sm">
+                {previewWidth}px
+              </span>
+            )}
+            
+            <span className="text-[10px] text-blue-400 font-bold uppercase ml-4 select-none tracking-widest bg-blue-950/80 border border-blue-900 px-2 py-0.5 rounded hidden xl:inline-block">
+              Live Preview
+            </span>
+          </div>
+
+          {/* Web preview body area */}
+          <div className="flex-1 overflow-y-auto bg-slate-900 p-6 scrollbar-thin select-text flex flex-col items-center">
+            <div 
+              ref={previewContainerRef}
+              style={{ width: typeof previewWidth === 'number' ? `${previewWidth}px` : previewWidth }}
+              className={`relative w-full mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-800 text-[#1a1a1a] flex flex-col shrink-0 min-h-full ${isPreviewResizing ? 'duration-0' : 'transition-all duration-300 ease-out'}`}
+            >
+              {/* Symmetrical resize indicator guide lines */}
+              {isPreviewResizing && (
+                <>
+                  <div className="absolute inset-y-0 -left-[1px] w-[1px] bg-blue-500/50 border-l border-dashed border-blue-500 pointer-events-none z-50 animate-pulse"></div>
+                  <div className="absolute inset-y-0 -right-[1px] w-[1px] bg-blue-500/50 border-r border-dashed border-blue-500 pointer-events-none z-50 animate-pulse"></div>
+                </>
+              )}
+
+              {/* Left Resize Handle */}
+              <div 
+                onMouseDown={(e) => handleResizeStart(e, "left")}
+                onTouchStart={(e) => handleResizeTouchStart(e, "left")}
+                className="absolute top-0 bottom-0 -left-6 w-6 flex items-center justify-end cursor-col-resize group z-40 select-none"
+                title="Kéo để thay đổi kích thước"
+              >
+                <div className="w-1.5 h-16 rounded-full bg-slate-600/70 group-hover:bg-blue-500 group-hover:h-24 group-active:bg-blue-400 group-active:h-28 transition-all duration-200 shadow-md flex flex-col justify-center gap-1 items-center mr-1">
+                  <span className="w-0.5 h-1.5 bg-slate-300 rounded-full"></span>
+                  <span className="w-0.5 h-1.5 bg-slate-300 rounded-full"></span>
+                  <span className="w-0.5 h-1.5 bg-slate-300 rounded-full"></span>
+                </div>
+              </div>
+
+              {/* Right Resize Handle */}
+              <div 
+                onMouseDown={(e) => handleResizeStart(e, "right")}
+                onTouchStart={(e) => handleResizeTouchStart(e, "right")}
+                className="absolute top-0 bottom-0 -right-6 w-6 flex items-center justify-start cursor-col-resize group z-40 select-none"
+                title="Kéo để thay đổi kích thước"
+              >
+                <div className="w-1.5 h-16 rounded-full bg-slate-600/70 group-hover:bg-blue-500 group-hover:h-24 group-active:bg-blue-400 group-active:h-28 transition-all duration-200 shadow-md flex flex-col justify-center gap-1 items-center ml-1">
+                  <span className="w-0.5 h-1.5 bg-slate-300 rounded-full"></span>
+                  <span className="w-0.5 h-1.5 bg-slate-300 rounded-full"></span>
+                  <span className="w-0.5 h-1.5 bg-slate-300 rounded-full"></span>
+                </div>
+              </div>
+              
+              {/* Simulated Navigation Bar */}
+              <div className="bg-white px-6 py-4 border-b border-gray-100 flex justify-between items-center select-none shrink-0">
+                <span className="text-[#00095b] font-black text-sm tracking-tight">DONGNAI <span className="text-[#0562d2]">FORD</span></span>
+                <div className="flex space-x-4 text-xs font-bold text-gray-500">
+                  <span>Sản phẩm</span>
+                  <span>Dịch vụ</span>
+                  <span>Bảng giá</span>
+                  <span>Liên hệ</span>
+                </div>
+                <span className="bg-[#0562d2] text-white font-bold text-[10px] px-3.5 py-1.5 rounded-full select-none">Đăng ký lái thử</span>
+              </div>
+
+              {/* Live Blocks rendered inside preview */}
+              <div className="bg-[#fafafa]">
+                {blocksWithAnchors[0]?.type === "HeroBanner" && (
+                  <Blocks
+                    layout={[blocksWithAnchors[0]]}
+                    vehicle={vehicle}
+                    openQuoteDrawer={openQuoteDrawer}
+                    openDriveModal={() => setShowDriveModal(true)}
+                    isEditMode={true}
+                    onChangeBlock={(idx, data) => handleBlockChange(0, data)}
+                    onMoveBlock={(idx, dir) => handleBlockMove(0, dir)}
+                    onDeleteBlock={(idx) => handleBlockDelete(0)}
+                    threeSixtyProps={threeSixtyPropsObj}
+                    startIndex={0}
+                    totalBlocks={blocksWithAnchors.length}
+                    activeIndex={activeIndex}
+                    onSelectBlock={(idx) => setActiveIndex(idx)}
+                    onDragStart={handleDragStart}
+                    onDragOver={handleDragOver}
+                    onDrop={handleDrop}
+                    onDragEnd={handleDragEnd}
+                    draggedIndex={draggedIndex}
+                    draggedOverIndex={draggedOverIndex}
+                  />
+                )}
+
+                <div className="bg-white border-b border-[#e5e5e5] shadow-xs select-none">
+                  <div className="mx-auto px-6 w-full flex items-center gap-[32px]">
+                    <p className="font-semibold text-[#1a1a1a] text-[13px] uppercase">
+                      {vehicle.name}
+                    </p>
+                    <div className="h-[20px] w-[1px] bg-[#e5e5e5]" />
+                    <div className="flex items-center gap-[18px] py-0.5 text-xs text-gray-550 font-medium font-sans">
+                      {navigationTabs.map((tab) => (
+                        <span key={tab.id} className={`py-3 border-b-2 ${activeTab === tab.id ? 'text-[#0562d2] border-[#0562d2]' : 'border-transparent'}`}>{tab.label}</span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-12 pb-12">
+                  <Blocks
+                    layout={blocksWithAnchors[0]?.type === "HeroBanner" ? blocksWithAnchors.slice(1) : blocksWithAnchors}
+                    vehicle={vehicle}
+                    openQuoteDrawer={openQuoteDrawer}
+                    openDriveModal={() => setShowDriveModal(true)}
+                    isEditMode={true}
+                    onChangeBlock={(idx, data) => handleBlockChange(blocksWithAnchors[0]?.type === "HeroBanner" ? idx + 1 : idx, data)}
+                    onMoveBlock={(idx, dir) => handleBlockMove(blocksWithAnchors[0]?.type === "HeroBanner" ? idx + 1 : idx, dir)}
+                    onDeleteBlock={(idx) => handleBlockDelete(blocksWithAnchors[0]?.type === "HeroBanner" ? idx + 1 : idx)}
+                    threeSixtyProps={threeSixtyPropsObj}
+                    startIndex={blocksWithAnchors[0]?.type === "HeroBanner" ? 1 : 0}
+                    totalBlocks={blocksWithAnchors.length}
+                    activeIndex={activeIndex}
+                    onSelectBlock={(idx) => setActiveIndex(idx)}
+                    onDragStart={handleDragStart}
+                    onDragOver={handleDragOver}
+                    onDrop={handleDrop}
+                    onDragEnd={handleDragEnd}
+                    draggedIndex={draggedIndex}
+                    draggedOverIndex={draggedOverIndex}
+                  />
+                  {!currentBlocks.some(b => b.type === "BookingBanner") && <BookingBanner />}
+                </div>
+
+              </div>
+
+              <div className="bg-[#111] text-gray-400 py-6 px-6 text-center text-[10px] select-none">
+                <p>© 2026 DONG NAI FORD. All rights reserved. Trình xem trước giao diện trực quan.</p>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        {/* Root level modals rendered inside split screen too */}
+        {showDriveModal && (
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+            <div className="bg-white text-black rounded-lg w-full max-w-[500px] max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-200 relative">
+              <div className="bg-[#00095b] text-white p-6 relative">
+                <h3 className="text-lg font-bold uppercase tracking-wide">Đăng Ký Lái Thử Xe</h3>
+                <button onClick={() => setShowDriveModal(false)} className="absolute top-4 right-4 text-white/70 hover:text-white cursor-pointer bg-transparent border-0">✕</button>
+              </div>
+              <div className="p-6">Form lái thử giả lập hoạt động bình thường...</div>
+            </div>
+          </div>
+        )}
+        {showQuoteModal && (
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+            <div className="bg-white text-black rounded-lg w-full max-w-[600px] max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-200 relative p-6">
+              <h3 className="text-lg font-bold text-[#0562d2] mb-4">Dự toán lăn bánh</h3>
+              <p className="text-sm">Bảng tính chi phí lăn bánh giả lập hoạt động bình thường...</p>
+              <button onClick={() => setShowQuoteModal(false)} className="mt-4 bg-[#0562d2] text-white px-4 py-2 rounded font-semibold cursor-pointer">Đóng</button>
+            </div>
+          </div>
+        )}
+
+      </div>
+    );
+  }
 
   return (
     <div className="bg-[#fafafa] min-h-screen text-[#1a1a1a] font-sans pb-16">

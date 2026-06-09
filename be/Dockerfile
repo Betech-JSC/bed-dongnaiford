@@ -23,7 +23,8 @@ COPY --from=composer:2.5 /usr/bin/composer /usr/bin/composer
 # Cài đặt Node.js và Yarn (để build assets của Admin panel)
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs \
-    && npm install --global yarn
+    && npm install --global yarn \
+    && yarn config set ignore-engines true
 
 WORKDIR /var/www
 
@@ -31,11 +32,12 @@ WORKDIR /var/www
 COPY composer.json composer.lock ./
 COPY packages ./packages
 COPY app/Helpers/Helper.php ./app/Helpers/Helper.php
-RUN --mount=type=cache,target=/root/.composer/cache composer install --no-interaction --no-scripts --no-autoloader --no-dev --ignore-platform-reqs
+RUN --mount=type=cache,target=/root/.composer/cache composer install --no-interaction --no-plugins --no-scripts --no-autoloader --no-dev --ignore-platform-reqs
 
 # 2. Sao chép và cài đặt JS dependencies cho Admin panel (cache layer)
 COPY package.json yarn.lock ./
-RUN --mount=type=cache,target=/root/.cache/yarn yarn install --frozen-lockfile
+COPY resources/Backend/js/ckeditor5 ./resources/Backend/js/ckeditor5
+RUN --mount=type=cache,target=/root/.cache/yarn yarn install --frozen-lockfile --ignore-engines
 
 # 3. Sao chép toàn bộ source code còn lại
 COPY . .
@@ -43,6 +45,7 @@ COPY . .
 # 4. Dump autoloader, tạo .env và build static assets
 RUN composer dump-autoload --optimize --no-dev \
     && cp .env.example .env \
+    && mkdir -p public/build/locales \
     && yarn build
 
 # Sao lưu thư mục public để entrypoint copy vào volume khi container chạy

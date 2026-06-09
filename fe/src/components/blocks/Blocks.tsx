@@ -17,18 +17,6 @@ const formatUploadError = (err: any): string => {
   return "Đã xảy ra lỗi không xác định";
 };
 
-const resolveImageUrl = (url: any, fallback: string = ""): string => {
-  if (!url) return fallback;
-  if (typeof url !== "string") return fallback;
-  if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("data:") || url.startsWith("/")) {
-    return url;
-  }
-  const backendBase = process.env.NEXT_PUBLIC_API_URL
-    ? process.env.NEXT_PUBLIC_API_URL.replace("/api", "")
-    : "http://localhost:8000";
-  return `${backendBase}/${url}`;
-};
-
 interface BlocksProps {
   layout?: any[];
   vehicle: any;
@@ -41,6 +29,14 @@ interface BlocksProps {
   threeSixtyProps?: any;
   startIndex?: number;
   totalBlocks?: number;
+  activeIndex?: number | null;
+  onSelectBlock?: (index: number) => void;
+  onDragStart?: (e: React.DragEvent, index: number) => void;
+  onDragOver?: (e: React.DragEvent, index: number) => void;
+  onDrop?: (e: React.DragEvent, index: number) => void;
+  onDragEnd?: () => void;
+  draggedIndex?: number | null;
+  draggedOverIndex?: number | null;
 }
 
 export default function Blocks({ 
@@ -54,7 +50,15 @@ export default function Blocks({
   onDeleteBlock = () => {},
   threeSixtyProps,
   startIndex = 0,
-  totalBlocks
+  totalBlocks,
+  activeIndex = null,
+  onSelectBlock,
+  onDragStart,
+  onDragOver,
+  onDrop,
+  onDragEnd,
+  draggedIndex = null,
+  draggedOverIndex = null
 }: BlocksProps) {
   if (!layout || !Array.isArray(layout) || layout.length === 0) {
     return null;
@@ -192,7 +196,23 @@ export default function Blocks({
           return (
             <div 
               key={`edit-wrapper-${index}`}
-              className="relative border-4 border-dashed border-[#0562d2]/40 hover:border-[#0562d2] transition-colors my-2 rounded-xl overflow-hidden group/block"
+              draggable
+              onDragStart={(e) => onDragStart && onDragStart(e, startIndex + index)}
+              onDragOver={(e) => onDragOver && onDragOver(e, startIndex + index)}
+              onDrop={(e) => onDrop && onDrop(e, startIndex + index)}
+              onDragEnd={onDragEnd}
+              onClick={(e) => {
+                const target = e.target as HTMLElement;
+                if (target.closest('button') || target.closest('input') || target.closest('select') || target.closest('textarea')) {
+                  return;
+                }
+                onSelectBlock && onSelectBlock(startIndex + index);
+              }}
+              className={`relative border-4 border-dashed transition-all my-2 rounded-xl overflow-hidden group/block cursor-pointer
+                ${activeIndex === startIndex + index ? "border-[#0562d2] ring-4 ring-[#0562d2]/15 bg-[#0562d2]/5" : "border-[#0562d2]/40 hover:border-[#0562d2]"}
+                ${draggedIndex === startIndex + index ? "opacity-35 scale-[0.98] border-dashed border-gray-400" : ""}
+                ${draggedOverIndex === startIndex + index ? "border-amber-400 bg-amber-500/5" : ""}
+              `}
             >
               {/* Block Action Controls Overlay */}
               <div className="absolute top-3 right-3 z-45 bg-white/95 backdrop-blur-xs shadow-md border border-gray-200 rounded-full px-4 py-1.5 flex items-center gap-3">
@@ -254,12 +274,11 @@ export default function Blocks({
    1. HERO BANNER BLOCK
    ========================================================================== */
 function HeroBannerBlock({ data, vehicle, openQuoteDrawer, openDriveModal, isEditMode, onChangeData, anchorId }: any) {
-  const blockData = data || {};
-  const title = blockData.title || vehicle.name;
-  const tagline = blockData.tagline || vehicle.tagline;
-  const btnText = blockData.button_text || "Book Lái thử";
-  const btnLink = blockData.button_link || "#drive";
-  const bgImg = resolveImageUrl(blockData.background_image) || vehicle.images?.[0] || vehicle.image_url || "/assets/territory-hero.png";
+  const title = data.title || vehicle.name;
+  const tagline = data.tagline || vehicle.tagline;
+  const btnText = data.button_text || "Book Lái thử";
+  const btnLink = data.button_link || "#drive";
+  const bgImg = data.background_image || vehicle.images?.[0] || "/assets/territory-hero.png";
 
   const handleUploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -267,7 +286,7 @@ function HeroBannerBlock({ data, vehicle, openQuoteDrawer, openDriveModal, isEdi
     try {
       const res = await mediaAPI.upload(file);
       if (res && res.url) {
-        onChangeData({ ...blockData, background_image: res.url });
+        onChangeData({ ...data, background_image: res.url });
       }
     } catch (err) {
       alert("Lỗi tải ảnh lên: " + formatUploadError(err));
@@ -318,7 +337,7 @@ function HeroBannerBlock({ data, vehicle, openQuoteDrawer, openDriveModal, isEdi
               <input 
                 type="text"
                 value={tagline || ""}
-                onChange={(e) => onChangeData({ ...blockData, tagline: e.target.value })}
+                onChange={(e) => onChangeData({ ...data, tagline: e.target.value })}
                 className="bg-transparent text-[#0562d2] font-semibold text-sm border border-dashed border-white/30 px-3 py-1.5 rounded-lg w-full focus:outline-none focus:border-blue-500"
                 placeholder="Nhập Slogan"
               />
@@ -326,7 +345,7 @@ function HeroBannerBlock({ data, vehicle, openQuoteDrawer, openDriveModal, isEdi
               <input 
                 type="text"
                 value={title}
-                onChange={(e) => onChangeData({ ...blockData, title: e.target.value })}
+                onChange={(e) => onChangeData({ ...data, title: e.target.value })}
                 className="bg-transparent text-white font-['Ford_Antenna',sans-serif] font-semibold text-[32px] sm:text-[40px] tracking-[-0.96px] leading-[1.15] uppercase border border-dashed border-white/30 px-3 py-1.5 rounded-lg w-full focus:outline-none focus:border-blue-500"
                 placeholder="Nhập Tiêu đề Banner"
               />
@@ -336,7 +355,7 @@ function HeroBannerBlock({ data, vehicle, openQuoteDrawer, openDriveModal, isEdi
                   <input 
                     type="text"
                     value={btnText}
-                    onChange={(e) => onChangeData({ ...blockData, button_text: e.target.value })}
+                    onChange={(e) => onChangeData({ ...data, button_text: e.target.value })}
                     className="bg-transparent text-xs text-white border border-dashed border-white/30 px-3 py-1.5 rounded-lg w-full focus:outline-none"
                     placeholder="Nhãn nút"
                   />
@@ -346,7 +365,7 @@ function HeroBannerBlock({ data, vehicle, openQuoteDrawer, openDriveModal, isEdi
                   <input 
                     type="text"
                     value={btnLink}
-                    onChange={(e) => onChangeData({ ...blockData, button_link: e.target.value })}
+                    onChange={(e) => onChangeData({ ...data, button_link: e.target.value })}
                     className="bg-transparent text-xs text-white border border-dashed border-white/30 px-3 py-1.5 rounded-lg w-full focus:outline-none"
                     placeholder="#drive hoặc link"
                   />
@@ -399,7 +418,7 @@ function SpecsGridBlock({ vehicle, openQuoteDrawer, anchorId }: any) {
     id: ver.id,
     name: ver.name,
     price: ver.price,
-    image: resolveImageUrl(vehicle.images?.[idx]) || resolveImageUrl(vehicle.images?.[0]) || (idx === 0 
+    image: vehicle.images?.[idx] || vehicle.images?.[0] || (idx === 0 
       ? "/assets/territory-hero.png" 
       : idx === 1 
         ? "/assets/territory-tech-split.png" 
@@ -513,22 +532,12 @@ function SpecsGridBlock({ vehicle, openQuoteDrawer, anchorId }: any) {
    3. FEATURES LIST BLOCK
    ========================================================================== */
 function FeaturesListBlock({ data, vehicle, isEditMode, onChangeData, anchorId }: any) {
-  const blockData = data || {};
-  const defaultFeatures = [
-    { 
-      title: 'Hệ thống phanh khẩn cấp', 
-      description: 'Tự động phát hiện chướng ngại vật phía trước và phanh giảm thiểu tai nạn.', 
-      image: vehicle?.images?.[0] || "/assets/territory-hero.png"
-    }
-  ];
-  const features = (blockData.features && blockData.features.length > 0)
-    ? blockData.features
-    : defaultFeatures;
+  const features = data.features || [];
 
   const handleFeatureTextChange = (idx: number, key: string, val: string) => {
     const newFeatures = [...features];
     newFeatures[idx] = { ...newFeatures[idx], [key]: val };
-    onChangeData({ ...blockData, features: newFeatures });
+    onChangeData({ ...data, features: newFeatures });
   };
 
   const handleUploadFeatureImage = async (idx: number, e: React.ChangeEvent<HTMLInputElement>) => {
@@ -539,7 +548,7 @@ function FeaturesListBlock({ data, vehicle, isEditMode, onChangeData, anchorId }
       if (res && res.url) {
         const newFeatures = [...features];
         newFeatures[idx] = { ...newFeatures[idx], image: res.url };
-        onChangeData({ ...blockData, features: newFeatures });
+        onChangeData({ ...data, features: newFeatures });
       }
     } catch (err) {
       alert("Lỗi tải ảnh lên: " + formatUploadError(err));
@@ -552,12 +561,12 @@ function FeaturesListBlock({ data, vehicle, isEditMode, onChangeData, anchorId }
       description: "Nhập mô tả tính năng ở đây để thu hút khách hàng.", 
       image: vehicle?.images?.[0] || "/assets/territory-hero.png" 
     }];
-    onChangeData({ ...blockData, features: newFeatures });
+    onChangeData({ ...data, features: newFeatures });
   };
 
   const handleRemoveFeature = (idx: number) => {
     const newFeatures = features.filter((_: any, i: number) => i !== idx);
-    onChangeData({ ...blockData, features: newFeatures });
+    onChangeData({ ...data, features: newFeatures });
   };
 
   return (
@@ -575,7 +584,7 @@ function FeaturesListBlock({ data, vehicle, isEditMode, onChangeData, anchorId }
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.map((feat: any, idx: number) => {
-            const featImg = resolveImageUrl(feat.image) || vehicle?.images?.[0] || "/assets/territory-hero.png";
+            const featImg = feat.image || vehicle?.images?.[0] || "/assets/territory-hero.png";
             return (
               <div 
                 key={idx}
@@ -667,9 +676,8 @@ function FeaturesListBlock({ data, vehicle, isEditMode, onChangeData, anchorId }
    4. ACCORDION FAQS BLOCK
    ========================================================================== */
 function AccordionFAQsBlock({ data, vehicle, isEditMode, onChangeData, anchorId }: any) {
-  const blockData = data || {};
   const colorListStr = vehicle?.colors?.map((c: any) => c.name).join(", ");
-  const faqs = blockData.faqs || [
+  const faqs = data.faqs || [
     {
       q: `Xe ${vehicle?.name || "Ford"} có những màu ngoại thất nào?`,
       a: `Dòng xe ${vehicle?.name || "Ford"} hiện đang phân phối tại Đồng Nai Ford với các lựa chọn màu sắc ngoại thất: ${colorListStr || 'các phiên bản màu tiêu chuẩn'}.`
@@ -684,17 +692,17 @@ function AccordionFAQsBlock({ data, vehicle, isEditMode, onChangeData, anchorId 
   const handleFaqTextChange = (idx: number, key: string, val: string) => {
     const newFaqs = [...faqs];
     newFaqs[idx] = { ...newFaqs[idx], [key]: val };
-    onChangeData({ ...blockData, faqs: newFaqs });
+    onChangeData({ ...data, faqs: newFaqs });
   };
 
   const handleAddFaq = () => {
     const newFaqs = [...faqs, { q: "Câu hỏi thường gặp mới?", a: "Nhập câu trả lời ở đây." }];
-    onChangeData({ ...blockData, faqs: newFaqs });
+    onChangeData({ ...data, faqs: newFaqs });
   };
 
   const handleRemoveFaq = (idx: number) => {
     const newFaqs = faqs.filter((_: any, i: number) => i !== idx);
-    onChangeData({ ...blockData, faqs: newFaqs });
+    onChangeData({ ...data, faqs: newFaqs });
   };
 
   return (
@@ -800,11 +808,10 @@ function AccordionFAQsBlock({ data, vehicle, isEditMode, onChangeData, anchorId 
    5. PROMOTIONS BLOCK
    ========================================================================== */
 function PromotionsBlock({ data, isEditMode, onChangeData, openQuoteDrawer, vehicle, anchorId }: any) {
-  const blockData = data || {};
-  const title = blockData.title || "Ưu Đãi Đặc Biệt";
-  const desc = blockData.description || "Nhập chương trình khuyến mãi tháng...";
-  const bgImg = resolveImageUrl(blockData.image) || "/assets/img-gradient-2.png";
-  const btnText = blockData.button_text || "Báo giá";
+  const title = data.title || "Ưu Đãi Đặc Biệt";
+  const desc = data.description || "Nhập chương trình khuyến mãi tháng...";
+  const bgImg = data.image || "/assets/img-gradient-2.png";
+  const btnText = data.button_text || "Báo giá";
 
   const handleUploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -812,7 +819,7 @@ function PromotionsBlock({ data, isEditMode, onChangeData, openQuoteDrawer, vehi
     try {
       const res = await mediaAPI.upload(file);
       if (res && res.url) {
-        onChangeData({ ...blockData, image: res.url });
+        onChangeData({ ...data, image: res.url });
       }
     } catch (err) {
       alert("Lỗi tải ảnh lên: " + formatUploadError(err));
@@ -829,14 +836,14 @@ function PromotionsBlock({ data, isEditMode, onChangeData, openQuoteDrawer, vehi
               <input 
                 type="text" 
                 value={title} 
-                onChange={(e) => onChangeData({ ...blockData, title: e.target.value })}
+                onChange={(e) => onChangeData({ ...data, title: e.target.value })}
                 className="text-base font-bold text-[#0562d2] border border-dashed border-gray-300 px-3 py-1.5 rounded-lg w-full focus:outline-none focus:border-blue-500 bg-transparent"
                 placeholder="Tiêu đề khuyến mãi"
               />
               <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider">Mô tả chương trình</label>
               <textarea 
                 value={desc} 
-                onChange={(e) => onChangeData({ ...blockData, description: e.target.value })}
+                onChange={(e) => onChangeData({ ...data, description: e.target.value })}
                 className="text-sm text-gray-700 border border-dashed border-gray-300 px-3 py-1.5 rounded-lg w-full focus:outline-none focus:border-blue-500 bg-transparent resize-none h-20"
                 placeholder="Mô tả chương trình"
               />
@@ -887,9 +894,8 @@ function PromotionsBlock({ data, isEditMode, onChangeData, openQuoteDrawer, vehi
    6. 360 VIEWER BLOCK
    ========================================================================== */
 function ThreeSixtyViewerBlock({ data, vehicle, isEditMode, onChangeData, threeSixtyProps, anchorId }: any) {
-  const blockData = data || {};
-  const title = blockData.title || (vehicle?.id === "mustang-fastback" ? "360° Colorizer & Viewer" : "Khám phá không gian đa chiều");
-  const desc = blockData.description || (vehicle?.id === "mustang-fastback" 
+  const title = data.title || (vehicle?.id === "mustang-fastback" ? "360° Colorizer & Viewer" : "Khám phá không gian đa chiều");
+  const desc = data.description || (vehicle?.id === "mustang-fastback" 
     ? "Tùy biến ngoại thất và nội thất theo phong cách riêng của bạn. Kéo để xoay 360 độ hoặc chọn màu sơn và mâm xe."
     : "Diện mạo mới đầy cuốn hút! Trải nghiệm góc nhìn đa chiều và chọn màu sắc ngoại thất yêu thích.");
 
@@ -934,14 +940,14 @@ function ThreeSixtyViewerBlock({ data, vehicle, isEditMode, onChangeData, threeS
               <input 
                 type="text" 
                 value={title} 
-                onChange={(e) => onChangeData({ ...blockData, title: e.target.value })}
+                onChange={(e) => onChangeData({ ...data, title: e.target.value })}
                 className="text-base font-bold text-[#0562d2] border border-dashed border-gray-300 px-3 py-1.5 rounded-lg w-full focus:outline-none focus:border-blue-500 bg-transparent font-display"
                 placeholder="Tiêu đề 360"
               />
               <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider">Mô tả 360</label>
               <textarea 
                 value={desc} 
-                onChange={(e) => onChangeData({ ...blockData, description: e.target.value })}
+                onChange={(e) => onChangeData({ ...data, description: e.target.value })}
                 className="text-sm text-gray-700 border border-dashed border-gray-300 px-3 py-1.5 rounded-lg w-full focus:outline-none focus:border-blue-500 bg-transparent resize-none h-20"
                 placeholder="Mô tả 360"
               />
@@ -1121,9 +1127,12 @@ function ThreeSixtyViewerBlock({ data, vehicle, isEditMode, onChangeData, threeS
                           : (viewType === "exterior"
                               ? (() => {
                                   const colorImg = (vehicle.colors?.[selectedColorIndex] || vehicle.colors?.[0])?.image;
-                                  return resolveImageUrl(colorImg) || "/assets/car-everest.png";
+                                  if (colorImg && (colorImg.startsWith('/') || colorImg.startsWith('http'))) {
+                                    return colorImg;
+                                  }
+                                  return vehicle.images?.[0] || vehicle.image_url || "/assets/car-everest.png";
                                 })()
-                              : resolveImageUrl(media.splitLeft))}
+                              : media.splitLeft)}
                       alt="3D vehicle preview"
                       className="w-full h-full object-cover pointer-events-none"
                     />
@@ -1166,26 +1175,18 @@ function ThreeSixtyViewerBlock({ data, vehicle, isEditMode, onChangeData, threeS
    7. FEATURES GRID BLOCK
    ========================================================================== */
 function FeaturesGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId }: any) {
-  const blockData = data || {};
-  const title_1 = blockData.title_1 || "Thiết kế hiện đại, sắc sảo, đầy cuốn hút";
-  const image_1 = resolveImageUrl(blockData.image_1) || vehicle?.images?.[2] || vehicle?.images?.[0] || "/assets/territory-hero.png";
-  const image_2 = resolveImageUrl(blockData.image_2) || vehicle?.images?.[3] || vehicle?.images?.[1] || "/assets/territory-tech-split.png";
-  const image_3 = resolveImageUrl(blockData.image_3) || vehicle?.images?.[4] || vehicle?.images?.[2] || "/assets/territory-promo.png";
+  const title_1 = data.title_1 || "Thiết kế hiện đại, sắc sảo, đầy cuốn hút";
+  const image_1 = data.image_1 || vehicle?.images?.[2] || vehicle?.images?.[0] || "/assets/territory-hero.png";
+  const image_2 = data.image_2 || vehicle?.images?.[3] || vehicle?.images?.[1] || "/assets/territory-tech-split.png";
+  const image_3 = data.image_3 || vehicle?.images?.[4] || vehicle?.images?.[2] || "/assets/territory-promo.png";
   
-  const title_2 = blockData.title_2 || "Không gian nội thất rộng rãi, tiện nghi";
-  const image_large = resolveImageUrl(blockData.image_large) || vehicle?.images?.[5] || vehicle?.images?.[1] || "/assets/territory-interior.png";
+  const title_2 = data.title_2 || "Không gian nội thất rộng rãi, tiện nghi";
+  const image_large = data.image_large || vehicle?.images?.[5] || vehicle?.images?.[1] || "/assets/territory-interior.png";
   
-  const title_3 = blockData.title_3 || "Nâng tầm công nghệ và tiện nghi Tận hưởng trên mọi hành trình";
-  const split_image = resolveImageUrl(blockData.split_image) || vehicle?.images?.[6] || vehicle?.images?.[0] || "/assets/territory-tech-split.png";
-  const split_title = blockData.split_title || "Tiện nghi thông minh";
-  
-  const defaultSplitFeatures = [
-    { value: vehicle.versions?.[0]?.specs?.transmission || "10-Cấp", label: "Hộp số tự động điện tử" },
-    { value: vehicle.versions?.[0]?.specs?.engine || "Bi-Turbo 2.0L", label: "Động cơ Diesel mạnh mẽ" }
-  ];
-  const split_features = (blockData.split_features && blockData.split_features.length > 0) 
-    ? blockData.split_features 
-    : defaultSplitFeatures;
+  const title_3 = data.title_3 || "Nâng tầm công nghệ và tiện nghi Tận hưởng trên mọi hành trình";
+  const split_image = data.split_image || vehicle?.images?.[6] || vehicle?.images?.[0] || "/assets/territory-tech-split.png";
+  const split_title = data.split_title || "Tiện nghi thông minh";
+  const split_features = data.split_features || [];
 
   const handleUploadImage = async (key: string, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -1193,7 +1194,7 @@ function FeaturesGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId }
     try {
       const res = await mediaAPI.upload(file);
       if (res && res.url) {
-        onChangeData({ ...blockData, [key]: res.url });
+        onChangeData({ ...data, [key]: res.url });
       }
     } catch (err) {
       alert("Lỗi tải ảnh lên: " + formatUploadError(err));
@@ -1203,17 +1204,17 @@ function FeaturesGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId }
   const handleFeatureChange = (idx: number, key: string, val: string) => {
     const newFeatures = [...split_features];
     newFeatures[idx] = { ...newFeatures[idx], [key]: val };
-    onChangeData({ ...blockData, split_features: newFeatures });
+    onChangeData({ ...data, split_features: newFeatures });
   };
 
   const handleAddFeature = () => {
     const newFeatures = [...split_features, { value: "Giá trị", label: "Mô tả nhãn" }];
-    onChangeData({ ...blockData, split_features: newFeatures });
+    onChangeData({ ...data, split_features: newFeatures });
   };
 
   const handleRemoveFeature = (idx: number) => {
     const newFeatures = split_features.filter((_: any, i: number) => i !== idx);
-    onChangeData({ ...blockData, split_features: newFeatures });
+    onChangeData({ ...data, split_features: newFeatures });
   };
 
   return (
@@ -1225,7 +1226,7 @@ function FeaturesGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId }
             <input 
               type="text" 
               value={title_1} 
-              onChange={(e) => onChangeData({ ...blockData, title_1: e.target.value })}
+              onChange={(e) => onChangeData({ ...data, title_1: e.target.value })}
               className="text-center font-['Ford_Antenna',sans-serif] font-semibold text-[#00095b] text-[36px] sm:text-[48px] border border-dashed border-gray-300 rounded px-2 w-full focus:outline-none focus:border-blue-500 bg-transparent uppercase"
             />
           ) : (
@@ -1272,7 +1273,7 @@ function FeaturesGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId }
             <input 
               type="text" 
               value={title_2} 
-              onChange={(e) => onChangeData({ ...blockData, title_2: e.target.value })}
+              onChange={(e) => onChangeData({ ...data, title_2: e.target.value })}
               className="text-center font-['Ford_Antenna',sans-serif] font-semibold text-[#00095b] text-[36px] sm:text-[48px] border border-dashed border-gray-300 rounded px-2 w-full focus:outline-none focus:border-blue-500 bg-transparent uppercase"
             />
           ) : (
@@ -1297,7 +1298,7 @@ function FeaturesGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId }
             <input 
               type="text" 
               value={title_3} 
-              onChange={(e) => onChangeData({ ...blockData, title_3: e.target.value })}
+              onChange={(e) => onChangeData({ ...data, title_3: e.target.value })}
               className="text-center font-['Ford_Antenna',sans-serif] font-semibold text-[#00095b] text-[36px] sm:text-[48px] border border-dashed border-gray-300 rounded px-2 w-full focus:outline-none focus:border-blue-500 bg-transparent uppercase"
             />
           ) : (
@@ -1324,7 +1325,7 @@ function FeaturesGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId }
                 <input 
                   type="text" 
                   value={split_title} 
-                  onChange={(e) => onChangeData({ ...blockData, split_title: e.target.value })}
+                  onChange={(e) => onChangeData({ ...data, split_title: e.target.value })}
                   className="font-['Ford_Antenna',sans-serif] font-semibold text-[32px] sm:text-[36px] leading-[1.32] pb-6 border-b border-white/20 bg-transparent text-white w-full focus:outline-none"
                 />
               ) : (
@@ -1398,9 +1399,8 @@ function FeaturesGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId }
    8. VERSIONS GRID BLOCK
    ========================================================================== */
 function VersionsGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId }: any) {
-  const blockData = data || {};
-  const title = blockData.title || `Các mẫu xe Ford ${vehicle?.name?.replace("NEW ", "") || ""}`;
-  const descriptions = blockData.descriptions || [];
+  const title = data.title || `Các mẫu xe Ford ${vehicle?.name?.replace("NEW ", "") || ""}`;
+  const descriptions = data.descriptions || [];
   const versions = vehicle?.versions || [];
 
   const versionGradients = [
@@ -1412,7 +1412,7 @@ function VersionsGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId }
   const handleDescChange = (idx: number, val: string) => {
     const newDescs = [...descriptions];
     newDescs[idx] = val;
-    onChangeData({ ...blockData, descriptions: newDescs });
+    onChangeData({ ...data, descriptions: newDescs });
   };
 
   const formatPrice = (price: number) => {
@@ -1428,7 +1428,7 @@ function VersionsGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId }
             <input 
               type="text" 
               value={title} 
-              onChange={(e) => onChangeData({ ...blockData, title: e.target.value })}
+              onChange={(e) => onChangeData({ ...data, title: e.target.value })}
               className="text-center font-['Ford_Antenna',sans-serif] font-semibold text-[#1a1a1a] text-[36px] sm:text-[48px] border border-dashed border-gray-300 rounded px-2 w-full focus:outline-none focus:border-blue-500 bg-transparent uppercase"
             />
           ) : (
@@ -1498,12 +1498,11 @@ function VersionsGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId }
    9. BOOKING BANNER BLOCK
    ========================================================================== */
 function BookingBannerBlock({ data, vehicle, isEditMode, onChangeData, anchorId }: any) {
-  const blockData = data || {};
-  const title = blockData.title || "Kết nối ngay với chuyên viên Đồng Nai Ford";
-  const phone = blockData.phone || "1800 55 68 58";
-  const btnText = blockData.btn_text || "Đặt lịch hẹn";
-  const btnLink = blockData.btn_link || "/lien-he?reason=Đặt hẹn dịch vụ";
-  const carImage = resolveImageUrl(blockData.car_image) || vehicle.image_url || "/assets/booking-car.png";
+  const title = data.title || "Kết nối ngay với chuyên viên Đồng Nai Ford";
+  const phone = data.phone || "1800 55 68 58";
+  const btnText = data.btn_text || "Đặt lịch hẹn";
+  const btnLink = data.btn_link || "/lien-he?reason=Đặt hẹn dịch vụ";
+  const carImage = data.car_image || vehicle.image_url || "/assets/booking-car.png";
 
   const handleUploadCarImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -1511,7 +1510,7 @@ function BookingBannerBlock({ data, vehicle, isEditMode, onChangeData, anchorId 
     try {
       const res = await mediaAPI.upload(file);
       if (res && res.url) {
-        onChangeData({ ...blockData, car_image: res.url });
+        onChangeData({ ...data, car_image: res.url });
       }
     } catch (err) {
       alert("Lỗi tải ảnh lên: " + formatUploadError(err));
@@ -1532,7 +1531,7 @@ function BookingBannerBlock({ data, vehicle, isEditMode, onChangeData, anchorId 
                   <input
                     type="text"
                     value={title}
-                    onChange={(e) => onChangeData({ ...blockData, title: e.target.value })}
+                    onChange={(e) => onChangeData({ ...data, title: e.target.value })}
                     className="bg-transparent text-white font-['Ford_Antenna',sans-serif] font-semibold text-lg border border-dashed border-white/30 px-3 py-1.5 rounded-lg w-full focus:outline-none focus:border-blue-500"
                     placeholder="Nhập tiêu đề"
                   />
@@ -1543,7 +1542,7 @@ function BookingBannerBlock({ data, vehicle, isEditMode, onChangeData, anchorId 
                     <input
                       type="text"
                       value={phone}
-                      onChange={(e) => onChangeData({ ...blockData, phone: e.target.value })}
+                      onChange={(e) => onChangeData({ ...data, phone: e.target.value })}
                       className="bg-transparent text-white text-xs border border-dashed border-white/30 px-3 py-1.5 rounded-lg w-full focus:outline-none"
                       placeholder="Nhập số điện thoại"
                     />
@@ -1553,7 +1552,7 @@ function BookingBannerBlock({ data, vehicle, isEditMode, onChangeData, anchorId 
                     <input
                       type="text"
                       value={btnText}
-                      onChange={(e) => onChangeData({ ...blockData, btn_text: e.target.value })}
+                      onChange={(e) => onChangeData({ ...data, btn_text: e.target.value })}
                       className="bg-transparent text-white text-xs border border-dashed border-white/30 px-3 py-1.5 rounded-lg w-full focus:outline-none"
                       placeholder="Nhãn nút"
                     />
@@ -1564,7 +1563,7 @@ function BookingBannerBlock({ data, vehicle, isEditMode, onChangeData, anchorId 
                   <input
                     type="text"
                     value={btnLink}
-                    onChange={(e) => onChangeData({ ...blockData, btn_link: e.target.value })}
+                    onChange={(e) => onChangeData({ ...data, btn_link: e.target.value })}
                     className="bg-transparent text-white text-xs border border-dashed border-white/30 px-3 py-1.5 rounded-lg w-full focus:outline-none"
                     placeholder="Đường dẫn liên kết"
                   />
