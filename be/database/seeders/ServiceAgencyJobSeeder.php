@@ -208,6 +208,66 @@ class ServiceAgencyJobSeeder extends Seeder
                     'content' => '<h2>Mô tả công việc</h2><p>Cơ hội phát triển sự nghiệp trong ngành ô tô.</p><h3>Yêu cầu</h3><ul><li>Tốt nghiệp Đại học chuyên ngành Marketing, Truyền thông</li><li>Có kinh nghiệm làm marketing 1-2 năm</li><li>Thành thạo Facebook Ads, Google Ads</li></ul><h3>Quyền lợi</h3><ul><li>Lương: 10-15 triệu + KPI (10,000,000 - 15,000,000 VNĐ)</li><li>Môi trường sáng tạo</li><li>Được tiếp cận ngân sách marketing lớn</li></ul>'
                 ]
             ],
+            [
+                'position' => 4,
+                'quantity' => 2,
+                'expected_time' => now()->addDays(30),
+                'published_at' => now(),
+                'vi' => [
+                    'title' => 'Cố vấn dịch vụ (Service Advisor)',
+                    'slug' => 'co-van-dich-vu-service-advisor',
+                    'working_position' => 'Cố vấn dịch vụ',
+                    'work_address' => 'TP. Biên Hòa, Đồng Nai',
+                    'working_time' => 'Thứ 2 - Thứ 7: 8:00 - 17:30',
+                    'description' => 'Tiếp nhận xe, tư vấn dịch vụ bảo dưỡng, sửa chữa và chăm sóc khách hàng tại xưởng.',
+                    'content' => '<h2>Mô tả công việc</h2><p>Làm cầu nối giữa khách hàng và xưởng kỹ thuật dịch vụ.</p><h3>Yêu cầu</h3><ul><li>Tốt nghiệp chuyên ngành Công nghệ Ô tô hoặc liên quan</li><li>Có kỹ năng giao tiếp và xử lý tình huống xuất sắc</li><li>Có kinh nghiệm ở vị trí tương đương là một lợi thế</li></ul><h3>Quyền lợi</h3><ul><li>Lương cứng + Thưởng hiệu suất doanh thu (12,000,000 - 20,000,000 VNĐ)</li><li>Đào tạo chứng chỉ cố vấn dịch vụ Ford chuẩn</li></ul>'
+                ]
+            ],
+            [
+                'position' => 5,
+                'quantity' => 1,
+                'expected_time' => now()->addDays(40),
+                'published_at' => now(),
+                'vi' => [
+                    'title' => 'Chuyên viên tư vấn tài chính bảo hiểm',
+                    'slug' => 'chuyen-vien-tu-van-tai-chinh-bao-hiem',
+                    'working_position' => 'Tư vấn tài chính',
+                    'work_address' => 'TP. Biên Hòa, Đồng Nai',
+                    'working_time' => 'Thứ 2 - Thứ 7: 8:00 - 17:30',
+                    'description' => 'Hỗ trợ khách hàng mua xe thủ tục trả góp ngân hàng và tư vấn các gói bảo hiểm xe liên kết.',
+                    'content' => '<h2>Mô tả công việc</h2><p>Hỗ trợ tối đa thủ tục mua xe nhanh chóng cho khách hàng.</p><h3>Yêu cầu</h3><ul><li>Tốt nghiệp Cao đẳng/Đại học chuyên ngành Tài chính, Ngân hàng, Bảo hiểm</li><li>Nhanh nhẹn, cẩn thận, trung thực</li><li>Kỹ năng đàm phán tốt</li></ul><h3>Quyền lợi</h3><ul><li>Lương cơ bản + Thưởng doanh số dịch vụ liên kết (10,000,000 - 18,000,000 VNĐ)</li><li>Được làm việc trực tiếp với đối tác ngân hàng lớn</li></ul>'
+                ]
+            ],
+            [
+                'position' => 6,
+                'quantity' => 2,
+                'expected_time' => now()->addDays(30),
+                'published_at' => now(),
+                'vi' => [
+                    'title' => 'Kỹ thuật viên đồng sơn nhanh',
+                    'slug' => 'ky-thuat-vien-dong-son-nhanh',
+                    'working_position' => 'Kỹ thuật viên',
+                    'work_address' => 'Xưởng dịch vụ Ford - Long Thành, Đồng Nai',
+                    'working_time' => 'Thứ 2 - Thứ 7: 8:00 - 17:30',
+                    'description' => 'Thực hiện các công việc gò hàn, phục hồi thân vỏ và sơn sấy nhanh theo tiêu chuẩn kỹ thuật.',
+                    'content' => '<h2>Mô tả công việc</h2><p>Đảm bảo chất lượng thân vỏ xe sau sửa chữa đạt độ thẩm mỹ cao nhất.</p><h3>Yêu cầu</h3><ul><li>Có kinh nghiệm gò sơn ô tô từ 1 năm trở lên</li><li>Chịu khó, tỉ mỉ, có trách nhiệm với công việc</li></ul><h3>Quyền lợi</h3><ul><li>Thu nhập theo tay nghề và năng suất sản phẩm (15,000,000 - 22,000,000 VNĐ)</li><li>Trang bị đầy đủ đồ bảo hộ lao động cao cấp</li></ul>'
+                ]
+            ],
+            [
+                'position' => 7,
+                'quantity' => 2,
+                'expected_time' => now()->addDays(20),
+                'published_at' => now(),
+                'vi' => [
+                    'title' => 'Nhân viên chăm sóc khách hàng (Call Center)',
+                    'slug' => 'nhan-vien-cham-soc-khach-hang-call-center',
+                    'working_position' => 'Chăm sóc khách hàng',
+                    'work_address' => 'TP. Biên Hòa, Đồng Nai',
+                    'working_time' => 'Thứ 2 - Thứ 6: 8:00 - 17:00, Thứ 7: 8:00 - 12:00',
+                    'description' => 'Gọi điện khảo sát sự hài lòng sau mua xe/dịch vụ, nhắc lịch bảo dưỡng định kỳ cho khách hàng.',
+                    'content' => '<h2>Mô tả công việc</h2><p>Duy trì mối quan hệ tốt đẹp giữa khách hàng và đại lý.</p><h3>Yêu cầu</h3><ul><li>Giọng nói truyền cảm, dễ nghe (không nói ngọng, nói lắp)</li><li>Kỹ năng lắng nghe và xử lý tình huống qua điện thoại tốt</li><li>Sử dụng máy tính văn phòng cơ bản</li></ul><h3>Quyền lợi</h3><ul><li>Lương cứng + Thưởng khảo sát hài lòng (8,000,000 - 12,000,000 VNĐ)</li><li>Nghỉ chiều Thứ 7 và ngày Chủ Nhật</li></ul>'
+                ]
+            ],
         ];
 
         foreach ($jobs as $jobData) {

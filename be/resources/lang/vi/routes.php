@@ -8,7 +8,7 @@ return [
     'about-us' => 'gioi-thieu',
     'histories' => 'cot-moc-phat-trien',
     'services' => 'dich-vu',
-    'posts' => 'thi-truong-dau-tu',
+    'posts' => 'tin-tuc',
     'jobs' => 'tuyen-dung',
     'policies' => 'chinh-sach',
     'search' => 'tim-kiem',

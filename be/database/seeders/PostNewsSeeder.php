@@ -17,6 +17,7 @@ class PostNewsSeeder extends Seeder
             ['vi' => ['title' => 'Xe Ford', 'slug' => 'xe-ford'], 'en' => ['title' => 'Ford Vehicles', 'slug' => 'ford-vehicles']],
             ['vi' => ['title' => 'Khuyến Mãi', 'slug' => 'khuyen-mai'], 'en' => ['title' => 'Promotions', 'slug' => 'promotions']],
             ['vi' => ['title' => 'Hướng dẫn', 'slug' => 'huong-dan'], 'en' => ['title' => 'Guides', 'slug' => 'guides']],
+            ['vi' => ['title' => 'Thư viện Media', 'slug' => 'thu-vien-media'], 'en' => ['title' => 'Media Library', 'slug' => 'media-library']],
         ];
 
         $createdCategories = [];
@@ -137,6 +138,96 @@ class PostNewsSeeder extends Seeder
                     'slug' => 'dong-nai-ford-chuong-trinh-lai-xe-an-toan',
                     'description' => 'Chương trình Hướng dẫn Lái xe An toàn và Thân thiện với Môi trường (DSFL) do Ford Việt Nam phối hợp cùng Đồng Nai Ford tổ chức thu hút hơn 200 học viên tham gia.',
                     'content' => '<h2>Trang bị kiến thức và kỹ năng thực tế</h2><p>Chương trình tập trung huấn luyện các kỹ năng thiết thực như: nhận diện nguy hiểm từ xa, kiểm soát lái trong các tình huống trơn trượt, lái xe tiết kiệm nhiên liệu.</p>'
+                ]
+            ],
+            [
+                'image' => ['path' => 'https://images.unsplash.com/photo-1506015391300-4802dc74de2e?auto=format&fit=crop&q=80&w=800'],
+                'published_at' => now()->subDays(6),
+                'is_featured' => false,
+                'type' => 'MEDIA',
+                'category_ids' => [5],
+                'tag_ids' => [],
+                'vi' => [
+                    'title' => 'Tư thế ngồi lái & Cách chỉnh gương chiếu hậu đúng chuẩn',
+                    'slug' => 'dsfl-sit-correctly',
+                    'author' => 'NnUj3yK3Bic',
+                    'description' => 'Chuyên gia Ford hướng dẫn cách căn chỉnh vị trí ngồi, độ cao ghế và góc gương chiếu hậu để có tầm quan sát tối đa, tránh điểm mù và giảm mệt mỏi.',
+                    'content' => '<p>Chuyên gia Ford hướng dẫn cách căn chỉnh vị trí ngồi, độ cao ghế và góc gương chiếu hậu để có tầm quan sát tối đa, tránh điểm mù và giảm mệt mỏi.</p>'
+                ]
+            ],
+            [
+                'image' => ['path' => 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&q=80&w=800'],
+                'published_at' => now()->subDays(5),
+                'is_featured' => false,
+                'type' => 'MEDIA',
+                'category_ids' => [5],
+                'tag_ids' => [],
+                'vi' => [
+                    'title' => 'Kỹ thuật cầm vô lăng và kiểm soát hướng lái an toàn',
+                    'slug' => 'dsfl-steering-technique',
+                    'author' => 'nJsnHwV3nsw',
+                    'description' => 'Hướng dẫn tư thế cầm vô lăng chuẩn 9:15, kỹ thuật quay vô lăng chéo tay (hand-over-hand) và trả lái mượt mà khi di chuyển qua các góc cua hẹp.',
+                    'content' => '<p>Hướng dẫn tư thế cầm vô lăng chuẩn 9:15, kỹ thuật quay vô lăng chéo tay (hand-over-hand) và trả lái mượt mà khi di chuyển qua các góc cua hẹp.</p>'
+                ]
+            ],
+            [
+                'image' => ['path' => 'https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&q=80&w=800'],
+                'published_at' => now()->subDays(4),
+                'is_featured' => false,
+                'type' => 'MEDIA',
+                'category_ids' => [5],
+                'tag_ids' => [],
+                'vi' => [
+                    'title' => 'Kiểm tra kỹ thuật xe toàn diện trước khi khởi hành',
+                    'slug' => 'dsfl-precheck-vehicle',
+                    'author' => 'Vd_Q4lR8rAw',
+                    'description' => 'Các bước kiểm tra nhanh lốp xe, nước làm mát, dầu động cơ và hệ thống đèn tín hiệu để đảm bảo an toàn tuyệt đối trước mỗi chuyến đi xa.',
+                    'content' => '<p>Các bước kiểm tra nhanh lốp xe, nước làm mát, dầu động cơ và hệ thống đèn tín hiệu để đảm bảo an toàn tuyệt đối trước mỗi chuyến đi xa.</p>'
+                ]
+            ],
+            [
+                'image' => ['path' => 'https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&q=80&w=800'],
+                'published_at' => now()->subDays(3),
+                'is_featured' => false,
+                'type' => 'MEDIA',
+                'category_ids' => [5],
+                'tag_ids' => [],
+                'vi' => [
+                    'title' => 'Kỹ năng lái xe số tự động an toàn & tiết kiệm nhiên liệu',
+                    'slug' => 'dsfl-automatic-transmission',
+                    'author' => 'Zp9kK8K71lE',
+                    'description' => 'Tìm hiểu nguyên lý hoạt động của hộp số tự động và kỹ thuật sử dụng chân phanh/ga đúng cách giúp xe vận hành trơn tru và tối ưu hóa mức tiêu hao.',
+                    'content' => '<p>Tìm hiểu nguyên lý hoạt động của hộp số tự động và kỹ thuật sử dụng chân phanh/ga đúng cách giúp xe vận hành trơn tru và tối ưu hóa mức tiêu hao.</p>'
+                ]
+            ],
+            [
+                'image' => ['path' => 'https://images.unsplash.com/photo-1502877338535-766e1452684a?auto=format&fit=crop&q=80&w=800'],
+                'published_at' => now()->subDays(2),
+                'is_featured' => false,
+                'type' => 'MEDIA',
+                'category_ids' => [5],
+                'tag_ids' => [],
+                'vi' => [
+                    'title' => 'Kỹ thuật phanh khẩn cấp & Sự hỗ trợ từ hệ thống ABS',
+                    'slug' => 'dsfl-emergency-braking',
+                    'author' => 'Y-i03cpx8L4',
+                    'description' => 'Cách xử lý phanh khẩn cấp trong các tình huống bất ngờ, hiểu rõ cơ chế hoạt động của hệ thống phanh chống bó cứng ABS để duy trì kiểm soát lái.',
+                    'content' => '<p>Cách xử lý phanh khẩn cấp trong các tình huống bất ngờ, hiểu rõ cơ chế hoạt động của hệ thống phanh chống bó cứng ABS để duy trì kiểm soát lái.</p>'
+                ]
+            ],
+            [
+                'image' => ['path' => 'https://images.unsplash.com/photo-1511919884226-fd3cad34687c?auto=format&fit=crop&q=80&w=800'],
+                'published_at' => now()->subDays(1),
+                'is_featured' => false,
+                'type' => 'MEDIA',
+                'category_ids' => [5],
+                'tag_ids' => [],
+                'vi' => [
+                    'title' => 'Kinh nghiệm lái xe ban đêm & Xử lý đèn pha/cốt',
+                    'slug' => 'dsfl-night-driving',
+                    'author' => 'aFzI25q-P10',
+                    'description' => 'Các nguyên tắc an toàn khi di chuyển trong bóng tối, cách sử dụng đèn chiếu xa/gần đúng luật để không gây chói mắt xe ngược chiều mà vẫn đảm bảo tầm nhìn.',
+                    'content' => '<p>Các nguyên tắc an toàn khi di chuyển trong bóng tối, cách sử dụng đèn chiếu xa/gần đúng luật để không gây chói mắt xe ngược chiều mà vẫn đảm bảo tầm nhìn.</p>'
                 ]
             ],
         ];

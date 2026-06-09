@@ -25,7 +25,7 @@ export default function BookingBanner() {
                 <span>1800 55 68 58</span>
               </a>
               <Link
-                href="/contact?reason=Đặt hẹn dịch vụ"
+                href="/lien-he?reason=Đặt hẹn dịch vụ"
                 className="flex items-center justify-center gap-2 bg-transparent hover:bg-white/10 border border-white transition-colors text-white font-bold px-6 py-3 rounded-full text-base"
               >
                 <Bookmark className="w-5 h-5" />

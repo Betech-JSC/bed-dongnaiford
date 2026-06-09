@@ -37,6 +37,7 @@ class Accessory extends BaseModel
     ];
 
     protected $fillable = [
+        'brand_id',
         'code',
         'price',
         'image',
@@ -57,6 +58,7 @@ class Accessory extends BaseModel
     {
         $base = [
             'vi.title'   => 'required|string|max:255',
+            'brand_id'   => 'nullable|integer|exists:brands,id',
             'code'       => 'nullable|string|max:50',
             'price'      => 'nullable|numeric|min:0',
             'image'      => 'nullable|array',
@@ -158,6 +160,11 @@ class Accessory extends BaseModel
         );
     }
 
+    public function brand()
+    {
+        return $this->belongsTo(\App\Models\Brand\Brand::class, 'brand_id');
+    }
+
     public function getCategoryNameAttribute(): string
     {
         return $this->categories->pluck('title')->implode(', ');
@@ -175,7 +182,11 @@ class Accessory extends BaseModel
             foreach ($this->translations as $translation) {
                 $slug = $translation->seo_slug ?? $translation->slug;
                 if ($slug) {
-                    $urls[strtoupper($translation->locale)] = '/accessories/' . $slug;
+                    if ($translation->locale === 'vi') {
+                        $urls['VI'] = '/phu-kien/' . $slug;
+                    } else {
+                        $urls[strtoupper($translation->locale)] = '/accessories/' . $slug;
+                    }
                 }
             }
         }
@@ -215,6 +226,7 @@ class Accessory extends BaseModel
                 'title' => $item->title,
             ]),
             'category_name' => $this->category_name,
+            'brand'         => $this->brand ? $this->brand->transform() : null,
             'price'         => $this->price,
             'description'   => $this->description,
             'image'         => $this->getImageDetail($this->image ?? []),

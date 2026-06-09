@@ -15,7 +15,7 @@ class Vehicle extends BaseModel
     public $translationModel = VehicleTranslation::class;
     public $translationForeignKey = 'vehicle_id';
     public $with = ['translations'];
-    protected $appends = ['url'];
+    protected $appends = ['url', 'image_url'];
 
     public $translatedAttributes = [
         'title',
@@ -44,6 +44,7 @@ class Vehicle extends BaseModel
         'image_360_internal_url',
         'status',
         'sort_order',
+        'layout_blocks',
     ];
 
     protected $casts = [
@@ -135,6 +136,16 @@ class Vehicle extends BaseModel
     }
 
     public function getImages360ExternalAttribute($value): ?array
+    {
+        return $this->decodeJsonField($value);
+    }
+
+    public function setLayoutBlocksAttribute($value): void
+    {
+        $this->attributes['layout_blocks'] = $this->encodeJsonField($value);
+    }
+
+    public function getLayoutBlocksAttribute($value): ?array
     {
         return $this->decodeJsonField($value);
     }

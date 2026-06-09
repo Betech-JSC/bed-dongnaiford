@@ -143,6 +143,18 @@
                         },
                     }" />
 
+                    <Field v-model="form.brand_id" :field="{
+                        type: 'select_single',
+                        name: 'brand_id',
+                        label: 'Thương hiệu sản xuất',
+                        labelBy: 'title',
+                        source: {
+                            model: 'App\\Models\\Brand\\Brand',
+                            method: 'get',
+                            only: ['id', 'title'],
+                        },
+                    }" />
+
                     <Field v-model="form.code" :field="{
                         type: 'text',
                         name: 'code',
@@ -198,6 +210,7 @@ export default {
                 sort_order: 0,
                 price: 0,
                 code: '',
+                brand_id: item.brand_id ? item.brand_id.toString() : null,
                 categories: [],
                 image: null,
                 images: [],

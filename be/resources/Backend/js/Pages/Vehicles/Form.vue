@@ -118,6 +118,143 @@
                 </div>
             </div>
 
+            <!-- Phiên bản & Thông số kỹ thuật -->
+            <div class="card mt-4">
+                <div class="card-header font-bold text-gray-700">Phiên bản & Thông số kỹ thuật (Versions & Specs)</div>
+                <div class="card-body">
+                    <div v-for="(version, index) in form.versions" :key="index" class="border rounded p-4 mb-4 relative bg-gray-50">
+                        <button type="button" class="absolute top-2 right-2 text-red-500 text-sm font-semibold hover:underline" @click="removeVersion(index)">✕ Xóa phiên bản</button>
+                        <p class="font-bold text-gray-700 mb-3 text-lg">Phiên bản #{{ index + 1 }}</p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                            <!-- Tên phiên bản bằng Tiếng Việt -->
+                            <Field v-model="form.versions[index].vi.name" :field="{
+                                type: 'text',
+                                name: 'version_name_vi_' + index,
+                                label: 'Tên phiên bản (🇻🇳 Tiếng Việt)',
+                                placeholder: 'vd: Titanium 1.5L AT',
+                            }" />
+                            
+                            <!-- Tên phiên bản bằng Tiếng Anh -->
+                            <Field v-model="form.versions[index].en.name" :field="{
+                                type: 'text',
+                                name: 'version_name_en_' + index,
+                                label: 'Tên phiên bản (🇬🇧 English)',
+                                placeholder: 'vd: Titanium 1.5L AT',
+                            }" />
+
+                            <!-- Giá phiên bản -->
+                            <Field v-model="form.versions[index].price" :field="{
+                                type: 'number',
+                                name: 'version_price_' + index,
+                                label: 'Giá bán (VNĐ)',
+                            }" />
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <!-- Trạng thái hoạt động -->
+                            <Field v-model="form.versions[index].status" :field="{
+                                type: 'radio_list',
+                                name: 'version_status_' + index,
+                                label: 'Trạng thái phiên bản',
+                                options: [
+                                    { id: 'ACTIVE', label: 'Hoạt động' },
+                                    { id: 'INACTIVE', label: 'Tạm ẩn' },
+                                ]
+                            }" />
+
+                            <!-- Thứ tự hiển thị -->
+                            <Field v-model="form.versions[index].sort_order" :field="{
+                                type: 'number',
+                                name: 'version_sort_' + index,
+                                label: 'Thứ tự sắp xếp',
+                            }" />
+                        </div>
+
+                        <!-- 8 Thông số kỹ thuật chi tiết -->
+                        <div class="border-t pt-3 mt-3">
+                            <p class="text-sm font-bold text-primary-700 mb-3 uppercase">Thông số kỹ thuật chi tiết (Specs)</p>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                <Field v-model="form.versions[index].specs.engine" :field="{
+                                    type: 'text',
+                                    name: 'version_spec_engine_' + index,
+                                    label: 'Động cơ',
+                                    placeholder: 'vd: 1.5L Ecoboost Xăng tăng áp',
+                                }" />
+                                
+                                <Field v-model="form.versions[index].specs.power" :field="{
+                                    type: 'text',
+                                    name: 'version_spec_power_' + index,
+                                    label: 'Công suất cực đại',
+                                    placeholder: 'vd: 160 Hp @ 5400-5700 rpm',
+                                }" />
+
+                                <Field v-model="form.versions[index].specs.torque" :field="{
+                                    type: 'text',
+                                    name: 'version_spec_torque_' + index,
+                                    label: 'Mô-men xoắn cực đại',
+                                    placeholder: 'vd: 248 Nm @ 1500-3000 rpm',
+                                }" />
+
+                                <Field v-model="form.versions[index].specs.transmission" :field="{
+                                    type: 'text',
+                                    name: 'version_spec_transmission_' + index,
+                                    label: 'Hộp số',
+                                    placeholder: 'vd: Tự động 7 cấp ly hợp kép',
+                                }" />
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-3">
+                                <Field v-model="form.versions[index].specs.drivetrain" :field="{
+                                    type: 'text',
+                                    name: 'version_spec_drivetrain_' + index,
+                                    label: 'Hệ dẫn động',
+                                    placeholder: 'vd: Cầu trước (FWD)',
+                                }" />
+
+                                <Field v-model="form.versions[index].specs.dimensions" :field="{
+                                    type: 'text',
+                                    name: 'version_spec_dimensions_' + index,
+                                    label: 'Kích thước (DxRxC)',
+                                    placeholder: 'vd: 4.630 x 1.935 x 1.706 mm',
+                                }" />
+
+                                <Field v-model="form.versions[index].specs.clearance" :field="{
+                                    type: 'text',
+                                    name: 'version_spec_clearance_' + index,
+                                    label: 'Khoảng sáng gầm',
+                                    placeholder: 'vd: 190 mm',
+                                }" />
+
+                                <Field v-model="form.versions[index].specs.fuelEconomy" :field="{
+                                    type: 'text',
+                                    name: 'version_spec_fuel_economy_' + index,
+                                    label: 'Tiêu hao nhiên liệu',
+                                    placeholder: 'vd: 7.0 L/100km',
+                                }" />
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div v-if="!form.versions || form.versions.length === 0" class="text-sm text-gray-400 italic mb-3">
+                        Chưa có phiên bản nào cho dòng xe này.
+                    </div>
+                    
+                    <button type="button" class="btn btn-secondary btn-sm" @click="addVersion">
+                        + Thêm phiên bản xe
+                    </button>
+                </div>
+            </div>
+
+            <!-- Page Builder Blocks -->
+            <div class="card mt-4">
+                <div class="card-header font-bold text-gray-700">Trình dựng trang Page Builder</div>
+                <div class="card-body">
+                    <BlockEditor v-model="form.layout_blocks" />
+                </div>
+            </div>
+
             <!-- SEO Settings -->
             <SeoFields :modelValue="form[currentTab]" @update:modelValue="form[currentTab] = $event" />
 
@@ -214,8 +351,11 @@ export default {
                 colors: [],
                 images_360_external: [],
                 image_360_internal_url: '',
+                versions: [],
+                layout_blocks: [],
                 ...item,
             }
+            data.layout_blocks = data.layout_blocks || []
             
             // Convert boolean is_best_seller to integer for radio_list
             if (typeof data.is_best_seller === 'boolean') {
@@ -249,6 +389,39 @@ export default {
                     seo_schemas:          trans?.seo_schemas          ?? '',
                 }
             })
+
+            // Parse existing versions with locales & default empty specs
+            data.versions = (data.versions || []).map(ver => {
+                const verData = {
+                    id: ver.id,
+                    price: ver.price ?? 0,
+                    status: ver.status ?? 'ACTIVE',
+                    sort_order: ver.sort_order ?? 0,
+                    specs: {
+                        engine: ver.specs?.engine ?? '',
+                        power: ver.specs?.power ?? '',
+                        torque: ver.specs?.torque ?? '',
+                        transmission: ver.specs?.transmission ?? '',
+                        drivetrain: ver.specs?.drivetrain ?? '',
+                        dimensions: ver.specs?.dimensions ?? '',
+                        clearance: ver.specs?.clearance ?? '',
+                        fuelEconomy: ver.specs?.fuelEconomy ?? '',
+                        ...(ver.specs || {})
+                    }
+                }
+                locales.forEach(loc => {
+                    let trans = null
+                    if (ver.translations && Array.isArray(ver.translations)) {
+                        trans = ver.translations.find(t => t.locale === loc)
+                    }
+                    const fallback = loc === 'vi' ? ver : {}
+                    verData[loc] = {
+                        name: trans?.name ?? fallback.name ?? ''
+                    }
+                })
+                return verData
+            })
+
             return data
         },
 
@@ -260,6 +433,33 @@ export default {
         removeColor(index) {
             if (this.formData.colors) {
                 this.formData.colors.splice(index, 1)
+            }
+        },
+
+        addVersion() {
+            if (!this.formData.versions) this.formData.versions = []
+            this.formData.versions.push({
+                price: 0,
+                status: 'ACTIVE',
+                sort_order: this.formData.versions.length + 1,
+                specs: {
+                    engine: '',
+                    power: '',
+                    torque: '',
+                    transmission: '',
+                    drivetrain: '',
+                    dimensions: '',
+                    clearance: '',
+                    fuelEconomy: ''
+                },
+                vi: { name: '' },
+                en: { name: '' }
+            })
+        },
+
+        removeVersion(index) {
+            if (this.formData.versions) {
+                this.formData.versions.splice(index, 1)
             }
         },
     },

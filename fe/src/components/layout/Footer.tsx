@@ -48,18 +48,18 @@ export default function Footer() {
               </h4>
               <ul className="space-y-2.5 text-xs text-white/70">
                 <li>
-                  <Link href="/#showroom" className="hover:text-[#0562d2] transition-colors block">
+                  <Link href="/san-pham" className="hover:text-[#0562d2] transition-colors block">
+                    Tất cả dòng xe
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/san-pham" className="hover:text-[#0562d2] transition-colors block">
                     Xe SUV
                   </Link>
                 </li>
                 <li>
-                  <Link href="/#showroom" className="hover:text-[#0562d2] transition-colors block">
+                  <Link href="/san-pham" className="hover:text-[#0562d2] transition-colors block">
                     Xe Thương Mại
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/#showroom" className="hover:text-[#0562d2] transition-colors block">
-                    Xe Bán Chạy
                   </Link>
                 </li>
               </ul>
@@ -72,28 +72,57 @@ export default function Footer() {
               </h4>
               <ul className="space-y-2.5 text-xs text-white/70">
                 <li>
-                  <Link href="/services/customer-care" className="hover:text-[#0562d2] transition-colors block">
+                  <Link href="/dich-vu/cham-soc-khach-hang" className="hover:text-[#0562d2] transition-colors block">
                     Chăm sóc khách hàng
                   </Link>
                 </li>
                 <li>
-                  <Link href="/services/express-maintenance" className="hover:text-[#0562d2] transition-colors block">
+                  <Link href="/dich-vu/bao-duong-nhanh" className="hover:text-[#0562d2] transition-colors block">
                     Bảo dưỡng nhanh
                   </Link>
                 </li>
                 <li>
-                  <Link href="/services/periodic-maintenance" className="hover:text-[#0562d2] transition-colors block">
+                  <Link href="/dich-vu/bao-duong-dinh-ky" className="hover:text-[#0562d2] transition-colors block">
                     Bảo dưỡng định kỳ
                   </Link>
                 </li>
                 <li>
-                  <Link href="/services/pickup-delivery" className="hover:text-[#0562d2] transition-colors block">
+                  <Link href="/dich-vu/giao-nhan-xe-tan-noi" className="hover:text-[#0562d2] transition-colors block">
                     Nhận & Giao xe tận nơi
                   </Link>
                 </li>
                 <li>
-                  <Link href="/accessories" className="hover:text-[#0562d2] transition-colors block">
+                  <Link href="/phu-kien" className="hover:text-[#0562d2] transition-colors block">
                     Phụ kiện & Phụ tùng chính hãng
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {/* CÔNG CỤ HỖ TRỢ */}
+            <div className="space-y-4">
+              <h4 className="text-sm font-bold tracking-wider text-white uppercase font-display border-b border-white/10 pb-2">
+                CÔNG CỤ HỖ TRỢ
+              </h4>
+              <ul className="space-y-2.5 text-xs text-white/70">
+                <li>
+                  <Link href="/bang-gia" className="hover:text-[#0562d2] transition-colors block">
+                    Bảng giá xe Ford
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/cong-cu/uoc-tinh-lan-banh" className="hover:text-[#0562d2] transition-colors block">
+                    Ước tính lăn bánh
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/cong-cu/uoc-tinh-tra-gop" className="hover:text-[#0562d2] transition-colors block">
+                    Ước tính trả góp
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/cong-cu/so-sanh-xe" className="hover:text-[#0562d2] transition-colors block">
+                    So sánh xe
                   </Link>
                 </li>
               </ul>
@@ -124,17 +153,17 @@ export default function Footer() {
               </h4>
               <ul className="space-y-2.5 text-xs text-white/70">
                 <li>
-                  <Link href="/about" className="hover:text-[#0562d2] transition-colors block">
+                  <Link href="/gioi-thieu" className="hover:text-[#0562d2] transition-colors block">
                     Giới thiệu công ty
                   </Link>
                 </li>
                 <li>
-                  <Link href="/about#recruitment" className="hover:text-[#0562d2] transition-colors block">
+                  <Link href="/tuyen-dung" className="hover:text-[#0562d2] transition-colors block">
                     Tuyển dụng
                   </Link>
                 </li>
                 <li>
-                  <Link href="/contact" className="hover:text-[#0562d2] transition-colors block">
+                  <Link href="/lien-he" className="hover:text-[#0562d2] transition-colors block">
                     Liên hệ
                   </Link>
                 </li>
@@ -220,10 +249,10 @@ export default function Footer() {
             Copyright © 2026 Ford Đồng Nai. Tất cả quyền được bảo lưu.
           </p>
           <div className="flex gap-6">
-            <Link href="/terms" className="hover:text-white/80 transition-colors">
+            <Link href="/dieu-khoan-su-dung" className="hover:text-white/80 transition-colors">
               Điều khoản và điều kiện
             </Link>
-            <Link href="/privacy" className="hover:text-white/80 transition-colors">
+            <Link href="/chinh-sach-bao-mat" className="hover:text-white/80 transition-colors">
               Chính sách bảo mật
             </Link>
           </div>

@@ -8,6 +8,8 @@ use App\Models\Vehicle\VehicleCategory;
 use App\Models\Vehicle\CustomerReview;
 use App\Traits\HasCrudActions;
 use Illuminate\Routing\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class VehicleController extends Controller
 {
@@ -16,7 +18,7 @@ class VehicleController extends Controller
     public $model = Vehicle::class;
 
     public $with = [
-        'form' => ['category', 'translations'],
+        'form' => ['category', 'translations', 'versions', 'versions.translations'],
     ];
 
     /**
@@ -80,5 +82,53 @@ class VehicleController extends Controller
             ]);
 
         return $data;
+    }
+
+    private function afterStore($request, $resource)
+    {
+        DB::transaction(function () use ($request, $resource) {
+            $versionsData = $request->input('versions', []);
+            $keepIds = [];
+
+            foreach ($versionsData as $index => $data) {
+                $versionId = $data['id'] ?? null;
+
+                $versionPayload = [
+                    'price'      => $data['price'] ?? 0,
+                    'status'     => $data['status'] ?? 'ACTIVE',
+                    'sort_order' => $data['sort_order'] ?? ($index + 1),
+                    'specs'      => $data['specs'] ?? null,
+                ];
+
+                // Map translations for locales 'vi' and 'en'
+                foreach (['vi', 'en'] as $locale) {
+                    if (isset($data[$locale]) && is_array($data[$locale])) {
+                        $versionPayload[$locale] = [
+                            'name' => $data[$locale]['name'] ?? null,
+                        ];
+                    } elseif (isset($data['translations']) && is_array($data['translations'])) {
+                        $translation = collect($data['translations'])->firstWhere('locale', $locale);
+                        if ($translation) {
+                            $versionPayload[$locale] = [
+                                'name' => $translation['name'] ?? null,
+                            ];
+                        }
+                    }
+                }
+
+                if ($versionId) {
+                    $version = $resource->versions()->find($versionId);
+                    if ($version) {
+                        $version->update($versionPayload);
+                        $keepIds[] = $version->id;
+                    }
+                } else {
+                    $version = $resource->versions()->create($versionPayload);
+                    $keepIds[] = $version->id;
+                }
+            }
+
+            $resource->versions()->whereNotIn('id', $keepIds)->delete();
+        });
     }
 }

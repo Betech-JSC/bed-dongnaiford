@@ -76,6 +76,23 @@
                             {{ tt('models.setting.custom_vars') }}
                         </Link>
                     </AccordionTab>
+                    <AccordionTab :header="tt('Công cụ tính toán')">
+                        <Link
+                            class="item"
+                            :href="
+                                route('admin.settings.form', {
+                                    id: 'installment',
+                                })
+                            "
+                            :class="{
+                                active: isUrl('admin.settings.form', {
+                                    id: 'installment',
+                                }),
+                            }"
+                        >
+                            {{ tt('Lãi suất trả góp') }}
+                        </Link>
+                    </AccordionTab>
                     <AccordionTab v-if="settingBar.email" header="Email">
                         <Link
                             v-if="settingBar.smtp"

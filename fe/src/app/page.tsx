@@ -339,14 +339,14 @@ export default function Home() {
 
 
 
-  // Pre-fill form details on quick actions click - redirect to /contact
+  // Pre-fill form details on quick actions click - redirect to /lien-he
   const triggerQuickAction = (reason: string, noteText: string) => {
-    router.push(`/contact?reason=${encodeURIComponent(reason)}&note=${encodeURIComponent(noteText)}`);
+    router.push(`/lien-he?reason=${encodeURIComponent(reason)}&note=${encodeURIComponent(noteText)}`);
   };
 
-  // Pre-fill form when clicking get price - redirect to /contact
+  // Pre-fill form when clicking get price - redirect to /lien-he
   const triggerGetQuote = (vehicleId: string, vehicleName: string) => {
-    router.push(`/contact?vehicle=${encodeURIComponent(vehicleId)}&reason=${encodeURIComponent("Nhận báo giá lăn bánh")}&note=${encodeURIComponent(`Tôi cần nhận báo giá lăn bánh cho dòng xe ${vehicleName}.`)}`);
+    router.push(`/lien-he?vehicle=${encodeURIComponent(vehicleId)}&reason=${encodeURIComponent("Nhận báo giá lăn bánh")}&note=${encodeURIComponent(`Tôi cần nhận báo giá lăn bánh cho dòng xe ${vehicleName}.`)}`);
   };
 
 
@@ -426,7 +426,7 @@ export default function Home() {
               <button
                 onClick={() => {
                   if (heroSlides[activeHeroIndex]?.linkVehicleId) {
-                    router.push(`/products/${heroSlides[activeHeroIndex].linkVehicleId}`);
+                    router.push(`/san-pham/${heroSlides[activeHeroIndex].linkVehicleId}`);
                   }
                 }}
                 className="bg-transparent hover:bg-white/10 border border-white text-white px-[24px] py-[10px] rounded-full text-base font-semibold tracking-[0.16px] transition-all duration-300 cursor-pointer"
@@ -548,7 +548,7 @@ export default function Home() {
               return (
                 <Link
                   key={vehicle.id}
-                  href={`/products/${vehicleId}`}
+                  href={`/san-pham/${vehicleId}`}
                   className="bg-white border border-[#EAECF0] rounded-2xl p-6 flex flex-col justify-between hover:shadow-lg transition-all duration-300 relative group cursor-pointer h-full"
                 >
                   {/* Image Section */}
@@ -645,7 +645,7 @@ export default function Home() {
                     onClick={(e) => {
                       const target = e.target as HTMLElement;
                       if (!target.closest('a')) {
-                        router.push(`/products/${vSlug}`);
+                        router.push(`/san-pham/${vSlug}`);
                       }
                     }}
                     className="relative overflow-hidden rounded-xl h-[595px] group cursor-pointer bg-[#121824] flex-shrink-0 transition-all duration-300 block"
@@ -667,13 +667,13 @@ export default function Home() {
                       <h3 className="text-2xl md:text-3xl font-semibold text-white leading-[1.2]">{vName}</h3>
                       <div className="flex gap-3 mt-1">
                         <Link
-                          href={`/products/${vSlug}`}
+                          href={`/san-pham/${vSlug}`}
                           className="bg-[#0562D2] text-white text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-[#044ea7] transition-all duration-200"
                         >
                           Xem chi tiết
                         </Link>
                         <Link
-                          href={`/contact?vehicle=${vSlug}&reason=Báo giá`}
+                          href={`/lien-he?vehicle=${vSlug}&reason=Báo giá`}
                           className="bg-transparent border border-white text-white text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-white/10 transition-all duration-200"
                         >
                           Báo giá
@@ -756,7 +756,7 @@ export default function Home() {
 
             {/* Card 1: Chăm sóc khách hàng */}
             <Link
-              href="/services/customer-care"
+              href="/dich-vu/cham-soc-khach-hang"
               className="relative overflow-hidden rounded-xl h-[480px] group cursor-pointer bg-white block"
             >
               <Image
@@ -775,7 +775,7 @@ export default function Home() {
 
             {/* Card 2: Bảo dưỡng Xe */}
             <Link
-              href="/services/periodic-maintenance"
+              href="/dich-vu/bao-duong-dinh-ky"
               className="relative overflow-hidden rounded-xl h-[480px] group cursor-pointer bg-white block"
             >
               <Image
@@ -794,7 +794,7 @@ export default function Home() {
 
             {/* Card 3: Nhận & Giao xe */}
             <Link
-              href="/services/pickup-delivery"
+              href="/dich-vu/giao-nhan-xe-tan-noi"
               className="relative overflow-hidden rounded-xl h-[480px] group cursor-pointer bg-white block"
             >
               <Image
@@ -959,7 +959,7 @@ export default function Home() {
 
                 <button
                   onClick={() => {
-                    router.push("/news");
+                    router.push("/tin-tuc");
                   }}
                   className="w-[200px] py-2.5 bg-[#0562d2] text-white hover:bg-[#0451b0] rounded-full text-center text-sm font-semibold transition-all cursor-pointer animate-premium"
                 >
@@ -1007,7 +1007,7 @@ export default function Home() {
 
                       <div className="pt-4">
                         <Link
-                          href={`/news/${art.id}`}
+                          href={`/tin-tuc/${art.id}`}
                           className="inline-block border border-white text-white hover:bg-white hover:text-[#00095b] w-[128px] py-2 rounded-full text-center text-sm font-semibold transition-all cursor-pointer"
                         >
                           Xem chi tiết
@@ -1274,7 +1274,7 @@ export default function Home() {
 
               <div className="flex gap-6 items-start">
                 <button
-                  onClick={() => router.push("/contact")}
+                  onClick={() => router.push("/lien-he")}
                   className="bg-white border border-[#d6d6d6] text-[#424242] px-6 py-2.5 rounded-full text-base font-semibold tracking-[0.16px] shadow-sm hover:bg-gray-50 transition-colors cursor-pointer"
                 >
                   Gửi yêu cầu tư vấn

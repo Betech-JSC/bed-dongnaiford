@@ -14,7 +14,7 @@ class AccessoryController extends Controller
     public $model = Accessory::class;
 
     public $with = [
-        'form' => ['translations', 'categories'],
+        'form' => ['translations', 'categories', 'brand'],
     ];
 
     /**
@@ -46,7 +46,7 @@ class AccessoryController extends Controller
     private function beforeIndex($query)
     {
         return $query
-            ->with(['translations', 'categories'])
+            ->with(['translations', 'categories', 'brand'])
             ->orderBy('id', 'DESC');
     }
 }

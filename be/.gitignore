@@ -17,3 +17,10 @@ yarn-error.log
 /.vscode
 .DS_Store
 config.bat
+
+# Uploaded files
+/public/uploads/
+
+# Backups
+/resources/Frontend.bak/
+/vite.frontend.config.js.bak

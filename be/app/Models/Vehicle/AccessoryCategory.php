@@ -64,7 +64,11 @@ class AccessoryCategory extends BaseModel
         $urls = [];
         if ($this->status === self::STATUS_ACTIVE) {
             foreach ($this->translations as $translation) {
-                $urls[strtoupper($translation->locale)] = '/accessory-categories/' . ($translation->seo_slug ?? $translation->slug);
+                if ($translation->locale === 'vi') {
+                    $urls['VI'] = '/danh-muc-phu-kien/' . ($translation->seo_slug ?? $translation->slug);
+                } else {
+                    $urls[strtoupper($translation->locale)] = '/accessory-categories/' . ($translation->seo_slug ?? $translation->slug);
+                }
             }
         }
         return $urls;

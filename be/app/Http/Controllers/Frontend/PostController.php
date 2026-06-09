@@ -16,8 +16,9 @@ class PostController extends Controller
     public function index()
     {
         try {
+            $type = request()->query('type', Post::TYPE_POST);
             $posts = Post::query()
-                ->where('type', Post::TYPE_POST)
+                ->where('type', $type)
                 ->active()
                 ->filter(request()->all())
                 ->paginate(9)

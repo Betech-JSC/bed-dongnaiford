@@ -3,9 +3,14 @@
 namespace App\Models\Vehicle;
 
 use App\Models\BaseModel;
+use App\Traits\Sluggable;
 
 class AccessoryCategoryTranslation extends BaseModel
 {
+    use Sluggable;
+
+    public $slugAttribute = 'title';
+
     protected $table = 'accessory_category_translations';
     
     public $timestamps = false;

@@ -1,14 +1,13 @@
 {
     "private": true,
     "scripts": {
-        "dev": "vite --config vite.frontend.config.js",
-        "frontend:build": "vite build --config vite.frontend.config.js && vite build --ssr --config vite.frontend.config.js",
-        "route": "php artisan vue-i18n:generate && php artisan ziggy:generate public/build/ziggy.frontend.js --group=frontend",
+        "dev": "vite --config vite.backend.config.ts",
+        "route": "php artisan vue-i18n:generate",
         "backend": "vite --config vite.backend.config.ts",
         "backend:build": "vite build --config vite.backend.config.ts",
         "start": "node bootstrap/ssr/ssr.mjs",
-        "heroku-postbuild": "php artisan migrate:fresh --seed --force && yarn && yarn route && yarn frontend:build && yarn backend:build",
-        "build": "yarn && yarn route && yarn frontend:build && yarn backend:build",
+        "heroku-postbuild": "php artisan migrate:fresh --seed --force && yarn && php artisan vue-i18n:generate && yarn backend:build",
+        "build": "yarn && php artisan vue-i18n:generate && yarn backend:build",
         "setup": "sh setup.sh",
         "fix": "prettier --write '**/*.{js,vue,scss}'",
         "fresh": "php artisan migrate:fresh --seed",

@@ -33,7 +33,19 @@ return [
         'partners' => 'Partners',
         'sales-consultants' => 'Sales Consultants',
         'dealer-activities' => 'Dealer Activities',
-        'awards' => 'Awards'
+        'awards' => 'Awards',
+        'chat-sessions' => 'AI Chat History',
+        'ChatSessions' => 'AI Chat History',
+    ],
+    'chat-sessions' => [
+        'id' => 'ID',
+        'session_id' => 'Session ID',
+        'lead_score' => 'Lead Rating',
+        'interested_vehicle' => 'Interested Vehicle',
+        'contact_info' => 'Contact Info',
+        'notified' => 'Notified Sales',
+        'created_at' => 'Started At',
+        'updated_at' => 'Last Updated',
     ],
     'posts' => [
         'type' => [

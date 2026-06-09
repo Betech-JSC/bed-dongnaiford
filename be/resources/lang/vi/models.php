@@ -69,6 +69,8 @@ return [
         'accessories' => 'Phụ kiện',
         'accessory-categories' => 'Danh mục phụ kiện',
         'accessory_categories' => 'Danh mục phụ kiện',
+        'chat-sessions' => 'Lịch sử Chat AI',
+        'ChatSessions' => 'Lịch sử Chat AI',
 
     ],
     'common' => [
@@ -221,5 +223,15 @@ return [
         'confirm_message'  => 'Thông tin chưa được lưu. Bạn có thực sự muốn thoát trang?',
         'trashed_message1' => 'Bản ghi này đã bị xóa vào lúc',
         'trashed_message2' => 'Nhấn vào đây để khôi phục.',
+    ],
+    'chat-sessions' => [
+        'id' => 'ID',
+        'session_id' => 'Mã phiên',
+        'lead_score' => 'Phân loại Lead',
+        'interested_vehicle' => 'Dòng xe quan tâm',
+        'contact_info' => 'Thông tin liên hệ',
+        'notified' => 'Đã báo Sales',
+        'created_at' => 'Ngày bắt đầu',
+        'updated_at' => 'Cập nhật cuối',
     ]
 ];

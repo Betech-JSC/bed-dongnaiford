@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             VehicleTestSeeder::class,
             PostNewsSeeder::class,
             ServiceAgencyJobSeeder::class,
+            AccessoryAndBrandSeeder::class,
         ]);
     }
 }

@@ -11,6 +11,8 @@ use App\Http\Controllers\Api\CustomerReviewController;
 use App\Http\Controllers\Api\BannerController;
 use App\Http\Controllers\Api\PartnerController;
 use App\Http\Controllers\Api\SalesConsultantController;
+use App\Http\Controllers\Api\ChatController;
+use App\Http\Controllers\Api\AccessoryController;
 
 Route::localized(function () {
     Route::controller(ProductController::class)->group(function () {
@@ -44,11 +46,38 @@ Route::localized(function () {
 
         // Chi tiết xe (Đặt ở dưới cùng để tránh tranh chấp wildcard {slug})
         Route::get('{slug}', [VehicleController::class, 'show'])->name('show');
+        Route::put('{slug}/layout', [VehicleController::class, 'updateLayout'])->name('updateLayout');
+    });
+
+    Route::prefix('accessories')->name('api.accessories.')->group(function () {
+        Route::get('/', [AccessoryController::class, 'index'])->name('index');
+        Route::get('{slug}', [AccessoryController::class, 'show'])->name('show');
     });
 
     Route::post('contacts', [App\Http\Controllers\Frontend\ContactController::class, 'store'])->name('api.contacts.store');
     Route::get('posts', [\App\Http\Controllers\Frontend\PostController::class, 'index'])->name('api.posts');
     Route::get('posts/{slug}', [\App\Http\Controllers\Frontend\PostController::class, 'show'])->name('api.posts.show');
+    Route::get('jobs', [\App\Http\Controllers\Frontend\JobController::class, 'index'])->name('api.jobs');
+    Route::get('jobs/{slug}', [\App\Http\Controllers\Frontend\JobController::class, 'show'])->name('api.jobs.show');
+
+    // AI Chatbot
+    Route::post('ai/chat', [ChatController::class, 'chat'])->name('api.ai.chat');
+
+    // Tải ảnh trực tiếp từ FrontEnd Page Builder
+    Route::post('upload', [VehicleController::class, 'uploadImage'])->name('api.upload');
+
+    // Lấy cấu hình lãi suất trả góp cho frontend
+    Route::get('settings/installment', function () {
+        $installmentSettings = settings()->group('installment')->all();
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'rate_year_1' => (float) ($installmentSettings['installment_rate_year_1'] ?? 8.5),
+                'rate_subsequent' => (float) ($installmentSettings['installment_rate_subsequent'] ?? 11.0),
+            ],
+            'message' => 'OK'
+        ]);
+    })->name('api.settings.installment');
 });
 
 Route::get('keywords/index', [KeywordController::class, 'index'])

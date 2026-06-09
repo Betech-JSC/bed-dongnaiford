@@ -12,6 +12,11 @@ export interface AccessoryItem {
   compatibilityText?: string;
   safetyText?: string;
   productDescText?: string;
+  brand?: {
+    id: number;
+    title: string;
+    slug: string;
+  } | null;
 }
 
 export const accessoriesData: AccessoryItem[] = [

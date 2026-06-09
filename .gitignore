@@ -53,3 +53,10 @@ fe/build/
 *.njsproj
 *.sln
 *.sw?
+
+# Uploaded files
+be/public/uploads/
+
+# Backups
+be/resources/Frontend.bak/
+be/vite.frontend.config.js.bak

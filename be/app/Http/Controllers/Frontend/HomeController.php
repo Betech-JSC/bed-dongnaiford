@@ -172,7 +172,7 @@ class HomeController extends Controller
                 return response()->json($data);
             }
 
-            return Inertia::render('Home', $data);
+            return view('home_cms');
         } catch (\Throwable $th) {
             dd($th);
         }

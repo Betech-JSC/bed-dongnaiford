@@ -24,6 +24,7 @@ class Post extends BaseModel
     public const TYPE_POST = 'POST';
     public const TYPE_FEEDBACK = 'FEEDBACK';
     public const TYPE_CERTIFICATE = 'CERTIFICATE';
+    public const TYPE_MEDIA = 'MEDIA';
 
     public const STATUS_LIST = [
         self::STATUS_ACTIVE => 'Kích hoạt',
@@ -256,6 +257,7 @@ class Post extends BaseModel
             'id' => $this->id,
             'title' => $this->title,
             'slug' => $this->seo_slug ?? $this->slug,
+            'author' => $this->author,
             'published_at' => $this->published_at,
             'description' => $this->description,
             'content' => transform_richtext($this->content),

@@ -22,15 +22,11 @@ echo "🖥️  [Backend] Khởi động php artisan serve..."
 # Đợi 1 giây để Laravel server khởi tạo cổng trước
 sleep 1
 
-# 2. Khởi động Laravel Inertia Vue Compiler cho trang Client (Vite)
-echo "🎨 [Inertia Client] Khởi động Vite (yarn dev)..."
+# 2. Khởi động Laravel Inertia Vue Compiler cho trang Admin (Vite)
+echo "⚙️  [Inertia Admin] Khởi động Vite Backend (yarn dev)..."
 (cd be && yarn dev) &
 
-# 3. Khởi động Laravel Inertia Vue Compiler cho trang Admin (Vite)
-echo "⚙️  [Inertia Admin] Khởi động Vite Backend (yarn backend)..."
-(cd be && yarn backend) &
-
-# 4. Khởi động Next.js Frontend (Next dev)
+# 3. Khởi động Next.js Frontend (Next dev)
 echo "🌐 [Next.js FE] Khởi động Next.js dev server..."
 (cd fe && npm run dev) &
 

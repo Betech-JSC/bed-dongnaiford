@@ -158,6 +158,36 @@ export interface APIProduct {
   stock_quantity?: number;
 }
 
+export interface APIBrand {
+  id: number;
+  slug: string;
+  url: Record<string, string>;
+  title: string;
+  image?: {
+    url?: string | null;
+    alt?: string;
+  };
+}
+
+export interface APIAccessory {
+  id: number;
+  title: string;
+  slug: string;
+  code: string;
+  categories: { id: number; title: string }[];
+  category_name: string;
+  brand?: APIBrand | null;
+  price: string; // decimal from backend
+  description?: string;
+  image?: { url: string | null; alt?: string };
+  images?: { url: string | null; alt?: string }[];
+  fit_vehicles?: string[];
+  features?: string[];
+  compatibility_text?: string;
+  safety_text?: string;
+  product_desc_text?: string;
+}
+
 /**
  * Post/News types
  */

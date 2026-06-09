@@ -3,6 +3,7 @@ import Form from '@Core/Components/Form/Form.vue'
 import FormDynamic from '@Core/Components/Form/FormDynamic.vue'
 import Input from '@Core/Components/Form/Input.vue'
 import SeoFields from '@Core/Components/Form/SeoFields.vue'
+import BlockEditor from './Components/Form/Custom/BlockEditor.vue'
 
 import Table from '@Core/Components/Table.vue'
 import AuthenticatedLayout from '@/Layouts/Authenticated.vue'
@@ -78,6 +79,7 @@ createInertiaApp({
             .component('Table', Table)
             .component('Link', Link)
             .component('Head', Head)
+            .component('BlockEditor', BlockEditor)
 
             .mixin({
                 methods: {

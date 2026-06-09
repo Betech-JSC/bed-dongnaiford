@@ -3,9 +3,14 @@
 namespace App\Models\Vehicle;
 
 use App\Models\BaseModel;
+use App\Traits\Sluggable;
 
 class VehicleTranslation extends BaseModel
 {
+    use Sluggable;
+
+    public $slugAttribute = 'title';
+
     protected $table = 'vehicle_translations';
 
     public $timestamps = false;

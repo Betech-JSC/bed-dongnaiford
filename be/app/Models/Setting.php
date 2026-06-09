@@ -55,6 +55,10 @@ class Setting extends Model
             ],
             'custom_vars' => [
                 'custom_vars'  => 'nullable',
+            ],
+            'installment' => [
+                'installment_rate_year_1' => 'required|numeric|min:0|max:30',
+                'installment_rate_subsequent' => 'required|numeric|min:0|max:30',
             ]
         ][$id] ?? [];
     }

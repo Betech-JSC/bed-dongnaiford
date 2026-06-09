@@ -3,9 +3,11 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { MapPin, Mail, Phone, Menu, X, Search, ChevronDown, ChevronRight } from "lucide-react";
 import { vehicles } from "@/data/vehicles";
+import { vehiclesAPI, accessoriesAPI } from "@/lib/api";
+import { accessoriesData } from "@/data/accessories";
 
 type DropdownItem = {
   name: string;
@@ -21,12 +23,18 @@ type NavLink = {
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
   const [activeSection, setActiveSection] = useState("");
 
   const [isProductHovered, setIsProductHovered] = useState(false);
-  const [activeTab, setActiveTab] = useState<"suv" | "commercial">("suv");
+  const [activeTab, setActiveTab] = useState<string>("suv");
   const [isMobileProductOpen, setIsMobileProductOpen] = useState(false);
-  const [mobileActiveTab, setMobileActiveTab] = useState<"suv" | "commercial" | null>(null);
+  const [mobileActiveTab, setMobileActiveTab] = useState<string | null>(null);
+
+  const [categoriesList, setCategoriesList] = useState<any[]>([]);
+  const [vehiclesList, setVehiclesList] = useState<any[]>([]);
+  const [accessoriesList, setAccessoriesList] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -61,12 +69,147 @@ export default function Navbar() {
     };
   }, []);
 
+  // Fetch Category, Vehicle & Accessories data from API
+  useEffect(() => {
+    let active = true;
+    const fetchMenuData = async () => {
+      try {
+        const [catsData, vehsData, accsData] = await Promise.all([
+          vehiclesAPI.getCategories().catch(() => null),
+          vehiclesAPI.getAll().catch(() => null),
+          accessoriesAPI.getAll({ limit: 6 }).catch(() => null),
+        ]);
+        
+        if (!active) return;
+        
+        const cats = (catsData as any)?.data || catsData;
+        const vehs = (vehsData as any)?.data || vehsData;
+        const accs = (accsData as any)?.data || accsData;
+
+        if (Array.isArray(cats) && cats.length > 0) {
+          setCategoriesList(cats);
+        }
+        if (Array.isArray(vehs) && vehs.length > 0) {
+          setVehiclesList(vehs);
+        }
+        if (Array.isArray(accs) && accs.length > 0) {
+          setAccessoriesList(accs);
+        }
+      } catch (err) {
+        console.error("Error fetching menu categories/vehicles/accessories:", err);
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+    fetchMenuData();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  // Set active tab to first dynamic category once loaded
+  useEffect(() => {
+    if (categoriesList.length > 0) {
+      setActiveTab(categoriesList[0].slug);
+    }
+  }, [categoriesList]);
+
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("en-US").format(price) + "đ";
   };
 
-  const getCarData = (id: string) => {
-    const vehicle = vehicles.find((v) => v.id === id);
+  // Helper to resolve banner styling & content for any category slug/title
+  const getBannerConfig = (slug: string, title: string) => {
+    const cleanSlug = slug.toLowerCase();
+    if (cleanSlug.includes("suv")) {
+      return {
+        bannerTitle: "Khám phá các dòng xe SUV của Ford",
+        bannerDesc: "Mạnh mẽ, thông minh, sẵn sàng cho mọi hành trình gia đình",
+        bannerBg: "bg-gradient-to-r from-[#00095B] via-[#02337A] to-[#0562D2]"
+      };
+    }
+    if (cleanSlug.includes("ban-tai") || cleanSlug.includes("raptor") || cleanSlug.includes("pick")) {
+      return {
+        bannerTitle: "Khám phá các dòng xe bán tải của Ford",
+        bannerDesc: "Vua bán tải địa hình mạnh mẽ, sẵn sàng chinh phục mọi thử thách",
+        bannerBg: "bg-gradient-to-r from-[#ea580c] via-[#b8380a] to-[#7c2d12]"
+      };
+    }
+    if (cleanSlug.includes("commercial") || cleanSlug.includes("thuong-mai") || cleanSlug.includes("transit")) {
+      return {
+        bannerTitle: "Khám phá các dòng xe thương mại của Ford",
+        bannerDesc: "Bền bỉ, hiệu quả, tối ưu hóa lợi ích kinh doanh của doanh nghiệp",
+        bannerBg: "bg-gradient-to-r from-[#1A1A1A] via-[#2D2D2D] to-[#404040]"
+      };
+    }
+    // General fallback
+    return {
+      bannerTitle: `Khám phá các dòng xe ${title} của Ford`,
+      bannerDesc: "Sự kết hợp hoàn hảo giữa công nghệ hiện đại và khả năng vận hành mạnh mẽ",
+      bannerBg: "bg-gradient-to-r from-[#00095B] via-[#02337A] to-[#0562D2]"
+    };
+  };
+
+  const staticCategories = [
+    {
+      id: "suv",
+      name: "Xe SUV",
+      bannerTitle: "Khám phá các dòng xe SUV của Ford",
+      bannerDesc: "Mạnh mẽ, thông minh, sẵn sàng cho mọi hành trình gia đình",
+      bannerBg: "bg-gradient-to-r from-[#00095B] via-[#02337A] to-[#0562D2]",
+      cars: [
+        { id: "new-territory", displayName: "TERRITORY" },
+        { id: "new-everest", displayName: "FORD EVEREST" },
+        { id: "new-mustang-mach-e", displayName: "FORD MUSTANG MACH-E" },
+      ],
+    },
+    {
+      id: "commercial",
+      name: "Xe thương mại",
+      bannerTitle: "Khám phá các dòng xe thương mại của Ford",
+      bannerDesc: "Bền bỉ, hiệu quả, tối ưu hóa lợi ích kinh doanh",
+      bannerBg: "bg-gradient-to-r from-[#1A1A1A] via-[#2D2D2D] to-[#404040]",
+      cars: [
+        { id: "ranger-raptor-669", displayName: "NEW RANGER" },
+        { id: "ford-transit-2024", displayName: "FORD TRANSIT" },
+        { id: "new-raptor", displayName: "FORD RAPTOR" },
+      ],
+    },
+  ];
+
+  const dynamicCategories = categoriesList.map((cat) => {
+    const banner = getBannerConfig(cat.slug, cat.title);
+    
+    // Filter vehicles belonging to this category
+    const catVehicles = vehiclesList
+      .filter((v) => v.category_id === cat.id)
+      .map((v) => ({
+        id: v.slug || v.id,
+        displayName: v.title || v.name,
+        price: formatPrice(typeof v.base_price === 'string' ? parseFloat(v.base_price) : (v.base_price || v.basePrice || 0)),
+        image: v.image_url || v.images?.[0] || "",
+      }));
+
+    return {
+      id: cat.slug,
+      name: cat.title.startsWith("Xe") ? cat.title : `Xe ${cat.title}`,
+      bannerTitle: banner.bannerTitle,
+      bannerDesc: banner.bannerDesc,
+      bannerBg: banner.bannerBg,
+      cars: catVehicles,
+    };
+  });
+
+  const finalCategories = dynamicCategories.length > 0 ? dynamicCategories : staticCategories;
+
+  const getCarDisplayData = (car: { id: string; displayName: string; price?: string; image?: string }) => {
+    if (car.price && car.image) {
+      return {
+        price: car.price,
+        image: car.image,
+      };
+    }
+    const vehicle = vehicles.find((v) => v.id === car.id);
     if (!vehicle) {
       return {
         price: "Đang cập nhật",
@@ -79,81 +222,59 @@ export default function Navbar() {
     };
   };
 
-  const productCategories = {
-    suv: {
-      id: "suv",
-      name: "Xe SUV",
-      bannerTitle: "Khám phá các dòng xe SUV của Ford",
-      bannerDesc: "Mạnh mẽ, thông minh, sẵn sàng cho mọi hành trình gia đình",
-      bannerBg: "bg-gradient-to-r from-[#00095B] via-[#02337A] to-[#0562D2]",
-      cars: [
-        { id: "new-territory", displayName: "TERRITORY" },
-        { id: "new-everest", displayName: "FORD EVEREST" },
-        { id: "new-mustang-mach-e", displayName: "FORD MUSTANG MACH-E" },
-      ],
-    },
-    commercial: {
-      id: "commercial",
-      name: "Xe thương mại",
-      bannerTitle: "Khám phá các dòng xe thương mại của Ford",
-      bannerDesc: "Bền bỉ, hiệu quả, tối ưu hóa lợi ích kinh doanh",
-      bannerBg: "bg-gradient-to-r from-[#1A1A1A] via-[#2D2D2D] to-[#404040]",
-      cars: [
-        { id: "ranger-raptor-669", displayName: "NEW RANGER" },
-        { id: "ford-transit-2024", displayName: "FORD TRANSIT" },
-        { id: "new-raptor", displayName: "FORD RAPTOR" },
-      ],
-    },
-  };
-
   const navLinks: NavLink[] = [
     {
       name: "Giới thiệu",
-      href: "/about",
+      href: "/gioi-thieu",
       dropdownItems: [
-        { name: "Câu chuyện Ford Đồng Nai", href: "/about#our-story" },
-        { name: "Ban giám đốc & Nhân sự", href: "/about#board-of-directors" },
-        { name: "Cơ sở vật chất & Showroom", href: "/about#facilities" },
+        { name: "Câu chuyện Ford Đồng Nai", href: "/gioi-thieu#our-story" },
+        { name: "Ban giám đốc & Nhân sự", href: "/gioi-thieu#board-of-directors" },
+        { name: "Cơ sở vật chất & Showroom", href: "/gioi-thieu#facilities" },
       ],
     },
     {
       name: "Sản phẩm",
-      href: "/#showroom",
+      href: "/san-pham",
       dropdownItems: [
-        { name: "Ford Everest Thế hệ mới", href: "/#showroom" },
-        { name: "Ford Explorer Đẳng cấp", href: "/#showroom" },
-        { name: "Ford Territory Hiện đại", href: "/#showroom" },
-        { name: "Ford Ranger Vua bán tải", href: "/#showroom" },
-        { name: "Ford Transit Thương mại", href: "/#showroom" },
-        { name: "Phụ kiện chính hãng", href: "/accessories" },
+        { name: "Tất cả dòng xe", href: "/san-pham" },
+        { name: "Ford Territory", href: "/san-pham/new-territory" },
+        { name: "Ford Everest", href: "/san-pham/new-everest" },
+        { name: "Ford Ranger", href: "/san-pham/ranger-raptor-669" },
+        { name: "Ford Raptor", href: "/san-pham/new-raptor" },
+        { name: "Ford Transit", href: "/san-pham/ford-transit-2024" },
+        { name: "Phụ kiện chính hãng", href: "/phu-kien" },
       ],
     },
     {
       name: "Dịch vụ",
-      href: "/services/customer-care",
+      href: "/dich-vu/cham-soc-khach-hang",
       dropdownItems: [
-        { name: "Chăm sóc khách hàng", href: "/services/customer-care" },
-        { name: "Bảo dưỡng nhanh 60 phút", href: "/services/express-maintenance" },
-        { name: "Bảo dưỡng định kỳ", href: "/services/periodic-maintenance" },
-        { name: "Nhận & Giao xe tận nơi", href: "/services/pickup-delivery" },
+        { name: "Chăm sóc khách hàng", href: "/dich-vu/cham-soc-khach-hang" },
+        { name: "Bảo dưỡng nhanh 60 phút", href: "/dich-vu/bao-duong-nhanh" },
+        { name: "Bảo dưỡng định kỳ", href: "/dich-vu/bao-duong-dinh-ky" },
+        { name: "Nhận & Giao xe tận nơi", href: "/dich-vu/giao-nhan-xe-tan-noi" },
       ],
     },
     {
       name: "Bài viết",
-      href: "/news",
+      href: "/tin-tuc",
       dropdownItems: [
-        { name: "Tin tức & Ưu đãi", href: "/news" },
-        { name: "Thư viện Media", href: "/media" },
+        { name: "Tin tức & Ưu đãi", href: "/tin-tuc" },
+        { name: "Thư viện Media", href: "/thu-vien-media" },
       ],
     },
     {
       name: "Công cụ",
-      href: "/tools/installment",
+      href: "/bang-gia",
       dropdownItems: [
-        { name: "Ước tính trả góp", href: "/tools/installment" },
+        { name: "Bảng giá xe Ford", href: "/bang-gia" },
+        { name: "Ước tính lăn bánh", href: "/cong-cu/uoc-tinh-lan-banh" },
+        { name: "Ước tính trả góp", href: "/cong-cu/uoc-tinh-tra-gop" },
+        { name: "So sánh xe", href: "/cong-cu/so-sanh-xe" },
       ],
     },
-    { name: "Liên hệ", href: "/contact" },
+    { name: "Tuyển dụng", href: "/tuyen-dung" },
+    { name: "Liên hệ", href: "/lien-he" },
   ];
 
   useEffect(() => {
@@ -254,9 +375,10 @@ export default function Navbar() {
           <div className="hidden md:flex items-stretch gap-8 h-full">
             {navLinks.map((link) => {
               const sectionId = link.href.includes("#") ? link.href.split("#")[1] : "";
-              const isActive = pathname === "/contact"
-                ? link.href === "/contact"
-                : pathname === "/" && sectionId && activeSection === sectionId;
+              const isCurrentPath = pathname === link.href || 
+                (link.href !== "/" && pathname.startsWith(link.href)) ||
+                (link.dropdownItems?.some(item => pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href))) ?? false);
+              const isActive = isCurrentPath || (pathname === "/" && sectionId && activeSection === sectionId);
               
               const hasDropdown = !!link.dropdownItems;
 
@@ -332,18 +454,18 @@ export default function Navbar() {
 
           {/* Search Icon & Call to Action */}
           <div className="hidden md:flex items-center gap-4">
-            <Link href="/search" className="p-2 text-[#333333] hover:text-[#0562d2] transition-colors cursor-pointer" aria-label="Search">
+            <Link href="/tim-kiem" className="p-2 text-[#333333] hover:text-[#0562d2] transition-colors cursor-pointer" aria-label="Search">
               <Search className="w-5 h-5" />
             </Link>
           </div>
 
           {/* Mobile Menu Button */}
           <div className="md:hidden flex items-center gap-3">
-            <Link href="/search" className="p-2 text-[#333333] hover:text-[#0562d2] transition-colors cursor-pointer" aria-label="Search">
+            <Link href="/tim-kiem" className="p-2 text-[#333333] hover:text-[#0562d2] transition-colors cursor-pointer" aria-label="Search">
               <Search className="w-5 h-5" />
             </Link>
             <Link
-              href="/contact?reason=Đăng ký lái thử"
+              href="/lien-he?reason=Đăng ký lái thử"
               className="btn-ford-primary text-xs py-1.5 px-3 uppercase tracking-wider font-bold"
             >
               Lái Thử
@@ -359,111 +481,213 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* Products Mega Menu Dropdown */}
       <div 
-        className={`absolute top-full left-0 w-full bg-white border-t border-b border-gray-200 shadow-xl transition-all duration-300 z-50 overflow-hidden
-          ${isProductHovered ? "opacity-100 visible translate-y-0" : "opacity-0 invisible -translate-y-2 pointer-events-none"}`}
+        className={`absolute top-full left-0 w-full bg-white border-t border-b border-gray-200 shadow-xl transition-all duration-500 ease-in-out z-50 overflow-hidden
+          ${isProductHovered 
+            ? "max-h-[600px] opacity-100 visible translate-y-0" 
+            : "max-h-0 opacity-0 invisible -translate-y-2 pointer-events-none"}`}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
         <div className="max-w-[1440px] mx-auto px-4 xl:px-[128px] py-8 grid grid-cols-4 gap-8">
           {/* Left Category Sidebar */}
-          <div className="col-span-1 border-r border-gray-100 pr-6 flex flex-col gap-3">
-            <button
-              onClick={() => setActiveTab("suv")}
-              onMouseEnter={() => setActiveTab("suv")}
-              className={`flex items-center justify-between px-4 py-3 rounded-lg font-['Ford_Antenna',sans-serif] font-bold text-sm tracking-wider uppercase transition-all duration-200 text-left cursor-pointer
-                ${activeTab === "suv" 
-                  ? "text-[#0562D2] bg-blue-50/50 border-l-4 border-[#0562D2] pl-3" 
-                  : "text-[#333333] hover:text-[#0562D2] hover:bg-gray-50 border-l-4 border-transparent"}`}
-            >
-              <span>Xe SUV</span>
-              <ChevronRight className={`w-4 h-4 transition-transform duration-200 ${activeTab === "suv" ? "translate-x-1" : ""}`} />
-            </button>
-            <button
-              onClick={() => setActiveTab("commercial")}
-              onMouseEnter={() => setActiveTab("commercial")}
-              className={`flex items-center justify-between px-4 py-3 rounded-lg font-['Ford_Antenna',sans-serif] font-bold text-sm tracking-wider uppercase transition-all duration-200 text-left cursor-pointer
-                ${activeTab === "commercial" 
-                  ? "text-[#0562D2] bg-blue-50/50 border-l-4 border-[#0562D2] pl-3" 
-                  : "text-[#333333] hover:text-[#0562D2] hover:bg-gray-50 border-l-4 border-transparent"}`}
-            >
-              <span>Xe thương mại</span>
-              <ChevronRight className={`w-4 h-4 transition-transform duration-200 ${activeTab === "commercial" ? "translate-x-1" : ""}`} />
-            </button>
+          <div className="col-span-1 border-r border-gray-100 pr-6 flex flex-col gap-3 text-left">
+            {finalCategories.map((cat) => {
+              const isActive = activeTab === cat.id;
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => {
+                    router.push(`/san-pham?category=${cat.id}`);
+                    setIsProductHovered(false);
+                  }}
+                  onMouseEnter={() => setActiveTab(cat.id)}
+                  className={`flex items-center justify-between px-4 py-3 rounded-lg font-['Ford_Antenna',sans-serif] font-bold text-sm tracking-wider uppercase transition-all duration-200 text-left cursor-pointer
+                    ${isActive 
+                      ? "text-[#0562D2] bg-blue-50/50 border-l-4 border-[#0562D2] pl-3" 
+                      : "text-[#333333] hover:text-[#0562D2] hover:bg-gray-50 border-l-4 border-transparent"}`}
+                >
+                  <span>{cat.name}</span>
+                  <ChevronRight className={`w-4 h-4 transition-transform duration-200 ${isActive ? "translate-x-1" : ""}`} />
+                </button>
+              );
+            })}
             <div className="h-px bg-gray-100 my-1" />
-            <Link
-              href="/accessories"
-              onClick={handleMouseLeaveImmediate}
-              className="flex items-center justify-between px-4 py-3 rounded-lg font-['Ford_Antenna',sans-serif] font-bold text-sm tracking-wider uppercase transition-all duration-200 text-left text-[#333333] hover:text-[#0562D2] hover:bg-gray-50 border-l-4 border-transparent cursor-pointer"
-            >
-              <span>Phụ kiện chính hãng</span>
-              <ChevronRight className="w-4 h-4" />
-            </Link>
+            
+            {/* Phụ kiện chính hãng tab button */}
+            {(() => {
+              const isActive = activeTab === "phu-kien";
+              return (
+                <button
+                  onClick={() => {
+                    router.push("/phu-kien");
+                    setIsProductHovered(false);
+                  }}
+                  onMouseEnter={() => setActiveTab("phu-kien")}
+                  className={`flex items-center justify-between px-4 py-3 rounded-lg font-['Ford_Antenna',sans-serif] font-bold text-sm tracking-wider uppercase transition-all duration-200 text-left cursor-pointer
+                    ${isActive 
+                      ? "text-[#0562D2] bg-blue-50/50 border-l-4 border-[#0562D2] pl-3" 
+                      : "text-[#333333] hover:text-[#0562D2] hover:bg-gray-50 border-l-4 border-transparent"}`}
+                >
+                  <span>Phụ kiện chính hãng</span>
+                  <ChevronRight className={`w-4 h-4 transition-transform duration-200 ${isActive ? "translate-x-1" : ""}`} />
+                </button>
+              );
+            })()}
           </div>
 
           {/* Right Product Showcase Panel */}
-          <div className="col-span-3 flex flex-col gap-6">
-            {/* Banner Card */}
-            <div className={`p-6 rounded-xl text-white flex justify-between items-center ${productCategories[activeTab].bannerBg}`}>
-              <div className="space-y-1">
-                <h4 className="font-['Ford_Antenna',sans-serif] font-bold text-lg">
-                  {productCategories[activeTab].bannerTitle}
-                </h4>
-                <p className="text-xs text-white/80 font-medium">
-                  {productCategories[activeTab].bannerDesc}
-                </p>
-              </div>
-              <Link
-                href="/contact?reason=Báo giá"
-                onClick={handleMouseLeaveImmediate}
-                className="bg-white text-gray-900 hover:bg-gray-100 transition-colors px-5 py-2.5 rounded-full text-xs font-bold font-['Ford_Antenna',sans-serif] flex items-center gap-1.5 shrink-0"
-              >
-                <span>Chọn xe & Báo giá</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-
-            {/* Vehicle Grid */}
-            <div className="grid grid-cols-3 gap-6">
-              {productCategories[activeTab].cars.map((car) => {
-                const carData = getCarData(car.id);
-                return (
-                  <Link
-                    key={car.id}
-                    href={`/products/${car.id}`}
-                    onClick={handleMouseLeaveImmediate}
-                    className="group border border-gray-100 hover:border-blue-200 rounded-xl p-4 flex flex-col items-center bg-gray-50/30 hover:bg-white hover:shadow-lg transition-all duration-300 text-center"
-                  >
-                    {/* Vehicle Image Container */}
-                    <div className="w-full h-32 relative mb-3 overflow-hidden">
-                      {carData.image ? (
-                        <Image
-                          src={carData.image}
-                          alt={car.displayName}
-                          fill
-                          sizes="(max-width: 1024px) 30vw, 20vw"
-                          className="object-contain object-center group-hover:scale-105 transition-transform duration-500"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gray-100 rounded-lg text-xs text-gray-400">
-                          Hình ảnh đang cập nhật
-                        </div>
-                      )}
+          {(() => {
+            if (activeTab === "phu-kien") {
+              const displayAccessories = accessoriesList.length > 0 
+                ? accessoriesList.slice(0, 3) 
+                : accessoriesData.slice(0, 3);
+                
+              return (
+                <div className="col-span-3 flex flex-col gap-6">
+                  {/* Banner Card */}
+                  <div className="p-6 rounded-xl text-white flex justify-between items-center bg-gradient-to-r from-[#00095B] via-[#02337A] to-[#0562D2]">
+                    <div className="space-y-1 text-left">
+                      <h4 className="font-['Ford_Antenna',sans-serif] font-bold text-lg">
+                        Phụ kiện chính hãng Ford
+                      </h4>
+                      <p className="text-xs text-white/80 font-medium">
+                        Nâng tầm phong cách, bảo vệ tối ưu và gia tăng tiện ích cho xe của bạn
+                      </p>
                     </div>
-                    {/* Vehicle Title */}
-                    <h5 className="font-['Ford_Antenna',sans-serif] font-bold text-sm text-gray-900 group-hover:text-[#0562D2] transition-colors mb-1">
-                      {car.displayName}
-                    </h5>
-                    {/* Vehicle Starting Price */}
-                    <p className="text-xs text-gray-500 font-medium">
-                      Giá khởi điểm: <span className="text-[#0562D2] font-bold">{carData.price}</span>
+                    <Link
+                      href="/phu-kien"
+                      onClick={handleMouseLeaveImmediate}
+                      className="bg-white text-gray-900 hover:bg-gray-100 transition-colors px-5 py-2.5 rounded-full text-xs font-bold font-['Ford_Antenna',sans-serif] flex items-center gap-1.5 shrink-0"
+                    >
+                      <span>Xem tất cả phụ kiện</span>
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </Link>
+                  </div>
+
+                  {/* Accessories Grid */}
+                  <div className="grid grid-cols-3 gap-6">
+                    {displayAccessories.map((acc: any) => {
+                      const id = acc.slug || acc.id;
+                      const name = acc.title || acc.name;
+                      const price = acc.price || 0;
+                      const image = acc.image_url || acc.images?.[0] || "";
+                      
+                      return (
+                        <Link
+                          key={id}
+                          href={`/phu-kien/${id}`}
+                          onClick={handleMouseLeaveImmediate}
+                          className="group border border-gray-100 hover:border-blue-200 rounded-xl p-4 flex flex-col items-center bg-gray-50/30 hover:bg-white hover:shadow-lg transition-all duration-300 text-center"
+                        >
+                          {/* Image Container */}
+                          <div className="w-full h-32 relative mb-3 overflow-hidden rounded-lg bg-gray-100">
+                            {image ? (
+                              <Image
+                                src={image}
+                                alt={name}
+                                fill
+                                sizes="(max-width: 1024px) 30vw, 20vw"
+                                className="object-cover group-hover:scale-105 transition-transform duration-500"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center bg-gray-100 rounded-lg text-xs text-gray-400">
+                                Hình ảnh đang cập nhật
+                              </div>
+                            )}
+                          </div>
+                          {/* Title */}
+                          <h5 className="font-['Ford_Antenna',sans-serif] font-bold text-xs text-gray-900 group-hover:text-[#0562D2] transition-colors mb-1 line-clamp-1 w-full">
+                            {name}
+                          </h5>
+                          {/* Category */}
+                          <p className="text-[9px] text-gray-400 mb-1">
+                            {acc.categoryName || "Phụ kiện"}
+                          </p>
+                          {/* Price */}
+                          <p className="text-[11px] text-gray-550 font-medium">
+                            Giá bán: <span className="text-[#0562D2] font-bold">{formatPrice(price)}</span>
+                          </p>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            }
+
+            const activeCategory = finalCategories.find(cat => cat.id === activeTab) || finalCategories[0];
+            if (!activeCategory) return null;
+            
+            return (
+              <div className="col-span-3 flex flex-col gap-6 text-left">
+                {/* Banner Card */}
+                <div className={`p-6 rounded-xl text-white flex justify-between items-center ${activeCategory.bannerBg}`}>
+                  <div className="space-y-1">
+                    <h4 className="font-['Ford_Antenna',sans-serif] font-bold text-lg">
+                      {activeCategory.bannerTitle}
+                    </h4>
+                    <p className="text-xs text-white/80 font-medium">
+                      {activeCategory.bannerDesc}
                     </p>
+                  </div>
+                  <Link
+                    href="/lien-he?reason=Báo giá"
+                    onClick={handleMouseLeaveImmediate}
+                    className="bg-white text-gray-900 hover:bg-gray-100 transition-colors px-5 py-2.5 rounded-full text-xs font-bold font-['Ford_Antenna',sans-serif] flex items-center gap-1.5 shrink-0"
+                  >
+                    <span>Chọn xe & Báo giá</span>
+                    <ChevronRight className="w-3.5 h-3.5" />
                   </Link>
-                );
-              })}
-            </div>
-          </div>
+                </div>
+
+                {/* Vehicle Grid */}
+                <div className="grid grid-cols-3 gap-6">
+                  {activeCategory.cars.map((car) => {
+                    const carData = getCarDisplayData(car);
+                    return (
+                      <Link
+                        key={car.id}
+                        href={`/san-pham/${car.id}`}
+                        onClick={handleMouseLeaveImmediate}
+                        className="group border border-gray-100 hover:border-blue-200 rounded-xl p-4 flex flex-col items-center bg-gray-50/30 hover:bg-white hover:shadow-lg transition-all duration-300 text-center"
+                      >
+                        {/* Vehicle Image Container */}
+                        <div className="w-full h-32 relative mb-3 overflow-hidden">
+                          {carData.image ? (
+                            <Image
+                              src={carData.image}
+                              alt={car.displayName}
+                              fill
+                              sizes="(max-width: 1024px) 30vw, 20vw"
+                              className="object-contain object-center group-hover:scale-105 transition-transform duration-500"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-gray-100 rounded-lg text-xs text-gray-400">
+                              Hình ảnh đang cập nhật
+                            </div>
+                          )}
+                        </div>
+                        {/* Vehicle Title */}
+                        <h5 className="font-['Ford_Antenna',sans-serif] font-bold text-sm text-gray-900 group-hover:text-[#0562D2] transition-colors mb-1">
+                          {car.displayName}
+                        </h5>
+                        {/* Vehicle Starting Price */}
+                        <p className="text-xs text-gray-500 font-medium">
+                          Giá khởi điểm: <span className="text-[#0562D2] font-bold">{carData.price}</span>
+                        </p>
+                      </Link>
+                    );
+                  })}
+                  {activeCategory.cars.length === 0 && (
+                    <div className="col-span-3 py-12 text-center text-gray-400 text-sm">
+                      Hiện chưa có xe nào trong danh mục này.
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })()}
         </div>
       </div>
 
@@ -484,75 +708,95 @@ export default function Navbar() {
                   
                   {isMobileProductOpen && (
                     <div className="pl-4 border-l border-gray-100 flex flex-col gap-2 py-1">
-                      {/* SUV Category */}
-                      <div className="space-y-1">
-                        <button
-                          onClick={() => setMobileActiveTab(mobileActiveTab === "suv" ? null : "suv")}
-                          className="w-full flex items-center justify-between px-2 py-1.5 text-sm font-semibold text-gray-700 hover:text-[#0562D2] hover:bg-gray-50 rounded text-left"
-                        >
-                          <span>Xe SUV</span>
-                          <ChevronDown className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-200 ${mobileActiveTab === "suv" ? "rotate-180 text-[#0562D2]" : ""}`} />
-                        </button>
-                        {mobileActiveTab === "suv" && (
-                          <div className="pl-4 flex flex-col gap-1 py-1">
-                            {productCategories.suv.cars.map((car) => (
-                              <Link
-                                key={car.id}
-                                href={`/products/${car.id}`}
-                                onClick={() => {
-                                  setIsOpen(false);
-                                  setIsMobileProductOpen(false);
-                                }}
-                                className="block px-2 py-1.5 text-xs font-medium text-gray-550 hover:text-[#0562D2] hover:bg-gray-50 rounded"
-                              >
-                                {car.displayName}
-                              </Link>
-                            ))}
+                      {finalCategories.map((cat) => {
+                        const isSubOpen = mobileActiveTab === cat.id;
+                        return (
+                          <div key={cat.id} className="space-y-1">
+                            <button
+                              onClick={() => setMobileActiveTab(isSubOpen ? null : cat.id)}
+                              className="w-full flex items-center justify-between px-2 py-1.5 text-sm font-semibold text-gray-700 hover:text-[#0562D2] hover:bg-gray-50 rounded text-left cursor-pointer"
+                            >
+                              <span>{cat.name}</span>
+                              <ChevronDown className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-200 ${isSubOpen ? "rotate-180 text-[#0562D2]" : ""}`} />
+                            </button>
+                            {isSubOpen && (
+                              <div className="pl-4 flex flex-col gap-1 py-1">
+                                {cat.cars.map((car) => (
+                                  <Link
+                                    key={car.id}
+                                    href={`/san-pham/${car.id}`}
+                                    onClick={() => {
+                                      setIsOpen(false);
+                                      setIsMobileProductOpen(false);
+                                    }}
+                                    className="block px-2 py-1.5 text-xs font-medium text-gray-550 hover:text-[#0562D2] hover:bg-gray-50 rounded"
+                                  >
+                                    {car.displayName}
+                                  </Link>
+                                ))}
+                                {cat.cars.length === 0 && (
+                                  <div className="px-2 py-1.5 text-xs text-gray-400 italic">
+                                    Chưa có xe
+                                  </div>
+                                )}
+                              </div>
+                            )}
                           </div>
-                        )}
-                      </div>
-
-                      {/* Commercial Category */}
-                      <div className="space-y-1">
-                        <button
-                          onClick={() => setMobileActiveTab(mobileActiveTab === "commercial" ? null : "commercial")}
-                          className="w-full flex items-center justify-between px-2 py-1.5 text-sm font-semibold text-gray-700 hover:text-[#0562D2] hover:bg-gray-50 rounded text-left cursor-pointer"
-                        >
-                          <span>Xe thương mại</span>
-                          <ChevronDown className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-200 ${mobileActiveTab === "commercial" ? "rotate-180 text-[#0562D2]" : ""}`} />
-                        </button>
-                        {mobileActiveTab === "commercial" && (
-                          <div className="pl-4 flex flex-col gap-1 py-1">
-                            {productCategories.commercial.cars.map((car) => (
-                              <Link
-                                key={car.id}
-                                href={`/products/${car.id}`}
-                                onClick={() => {
-                                  setIsOpen(false);
-                                  setIsMobileProductOpen(false);
-                                }}
-                                className="block px-2 py-1.5 text-xs font-medium text-gray-550 hover:text-[#0562D2] hover:bg-gray-50 rounded"
-                              >
-                                {car.displayName}
-                              </Link>
-                            ))}
-                          </div>
-                        )}
-                      </div>
+                        );
+                      })}
 
                       <div className="h-px bg-gray-100 my-1" />
                       
-                      {/* Accessories Link */}
-                      <Link
-                        href="/accessories"
-                        onClick={() => {
-                          setIsOpen(false);
-                          setIsMobileProductOpen(false);
-                        }}
-                        className="block px-2 py-1.5 text-sm font-semibold text-gray-700 hover:text-[#0562D2] hover:bg-gray-50 rounded text-left cursor-pointer"
-                      >
-                        Phụ kiện chính hãng
-                      </Link>
+                      {/* Accessories Collapsible Menu on Mobile Drawer */}
+                      {(() => {
+                        const isSubOpen = mobileActiveTab === "phu-kien";
+                        const displayAccessories = accessoriesList.length > 0 
+                          ? accessoriesList.slice(0, 5) 
+                          : accessoriesData.slice(0, 5);
+                          
+                        return (
+                          <div className="space-y-1">
+                            <button
+                              onClick={() => setMobileActiveTab(isSubOpen ? null : "phu-kien")}
+                              className="w-full flex items-center justify-between px-2 py-1.5 text-sm font-semibold text-gray-700 hover:text-[#0562D2] hover:bg-gray-50 rounded text-left cursor-pointer"
+                            >
+                              <span>Phụ kiện chính hãng</span>
+                              <ChevronDown className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-200 ${isSubOpen ? "rotate-180 text-[#0562D2]" : ""}`} />
+                            </button>
+                            {isSubOpen && (
+                              <div className="pl-4 flex flex-col gap-1 py-1">
+                                {displayAccessories.map((acc) => {
+                                  const accId = acc.slug || acc.id;
+                                  const accName = acc.title || acc.name;
+                                  return (
+                                    <Link
+                                      key={accId}
+                                      href={`/phu-kien/${accId}`}
+                                      onClick={() => {
+                                        setIsOpen(false);
+                                        setIsMobileProductOpen(false);
+                                      }}
+                                      className="block px-2 py-1.5 text-xs font-medium text-gray-550 hover:text-[#0562D2] hover:bg-gray-50 rounded"
+                                    >
+                                      {accName}
+                                    </Link>
+                                  );
+                                })}
+                                <Link
+                                  href="/phu-kien"
+                                  onClick={() => {
+                                    setIsOpen(false);
+                                    setIsMobileProductOpen(false);
+                                  }}
+                                  className="block px-2 py-1.5 text-xs font-bold text-[#0562D2] hover:bg-gray-50 rounded text-left"
+                                >
+                                  Xem tất cả phụ kiện →
+                                </Link>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })()}
                     </div>
                   )}
                 </div>

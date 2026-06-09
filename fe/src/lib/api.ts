@@ -43,7 +43,10 @@ async function fetchAPI<T>(endpoint: string, options?: RequestInit): Promise<T> 
  */
 export const vehiclesAPI = {
   // Get all vehicles
-  getAll: () => fetchAPI('/vehicles'),
+  getAll: (params?: Record<string, any>) => {
+    const query = params ? '?' + new URLSearchParams(params as any).toString() : '';
+    return fetchAPI<any>(`/vehicles${query}`);
+  },
   
   // Get featured vehicles
   getFeatured: () => fetchAPI('/vehicles/featured'),
@@ -53,6 +56,12 @@ export const vehiclesAPI = {
   
   // Get vehicle categories
   getCategories: () => fetchAPI('/vehicles/categories'),
+
+  // Update layout blocks
+  updateLayout: (slug: string, layoutBlocks: any[]) => fetchAPI<any>(`/vehicles/${slug}/layout`, {
+    method: 'PUT',
+    body: JSON.stringify({ layout_blocks: layoutBlocks }),
+  }),
 };
 
 /**
@@ -93,6 +102,17 @@ export const productsAPI = {
 };
 
 /**
+ * Accessories API
+ */
+export const accessoriesAPI = {
+  getAll: (params?: Record<string, any>) => {
+    const query = params ? '?' + new URLSearchParams(params as any).toString() : '';
+    return fetchAPI<any>(`/accessories${query}`);
+  },
+  getBySlug: (slug: string) => fetchAPI<any>(`/accessories/${slug}`),
+};
+
+/**
  * Posts/News API (assuming there's a posts endpoint)
  */
 export const postsAPI = {
@@ -128,16 +148,53 @@ export const agenciesAPI = {
 };
 
 /**
+ * Settings API
+ */
+export const settingsAPI = {
+  getInstallmentRates: () => fetchAPI<{ success: boolean; data: { rate_year_1: number; rate_subsequent: number } }>('/settings/installment'),
+};
+
+/**
  * Contacts API
  */
 export const contactsAPI = {
   submit: (payload: {
     contact: {
-      type: 'CONTACT_FORM' | 'ADVISE_FORM';
+      type: 'CONTACT_FORM' | 'ADVISE_FORM' | 'APPLY_FORM';
       data: Record<string, any>;
     };
   }) => fetchAPI<{ success: boolean; data: any; message?: string }>('/contacts', {
     method: 'POST',
     body: JSON.stringify(payload),
   }),
+};
+
+/**
+ * Media API for uploads
+ */
+export const mediaAPI = {
+  upload: async (file: File): Promise<{ success: boolean; path: string; url: string }> => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const url = `${API_BASE_URL}/upload`;
+    const response = await fetch(url, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'Accept': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      throw {
+        status: response.status,
+        statusText: response.statusText,
+        data: errorData,
+      };
+    }
+
+    return response.json();
+  }
 };
