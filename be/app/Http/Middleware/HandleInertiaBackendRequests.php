@@ -2,7 +2,6 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\Order;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 use Illuminate\Support\Str;
@@ -49,8 +48,6 @@ class HandleInertiaBackendRequests extends Middleware
 
         $newContact = Contact::where('status', Contact::STATUS_NEW)->get();
         $todayContact = Contact::whereDate('created_at', Carbon::today())->get();
-        $newOrder = Order::where('status', Order::STATUS_NEW)->get()->count();
-        $todayOrder = Order::whereDate('created_at', Carbon::today())->get();
 
         $totalVehicles = Vehicle::count();
         $totalPosts = Post::count();
@@ -83,9 +80,9 @@ class HandleInertiaBackendRequests extends Middleware
                 'today_contact_count' => $todayContact->where('type', 'CONTACT_FORM')->count(),
                 'today_apply_count' => $todayContact->where('type', 'APPLY_FORM')->count(),
                 'today_advise_count' => $todayContact->where('type', 'ADVISE_FORM')->count(),
-                'new_order_count' => $newOrder,
-                'today_order_count' => $todayOrder->count(),
-                'today_order_total_price' => $todayOrder->sum('total_price'),
+                'new_order_count' => 0,
+                'today_order_count' => 0,
+                'today_order_total_price' => 0,
                 'total_vehicles_count' => $totalVehicles,
                 'total_posts_count' => $totalPosts,
             ]

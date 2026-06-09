@@ -7,7 +7,6 @@ use Illuminate\Http\JsonResponse;
 use JamstackVietnam\Core\Traits\ApiResponse;
 use JamstackVietnam\Region\Models\Region;
 use App\Models\Config;
-use JamstackVietnam\Cart\Models\Order;
 
 class RegionController extends Controller
 {
@@ -82,7 +81,7 @@ class RegionController extends Controller
 
         if (request()->has('payment_method')) {
             $freeShip = $getShipping['free_shipping_vnp'];
-            if (!$freeShip || request()->input('payment_method') != Order::PAYMENT_METHOD_VNPAY) {
+            if (!$freeShip || request()->input('payment_method') != 'VNPAY') {
                 $freeShip = false;
             }
         }

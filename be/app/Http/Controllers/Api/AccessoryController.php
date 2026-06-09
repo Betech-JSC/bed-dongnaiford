@@ -20,7 +20,7 @@ class AccessoryController extends Controller
     {
         $query = Accessory::query()
             ->where('status', 'ACTIVE')
-            ->with(['translations', 'categories', 'brand'])
+            ->with(['translations', 'categories'])
             ->sortByPosition();
 
         // Filter by category (supports: interior, exterior, tech, wheels, performance, or category ID, or slug)
@@ -66,19 +66,6 @@ class AccessoryController extends Controller
             });
         }
 
-        // Filter by brand ID or slug
-        if ($brand = $request->query('brand')) {
-            if (is_numeric($brand)) {
-                $query->where('brand_id', $brand);
-            } else {
-                $query->whereHas('brand', function ($q) use ($brand) {
-                    $q->whereHas('translations', function ($t) use ($brand) {
-                        $t->where('slug', $brand)->orWhere('seo_slug', $brand);
-                    });
-                });
-            }
-        }
-
         $accessories = $query->get()->map(fn($item) => $item->transform());
 
         return $this->success($accessories);
@@ -91,7 +78,7 @@ class AccessoryController extends Controller
     {
         $query = Accessory::query()
             ->where('status', 'ACTIVE')
-            ->with(['translations', 'categories', 'brand']);
+            ->with(['translations', 'categories']);
 
         if (is_numeric($slugOrId)) {
             $accessory = $query->find($slugOrId);
