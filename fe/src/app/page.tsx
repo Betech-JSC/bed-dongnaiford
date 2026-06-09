@@ -126,18 +126,16 @@ export default function Home() {
   const [homeArticles, setHomeArticles] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [vehiclesList, setVehiclesList] = useState<any[]>([]);
-  const [popularVehicles, setPopularVehicles] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [bannersData, reviewsData, postsData, categoriesData, vehiclesData, popularData] = await Promise.all([
+        const [bannersData, reviewsData, postsData, categoriesData, vehiclesData] = await Promise.all([
           bannersAPI.getAll().catch(() => null),
           reviewsAPI.getAll().catch(() => null),
           postsAPI.getAll().catch(() => null),
           vehiclesAPI.getCategories().catch(() => null),
-          vehiclesAPI.getAll().catch(() => null),
-          vehiclesAPI.getBestSellers({ is_best_seller: true }).catch(() => null),
+          vehiclesAPI.getAll().catch(() => null)
         ]);
 
         const bannersItems = (bannersData as any)?.data || bannersData;
@@ -180,11 +178,6 @@ export default function Home() {
         if (Array.isArray(vehiclesItems)) {
           setVehiclesList(vehiclesItems);
         }
-
-        const popularItems = (popularData as any)?.data || popularData;
-        if (Array.isArray(popularItems)) {
-          setPopularVehicles(popularItems);
-        }
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -204,22 +197,22 @@ export default function Home() {
   const [isHovered, setIsHovered] = useState(false);
   const [isTestimonialInteracted, setIsTestimonialInteracted] = useState(false);
 
-  // Popular Fleet: use API data if available, fallback to static best-seller list
-  const popularVehicleList = popularVehicles.length > 0 ? popularVehicles : vehicles.filter(v => v.isBestSeller);
+  // Popular Fleet: use API data if available, fallback to static
+  const popularVehicles = vehiclesList.length > 0 ? vehiclesList : vehicles;
 
   // Popular Fleet Carousel State (Infinite Loop support)
-  const [activePopularIndex, setActivePopularIndex] = useState(popularVehicleList.length);
+  const [activePopularIndex, setActivePopularIndex] = useState(vehicles.length);
   const [isPopularTransitioning, setIsPopularTransitioning] = useState(true);
   const [isPopularHovered, setIsPopularHovered] = useState(false);
   const [isPopularInteracted, setIsPopularInteracted] = useState(false);
 
   // Re-initialize carousel index when API data loads
   useEffect(() => {
-    if (popularVehicleList.length > 0) {
+    if (popularVehicles.length > 0) {
       setIsPopularTransitioning(false);
-      setActivePopularIndex(popularVehicleList.length);
+      setActivePopularIndex(popularVehicles.length);
     }
-  }, [popularVehicleList.length]);
+  }, [popularVehicles.length]);
 
   // News & Offers Carousel State
   const [activeNewsIndex, setActiveNewsIndex] = useState(0);
@@ -373,12 +366,12 @@ export default function Home() {
   };
 
   const handlePopularTransitionEnd = () => {
-    if (activePopularIndex >= popularVehicleList.length * 2) {
+    if (activePopularIndex >= popularVehicles.length * 2) {
       setIsPopularTransitioning(false);
-      setActivePopularIndex(activePopularIndex - popularVehicleList.length);
-    } else if (activePopularIndex < popularVehicleList.length) {
+      setActivePopularIndex(activePopularIndex - popularVehicles.length);
+    } else if (activePopularIndex < popularVehicles.length) {
       setIsPopularTransitioning(false);
-      setActivePopularIndex(activePopularIndex + popularVehicleList.length);
+      setActivePopularIndex(activePopularIndex + popularVehicles.length);
     }
   };
 
@@ -643,7 +636,7 @@ export default function Home() {
               onTouchStart={() => setIsPopularHovered(true)}
               onTouchEnd={() => setIsPopularHovered(false)}
             >
-              {[...popularVehicleList, ...popularVehicleList, ...popularVehicleList].map((vehicle, idx) => {
+              {[...popularVehicles, ...popularVehicles, ...popularVehicles].map((vehicle, idx) => {
                 const vSlug = vehicle.slug || vehicle.id;
                 const vName = vehicle.title || vehicle.name;
                 return (
@@ -695,15 +688,15 @@ export default function Home() {
 
           {/* Dots Pagination Indicators for Popular Fleet */}
           <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] flex justify-center gap-2 mt-4 mb-8">
-            {popularVehicleList.map((_, idx) => (
+            {popularVehicles.map((_, idx) => (
               <button
                 key={idx}
                 onClick={() => {
                   setIsPopularTransitioning(true);
-                  setActivePopularIndex(idx + popularVehicleList.length);
+                  setActivePopularIndex(idx + popularVehicles.length);
                   setIsPopularInteracted(true);
                 }}
-                className={`h-2 transition-all rounded-full cursor-pointer ${activePopularIndex % popularVehicleList.length === idx ? "w-6 bg-[#0562d2]" : "w-2 bg-gray-300"
+                className={`h-2 transition-all rounded-full cursor-pointer ${activePopularIndex % popularVehicles.length === idx ? "w-6 bg-[#0562d2]" : "w-2 bg-gray-300"
                   }`}
                 aria-label={`Go to vehicle slide ${idx + 1}`}
               />
