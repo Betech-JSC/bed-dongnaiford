@@ -240,7 +240,15 @@ export default {
         },
         removeSelectedFiles(index = 0) {
             this.files.splice(index, 1);
-            this.$emit("change", this.files);
+            if (this.multiple) {
+                if (this.urlOnly) {
+                    this.$emit("change", this.files.map(x => x.static_url));
+                } else {
+                    this.$emit("change", this.files);
+                }
+            } else {
+                this.$emit("change", null);
+            }
         },
     },
 };

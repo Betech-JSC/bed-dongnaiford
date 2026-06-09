@@ -1,14 +1,15 @@
 <template>
     <div class="flex items-center w-full h-full">
-        <div v-if="isVideo(staticUrl(file.path))" class="relative w-full h-full flex items-center justify-center bg-black">
+        <div v-if="isVideo(resolvedUrl)" class="relative w-full h-full flex items-center justify-center bg-black">
             <video muted playsinline class="object-contain w-full h-full" onmouseover="this.play()" onmouseout="this.pause()">
-                <source :src="staticUrl(file.path)" type="video/mp4" />
+                <source :src="resolvedUrl" type="video/mp4" />
             </video>
         </div>
-        <v-lazy-image v-else :src="`${staticUrl(file.path)}?w=200`" class="object-contain w-full h-full" />
+        <img v-else :src="resolvedUrl ? (resolvedUrl.startsWith('data:') || resolvedUrl.includes('?') ? resolvedUrl : `${resolvedUrl}?w=200`) : ''" class="object-contain w-full h-full" />
         <a
+            v-if="resolvedUrl"
             class="absolute top-0 right-0 invisible space-x-1 text-white uppercase bg-black group-hover:visible w-[20px] h-[20px] flex items-center justify-center rounded-sm"
-            :href="staticUrl(file.path)"
+            :href="resolvedUrl"
             target="_blank"
         >
             <ph:arrow-square-up-right />
@@ -22,14 +23,34 @@
 </template>
 
 <script>
-import VLazyImage from 'v-lazy-image'
 import 'plyr/dist/plyr.css'
 export default {
-    components: { VLazyImage },
     props: ['file'],
+
+    computed: {
+        resolvedUrl() {
+            if (!this.file) return '';
+            if (typeof this.file === 'string') {
+                if (this.file.startsWith('http') || this.file.startsWith('data:') || this.file.startsWith('/')) {
+                    return this.file;
+                }
+                return this.staticUrl(this.file);
+            }
+            if (this.file.path) {
+                if (this.file.path.startsWith('http') || this.file.path.startsWith('data:') || this.file.path.startsWith('/')) {
+                    return this.file.path;
+                }
+                return this.staticUrl(this.file.path);
+            }
+            if (this.file.static_url) return this.file.static_url;
+            if (this.file.url) return this.file.url;
+            return '';
+        }
+    },
 
     methods: {
         isVideo(url) {
+            if (!url) return false;
             return (
                 url.endsWith('.mp4') ||
                 url.endsWith('.avi') ||

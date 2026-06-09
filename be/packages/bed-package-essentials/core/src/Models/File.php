@@ -26,8 +26,14 @@ class File
 
     public function __construct($path = '/', $disk = null)
     {
-        $this->path = $path;
         $this->disk = $disk ?? 'uploads';
+        if ($this->disk === 'uploads') {
+            $cleanedPath = ltrim($path, '/');
+            if (str_starts_with($cleanedPath, 'uploads/')) {
+                $path = substr($cleanedPath, 8);
+            }
+        }
+        $this->path = $path;
         $this->storage = Storage::disk($this->disk);
         $this->publicStorage = Storage::disk('public');
     }

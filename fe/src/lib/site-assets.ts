@@ -45,7 +45,7 @@ export const popularVehicleImages: Record<string, string> = {
 export function getPopularVehicleImage(vehicleId: string, fallback?: string) {
   return (
     popularVehicleImages[vehicleId] ??
-    fallback ??
+    (fallback && fallback !== "" ? fallback : undefined) ??
     siteAssets.carPlaceholder
   );
 }

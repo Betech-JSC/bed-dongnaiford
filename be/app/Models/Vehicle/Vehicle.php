@@ -15,7 +15,7 @@ class Vehicle extends BaseModel
     public $translationModel = VehicleTranslation::class;
     public $translationForeignKey = 'vehicle_id';
     public $with = ['translations'];
-    protected $appends = ['url', 'image_url'];
+    protected $appends = ['url', 'image_url', 'image_thumbnail_url', 'image_featured_url'];
 
     public $translatedAttributes = [
         'title',
@@ -38,6 +38,8 @@ class Vehicle extends BaseModel
         'is_best_seller',
         'base_price',
         'image',
+        'image_thumbnail',
+        'image_featured',
         'images',
         'colors',
         'images_360_external',
@@ -108,6 +110,46 @@ class Vehicle extends BaseModel
     public function getImageUrlAttribute(): ?string
     {
         return isset($this->image['path']) ? static_url($this->image['path']) : null;
+    }
+
+    public function setImageThumbnailAttribute($value): void
+    {
+        $this->attributes['image_thumbnail'] = $this->encodeJsonField($value);
+    }
+
+    public function getImageThumbnailAttribute($value): ?array
+    {
+        if (is_null($value) || $value === '') return null;
+        $decoded = $this->decodeJsonField($value);
+        if (is_null($decoded) && is_string($value)) {
+            return ['path' => $value];
+        }
+        return $decoded;
+    }
+
+    public function getImageThumbnailUrlAttribute(): ?string
+    {
+        return isset($this->image_thumbnail['path']) ? static_url($this->image_thumbnail['path']) : null;
+    }
+
+    public function setImageFeaturedAttribute($value): void
+    {
+        $this->attributes['image_featured'] = $this->encodeJsonField($value);
+    }
+
+    public function getImageFeaturedAttribute($value): ?array
+    {
+        if (is_null($value) || $value === '') return null;
+        $decoded = $this->decodeJsonField($value);
+        if (is_null($decoded) && is_string($value)) {
+            return ['path' => $value];
+        }
+        return $decoded;
+    }
+
+    public function getImageFeaturedUrlAttribute(): ?string
+    {
+        return isset($this->image_featured['path']) ? static_url($this->image_featured['path']) : null;
     }
 
     public function setImagesAttribute($value): void

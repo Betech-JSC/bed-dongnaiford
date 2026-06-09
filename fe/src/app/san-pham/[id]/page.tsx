@@ -4,9 +4,9 @@ import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { contactsAPI, vehiclesAPI, mediaAPI } from "@/lib/api";
-import { 
-  ArrowLeft, 
-  Check, 
+import {
+  ArrowLeft,
+  Check,
   ChevronDown,
   Plus,
   Minus,
@@ -191,44 +191,44 @@ export default function ProductDetailPage() {
   }, [id]);
 
   // Dynamically map API vehicle structure to frontend mock structure to keep all bindings intact
-  const vehicle = apiVehicle 
+  const vehicle = apiVehicle
     ? {
-        ...apiVehicle,
-        id: apiVehicle.slug,
-        name: apiVehicle.title,
-        typeName: apiVehicle.type_name || apiVehicle.typeName || (
-          apiVehicle.type === 'suv' 
-            ? (apiVehicle.title?.toLowerCase().includes('everest') ? 'SUV 7 Chỗ' : apiVehicle.title?.toLowerCase().includes('territory') ? 'SUV 5 Chỗ' : 'SUV')
-            : apiVehicle.type === 'pickup' 
-              ? 'Bán tải' 
-              : (apiVehicle.title?.toLowerCase().includes('transit') ? 'Xe Thương Mại 16 Chỗ' : apiVehicle.title?.toLowerCase().includes('tourneo') ? 'Thương Mại 7 Chỗ' : 'Thương mại')
-        ),
-        basePrice: typeof apiVehicle.base_price === 'string' ? parseFloat(apiVehicle.base_price) : apiVehicle.base_price,
-        colors: apiVehicle.colors ? apiVehicle.colors.map((c: any) => ({ 
-          name: c.name, 
-          hex: c.hex, 
-          image: c.image_path || c.image,
-          images_360: c.images_360 || [],
-          image_360_internal: c.image_360_internal || null
-        })) : [],
-        images: (apiVehicle.images && apiVehicle.images.length > 0) ? apiVehicle.images : [apiVehicle.image_url].filter(Boolean),
-        versions: apiVehicle.versions ? apiVehicle.versions.map((v: any) => ({
-          id: v.id,
-          name: v.name,
-          price: typeof v.price === 'string' ? parseFloat(v.price) : v.price,
-          specs: {
-            engine: v.specs?.engine || '',
-            power: v.specs?.power || '',
-            torque: v.specs?.torque || '',
-            transmission: v.specs?.transmission || '',
-            drivetrain: v.specs?.drivetrain || '',
-            dimensions: v.specs?.dimensions || '',
-            clearance: v.specs?.clearance || '',
-            fuelEconomy: v.specs?.fuelEconomy || v.specs?.fuel_guide || v.specs?.fuel_economy || '',
-          }
-        })) : [],
-        layout_blocks: apiVehicle.layout_blocks || []
-      }
+      ...apiVehicle,
+      id: apiVehicle.slug,
+      name: apiVehicle.title,
+      typeName: apiVehicle.type_name || apiVehicle.typeName || (
+        apiVehicle.type === 'suv'
+          ? (apiVehicle.title?.toLowerCase().includes('everest') ? 'SUV 7 Chỗ' : apiVehicle.title?.toLowerCase().includes('territory') ? 'SUV 5 Chỗ' : 'SUV')
+          : apiVehicle.type === 'pickup'
+            ? 'Bán tải'
+            : (apiVehicle.title?.toLowerCase().includes('transit') ? 'Xe Thương Mại 16 Chỗ' : apiVehicle.title?.toLowerCase().includes('tourneo') ? 'Thương Mại 7 Chỗ' : 'Thương mại')
+      ),
+      basePrice: typeof apiVehicle.base_price === 'string' ? parseFloat(apiVehicle.base_price) : apiVehicle.base_price,
+      colors: apiVehicle.colors ? apiVehicle.colors.map((c: any) => ({
+        name: c.name,
+        hex: c.hex,
+        image: c.image_path || c.image,
+        images_360: c.images_360 || [],
+        image_360_internal: c.image_360_internal || null
+      })) : [],
+      images: (apiVehicle.images && apiVehicle.images.length > 0) ? apiVehicle.images : [apiVehicle.image_url].filter(Boolean),
+      versions: apiVehicle.versions ? apiVehicle.versions.map((v: any) => ({
+        id: v.id,
+        name: v.name,
+        price: typeof v.price === 'string' ? parseFloat(v.price) : v.price,
+        specs: {
+          engine: v.specs?.engine || '',
+          power: v.specs?.power || '',
+          torque: v.specs?.torque || '',
+          transmission: v.specs?.transmission || '',
+          drivetrain: v.specs?.drivetrain || '',
+          dimensions: v.specs?.dimensions || '',
+          clearance: v.specs?.clearance || '',
+          fuelEconomy: v.specs?.fuelEconomy || v.specs?.fuel_guide || v.specs?.fuel_economy || '',
+        }
+      })) : [],
+      layout_blocks: apiVehicle.layout_blocks || []
+    }
     : staticVehicle;
 
   const media = vehicle ? getVehicleMediaAssets(vehicle.id) : getVehicleMediaAssets("new-territory");
@@ -243,7 +243,7 @@ export default function ProductDetailPage() {
   const [activeVersionIndex, setActiveVersionIndex] = useState(0);
   const [viewType, setViewType] = useState<"exterior" | "interior">("exterior");
   const isImageSequence = viewType === "exterior" || (vehicle?.id === "mustang-fastback" && viewType === "interior");
-  
+
   // 360 Interactive Viewer States
   const [is360Active, setIs360Active] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -320,7 +320,7 @@ export default function ProductDetailPage() {
             type: "ThreeSixtyViewer",
             data: {
               title: vehicle.id === "mustang-fastback" ? "360° Colorizer & Viewer" : `Khám phá ${vehicle.name} đa chiều`,
-              description: vehicle.id === "mustang-fastback" 
+              description: vehicle.id === "mustang-fastback"
                 ? "Tùy biến ngoại thất và nội thất theo phong cách riêng của bạn. Kéo để xoay 360 độ hoặc chọn màu sơn và mâm xe."
                 : `Diện mạo mới đầy cuốn hút! Trải nghiệm góc nhìn xoay 360 độ và tùy chọn màu sắc ngoại thất yêu thích của dòng xe ${vehicle.name}.`
             }
@@ -489,12 +489,12 @@ export default function ProductDetailPage() {
     const updated = [...currentBlocks];
     const targetIndex = direction === 'up' ? index - 1 : index + 1;
     if (targetIndex < 0 || targetIndex >= updated.length) return;
-    
+
     // Swap blocks
     const temp = updated[index];
     updated[index] = updated[targetIndex];
     updated[targetIndex] = temp;
-    
+
     setCurrentBlocks(updated);
 
     let newActiveIndex = activeIndex;
@@ -564,7 +564,7 @@ export default function ProductDetailPage() {
     updated.splice(targetIndex, 0, draggedBlock);
 
     setCurrentBlocks(updated);
-    
+
     let newActiveIndex = activeIndex;
     if (activeIndex === sourceIndex) {
       newActiveIndex = targetIndex;
@@ -598,32 +598,32 @@ export default function ProductDetailPage() {
     e.stopPropagation();
     isResizingRef.current = true;
     setIsPreviewResizing(true);
-    
+
     const container = previewContainerRef.current;
     if (!container) return;
-    
+
     const startWidth = container.getBoundingClientRect().width;
     const startX = e.clientX;
-    
+
     const handleMouseMove = (moveEvent: MouseEvent) => {
       if (!isResizingRef.current) return;
       const deltaX = moveEvent.clientX - startX;
-      
+
       let newWidth: number;
       if (direction === "right") {
         newWidth = startWidth + deltaX * 2;
       } else {
         newWidth = startWidth - deltaX * 2;
       }
-      
+
       const parentWidth = container.parentElement?.getBoundingClientRect().width || 1200;
       const maxWidth = Math.max(1000, parentWidth - 48); // cap at parent width minus paddings
       const finalWidth = Math.max(320, Math.min(maxWidth, newWidth));
-      
+
       setPreviewWidth(finalWidth);
       setPreviewViewport("custom");
     };
-    
+
     const handleMouseUp = () => {
       isResizingRef.current = false;
       setIsPreviewResizing(false);
@@ -632,10 +632,10 @@ export default function ProductDetailPage() {
       document.body.style.cursor = "default";
       document.body.style.userSelect = "auto";
     };
-    
+
     document.body.style.cursor = "col-resize";
     document.body.style.userSelect = "none";
-    
+
     document.addEventListener("mousemove", handleMouseMove);
     document.addEventListener("mouseup", handleMouseUp);
   };
@@ -643,39 +643,39 @@ export default function ProductDetailPage() {
   const handleResizeTouchStart = (e: React.TouchEvent, direction: "left" | "right") => {
     isResizingRef.current = true;
     setIsPreviewResizing(true);
-    
+
     const container = previewContainerRef.current;
     if (!container) return;
-    
+
     const startWidth = container.getBoundingClientRect().width;
     const startX = e.touches[0].clientX;
-    
+
     const handleTouchMove = (moveEvent: TouchEvent) => {
       if (!isResizingRef.current) return;
       const deltaX = moveEvent.touches[0].clientX - startX;
-      
+
       let newWidth: number;
       if (direction === "right") {
         newWidth = startWidth + deltaX * 2;
       } else {
         newWidth = startWidth - deltaX * 2;
       }
-      
+
       const parentWidth = container.parentElement?.getBoundingClientRect().width || 1200;
       const maxWidth = Math.max(1000, parentWidth - 48);
       const finalWidth = Math.max(320, Math.min(maxWidth, newWidth));
-      
+
       setPreviewWidth(finalWidth);
       setPreviewViewport("custom");
     };
-    
+
     const handleTouchEnd = () => {
       isResizingRef.current = false;
       setIsPreviewResizing(false);
       document.removeEventListener("touchmove", handleTouchMove);
       document.removeEventListener("touchend", handleTouchEnd);
     };
-    
+
     document.addEventListener("touchmove", handleTouchMove);
     document.addEventListener("touchend", handleTouchEnd);
   };
@@ -850,11 +850,11 @@ export default function ProductDetailPage() {
   useEffect(() => {
     if (!threeLoaded || !is360Active || viewType !== "interior" || !threeRef.current) return;
     const currentColor = vehicle?.colors?.[selectedColorIndex];
-    const interiorImg = (currentColor as any)?.image_360_internal 
-      || vehicle?.image_360_internal_url 
-      || (vehicle?.id === "new-territory" 
-          ? "/assets/territory-interior.png" 
-          : (media.bannerLarge || "/assets/territory-interior.png"));
+    const interiorImg = (currentColor as any)?.image_360_internal
+      || vehicle?.image_360_internal_url
+      || (vehicle?.id === "new-territory"
+        ? "/assets/territory-interior.png"
+        : (media.bannerLarge || "/assets/territory-interior.png"));
 
     const cleanUpThree = initThreeInterior(threeRef.current, interiorImg);
     return () => {
@@ -878,18 +878,18 @@ export default function ProductDetailPage() {
           {images360.map((imgUrl: string, idx: number) => {
             const isActive = idx === frameIdx;
             return (
-              <picture 
+              <picture
                 key={idx}
                 className="cmp-360-image absolute inset-0 w-full h-full flex items-center justify-center"
-                style={{ 
+                style={{
                   opacity: isActive ? 1 : 0,
                   pointerEvents: isActive ? 'auto' : 'none',
                   zIndex: isActive ? 10 : 0
                 }}
               >
-                <img 
-                  src={imgUrl} 
-                  alt={`${currentColor.name} - 360 Frame ${idx}`} 
+                <img
+                  src={imgUrl}
+                  alt={`${currentColor.name} - 360 Frame ${idx}`}
                   className="max-h-[420px] md:max-h-[480px] w-auto object-contain select-none pointer-events-none"
                   loading="eager"
                 />
@@ -928,11 +928,11 @@ export default function ProductDetailPage() {
             }
 
             return (
-              <picture 
+              <picture
                 key={currentIdx}
-                id={`${activeTrim}-exterior-${colorId}-${wheelId}~${currentIdx}`} 
+                id={`${activeTrim}-exterior-${colorId}-${wheelId}~${currentIdx}`}
                 className="cmp-360-image absolute inset-0 w-full h-full flex items-center justify-center"
-                style={{ 
+                style={{
                   opacity: isActive ? 1 : 0,
                   pointerEvents: isActive ? 'auto' : 'none',
                   zIndex: isActive ? 10 : 0
@@ -941,9 +941,9 @@ export default function ProductDetailPage() {
                 <source media="(min-width: 1024px)" srcSet={desktopUrl} />
                 <source media="(min-width: 768px)" srcSet={tabletUrl} />
                 <source media="(max-width: 767px)" srcSet={mobileUrl} />
-                <img 
-                  src={desktopUrl} 
-                  alt={`${colorId}-${wheelId}`} 
+                <img
+                  src={desktopUrl}
+                  alt={`${colorId}-${wheelId}`}
                   className="max-h-[420px] md:max-h-[480px] w-auto object-contain select-none pointer-events-none"
                   loading="eager"
                   onError={() => {
@@ -961,13 +961,13 @@ export default function ProductDetailPage() {
     // 3. Fallback for other vehicles with single static image (CSS 3D rotate simulation)
     const fallbackImage = currentColor?.image || (vehicle.images && vehicle.images[0]) || "/assets/car-everest.png";
     return (
-      <div 
+      <div
         className="relative w-[700px] h-[400px] transition-transform duration-100 ease-out"
         style={{
           transform: `perspective(1000px) rotateY(${rotation}deg) rotateX(${tilt}deg) scale(0.95)`,
         }}
       >
-        <Image 
+        <Image
           src={fallbackImage}
           alt="3D Exterior rotation fallback"
           fill
@@ -976,7 +976,7 @@ export default function ProductDetailPage() {
         />
 
         {/* Glossy Metallic highlight reflection sweep */}
-        <div 
+        <div
           className="absolute inset-0 pointer-events-none mix-blend-overlay opacity-30 rounded-xl"
           style={{
             background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.8) 50%, transparent 100%)',
@@ -1158,11 +1158,11 @@ export default function ProductDetailPage() {
     const plateFee = selectedProvince === "TP. Hồ Chí Minh" ? 20000000 : 1000000;
     const registryFee = 340000;
     const roadFee = 1560000;
-    const isSevenSeats = 
-      selVeh.id?.includes("everest") || 
-      selVeh.id?.includes("transit") || 
-      selVeh.id?.includes("tourneo") || 
-      selVeh.typeName?.includes("7 Chỗ") || 
+    const isSevenSeats =
+      selVeh.id?.includes("everest") ||
+      selVeh.id?.includes("transit") ||
+      selVeh.id?.includes("tourneo") ||
+      selVeh.typeName?.includes("7 Chỗ") ||
       selVeh.typeName?.includes("16 Chỗ");
     const insuranceFee = isSevenSeats ? 873400 : 480700;
     const total = basePrice + registrationTax + plateFee + registryFee + roadFee + insuranceFee;
@@ -1256,7 +1256,7 @@ export default function ProductDetailPage() {
       <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4 py-16 text-center">
         <h2 className="text-2xl font-bold text-gray-900 mb-2 font-display">Không tìm thấy sản phẩm</h2>
         <p className="text-gray-600 mb-6">Mẫu xe bạn đang tìm kiếm không tồn tại hoặc đã được thay đổi đường dẫn.</p>
-        <button 
+        <button
           onClick={() => router.push("/")}
           className="bg-[#0562d2] hover:bg-[#044ea7] text-white px-6 py-2.5 rounded-full font-semibold transition-colors cursor-pointer"
         >
@@ -1275,25 +1275,25 @@ export default function ProductDetailPage() {
 
   const compareItems = vehicle.versions.length > 1
     ? vehicle.versions.map((ver: any, idx: number) => ({
-        id: ver.id,
-        name: ver.name,
-        price: ver.price,
-        image: idx === 0 
-          ? "/assets/territory-hero.png" 
-          : idx === 1 
-            ? "/assets/territory-tech-split.png" 
-            : "/assets/territory-promo.png", 
-        specs: ver.specs,
-        isExternal: false
-      }))
+      id: ver.id,
+      name: ver.name,
+      price: ver.price,
+      image: idx === 0
+        ? "/assets/territory-hero.png"
+        : idx === 1
+          ? "/assets/territory-tech-split.png"
+          : "/assets/territory-promo.png",
+      specs: ver.specs,
+      isExternal: false
+    }))
     : vehicles.slice(0, 3).map((v) => ({
-        id: v.id,
-        name: v.versions[0].name,
-        price: v.basePrice,
-        image: v.id === "new-territory" ? "/assets/territory-hero.png" : v.images[0],
-        specs: v.versions[0].specs,
-        isExternal: true
-      }));
+      id: v.id,
+      name: v.versions[0].name,
+      price: v.basePrice,
+      image: v.id === "new-territory" ? "/assets/territory-hero.png" : v.images[0],
+      specs: v.versions[0].specs,
+      isExternal: true
+    }));
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -1388,10 +1388,10 @@ export default function ProductDetailPage() {
     if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
 
     const elementId = tab === "overview" ? "overview"
-                   : tab === "360" ? "360-viewer"
-                   : tab === "versions" ? "versions-section"
-                   : tab === "features" ? "features-section"
-                   : "compare-section";
+      : tab === "360" ? "360-viewer"
+        : tab === "versions" ? "versions-section"
+          : tab === "features" ? "features-section"
+            : "compare-section";
 
     // Wait for React to toggle section visibility in case we switch from/to compare view
     setTimeout(() => {
@@ -1621,7 +1621,7 @@ export default function ProductDetailPage() {
 
     return (
       <div className="page-builder-container flex flex-col lg:flex-row h-screen w-screen bg-slate-900 border-t border-slate-800 overflow-hidden font-sans text-slate-200 select-none">
-        
+
         {/* LEFT PANEL: Sidebar Settings */}
         <div className="w-full lg:w-[420px] flex flex-col bg-slate-950 border-r border-slate-800 h-full overflow-hidden shrink-0 select-none">
           {/* Sidebar Header */}
@@ -1631,8 +1631,8 @@ export default function ProductDetailPage() {
               <h3 className="text-sm font-bold text-slate-200 tracking-wide uppercase">Cấu hình giao diện</h3>
             </div>
             {activeIndex !== null && (
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className="flex items-center text-xs font-semibold text-slate-400 hover:text-white transition bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg border border-slate-700 cursor-pointer"
                 onClick={() => setActiveIndex(null)}
               >
@@ -1644,14 +1644,14 @@ export default function ProductDetailPage() {
           {/* Tab Buttons (Only shown when not editing a specific block) */}
           {activeIndex === null && (
             <div className="flex border-b border-slate-800 bg-slate-950/60 p-2 select-none">
-              <button 
+              <button
                 type="button"
                 className={`flex-1 text-center py-2.5 rounded-lg text-xs font-bold transition duration-200 cursor-pointer ${builderTab === 'sections' ? 'bg-[#0562D2] text-white shadow-md' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'}`}
                 onClick={() => setBuilderTab('sections')}
               >
                 📁 Khối hiển thị ({currentBlocks.length})
               </button>
-              <button 
+              <button
                 type="button"
                 className={`flex-1 text-center py-2.5 rounded-lg text-xs font-bold transition duration-200 cursor-pointer ${builderTab === 'library' ? 'bg-[#0562D2] text-white shadow-md' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'}`}
                 onClick={() => setBuilderTab('library')}
@@ -1680,7 +1680,7 @@ export default function ProductDetailPage() {
                     <div className="space-y-4">
                       <div className="flex flex-col gap-1.5">
                         <label className="text-xs font-bold text-slate-400 uppercase">Tiêu đề lớn</label>
-                        <input 
+                        <input
                           type="text"
                           className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
                           value={activeBlock.data.title || ""}
@@ -1690,7 +1690,7 @@ export default function ProductDetailPage() {
                       </div>
                       <div className="flex flex-col gap-1.5">
                         <label className="text-xs font-bold text-slate-400 uppercase">Tagline / Slogan</label>
-                        <input 
+                        <input
                           type="text"
                           className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
                           value={activeBlock.data.tagline || ""}
@@ -1701,7 +1701,7 @@ export default function ProductDetailPage() {
                       <div className="grid grid-cols-2 gap-3">
                         <div className="flex flex-col gap-1.5">
                           <label className="text-xs font-bold text-slate-400 uppercase">Nhãn nút</label>
-                          <input 
+                          <input
                             type="text"
                             className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
                             value={activeBlock.data.button_text || ""}
@@ -1710,7 +1710,7 @@ export default function ProductDetailPage() {
                         </div>
                         <div className="flex flex-col gap-1.5">
                           <label className="text-xs font-bold text-slate-400 uppercase">Liên kết</label>
-                          <input 
+                          <input
                             type="text"
                             className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
                             value={activeBlock.data.button_link || ""}
@@ -1723,7 +1723,7 @@ export default function ProductDetailPage() {
                         {activeBlock.data.background_image && (
                           <img src={activeBlock.data.background_image} className="w-full h-32 object-cover rounded-lg border border-slate-800 mb-2" />
                         )}
-                        <input 
+                        <input
                           type="file"
                           accept="image/*"
                           className="w-full text-xs text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white cursor-pointer"
@@ -1744,7 +1744,7 @@ export default function ProductDetailPage() {
                     <div className="space-y-4">
                       <div className="flex flex-col gap-1.5">
                         <label className="text-xs font-bold text-slate-400 uppercase">Tiêu đề khuyến mãi</label>
-                        <input 
+                        <input
                           type="text"
                           className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
                           value={activeBlock.data.title || ""}
@@ -1753,7 +1753,7 @@ export default function ProductDetailPage() {
                       </div>
                       <div className="flex flex-col gap-1.5">
                         <label className="text-xs font-bold text-slate-400 uppercase">Mô tả ngắn</label>
-                        <textarea 
+                        <textarea
                           className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-blue-500 h-20 resize-none"
                           value={activeBlock.data.description || ""}
                           onChange={(e) => updateActiveBlockData("description", e.target.value)}
@@ -1761,7 +1761,7 @@ export default function ProductDetailPage() {
                       </div>
                       <div className="flex flex-col gap-1.5">
                         <label className="text-xs font-bold text-slate-400 uppercase">Nhãn nút</label>
-                        <input 
+                        <input
                           type="text"
                           className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
                           value={activeBlock.data.button_text || ""}
@@ -1773,7 +1773,7 @@ export default function ProductDetailPage() {
                         {activeBlock.data.image && (
                           <img src={activeBlock.data.image} className="w-full h-32 object-cover rounded-lg border border-slate-800 mb-2" />
                         )}
-                        <input 
+                        <input
                           type="file"
                           accept="image/*"
                           className="w-full text-xs text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white cursor-pointer"
@@ -1794,7 +1794,7 @@ export default function ProductDetailPage() {
                     <div className="space-y-4">
                       <div className="flex flex-col gap-1.5">
                         <label className="text-xs font-bold text-slate-400 uppercase">Tiêu đề khối 360</label>
-                        <input 
+                        <input
                           type="text"
                           className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
                           value={activeBlock.data.title || ""}
@@ -1803,7 +1803,7 @@ export default function ProductDetailPage() {
                       </div>
                       <div className="flex flex-col gap-1.5">
                         <label className="text-xs font-bold text-slate-400 uppercase">Mô tả ngắn</label>
-                        <textarea 
+                        <textarea
                           className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-blue-500 h-20 resize-none"
                           value={activeBlock.data.description || ""}
                           onChange={(e) => updateActiveBlockData("description", e.target.value)}
@@ -1820,57 +1820,57 @@ export default function ProductDetailPage() {
                         <div className="mt-2 space-y-3">
                           <div className="flex flex-col gap-1">
                             <label className="text-[10px] text-slate-400">Tiêu đề nhóm 1</label>
-                            <input 
-                              type="text" 
-                              className="w-full bg-slate-900 border border-slate-800 rounded p-2.5 text-xs text-white focus:outline-none" 
-                              value={activeBlock.data.title_1 || ""} 
-                              onChange={(e) => updateActiveBlockData("title_1", e.target.value)} 
+                            <input
+                              type="text"
+                              className="w-full bg-slate-900 border border-slate-800 rounded p-2.5 text-xs text-white focus:outline-none"
+                              value={activeBlock.data.title_1 || ""}
+                              onChange={(e) => updateActiveBlockData("title_1", e.target.value)}
                             />
                           </div>
                           <div className="flex flex-col gap-1">
                             <label className="text-[10px] text-slate-400">Ảnh 1 (Ảnh lớn trên)</label>
-                            <input 
-                              type="file" 
-                              accept="image/*" 
-                              className="w-full text-xs text-slate-400" 
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="w-full text-xs text-slate-400"
                               onChange={async (e) => {
                                 const file = e.target.files?.[0];
                                 if (file) {
                                   const res = await mediaAPI.upload(file);
                                   if (res && res.url) updateActiveBlockData("image_1", res.url);
                                 }
-                              }} 
+                              }}
                             />
                           </div>
                           <div className="grid grid-cols-2 gap-2">
                             <div className="flex flex-col gap-1">
                               <label className="text-[10px] text-slate-400">Ảnh 2 (dưới trái)</label>
-                              <input 
-                                type="file" 
-                                accept="image/*" 
-                                className="w-full text-xs text-slate-400" 
+                              <input
+                                type="file"
+                                accept="image/*"
+                                className="w-full text-xs text-slate-400"
                                 onChange={async (e) => {
                                   const file = e.target.files?.[0];
                                   if (file) {
                                     const res = await mediaAPI.upload(file);
                                     if (res && res.url) updateActiveBlockData("image_2", res.url);
                                   }
-                                }} 
+                                }}
                               />
                             </div>
                             <div className="flex flex-col gap-1">
                               <label className="text-[10px] text-slate-400">Ảnh 3 (dưới phải)</label>
-                              <input 
-                                type="file" 
-                                accept="image/*" 
-                                className="w-full text-xs text-slate-400" 
+                              <input
+                                type="file"
+                                accept="image/*"
+                                className="w-full text-xs text-slate-400"
                                 onChange={async (e) => {
                                   const file = e.target.files?.[0];
                                   if (file) {
                                     const res = await mediaAPI.upload(file);
                                     if (res && res.url) updateActiveBlockData("image_3", res.url);
                                   }
-                                }} 
+                                }}
                               />
                             </div>
                           </div>
@@ -1882,26 +1882,26 @@ export default function ProductDetailPage() {
                         <div className="mt-2 space-y-3">
                           <div className="flex flex-col gap-1">
                             <label className="text-[10px] text-slate-400">Tiêu đề nhóm 2</label>
-                            <input 
-                              type="text" 
-                              className="w-full bg-slate-900 border border-slate-800 rounded p-2.5 text-xs text-white focus:outline-none" 
-                              value={activeBlock.data.title_2 || ""} 
-                              onChange={(e) => updateActiveBlockData("title_2", e.target.value)} 
+                            <input
+                              type="text"
+                              className="w-full bg-slate-900 border border-slate-800 rounded p-2.5 text-xs text-white focus:outline-none"
+                              value={activeBlock.data.title_2 || ""}
+                              onChange={(e) => updateActiveBlockData("title_2", e.target.value)}
                             />
                           </div>
                           <div className="flex flex-col gap-1">
                             <label className="text-[10px] text-slate-400">Ảnh nội thất lớn</label>
-                            <input 
-                              type="file" 
-                              accept="image/*" 
-                              className="w-full text-xs text-slate-400" 
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="w-full text-xs text-slate-400"
                               onChange={async (e) => {
                                 const file = e.target.files?.[0];
                                 if (file) {
                                   const res = await mediaAPI.upload(file);
                                   if (res && res.url) updateActiveBlockData("image_large", res.url);
                                 }
-                              }} 
+                              }}
                             />
                           </div>
                         </div>
@@ -1912,43 +1912,43 @@ export default function ProductDetailPage() {
                         <div className="mt-2 space-y-3">
                           <div className="flex flex-col gap-1">
                             <label className="text-[10px] text-slate-400">Tiêu đề nhóm 3</label>
-                            <input 
-                              type="text" 
-                              className="w-full bg-slate-900 border border-slate-800 rounded p-2.5 text-xs text-white focus:outline-none" 
-                              value={activeBlock.data.title_3 || ""} 
-                              onChange={(e) => updateActiveBlockData("title_3", e.target.value)} 
+                            <input
+                              type="text"
+                              className="w-full bg-slate-900 border border-slate-800 rounded p-2.5 text-xs text-white focus:outline-none"
+                              value={activeBlock.data.title_3 || ""}
+                              onChange={(e) => updateActiveBlockData("title_3", e.target.value)}
                             />
                           </div>
                           <div className="flex flex-col gap-1">
                             <label className="text-[10px] text-slate-400">Ảnh công nghệ (Trái)</label>
-                            <input 
-                              type="file" 
-                              accept="image/*" 
-                              className="w-full text-xs text-slate-400" 
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="w-full text-xs text-slate-400"
                               onChange={async (e) => {
                                 const file = e.target.files?.[0];
                                 if (file) {
                                   const res = await mediaAPI.upload(file);
                                   if (res && res.url) updateActiveBlockData("split_image", res.url);
                                 }
-                              }} 
+                              }}
                             />
                           </div>
                           <div className="flex flex-col gap-1">
                             <label className="text-[10px] text-slate-400">Tiêu đề cột thông số (Phải)</label>
-                            <input 
-                              type="text" 
-                              className="w-full bg-slate-900 border border-slate-800 rounded p-2.5 text-xs text-white focus:outline-none" 
-                              value={activeBlock.data.split_title || ""} 
-                              onChange={(e) => updateActiveBlockData("split_title", e.target.value)} 
+                            <input
+                              type="text"
+                              className="w-full bg-slate-900 border border-slate-800 rounded p-2.5 text-xs text-white focus:outline-none"
+                              value={activeBlock.data.split_title || ""}
+                              onChange={(e) => updateActiveBlockData("split_title", e.target.value)}
                             />
                           </div>
-                          
+
                           <div className="space-y-2">
                             <div className="flex justify-between items-center">
                               <label className="text-xs font-bold text-slate-400">Các chỉ số nổi bật:</label>
-                              <button 
-                                type="button" 
+                              <button
+                                type="button"
                                 className="text-xs text-blue-400 hover:text-blue-300 font-bold cursor-pointer"
                                 onClick={addSplitFeature}
                               >
@@ -1957,23 +1957,23 @@ export default function ProductDetailPage() {
                             </div>
                             {(activeBlock.data.split_features || []).map((feat: any, idx: number) => (
                               <div key={idx} className="flex gap-2 items-center bg-slate-900 border border-slate-855 p-2 rounded-lg relative">
-                                <input 
-                                  type="text" 
-                                  value={feat.value || ""} 
-                                  onChange={(e) => updateSplitFeature(idx, "value", e.target.value)} 
-                                  className="w-1/3 bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs text-white focus:outline-none" 
-                                  placeholder="vd: 12-inch" 
+                                <input
+                                  type="text"
+                                  value={feat.value || ""}
+                                  onChange={(e) => updateSplitFeature(idx, "value", e.target.value)}
+                                  className="w-1/3 bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs text-white focus:outline-none"
+                                  placeholder="vd: 12-inch"
                                 />
-                                <input 
-                                  type="text" 
-                                  value={feat.label || ""} 
-                                  onChange={(e) => updateSplitFeature(idx, "label", e.target.value)} 
-                                  className="w-2/3 bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs text-white focus:outline-none" 
-                                  placeholder="vd: Màn hình" 
+                                <input
+                                  type="text"
+                                  value={feat.label || ""}
+                                  onChange={(e) => updateSplitFeature(idx, "label", e.target.value)}
+                                  className="w-2/3 bg-slate-950 border border-slate-800 rounded px-2 py-1 text-xs text-white focus:outline-none"
+                                  placeholder="vd: Màn hình"
                                 />
-                                <button 
-                                  type="button" 
-                                  className="text-red-400 hover:text-red-500 font-bold ml-1 text-xs bg-slate-950/60 w-5 h-5 flex items-center justify-center rounded cursor-pointer" 
+                                <button
+                                  type="button"
+                                  className="text-red-400 hover:text-red-500 font-bold ml-1 text-xs bg-slate-950/60 w-5 h-5 flex items-center justify-center rounded cursor-pointer"
                                   onClick={() => removeSplitFeature(idx)}
                                 >
                                   ✕
@@ -1991,7 +1991,7 @@ export default function ProductDetailPage() {
                     <div className="space-y-4">
                       <div className="flex flex-col gap-1.5">
                         <label className="text-xs font-bold text-slate-400 uppercase">Tiêu đề danh sách phiên bản</label>
-                        <input 
+                        <input
                           type="text"
                           className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-xs text-white focus:outline-none"
                           value={activeBlock.data.title || ""}
@@ -2003,7 +2003,7 @@ export default function ProductDetailPage() {
                         {vehicle.versions.map((ver: any, idx: number) => (
                           <div key={ver.id} className="space-y-1 bg-slate-900/50 p-3 border border-slate-800 rounded-xl">
                             <span className="text-[10px] text-slate-400 uppercase font-bold">{ver.name}</span>
-                            <textarea 
+                            <textarea
                               value={activeBlock.data.descriptions?.[idx] || ""}
                               onChange={(e) => updateVersionDesc(idx, e.target.value)}
                               className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-xs text-white resize-none h-16 focus:outline-none focus:ring-1 focus:ring-blue-500"
@@ -2027,9 +2027,9 @@ export default function ProductDetailPage() {
                     <div className="space-y-4">
                       <div className="flex justify-between items-center">
                         <label className="text-xs font-bold text-slate-300">Danh sách tính năng:</label>
-                        <button 
-                          type="button" 
-                          className="text-xs text-blue-400 hover:text-blue-300 font-bold cursor-pointer" 
+                        <button
+                          type="button"
+                          className="text-xs text-blue-400 hover:text-blue-300 font-bold cursor-pointer"
                           onClick={addFeature}
                         >
                           + Thêm tính năng
@@ -2037,30 +2037,30 @@ export default function ProductDetailPage() {
                       </div>
                       {(activeBlock.data.features || []).map((feat: any, idx: number) => (
                         <div key={idx} className="bg-slate-900/80 border border-slate-800 rounded-xl p-4 space-y-3 relative">
-                          <button 
-                            type="button" 
-                            className="absolute top-2.5 right-2.5 text-red-400 hover:text-red-500 font-bold text-xs cursor-pointer" 
+                          <button
+                            type="button"
+                            className="absolute top-2.5 right-2.5 text-red-400 hover:text-red-500 font-bold text-xs cursor-pointer"
                             onClick={() => removeFeature(idx)}
                           >
                             ✕ Xóa
                           </button>
                           <span className="text-[9px] uppercase font-bold text-slate-400 bg-slate-950 px-2 py-0.5 rounded border border-slate-800">Tính năng #{idx + 1}</span>
-                          
+
                           <div className="flex flex-col gap-1">
                             <label className="text-[10px] text-slate-400">Tên tính năng</label>
-                            <input 
-                              type="text" 
-                              value={feat.title || ""} 
-                              onChange={(e) => updateFeature(idx, "title", e.target.value)} 
-                              className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-xs text-white focus:outline-none" 
+                            <input
+                              type="text"
+                              value={feat.title || ""}
+                              onChange={(e) => updateFeature(idx, "title", e.target.value)}
+                              className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-xs text-white focus:outline-none"
                             />
                           </div>
                           <div className="flex flex-col gap-1">
                             <label className="text-[10px] text-slate-400">Mô tả ngắn</label>
-                            <textarea 
-                              value={feat.description || ""} 
-                              onChange={(e) => updateFeature(idx, "description", e.target.value)} 
-                              className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-xs text-white h-16 resize-none focus:outline-none" 
+                            <textarea
+                              value={feat.description || ""}
+                              onChange={(e) => updateFeature(idx, "description", e.target.value)}
+                              className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-xs text-white h-16 resize-none focus:outline-none"
                             />
                           </div>
                           <div className="flex flex-col gap-1">
@@ -2068,17 +2068,17 @@ export default function ProductDetailPage() {
                             {feat.image && (
                               <img src={feat.image} className="w-full h-20 object-cover rounded border border-slate-800 mb-1" />
                             )}
-                            <input 
-                              type="file" 
-                              accept="image/*" 
-                              className="w-full text-xs text-slate-400" 
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="w-full text-xs text-slate-400"
                               onChange={async (e) => {
                                 const file = e.target.files?.[0];
                                 if (file) {
                                   const res = await mediaAPI.upload(file);
                                   if (res && res.url) updateFeature(idx, "image", res.url);
                                 }
-                              }} 
+                              }}
                             />
                           </div>
                         </div>
@@ -2091,9 +2091,9 @@ export default function ProductDetailPage() {
                     <div className="space-y-4">
                       <div className="flex justify-between items-center">
                         <label className="text-xs font-bold text-slate-300">Danh sách câu hỏi:</label>
-                        <button 
-                          type="button" 
-                          className="text-xs text-blue-400 hover:text-blue-300 font-bold cursor-pointer" 
+                        <button
+                          type="button"
+                          className="text-xs text-blue-400 hover:text-blue-300 font-bold cursor-pointer"
                           onClick={addFaq}
                         >
                           + Thêm câu hỏi
@@ -2101,30 +2101,30 @@ export default function ProductDetailPage() {
                       </div>
                       {(activeBlock.data.faqs || []).map((faq: any, idx: number) => (
                         <div key={idx} className="bg-slate-900/80 border border-slate-800 rounded-xl p-4 space-y-3 relative">
-                          <button 
-                            type="button" 
-                            className="absolute top-2.5 right-2.5 text-red-400 hover:text-red-500 font-bold text-xs cursor-pointer" 
+                          <button
+                            type="button"
+                            className="absolute top-2.5 right-2.5 text-red-400 hover:text-red-500 font-bold text-xs cursor-pointer"
                             onClick={() => removeFaq(idx)}
                           >
                             ✕ Xóa
                           </button>
                           <span className="text-[9px] uppercase font-bold text-slate-400 bg-slate-950 px-2 py-0.5 rounded border border-slate-800">Câu hỏi #{idx + 1}</span>
-                          
+
                           <div className="flex flex-col gap-1">
                             <label className="text-[10px] text-slate-400">Câu hỏi (Question)</label>
-                            <input 
-                              type="text" 
-                              value={faq.q || ""} 
-                              onChange={(e) => updateFaq(idx, "q", e.target.value)} 
-                              className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-xs text-white focus:outline-none" 
+                            <input
+                              type="text"
+                              value={faq.q || ""}
+                              onChange={(e) => updateFaq(idx, "q", e.target.value)}
+                              className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-xs text-white focus:outline-none"
                             />
                           </div>
                           <div className="flex flex-col gap-1">
                             <label className="text-[10px] text-slate-400">Câu trả lời (Answer)</label>
-                            <textarea 
-                              value={faq.a || ""} 
-                              onChange={(e) => updateFaq(idx, "a", e.target.value)} 
-                              className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-xs text-white h-20 resize-none focus:outline-none" 
+                            <textarea
+                              value={faq.a || ""}
+                              onChange={(e) => updateFaq(idx, "a", e.target.value)}
+                              className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-xs text-white h-20 resize-none focus:outline-none"
                             />
                           </div>
                         </div>
@@ -2137,7 +2137,7 @@ export default function ProductDetailPage() {
                     <div className="space-y-4">
                       <div className="flex flex-col gap-1.5">
                         <label className="text-xs font-bold text-slate-400 uppercase">Tiêu đề Banner</label>
-                        <input 
+                        <input
                           type="text"
                           className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-xs text-white focus:outline-none"
                           value={activeBlock.data.title || ""}
@@ -2147,7 +2147,7 @@ export default function ProductDetailPage() {
                       <div className="grid grid-cols-2 gap-3">
                         <div className="flex flex-col gap-1.5">
                           <label className="text-xs font-bold text-slate-400 uppercase">Số điện thoại</label>
-                          <input 
+                          <input
                             type="text"
                             className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-xs text-white focus:outline-none"
                             value={activeBlock.data.phone || ""}
@@ -2156,7 +2156,7 @@ export default function ProductDetailPage() {
                         </div>
                         <div className="flex flex-col gap-1.5">
                           <label className="text-xs font-bold text-slate-400 uppercase">Nhãn nút đặt lịch</label>
-                          <input 
+                          <input
                             type="text"
                             className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-xs text-white focus:outline-none"
                             value={activeBlock.data.btn_text || ""}
@@ -2166,7 +2166,7 @@ export default function ProductDetailPage() {
                       </div>
                       <div className="flex flex-col gap-1.5">
                         <label className="text-xs font-bold text-slate-400 uppercase">Liên kết đặt lịch</label>
-                        <input 
+                        <input
                           type="text"
                           className="w-full bg-slate-900 border border-slate-800 rounded-lg p-2.5 text-xs text-white focus:outline-none"
                           value={activeBlock.data.btn_link || ""}
@@ -2178,17 +2178,17 @@ export default function ProductDetailPage() {
                         {activeBlock.data.car_image && (
                           <img src={activeBlock.data.car_image} className="w-full h-24 object-contain rounded border border-slate-800 mb-1" />
                         )}
-                        <input 
-                          type="file" 
-                          accept="image/*" 
-                          className="w-full text-xs text-slate-400" 
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="w-full text-xs text-slate-400"
                           onChange={async (e) => {
                             const file = e.target.files?.[0];
                             if (file) {
                               const res = await mediaAPI.upload(file);
                               if (res && res.url) updateActiveBlockData("car_image", res.url);
                             }
-                          }} 
+                          }}
                         />
                       </div>
                     </div>
@@ -2200,7 +2200,7 @@ export default function ProductDetailPage() {
               <div className="space-y-3">
                 {currentBlocks && currentBlocks.length > 0 ? (
                   currentBlocks.map((block, index) => (
-                    <div 
+                    <div
                       key={`sidebar-item-${index}`}
                       draggable
                       onDragStart={(e) => handleDragStart(e, index)}
@@ -2217,7 +2217,7 @@ export default function ProductDetailPage() {
                       <div className="flex items-center space-x-3">
                         <div className="cursor-move p-1 text-slate-500 hover:text-slate-300 transition">
                           <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
-                            <path d="M7 2a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm7 0a2 2 0 1 1-4 0 2 2 0 0 1 4 0zM7 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm7 0a2 2 0 1 1-4 0 2 2 0 0 1 4 0zM7 14a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm7 0a2 2 0 1 1-4 0 2 2 0 0 1 4 0z"/>
+                            <path d="M7 2a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm7 0a2 2 0 1 1-4 0 2 2 0 0 1 4 0zM7 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm7 0a2 2 0 1 1-4 0 2 2 0 0 1 4 0zM7 14a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm7 0a2 2 0 1 1-4 0 2 2 0 0 1 4 0z" />
                           </svg>
                         </div>
                         <div className="flex flex-col">
@@ -2229,16 +2229,16 @@ export default function ProductDetailPage() {
                         </div>
                       </div>
                       <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition">
-                        <button 
-                          type="button" 
-                          className="text-xs text-slate-400 hover:text-white bg-slate-800 p-1.5 rounded-lg border border-slate-700 cursor-pointer" 
+                        <button
+                          type="button"
+                          className="text-xs text-slate-400 hover:text-white bg-slate-800 p-1.5 rounded-lg border border-slate-700 cursor-pointer"
                           title="Chỉnh sửa"
                         >
                           ⚙️
                         </button>
-                        <button 
-                          type="button" 
-                          className="text-xs text-slate-400 hover:text-white bg-slate-800 p-1.5 rounded-lg border border-slate-700 cursor-pointer" 
+                        <button
+                          type="button"
+                          className="text-xs text-slate-400 hover:text-white bg-slate-800 p-1.5 rounded-lg border border-slate-700 cursor-pointer"
                           title="Nhân bản"
                           onClick={(e) => {
                             e.stopPropagation();
@@ -2247,9 +2247,9 @@ export default function ProductDetailPage() {
                         >
                           ➕
                         </button>
-                        <button 
-                          type="button" 
-                          className="text-xs text-red-400 hover:text-red-300 bg-slate-800 p-1.5 rounded-lg border border-slate-700 cursor-pointer" 
+                        <button
+                          type="button"
+                          className="text-xs text-red-400 hover:text-red-300 bg-slate-800 p-1.5 rounded-lg border border-slate-700 cursor-pointer"
                           title="Xóa"
                           onClick={(e) => {
                             e.stopPropagation();
@@ -2271,8 +2271,8 @@ export default function ProductDetailPage() {
               /* SCENE B2: LIBRARY TABS */
               <div className="grid grid-cols-1 gap-3">
                 {libraryBlocks.map((tpl) => (
-                  <div 
-                    key={tpl.type} 
+                  <div
+                    key={tpl.type}
                     className="flex items-center p-3.5 bg-slate-900 border border-slate-800 hover:border-blue-500 hover:bg-slate-900/60 rounded-xl cursor-pointer transition select-none group"
                     onClick={() => handleAddBlock(tpl.type)}
                   >
@@ -2292,7 +2292,7 @@ export default function ProductDetailPage() {
 
           {/* Sticky Bottom Actions inside left panel */}
           <div className="p-4 border-t border-slate-800 bg-slate-950 flex items-center gap-2 select-none">
-            <button 
+            <button
               type="button"
               onClick={handleSaveLayout}
               disabled={saving}
@@ -2300,7 +2300,7 @@ export default function ProductDetailPage() {
             >
               {saving ? "Đang lưu..." : "Lưu thay đổi"}
             </button>
-            <button 
+            <button
               type="button"
               onClick={handleCancelEdit}
               className="bg-transparent hover:bg-white/5 text-slate-400 hover:text-white text-xs font-semibold px-4 py-2.5 rounded-lg cursor-pointer transition-colors border border-solid border-slate-800 h-10 flex items-center justify-center"
@@ -2322,7 +2322,7 @@ export default function ProductDetailPage() {
             <div className="flex-1 bg-slate-950 border border-slate-800 rounded-lg py-1 px-4 text-slate-500 text-xs font-mono truncate select-all flex items-center space-x-2">
               <span className="text-slate-600">🌐 https://dongnaiford.com.vn/san-pham/{id}</span>
             </div>
-            
+
             {/* Viewport controls */}
             <div className="flex items-center bg-slate-950 border border-slate-800 rounded-lg p-0.5 ml-4 select-none shrink-0 shadow-inner">
               <button
@@ -2369,7 +2369,7 @@ export default function ProductDetailPage() {
                 {previewWidth}px
               </span>
             )}
-            
+
             <span className="text-[10px] text-blue-400 font-bold uppercase ml-4 select-none tracking-widest bg-blue-950/80 border border-blue-900 px-2 py-0.5 rounded hidden xl:inline-block">
               Live Preview
             </span>
@@ -2377,7 +2377,7 @@ export default function ProductDetailPage() {
 
           {/* Web preview body area */}
           <div className="flex-1 overflow-y-auto bg-slate-900 p-6 scrollbar-thin select-text flex flex-col items-center">
-            <div 
+            <div
               ref={previewContainerRef}
               style={{ width: typeof previewWidth === 'number' ? `${previewWidth}px` : previewWidth }}
               className={`relative w-full mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-800 text-[#1a1a1a] flex flex-col shrink-0 min-h-full ${isPreviewResizing ? 'duration-0' : 'transition-all duration-300 ease-out'}`}
@@ -2391,7 +2391,7 @@ export default function ProductDetailPage() {
               )}
 
               {/* Left Resize Handle */}
-              <div 
+              <div
                 onMouseDown={(e) => handleResizeStart(e, "left")}
                 onTouchStart={(e) => handleResizeTouchStart(e, "left")}
                 className="absolute top-0 bottom-0 -left-6 w-6 flex items-center justify-end cursor-col-resize group z-40 select-none"
@@ -2405,7 +2405,7 @@ export default function ProductDetailPage() {
               </div>
 
               {/* Right Resize Handle */}
-              <div 
+              <div
                 onMouseDown={(e) => handleResizeStart(e, "right")}
                 onTouchStart={(e) => handleResizeTouchStart(e, "right")}
                 className="absolute top-0 bottom-0 -right-6 w-6 flex items-center justify-start cursor-col-resize group z-40 select-none"
@@ -2417,7 +2417,7 @@ export default function ProductDetailPage() {
                   <span className="w-0.5 h-1.5 bg-slate-300 rounded-full"></span>
                 </div>
               </div>
-              
+
               {/* Simulated Navigation Bar */}
               <div className="bg-white px-6 py-4 border-b border-gray-100 flex justify-between items-center select-none shrink-0">
                 <span className="text-[#00095b] font-black text-sm tracking-tight">DONGNAI <span className="text-[#0562d2]">FORD</span></span>
@@ -2533,11 +2533,11 @@ export default function ProductDetailPage() {
 
   return (
     <div className="bg-[#fafafa] min-h-screen text-[#1a1a1a] font-sans pb-16">
-      
+
       {/* 1. Breadcrumbs Header Navigation */}
       <div className="bg-[#fafafa] border-b border-[#e5e5e5] py-4">
         <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full flex items-center justify-between">
-          <button 
+          <button
             onClick={() => router.back()}
             className="flex items-center gap-2 text-gray-600 hover:text-black transition-colors text-sm font-semibold cursor-pointer bg-transparent border-0"
           >
@@ -2555,109 +2555,108 @@ export default function ProductDetailPage() {
       </div>
 
       <>
-          {/* If the first block is HeroBanner, render it first */}
-          {blocksWithAnchors[0]?.type === "HeroBanner" && (
-            <Blocks
-              layout={[blocksWithAnchors[0]]}
-              vehicle={vehicle}
-              openQuoteDrawer={openQuoteDrawer}
-              openDriveModal={() => setShowDriveModal(true)}
-              isEditMode={isEditMode}
-              onChangeBlock={(idx, data) => handleBlockChange(0, data)}
-              onMoveBlock={(idx, dir) => handleBlockMove(0, dir)}
-              onDeleteBlock={(idx) => handleBlockDelete(0)}
-              threeSixtyProps={threeSixtyPropsObj}
-              startIndex={0}
-              totalBlocks={blocksWithAnchors.length}
-              activeIndex={activeIndex}
-              onSelectBlock={handleSelectBlock}
-              onDragStart={handleDragStart}
-              onDragOver={handleDragOver}
-              onDrop={handleDrop}
-              onDragEnd={handleDragEnd}
-              draggedIndex={draggedIndex}
-              draggedOverIndex={draggedOverIndex}
-            />
-          )}
+        {/* If the first block is HeroBanner, render it first */}
+        {blocksWithAnchors[0]?.type === "HeroBanner" && (
+          <Blocks
+            layout={[blocksWithAnchors[0]]}
+            vehicle={vehicle}
+            openQuoteDrawer={openQuoteDrawer}
+            openDriveModal={() => setShowDriveModal(true)}
+            isEditMode={isEditMode}
+            onChangeBlock={(idx, data) => handleBlockChange(0, data)}
+            onMoveBlock={(idx, dir) => handleBlockMove(0, dir)}
+            onDeleteBlock={(idx) => handleBlockDelete(0)}
+            threeSixtyProps={threeSixtyPropsObj}
+            startIndex={0}
+            totalBlocks={blocksWithAnchors.length}
+            activeIndex={activeIndex}
+            onSelectBlock={handleSelectBlock}
+            onDragStart={handleDragStart}
+            onDragOver={handleDragOver}
+            onDrop={handleDrop}
+            onDragEnd={handleDragEnd}
+            draggedIndex={draggedIndex}
+            draggedOverIndex={draggedOverIndex}
+          />
+        )}
 
-          {/* 3. Sticky Tab Navigation Bar */}
-          <div className="sticky-tabs bg-white border-b border-[#e5e5e5] shadow-xs">
-            <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full flex items-center justify-between gap-4">
-              <div className="flex items-center gap-[32px] overflow-hidden">
-                <p className="font-['Ford_Antenna',sans-serif] font-semibold text-[#1a1a1a] text-[14px] whitespace-nowrap hidden sm:block">
-                  {vehicle.name}
-                </p>
-                <div className="h-[24px] w-[1px] bg-[#e5e5e5] hidden sm:block" />
-                
-                <div className="flex items-center overflow-x-auto scrollbar-none gap-[16px] sm:gap-[24px] py-1">
-                  {navigationTabs.map((tab) => {
-                    const isActive = activeTab === tab.id;
-                    return (
-                      <button
-                        key={tab.id}
-                        onClick={() => handleTabClick(tab.id)}
-                        className={`py-[16px] px-[8px] text-[16px] font-medium leading-[1.5] cursor-pointer text-center relative whitespace-nowrap bg-transparent border-0 flex-shrink-0 transition-colors
+        {/* 3. Sticky Tab Navigation Bar */}
+        <div className="sticky-tabs bg-white border-b border-[#e5e5e5] shadow-xs">
+          <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full flex items-center justify-between gap-4">
+            <div className="flex items-center gap-[32px] overflow-hidden">
+              <p className="font-['Ford_Antenna',sans-serif] font-semibold text-[#1a1a1a] text-[14px] whitespace-nowrap hidden sm:block">
+                {vehicle.name}
+              </p>
+              <div className="h-[24px] w-[1px] bg-[#e5e5e5] hidden sm:block" />
+
+              <div className="flex items-center overflow-x-auto scrollbar-none gap-[16px] sm:gap-[24px] py-1">
+                {navigationTabs.map((tab) => {
+                  const isActive = activeTab === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      onClick={() => handleTabClick(tab.id)}
+                      className={`py-[16px] px-[8px] text-[16px] font-medium leading-[1.5] cursor-pointer text-center relative whitespace-nowrap bg-transparent border-0 flex-shrink-0 transition-colors
                           ${isActive ? "text-[#0562d2]" : "text-[#424242] hover:text-[#0562d2]"}`}
-                      >
-                        <span>{tab.label}</span>
-                        {isActive && (
-                          <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#0562d2]" />
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
+                    >
+                      <span>{tab.label}</span>
+                      {isActive && (
+                        <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#0562d2]" />
+                      )}
+                    </button>
+                  );
+                })}
               </div>
-
-              {/* Compare Toggle Button */}
-              <button
-                onClick={() => toggleCompare(vehicle.id)}
-                className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition-all active:scale-95 border cursor-pointer select-none shrink-0 ${
-                  compareIds.includes(vehicle.id)
-                    ? "bg-[#0562D2] text-white border-[#0562D2] shadow-sm animate-pulse"
-                    : "bg-white text-gray-700 hover:text-[#0562D2] border-gray-250 hover:bg-gray-50"
-                }`}
-              >
-                <GitCompare className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">
-                  {compareIds.includes(vehicle.id) ? "Đã thêm so sánh" : "So sánh xe"}
-                </span>
-              </button>
             </div>
-          </div>
 
-          {/* Render remaining blocks */}
-          <div className="space-y-16">
-            <Blocks
-              layout={blocksWithAnchors[0]?.type === "HeroBanner" ? blocksWithAnchors.slice(1) : blocksWithAnchors}
-              vehicle={vehicle}
-              openQuoteDrawer={openQuoteDrawer}
-              openDriveModal={() => setShowDriveModal(true)}
-              isEditMode={isEditMode}
-              onChangeBlock={(idx, data) => handleBlockChange(blocksWithAnchors[0]?.type === "HeroBanner" ? idx + 1 : idx, data)}
-              onMoveBlock={(idx, dir) => handleBlockMove(blocksWithAnchors[0]?.type === "HeroBanner" ? idx + 1 : idx, dir)}
-              onDeleteBlock={(idx) => handleBlockDelete(blocksWithAnchors[0]?.type === "HeroBanner" ? idx + 1 : idx)}
-              threeSixtyProps={threeSixtyPropsObj}
-              startIndex={blocksWithAnchors[0]?.type === "HeroBanner" ? 1 : 0}
-              totalBlocks={blocksWithAnchors.length}
-              activeIndex={activeIndex}
-              onSelectBlock={handleSelectBlock}
-              onDragStart={handleDragStart}
-              onDragOver={handleDragOver}
-              onDrop={handleDrop}
-              onDragEnd={handleDragEnd}
-              draggedIndex={draggedIndex}
-              draggedOverIndex={draggedOverIndex}
-            />
-            {!currentBlocks.some(b => b.type === "BookingBanner") && <BookingBanner />}
+            {/* Compare Toggle Button */}
+            <button
+              onClick={() => toggleCompare(vehicle.id)}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition-all active:scale-95 border cursor-pointer select-none shrink-0 ${compareIds.includes(vehicle.id)
+                  ? "bg-[#0562D2] text-white border-[#0562D2] shadow-sm animate-pulse"
+                  : "bg-white text-gray-700 hover:text-[#0562D2] border-gray-250 hover:bg-gray-50"
+                }`}
+            >
+              <GitCompare className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">
+                {compareIds.includes(vehicle.id) ? "Đã thêm so sánh" : "So sánh xe"}
+              </span>
+            </button>
           </div>
+        </div>
+
+        {/* Render remaining blocks */}
+        <div className="space-y-16">
+          <Blocks
+            layout={blocksWithAnchors[0]?.type === "HeroBanner" ? blocksWithAnchors.slice(1) : blocksWithAnchors}
+            vehicle={vehicle}
+            openQuoteDrawer={openQuoteDrawer}
+            openDriveModal={() => setShowDriveModal(true)}
+            isEditMode={isEditMode}
+            onChangeBlock={(idx, data) => handleBlockChange(blocksWithAnchors[0]?.type === "HeroBanner" ? idx + 1 : idx, data)}
+            onMoveBlock={(idx, dir) => handleBlockMove(blocksWithAnchors[0]?.type === "HeroBanner" ? idx + 1 : idx, dir)}
+            onDeleteBlock={(idx) => handleBlockDelete(blocksWithAnchors[0]?.type === "HeroBanner" ? idx + 1 : idx)}
+            threeSixtyProps={threeSixtyPropsObj}
+            startIndex={blocksWithAnchors[0]?.type === "HeroBanner" ? 1 : 0}
+            totalBlocks={blocksWithAnchors.length}
+            activeIndex={activeIndex}
+            onSelectBlock={handleSelectBlock}
+            onDragStart={handleDragStart}
+            onDragOver={handleDragOver}
+            onDrop={handleDrop}
+            onDragEnd={handleDragEnd}
+            draggedIndex={draggedIndex}
+            draggedOverIndex={draggedOverIndex}
+          />
+          {!currentBlocks.some(b => b.type === "BookingBanner") && <BookingBanner />}
+        </div>
       </>
 
       {/* 11. Booking / Quote Modals */}
       {showDriveModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-lg w-full max-w-[500px] max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-200 relative">
-            
+
             {/* Modal Header */}
             <div className="bg-[#00095b] text-white p-6 relative">
               <h3 className="text-lg font-bold uppercase tracking-wide font-display">
@@ -2666,7 +2665,7 @@ export default function ProductDetailPage() {
               <p className="text-xs text-white/70 mt-1">
                 Dòng xe: <span className="text-white font-bold">{vehicle.name}{activeVersion ? ` - ${activeVersion.name}` : ""}</span>
               </p>
-              <button 
+              <button
                 onClick={() => setShowDriveModal(false)}
                 className="absolute top-4 right-4 text-white/70 hover:text-white text-lg cursor-pointer bg-transparent border-0"
               >
@@ -2693,8 +2692,8 @@ export default function ProductDetailPage() {
                   )}
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block text-left">Họ và tên của bạn *</label>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       name="fullName"
                       value={formData.fullName}
                       onChange={handleInputChange}
@@ -2706,8 +2705,8 @@ export default function ProductDetailPage() {
 
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block text-left">Số điện thoại *</label>
-                    <input 
-                      type="tel" 
+                    <input
+                      type="tel"
                       name="phone"
                       value={formData.phone}
                       onChange={handleInputChange}
@@ -2719,8 +2718,8 @@ export default function ProductDetailPage() {
 
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block text-left">Địa chỉ Email</label>
-                    <input 
-                      type="email" 
+                    <input
+                      type="email"
                       name="email"
                       value={formData.email}
                       onChange={handleInputChange}
@@ -2731,7 +2730,7 @@ export default function ProductDetailPage() {
 
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block text-left">Khu vực sinh sống</label>
-                    <select 
+                    <select
                       name="province"
                       value={formData.province}
                       onChange={handleInputChange}
@@ -2747,7 +2746,7 @@ export default function ProductDetailPage() {
 
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block text-left">Ghi chú yêu cầu thêm</label>
-                    <textarea 
+                    <textarea
                       name="note"
                       value={formData.note}
                       onChange={handleInputChange}
@@ -2757,7 +2756,7 @@ export default function ProductDetailPage() {
                     />
                   </div>
 
-                  <button 
+                  <button
                     type="submit"
                     disabled={isSubmitting}
                     className="w-full bg-[#0562d2] hover:bg-[#044ea7] disabled:bg-gray-400 text-white py-3 rounded-[800px] font-bold uppercase text-xs tracking-wider shadow-sm transition-colors cursor-pointer border-0 mt-2"
@@ -2775,15 +2774,15 @@ export default function ProductDetailPage() {
       {showQuoteModal && (
         <div className="fixed inset-0 z-50 flex justify-end">
           {/* Backdrop */}
-          <div 
+          <div
             onClick={() => setShowQuoteModal(false)}
             className="absolute inset-0 bg-black/40 transition-opacity duration-300"
           />
-          
+
           {/* Drawer Panel */}
           <div className="relative bg-white w-full max-w-[637px] h-full flex flex-col p-8 overflow-y-auto shadow-2xl z-10 animate-in slide-in-from-right duration-300">
             {/* Close button */}
-            <button 
+            <button
               onClick={() => setShowQuoteModal(false)}
               className="absolute top-8 right-8 w-10 h-10 flex items-center justify-center text-gray-500 hover:text-black hover:bg-gray-100/80 rounded-full transition-colors bg-transparent border-0 cursor-pointer z-20"
             >
@@ -2894,7 +2893,7 @@ export default function ProductDetailPage() {
                       </p>
                     </div>
                     {/* Reset button inside card */}
-                    <button 
+                    <button
                       onClick={() => {
                         setSelectedVehicleId(vehicle.id);
                         setSelectedVersionId(activeVersion?.id || "");
@@ -2937,7 +2936,7 @@ export default function ProductDetailPage() {
 
                   {/* Form Action buttons */}
                   <div className="flex gap-4 items-center w-full mt-4">
-                    <button 
+                    <button
                       onClick={() => {
                         setSelectedVehicleId(vehicle.id);
                         setSelectedVersionId(activeVersion?.id || "");
@@ -2947,7 +2946,7 @@ export default function ProductDetailPage() {
                     >
                       Chọn lại mẫu xe
                     </button>
-                    <button 
+                    <button
                       onClick={() => {
                         // Prefill contact form values
                         const selVeh = vehicles.find((v: any) => v.id === selectedVehicleId) || vehicle;
@@ -2991,8 +2990,8 @@ export default function ProductDetailPage() {
                   )}
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block text-left">Họ và tên của bạn *</label>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       name="fullName"
                       value={formData.fullName}
                       onChange={handleInputChange}
@@ -3004,8 +3003,8 @@ export default function ProductDetailPage() {
 
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block text-left">Số điện thoại *</label>
-                    <input 
-                      type="tel" 
+                    <input
+                      type="tel"
                       name="phone"
                       value={formData.phone}
                       onChange={handleInputChange}
@@ -3017,8 +3016,8 @@ export default function ProductDetailPage() {
 
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block text-left">Địa chỉ Email</label>
-                    <input 
-                      type="email" 
+                    <input
+                      type="email"
                       name="email"
                       value={formData.email}
                       onChange={handleInputChange}
@@ -3029,7 +3028,7 @@ export default function ProductDetailPage() {
 
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block text-left">Khu vực sinh sống</label>
-                    <select 
+                    <select
                       name="province"
                       value={formData.province}
                       onChange={handleInputChange}
@@ -3045,7 +3044,7 @@ export default function ProductDetailPage() {
 
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block text-left">Ghi chú yêu cầu thêm</label>
-                    <textarea 
+                    <textarea
                       name="note"
                       value={formData.note}
                       onChange={handleInputChange}
@@ -3055,7 +3054,7 @@ export default function ProductDetailPage() {
                     />
                   </div>
 
-                  <button 
+                  <button
                     type="submit"
                     disabled={isSubmitting}
                     className="w-full bg-[#0562d2] hover:bg-[#044ea7] disabled:bg-gray-400 text-white py-3 rounded-[800px] font-bold uppercase text-xs tracking-wider shadow-sm transition-colors cursor-pointer border-0 mt-2"
@@ -3076,11 +3075,11 @@ export default function ProductDetailPage() {
             <span className="text-[10px] font-bold text-blue-400 uppercase tracking-widest">Trình Dựng Trang Trực Quan</span>
             <span className="text-xs font-semibold">Đang chỉnh sửa dòng xe: <strong className="text-white font-bold">{vehicle?.name}</strong></span>
           </div>
-          
+
           {/* Actions */}
           <div className="flex items-center gap-2 flex-wrap justify-center sm:ml-auto">
             {/* Add block selector */}
-            <select 
+            <select
               onChange={(e) => {
                 if (e.target.value) {
                   handleAddBlock(e.target.value);
@@ -3101,7 +3100,7 @@ export default function ProductDetailPage() {
               <option value="BookingBanner">Khối Tư vấn / Đặt lịch</option>
             </select>
 
-            <button 
+            <button
               type="button"
               onClick={handleSaveLayout}
               disabled={saving}
@@ -3109,8 +3108,8 @@ export default function ProductDetailPage() {
             >
               {saving ? "Đang lưu..." : "Lưu thay đổi"}
             </button>
-            
-            <button 
+
+            <button
               type="button"
               onClick={handleCancelEdit}
               className="bg-transparent hover:bg-white/10 text-white text-xs font-semibold px-4 py-2 rounded-full cursor-pointer transition-colors border border-solid border-white/30"
@@ -3122,7 +3121,7 @@ export default function ProductDetailPage() {
       )}
 
       {!isEditMode && !isEmbedded && (
-        <button 
+        <button
           type="button"
           onClick={() => {
             setIsEditMode(true);

@@ -27,7 +27,7 @@ const mapAPIAccessoryToItem = (apiAcc: any): AccessoryItem => {
     categoryName: apiAcc.category_name || apiAcc.categories?.[0]?.title || "Phụ Kiện Ngoại Thất",
     price: Number(apiAcc.price) || 0,
     description: apiAcc.description || "",
-    images: Array.isArray(apiAcc.images) && apiAcc.images.length > 0 
+    images: Array.isArray(apiAcc.images) && apiAcc.images.length > 0
       ? apiAcc.images.map((img: any) => img.url).filter(Boolean)
       : [apiAcc.image?.url].filter(Boolean),
     fitVehicles: apiAcc.fit_vehicles || [],
@@ -73,6 +73,7 @@ export default function AccessoriesPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedVehicle, setSelectedVehicle] = useState<string | null>(null);
   const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
+  const [isBrandExpanded, setIsBrandExpanded] = useState(true);
 
   useEffect(() => {
     async function loadData() {
@@ -98,11 +99,11 @@ export default function AccessoriesPage() {
       if (vehicleParam) {
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setSelectedVehicle(vehicleParam);
-        
+
         // Find which group contains this vehicle and expand it
-        const matchedGroup = sidebarModels.find(model => 
-          model.subModels.some(sub => 
-            sub.toLowerCase().includes(vehicleParam.toLowerCase()) || 
+        const matchedGroup = sidebarModels.find(model =>
+          model.subModels.some(sub =>
+            sub.toLowerCase().includes(vehicleParam.toLowerCase()) ||
             vehicleParam.toLowerCase().includes(sub.toLowerCase())
           )
         );
@@ -121,7 +122,7 @@ export default function AccessoriesPage() {
     "Dòng Xe SUV": true,
     "Thương Hiệu": true
   });
-  
+
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 12;
@@ -151,37 +152,29 @@ export default function AccessoriesPage() {
     setCurrentPage(1);
   };
 
-  // Get all unique brands dynamically
-  const availableBrands = Array.from(
-    new Set(
+  // Extract unique brands dynamically
+  const brands = Array.from(
+    new Map(
       accessories
-        .map((item) => item.brand?.title)
-        .filter((title): title is string => !!title)
-    )
-  ).sort();
-
-  const handleBrandSelect = (brandName: string) => {
-    if (selectedBrand === brandName) {
-      setSelectedBrand(null);
-    } else {
-      setSelectedBrand(brandName);
-    }
-    setCurrentPage(1);
-  };
+        .map((acc) => acc.brand)
+        .filter((brand): brand is { id: number; title: string; slug: string } => !!brand)
+        .map((brand) => [brand.slug, brand])
+    ).values()
+  );
 
   // Filter Logic
   const filteredAccessories = accessories.filter((item) => {
     const matchesCategory = activeCategory === "all" || item.category === activeCategory;
-    const matchesSearch = 
-      item.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    const matchesSearch =
+      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.code.toLowerCase().includes(searchQuery.toLowerCase());
-      
-    const matchesVehicle = !selectedVehicle || 
-      item.fitVehicles.some(v => v.toLowerCase().includes(selectedVehicle.toLowerCase()) || 
-      selectedVehicle.toLowerCase().includes(v.toLowerCase()));
 
-    const matchesBrand = !selectedBrand || item.brand?.title === selectedBrand;
+    const matchesVehicle = !selectedVehicle ||
+      item.fitVehicles.some(v => v.toLowerCase().includes(selectedVehicle.toLowerCase()) ||
+        selectedVehicle.toLowerCase().includes(v.toLowerCase()));
+
+    const matchesBrand = !selectedBrand || (item.brand?.slug === selectedBrand);
 
     return matchesCategory && matchesSearch && matchesVehicle && matchesBrand;
   });
@@ -204,11 +197,11 @@ export default function AccessoriesPage() {
 
   return (
     <div className="bg-[#fafafa] min-h-screen text-[#1a1a1a] font-sans pb-16">
-      
+
       {/* 1. Featured Category Slider Section */}
       <section className="bg-[#fafafa] border-b border-[#d6d6d6] py-[40px]">
         <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full flex flex-col gap-[24px]">
-          
+
           <div className="flex flex-col gap-[8px]">
             <h1 className="font-['Ford_Antenna',sans-serif] font-semibold text-[32px] text-[#1a1a1a] leading-[1.2]">
               Sản Phẩm Nổi Bật
@@ -221,7 +214,7 @@ export default function AccessoriesPage() {
           {/* Slider Container */}
           <div className="relative w-full group">
             {/* Scrollable Track */}
-            <div 
+            <div
               id="category-slider-track"
               className="flex gap-[21px] overflow-x-auto pb-4 scrollbar-none snap-x snap-mandatory"
             >
@@ -247,7 +240,7 @@ export default function AccessoriesPage() {
                         {/* Overlay */}
                         <div className={`absolute inset-0 transition-colors duration-300 ${isActive ? "bg-black/10" : "bg-black/30 hover:bg-black/20"}`} />
                       </div>
-                      
+
                       {/* Title */}
                       <span className={`font-['Ford_Antenna',sans-serif] font-semibold text-center text-[18px] tracking-[0.18px] transition-colors duration-200
                         ${isActive ? "text-[#0562D2]" : "text-[#1a1a1a] hover:text-[#0562D2]"}`}
@@ -276,13 +269,13 @@ export default function AccessoriesPage() {
       {/* 2. Main Content Grid & Sidebar */}
       <section className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full py-[72px]">
         <div className="flex flex-col md:flex-row gap-[48px] items-start justify-center">
-          
+
           {/* Left Filter Sidebar - Flat, Clean Accordion List */}
           <div className="w-full md:w-[280px] flex flex-col gap-0 shrink-0">
             {sidebarModels.map((model) => {
               const isExpanded = expandedSidebar[model.name];
               const hasSubModels = model.subModels.length > 0;
-              
+
               return (
                 <div key={model.name} className="flex flex-col border-b border-[#e5e5e5] py-[16px] w-[280px]">
                   <button
@@ -331,35 +324,39 @@ export default function AccessoriesPage() {
               );
             })}
 
-            {/* Brands Filter Accordion */}
-            {availableBrands.length > 0 && (
+            {/* Brand Filter Accordion Section */}
+            {brands.length > 0 && (
               <div className="flex flex-col border-b border-[#e5e5e5] py-[16px] w-[280px]">
                 <button
-                  onClick={() => toggleSidebar("Thương Hiệu")}
+                  onClick={() => setIsBrandExpanded(!isBrandExpanded)}
                   className="flex items-center justify-between text-left w-full cursor-pointer border-0 bg-transparent transition-colors py-1"
                 >
-                  <span className={`font-['Ford_Antenna',sans-serif] font-semibold text-[16px] ${selectedBrand || expandedSidebar["Thương Hiệu"] ? "text-[#0562d2]" : "text-[#1a1a1a] hover:text-[#0562d2]"}`}>
+                  <span className={`font-['Ford_Antenna',sans-serif] font-semibold text-[16px] ${selectedBrand || isBrandExpanded ? "text-[#0562d2]" : "text-[#1a1a1a] hover:text-[#0562d2]"}`}>
                     Thương Hiệu
                   </span>
-                  {expandedSidebar["Thương Hiệu"] ? (
+                  {isBrandExpanded ? (
                     <Minus className="w-[20px] h-[20px] text-[#0562d2]" />
                   ) : (
                     <Plus className="w-[20px] h-[20px] text-[#0562d2]" />
                   )}
                 </button>
 
-                {expandedSidebar["Thương Hiệu"] && (
+                {isBrandExpanded && (
                   <div className="flex flex-col gap-[12px] pt-[12px] pb-[4px]">
-                    {availableBrands.map((brandName) => {
-                      const isSelected = selectedBrand === brandName;
+                    {brands.map((brand) => {
+                      const isSelected = selectedBrand === brand.slug;
                       return (
                         <button
-                          key={brandName}
-                          onClick={() => handleBrandSelect(brandName)}
-                          className={`text-left text-[16px] font-['Ford_Antenna',sans-serif] cursor-pointer border-0 bg-transparent transition-colors
+                          key={brand.slug}
+                          onClick={() => {
+                            setSelectedBrand(isSelected ? null : brand.slug);
+                            setCurrentPage(1);
+                          }}
+                          className={`text-left text-[16px] font-['Ford_Antenna',sans-serif] cursor-pointer border-0 bg-transparent transition-colors flex items-center justify-between
                             ${isSelected ? "text-[#0562d2] font-semibold" : "text-[#333] hover:text-[#0562d2]"}`}
                         >
-                          {brandName}
+                          <span>{brand.title}</span>
+                          {isSelected && <span className="text-xs text-[#0562d2] font-bold">✓</span>}
                         </button>
                       );
                     })}
@@ -459,7 +456,7 @@ export default function AccessoriesPage() {
                   >
                     <ChevronLeft className="w-[24px] h-[24px]" />
                   </button>
-                  
+
                   {Array.from({ length: totalPages }).map((_, idx) => {
                     const pageNum = idx + 1;
                     const isActive = currentPage === pageNum;

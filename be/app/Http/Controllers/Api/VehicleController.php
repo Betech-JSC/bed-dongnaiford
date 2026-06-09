@@ -19,16 +19,18 @@ class VehicleController extends Controller
     private function formatList(Vehicle $v): array
     {
         $data = [
-            'id'             => $v->id,
-            'category_id'    => $v->category_id,
-            'title'          => $v->title,
-            'slug'           => $v->slug,
-            'tagline'        => $v->tagline,
-            'image_url'      => $v->image_url,
-            'type'           => $v->type,
-            'base_price'     => $v->base_price,
-            'is_best_seller' => $v->is_best_seller,
-            'sort_order'     => $v->sort_order,
+            'id'                  => $v->id,
+            'category_id'         => $v->category_id,
+            'title'               => $v->title,
+            'slug'                => $v->slug,
+            'tagline'             => $v->tagline,
+            'image_url'           => $v->image_url,
+            'image_thumbnail_url' => $v->image_thumbnail_url,
+            'image_featured_url'  => $v->image_featured_url,
+            'type'                => $v->type,
+            'base_price'          => $v->base_price,
+            'is_best_seller'      => $v->is_best_seller,
+            'sort_order'          => $v->sort_order,
         ];
 
         if ($v->relationLoaded('versions')) {
@@ -184,6 +186,12 @@ class VehicleController extends Controller
                     }
                     if (isset($block['data']['image_large'])) {
                         $blocks[$i]['data']['image_large'] = $this->resolveFileUrl($block['data']['image_large']);
+                    }
+                    if (isset($block['data']['image_large_2'])) {
+                        $blocks[$i]['data']['image_large_2'] = $this->resolveFileUrl($block['data']['image_large_2']);
+                    }
+                    if (isset($block['data']['image_large_3'])) {
+                        $blocks[$i]['data']['image_large_3'] = $this->resolveFileUrl($block['data']['image_large_3']);
                     }
                     if (isset($block['data']['split_image'])) {
                         $blocks[$i]['data']['split_image'] = $this->resolveFileUrl($block['data']['split_image']);

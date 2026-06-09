@@ -33,7 +33,7 @@ export type Province = (typeof PROVINCES)[number];
 export function calculateRollingCost(
   vehicle: Vehicle,
   version: Version,
-  province: Province
+  province: string
 ): RollingCostBreakdown {
   const basePrice = version.price;
 
@@ -41,8 +41,10 @@ export function calculateRollingCost(
   const registrationTaxRate = vehicle.type === "pickup" ? 0.06 : 0.1;
   const registrationTax = basePrice * registrationTaxRate;
 
-  // Phí biển số: 20 triệu cho TP.HCM, 1 triệu cho các tỉnh khác
-  const plateFee = province === "TP. Hồ Chí Minh" ? 20_000_000 : 1_000_000;
+  // Phí biển số: 20 triệu cho 6 Thành phố trực thuộc Trung ương, 1 triệu cho các tỉnh khác
+  const bigCities = ["Hà Nội", "Hồ Chí Minh", "Hải Phòng", "Đà Nẵng", "Cần Thơ", "Huế"];
+  const isBigCity = bigCities.some(city => province.toLowerCase().includes(city.toLowerCase()));
+  const plateFee = isBigCity ? 20_000_000 : 1_000_000;
 
   // Phí đăng kiểm
   const registryFee = 340_000;

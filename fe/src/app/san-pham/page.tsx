@@ -144,7 +144,7 @@ export default function ProductsPage() {
     const price = typeof v.base_price === 'string' ? parseFloat(v.base_price) : (v.base_price || v.basePrice || 0);
     const id = v.slug || v.id;
     const name = v.title || v.name;
-    const image = v.image_url || v.images?.[0] || getPopularVehicleImage(id, "");
+    const image = v.image_thumbnail_url || v.image_url || v.images?.[0] || getPopularVehicleImage(id, "");
     
     let categorySlug = "all";
     if (v.category_id) {

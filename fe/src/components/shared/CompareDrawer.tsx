@@ -60,7 +60,7 @@ export default function CompareDrawer() {
             const staticV = vehicles.find((sv) => sv.id === v.slug || sv.id === String(v.id));
             const id = v.slug || String(v.id);
             const name = v.title || v.name || "";
-            const image = v.image_url || v.images?.[0] || getPopularVehicleImage(id, "");
+            const image = (v as any).image_thumbnail_url || v.image_url || v.images?.[0] || getPopularVehicleImage(id, "");
             const price = typeof v.base_price === 'string' ? parseFloat(v.base_price) : (v.base_price || v.basePrice || 0);
             return {
               id,

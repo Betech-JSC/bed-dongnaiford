@@ -86,6 +86,7 @@
                                 type: 'file_upload',
                                 name: 'hb_bg_' + activeIndex,
                                 label: 'Hình ảnh nền (Background)',
+                                urlOnly: true,
                             }" />
                         </div>
 
@@ -113,6 +114,7 @@
                                 type: 'file_upload',
                                 name: 'pr_img_' + activeIndex,
                                 label: 'Ảnh banner khuyến mãi',
+                                urlOnly: true,
                             }" />
                         </div>
 
@@ -144,17 +146,20 @@
                                         type: 'file_upload',
                                         name: 'fg_img1_' + activeIndex,
                                         label: 'Ảnh lưới 1 (Ảnh lớn trên)',
+                                        urlOnly: true,
                                     }" />
                                     <div class="grid grid-cols-2 gap-3">
                                         <Field v-model="blocks[activeIndex].data.image_2" :field="{
                                             type: 'file_upload',
                                             name: 'fg_img2_' + activeIndex,
                                             label: 'Ảnh lưới 2 (dưới trái)',
+                                            urlOnly: true,
                                         }" />
                                         <Field v-model="blocks[activeIndex].data.image_3" :field="{
                                             type: 'file_upload',
                                             name: 'fg_img3_' + activeIndex,
                                             label: 'Ảnh lưới 3 (dưới phải)',
+                                            urlOnly: true,
                                         }" />
                                     </div>
                                 </div>
@@ -171,8 +176,23 @@
                                     <Field v-model="blocks[activeIndex].data.image_large" :field="{
                                         type: 'file_upload',
                                         name: 'fg_img_l_' + activeIndex,
-                                        label: 'Ảnh nội thất lớn',
+                                        label: 'Ảnh nội thất lớn (Trái)',
+                                        urlOnly: true,
                                     }" />
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <Field v-model="blocks[activeIndex].data.image_large_2" :field="{
+                                            type: 'file_upload',
+                                            name: 'fg_img_l2_' + activeIndex,
+                                            label: 'Ảnh phụ 1 (Phải trên)',
+                                            urlOnly: true,
+                                        }" />
+                                        <Field v-model="blocks[activeIndex].data.image_large_3" :field="{
+                                            type: 'file_upload',
+                                            name: 'fg_img_l3_' + activeIndex,
+                                            label: 'Ảnh phụ 2 (Phải dưới)',
+                                            urlOnly: true,
+                                        }" />
+                                    </div>
                                 </div>
                             </div>
 
@@ -188,6 +208,7 @@
                                         type: 'file_upload',
                                         name: 'fg_img_s_' + activeIndex,
                                         label: 'Ảnh công nghệ (Trái)',
+                                        urlOnly: true,
                                     }" />
                                     <Field v-model="blocks[activeIndex].data.split_title" :field="{
                                         type: 'text',
@@ -261,6 +282,7 @@
                                     type: 'file_upload',
                                     name: 'fl_img_' + activeIndex + '_' + fIndex,
                                     label: 'Ảnh minh họa',
+                                    urlOnly: true,
                                 }" />
                             </div>
                         </div>
@@ -319,6 +341,7 @@
                                 type: 'file_upload',
                                 name: 'bb_car_image_' + activeIndex,
                                 label: 'Ảnh xe đè',
+                                urlOnly: true,
                             }" />
                         </div>
                     </div>
@@ -365,7 +388,8 @@
                                 <div class="flex gap-2 items-center">
                                     <input 
                                         type="color" 
-                                        v-model="blocks[activeIndex].data.title_color" 
+                                        :value="lowercaseColor(blocks[activeIndex].data.title_color)" 
+                                        @input="blocks[activeIndex].data.title_color = $event.target.value"
                                         class="w-8 h-8 rounded-lg cursor-pointer border border-slate-800 bg-transparent p-0 shrink-0"
                                     />
                                     <input 
@@ -396,7 +420,8 @@
                                 <div class="flex gap-2 items-center">
                                     <input 
                                         type="color" 
-                                        v-model="blocks[activeIndex].data.desc_color" 
+                                        :value="lowercaseColor(blocks[activeIndex].data.desc_color)" 
+                                        @input="blocks[activeIndex].data.desc_color = $event.target.value"
                                         class="w-8 h-8 rounded-lg cursor-pointer border border-slate-800 bg-transparent p-0 shrink-0"
                                     />
                                     <input 
@@ -415,7 +440,8 @@
                             <div class="flex gap-2 items-center">
                                 <input 
                                     type="color" 
-                                    v-model="blocks[activeIndex].data.tagline_color" 
+                                    :value="lowercaseColor(blocks[activeIndex].data.tagline_color)" 
+                                    @input="blocks[activeIndex].data.tagline_color = $event.target.value"
                                     class="w-8 h-8 rounded-lg cursor-pointer border border-slate-800 bg-transparent p-0 shrink-0"
                                 />
                                 <input 
@@ -620,6 +646,23 @@ export default {
         window.removeEventListener('message', this.handleIframeMessage);
     },
     methods: {
+        lowercaseColor(val) {
+            if (!val || typeof val !== 'string') return '#ffffff';
+            let cleaned = val.trim();
+            if (!cleaned.startsWith('#')) {
+                cleaned = '#' + cleaned;
+            }
+            if (cleaned.length !== 7) {
+                if (cleaned.length === 4) {
+                    const r = cleaned[1];
+                    const g = cleaned[2];
+                    const b = cleaned[3];
+                    return (`#${r}${r}${g}${g}${b}${b}`).toLowerCase();
+                }
+                return '#ffffff';
+            }
+            return cleaned.toLowerCase();
+        },
         onIframeLoad() {
             this.iframeLoaded = true;
             this.syncAllData();
@@ -785,6 +828,8 @@ export default {
                     image_3: null,
                     title_2: '',
                     image_large: null,
+                    image_large_2: null,
+                    image_large_3: null,
                     title_3: '',
                     split_image: null,
                     split_title: '',
@@ -853,9 +898,11 @@ export default {
                 this.blocks[blockIndex].data.split_features = []
             }
             this.blocks[blockIndex].data.split_features.push({ value: '', label: '' })
+            this.blocks = [...this.blocks]
         },
         removeSplitFeature(blockIndex, featIndex) {
             this.blocks[blockIndex].data.split_features.splice(featIndex, 1)
+            this.blocks = [...this.blocks]
         },
 
         // Helper methods for FeaturesList
@@ -864,9 +911,11 @@ export default {
                 this.blocks[blockIndex].data.features = []
             }
             this.blocks[blockIndex].data.features.push({ title: '', description: '', image: null })
+            this.blocks = [...this.blocks]
         },
         removeFeature(blockIndex, fIndex) {
             this.blocks[blockIndex].data.features.splice(fIndex, 1)
+            this.blocks = [...this.blocks]
         },
 
         // Helper methods for AccordionFAQs
@@ -875,13 +924,16 @@ export default {
                 this.blocks[blockIndex].data.faqs = []
             }
             this.blocks[blockIndex].data.faqs.push({ q: '', a: '', is_open: true })
+            this.blocks = [...this.blocks]
         },
         removeFaq(blockIndex, faqIndex) {
             this.blocks[blockIndex].data.faqs.splice(faqIndex, 1)
+            this.blocks = [...this.blocks]
         },
         toggleFaqOpen(blockIndex, faqIndex) {
             const faq = this.blocks[blockIndex].data.faqs[faqIndex]
             faq.is_open = !faq.is_open
+            this.blocks = [...this.blocks]
         },
 
         // Image URL helpers
@@ -919,11 +971,34 @@ export default {
     background: transparent;
 }
 .scrollbar-thin::-webkit-scrollbar-thumb {
-    background-color: #1e293b;
+    background-color: #003478; /* dnf Classic Blue */
     border-radius: 20px;
 }
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-    background-color: #334155;
+    background-color: #0562d2; /* dnf Vivid Blue */
+}
+
+/* Page builder container background colors */
+.page-builder-container {
+    background-color: #00095B !important; /* Ford Deep Navy */
+}
+
+.page-builder-container .w-full.md\:w-\[420px\] {
+    background-color: #00052a !important; /* Extra Deep Navy Sidebar */
+    border-color: #002256 !important;
+}
+
+/* Address bar & live preview wrapper */
+.page-builder-container .bg-slate-900 {
+    background-color: #00095B !important;
+}
+.page-builder-container .border-b-slate-800,
+.page-builder-container .border-slate-800,
+.page-builder-container .border-r-slate-800 {
+    border-color: #002256 !important;
+}
+.page-builder-container .bg-slate-950 {
+    background-color: #00052a !important;
 }
 
 /* Dark Theme Design System Overrides for CMS Page Builder inputs */
@@ -936,21 +1011,21 @@ export default {
 .page-builder-container :deep(.p-dropdown),
 .page-builder-container :deep(.p-selectbutton),
 .page-builder-container :deep(.bg-gray-50) {
-    background-color: #0d1527 !important; /* Premium dark navy input background matching dnf brand */
-    color: #e2e8f0 !important; /* text-slate-200 */
-    border: 1px solid #1e293b !important; /* border-slate-800 */
-    border-radius: 8px !important;
+    background-color: #00095B !important; /* Deep Navy input background matching dnf brand */
+    color: #f8fafc !important;
+    border: 1px solid #003478 !important; /* border Classic Blue */
+    border-radius: 6px !important;
     padding: 0.625rem 0.875rem !important;
     font-size: 0.8rem !important;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06) !important;
+    box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.2) !important;
 }
 
 /* Specific Select Tag dropdown styling */
 .page-builder-container :deep(select) {
     height: 42px !important;
     appearance: none !important;
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2338bdf8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
     background-repeat: no-repeat !important;
     background-position: right 0.75rem center !important;
     background-size: 1rem !important;
@@ -966,8 +1041,8 @@ export default {
 .page-builder-container :deep(.p-inputtext:hover),
 .page-builder-container :deep(.p-inputtextarea:hover),
 .page-builder-container :deep(.p-dropdown:hover) {
-    border-color: #334155 !important; /* border-slate-700 */
-    background-color: #111a2e !important;
+    border-color: #066fef !important; /* Vivid Accent Blue hover */
+    background-color: #000c4f !important;
 }
 
 .page-builder-container :deep(input[type="text"]:focus),
@@ -978,8 +1053,8 @@ export default {
 .page-builder-container :deep(.p-inputtextarea:focus),
 .page-builder-container :deep(.p-dropdown:focus) {
     border-color: #0562d2 !important; /* Ford brand primary blue */
-    background-color: #111a2e !important;
-    box-shadow: 0 0 0 3px rgba(5, 98, 210, 0.2) !important;
+    background-color: #000c4f !important;
+    box-shadow: 0 0 0 3px rgba(5, 98, 210, 0.3) !important;
     outline: none !important;
 }
 
@@ -993,22 +1068,22 @@ export default {
 
 /* Dark layout overrides for file uploads & media selector */
 .page-builder-container :deep(.bg-gray-50) {
-    background-color: #0d1527 !important;
-    border: 1px dashed #1e293b !important;
-    border-radius: 8px !important;
+    background-color: #00095B !important;
+    border: 1px dashed #003478 !important;
+    border-radius: 6px !important;
     color: #94a3b8 !important;
     padding: 0.75rem !important;
 }
 .page-builder-container :deep(.bg-gray-50:hover) {
-    background-color: #111a2e !important;
-    border-color: #334155 !important;
+    background-color: #000c4f !important;
+    border-color: #066fef !important;
     color: #cbd5e1 !important;
 }
 .page-builder-container :deep(.border-gray-400),
 .page-builder-container :deep(.border-gray-300),
 .page-builder-container :deep(.border-gray-250),
 .page-builder-container :deep(.border-gray-200) {
-    border-color: #1e293b !important;
+    border-color: #003478 !important;
     border-style: dashed !important;
 }
 .page-builder-container :deep(.text-gray-600),
@@ -1019,8 +1094,8 @@ export default {
 /* Premium Color picker swatch customization */
 .page-builder-container input[type="color"] {
     -webkit-appearance: none;
-    border: 1px solid #1e293b !important;
-    border-radius: 8px !important;
+    border: 1px solid #003478 !important;
+    border-radius: 6px !important;
     width: 42px !important;
     height: 42px !important;
     cursor: pointer;
@@ -1033,7 +1108,7 @@ export default {
 }
 .page-builder-container input[type="color"]::-webkit-color-swatch {
     border: none !important;
-    border-radius: 7px !important;
+    border-radius: 5px !important;
 }
 
 /* Label visual design overrides (clean typography) */
@@ -1051,21 +1126,29 @@ export default {
 /* Design & Layout cards styling */
 .page-builder-container .bg-slate-900,
 .page-builder-container .border-slate-800 {
-    background-color: #0b1329 !important; /* deep card navy */
-    border-color: #1a2542 !important; /* slate-800 equivalent */
+    background-color: #000d6b !important; /* deep card navy matching dnf secondary */
+    border-color: #003478 !important; /* Classic Blue border */
 }
 
 /* Alignment group button overrides */
 .page-builder-container button.bg-slate-950 {
-    background-color: #0d1527 !important;
-    border-color: #1e293b !important;
+    background-color: #00095B !important;
+    border-color: #003478 !important;
 }
 .page-builder-container button.bg-slate-950:hover {
-    background-color: #111a2e !important;
+    background-color: #000c4f !important;
     color: #f8fafc !important;
 }
 .page-builder-container button.bg-blue-600 {
     background-color: #0562d2 !important; /* Ford blue */
     border-color: #0562d2 !important;
+}
+
+/* Active index border highlights */
+.page-builder-container .ring-2.ring-blue-500 {
+    --tw-ring-color: #0562d2 !important;
+}
+.page-builder-container .text-blue-400 {
+    color: #066fef !important;
 }
 </style>

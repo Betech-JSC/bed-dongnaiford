@@ -125,6 +125,7 @@ export default function Blocks({
                 vehicle={vehicle}
                 isEditMode={isEditMode}
                 onChangeData={(updatedData: any) => onChangeBlock(index, updatedData)}
+                openQuoteDrawer={openQuoteDrawer}
                 anchorId={block.anchorId}
               />
             );
@@ -999,8 +1000,6 @@ function ThreeSixtyViewerBlock({ data, vehicle, isEditMode, onChangeData, threeS
     tilt, setTilt,
     pan, setPan,
     isDragging, setIsDragging,
-    threeLoaded, setThreeLoaded,
-    threeRef,
     isTrimDropdownOpen, setIsTrimDropdownOpen,
     isMobileColorOpen, setIsMobileColorOpen,
     isMobileInteriorColorOpen, setIsMobileInteriorColorOpen,
@@ -1191,18 +1190,22 @@ function ThreeSixtyViewerBlock({ data, vehicle, isEditMode, onChangeData, threeS
                       {renderCarPicture()}
                     </div>
                   ) : (
-                    vehicle.id === "mustang-fastback" ? (
-                      <div className="cmp-360-image-container w-full h-full relative" tabIndex={0}>
-                        {renderCarPicture()}
+                    vehicle.image_360_internal_url ? (
+                      <div className="w-full h-full relative overflow-hidden bg-black">
+                        <iframe 
+                          src={vehicle.image_360_internal_url}
+                          className="w-full h-full border-0 absolute inset-0"
+                          allowFullScreen
+                          allow="gyroscope; accelerometer"
+                        />
                       </div>
                     ) : (
-                      <div ref={threeRef} className="relative w-full h-full overflow-hidden bg-black">
-                        {!threeLoaded && (
-                          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black text-white gap-3 z-10">
-                            <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                            <span className="text-xs font-bold uppercase tracking-wider">Đang khởi tạo cabin 3D...</span>
-                          </div>
-                        )}
+                      <div className="relative w-full h-full bg-slate-900 flex items-center justify-center overflow-hidden">
+                        <img 
+                          src={media?.bannerLarge || (vehicle.images && vehicle.images.length > 1 ? vehicle.images[1] : null) || "/assets/territory-interior.png"}
+                          alt="Interior panorama fallback"
+                          className="w-full h-full object-cover select-none pointer-events-none"
+                        />
                       </div>
                     )
                   )
@@ -1271,6 +1274,8 @@ function FeaturesGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId }
   
   const title_2 = data.title_2 || "Không gian nội thất rộng rãi, tiện nghi";
   const image_large = data.image_large || vehicle?.images?.[5] || vehicle?.images?.[1] || "/assets/territory-interior.png";
+  const image_large_2 = data.image_large_2 || vehicle?.images?.[6] || vehicle?.images?.[2] || "/assets/territory-interior.png";
+  const image_large_3 = data.image_large_3 || vehicle?.images?.[7] || vehicle?.images?.[3] || "/assets/territory-interior.png";
   
   const title_3 = data.title_3 || "Nâng tầm công nghệ và tiện nghi Tận hưởng trên mọi hành trình";
   const split_image = data.split_image || vehicle?.images?.[6] || vehicle?.images?.[0] || "/assets/territory-tech-split.png";
@@ -1372,14 +1377,38 @@ function FeaturesGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId }
           )}
         </div>
 
-        <div className="h-[400px] sm:h-[800px] relative rounded-[12px] overflow-hidden w-full bg-gray-150 shadow-xs">
-          <img src={image_large} alt="Interior Large" className="w-full h-full object-cover" />
-          {isEditMode && (
-            <div className="absolute top-4 left-4 z-20 bg-black/75 p-3 rounded-lg border border-dashed border-white/40 text-xs text-white">
-              <span className="block mb-2 font-semibold">Thay thế ảnh lớn:</span>
-              <input type="file" accept="image/*" onChange={(e) => handleUploadImage("image_large", e)} className="block w-full text-xs text-gray-400 cursor-pointer" />
+        <div className="flex gap-0 items-stretch w-full flex-col lg:flex-row min-h-[400px] lg:h-[600px] rounded-[12px] overflow-hidden shadow-xs">
+          {/* Left large image */}
+          <div className="flex-1 lg:flex-[2] aspect-[16/10] sm:aspect-auto relative bg-gray-150 w-full min-h-[300px]">
+            <img src={image_large} alt="Interior Large" className="w-full h-full object-cover" />
+            {isEditMode && (
+              <div className="absolute top-4 left-4 z-20 bg-black/75 p-3 rounded-lg border border-dashed border-white/40 text-xs text-white">
+                <span className="block mb-2 font-semibold">Thay thế ảnh lớn (Trái):</span>
+                <input type="file" accept="image/*" onChange={(e) => handleUploadImage("image_large", e)} className="block w-full text-xs text-gray-400 cursor-pointer" />
+              </div>
+            )}
+          </div>
+          {/* Right stacked images */}
+          <div className="flex-1 flex flex-col gap-0 w-full min-h-[300px]">
+            <div className="flex-1 aspect-[16/10] sm:aspect-auto relative bg-gray-150 w-full min-h-[140px]">
+              <img src={image_large_2} alt="Interior Small 1" className="w-full h-full object-cover" />
+              {isEditMode && (
+                <div className="absolute top-4 left-4 z-20 bg-black/75 p-3 rounded-lg border border-dashed border-white/40 text-xs text-white">
+                  <span className="block mb-2 font-semibold">Thay thế ảnh phụ 1 (Phải trên):</span>
+                  <input type="file" accept="image/*" onChange={(e) => handleUploadImage("image_large_2", e)} className="block w-full text-xs text-gray-400 cursor-pointer" />
+                </div>
+              )}
             </div>
-          )}
+            <div className="flex-1 aspect-[16/10] sm:aspect-auto relative bg-gray-150 w-full min-h-[140px]">
+              <img src={image_large_3} alt="Interior Small 2" className="w-full h-full object-cover" />
+              {isEditMode && (
+                <div className="absolute top-4 left-4 z-20 bg-black/75 p-3 rounded-lg border border-dashed border-white/40 text-xs text-white">
+                  <span className="block mb-2 font-semibold">Thay thế ảnh phụ 2 (Phải dưới):</span>
+                  <input type="file" accept="image/*" onChange={(e) => handleUploadImage("image_large_3", e)} className="block w-full text-xs text-gray-400 cursor-pointer" />
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
         <div className="flex flex-col items-center pt-[32px] px-[48px] w-full max-w-[1152px] text-center mt-8 text-black">
@@ -1487,8 +1516,12 @@ function FeaturesGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId }
 /* ==========================================================================
    8. VERSIONS GRID BLOCK
    ========================================================================== */
-function VersionsGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId }: any) {
-  const title = data.title || `Các mẫu xe Ford ${vehicle?.name?.replace("NEW ", "") || ""}`;
+function VersionsGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId, openQuoteDrawer }: any) {
+  const vehicleName = vehicle?.name || "";
+  const cleanName = vehicleName.toLowerCase().startsWith("ford") 
+    ? vehicleName.slice(4).trim() 
+    : vehicleName;
+  const title = data.title || `Các mẫu xe Ford ${cleanName.replace("NEW ", "") || ""}`;
   const descriptions = data.descriptions || [];
   const versions = vehicle?.versions || [];
 
@@ -1540,9 +1573,12 @@ function VersionsGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId }
             return (
               <div
                 key={ver.id}
-                className="bg-[#fafafa] flex flex-col items-center overflow-hidden rounded-[8px] text-left border border-gray-200/50 p-4 transition-transform shadow-xs"
+                onClick={isEditMode ? undefined : () => openQuoteDrawer?.(vehicle?.id, ver.id)}
+                className={`bg-[#fafafa] flex flex-col items-center overflow-hidden rounded-[8px] text-left border border-gray-200/50 p-4 transition-all duration-300 shadow-xs h-full justify-between ${
+                  isEditMode ? "" : "hover:scale-[1.02] hover:shadow-md cursor-pointer group"
+                }`}
               >
-                <div className="aspect-[272/272] relative rounded-[12px] overflow-hidden w-full bg-gray-150">
+                <div className="aspect-[272/272] relative rounded-[12px] overflow-hidden w-full bg-gray-150 shrink-0">
                   <img 
                     src={versionGradients[idx] || "/assets/img-gradient-1.png"} 
                     alt={ver.name}
@@ -1550,7 +1586,7 @@ function VersionsGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId }
                   />
                 </div>
                 
-                <div className="flex flex-col items-start py-[24px] w-full">
+                <div className="flex flex-col items-start pt-[24px] pb-[8px] w-full flex-grow justify-between">
                   <div className="flex flex-col gap-[12px] items-start w-full">
                     <p className="font-['Ford_Antenna',sans-serif] font-semibold text-[#1a1a1a] text-[20px] leading-[1.25]">
                       {ver.name}
@@ -1572,6 +1608,13 @@ function VersionsGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId }
                       </p>
                     )}
                   </div>
+
+                  {!isEditMode && (
+                    <div className="mt-6 font-['Ford_Antenna',sans-serif] font-semibold text-[#0562d2] text-[14px] flex items-center gap-1 group-hover:text-[#044ea7] transition-colors">
+                      <span>Xem chi tiết &amp; Ước tính lăn bánh</span>
+                      <span className="transform group-hover:translate-x-1 transition-transform">→</span>
+                    </div>
+                  )}
                 </div>
               </div>
             );

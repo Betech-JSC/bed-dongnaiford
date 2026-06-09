@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -163,7 +163,7 @@ export default function Home() {
         const postsItems = (postsData as any)?.posts?.data || (postsData as any)?.data || postsData;
         if (Array.isArray(postsItems) && postsItems.length > 0) {
           setHomeArticles(postsItems.slice(0, 3).map((item: any) => ({
-            id: item.id || item.slug || String(Math.random()),
+            id: item.slug || item.id || String(Math.random()),
             title: item.title || "",
             image: item.image?.url || "/placeholder-news.jpg",
           })));
@@ -225,6 +225,154 @@ export default function Home() {
   const [toastMessage, setToastMessage] = useState("");
   const [showBackToTop, setShowBackToTop] = useState(false);
 
+  // Drag states and refs for Hero, Testimonials, Popular Fleet, and News
+  const [testimonialDragOffset, setTestimonialDragOffset] = useState(0);
+  const testimonialDragStartX = useRef(0);
+  const isTestimonialDragging = useRef(false);
+  const testimonialWasDragged = useRef(false);
+
+  const [popularDragOffset, setPopularDragOffset] = useState(0);
+  const popularDragStartX = useRef(0);
+  const isPopularDragging = useRef(false);
+  const popularWasDragged = useRef(false);
+
+  const [newsDragOffset, setNewsDragOffset] = useState(0);
+  const newsDragStartX = useRef(0);
+  const isNewsDragging = useRef(false);
+  const newsWasDragged = useRef(false);
+
+  const heroDragStartX = useRef(0);
+  const isHeroDragging = useRef(false);
+
+  // Drag handlers for Hero Banner
+  const handleHeroStart = (clientX: number) => {
+    heroDragStartX.current = clientX;
+    isHeroDragging.current = true;
+  };
+
+  const handleHeroEnd = (clientX: number) => {
+    if (!isHeroDragging.current) return;
+    isHeroDragging.current = false;
+    const diff = clientX - heroDragStartX.current;
+    if (diff > 50) {
+      // Swipe right: previous slide
+      setActiveHeroIndex((prev) => (prev - 1 + heroSlides.length) % heroSlides.length);
+    } else if (diff < -50) {
+      // Swipe left: next slide
+      setActiveHeroIndex((prev) => (prev + 1) % heroSlides.length);
+    }
+  };
+
+  // Drag handlers for Testimonials
+  const handleTestimonialStart = (clientX: number) => {
+    testimonialDragStartX.current = clientX;
+    isTestimonialDragging.current = true;
+    setIsTestimonialInteracted(true); // Pause autoplay
+  };
+
+  const handleTestimonialMove = (clientX: number) => {
+    if (!isTestimonialDragging.current) return;
+    const diff = clientX - testimonialDragStartX.current;
+    setTestimonialDragOffset(diff);
+  };
+
+  const handleTestimonialEnd = () => {
+    if (!isTestimonialDragging.current) return;
+    isTestimonialDragging.current = false;
+    
+    const dist = Math.abs(testimonialDragOffset);
+    if (dist > 10) {
+      testimonialWasDragged.current = true;
+      setTimeout(() => {
+        testimonialWasDragged.current = false;
+      }, 50);
+    } else {
+      testimonialWasDragged.current = false;
+    }
+
+    if (testimonialDragOffset > 50) {
+      setActiveTestimonialIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
+    } else if (testimonialDragOffset < -50) {
+      setActiveTestimonialIndex((prev) => (prev + 1) % testimonials.length);
+    }
+    
+    setTestimonialDragOffset(0);
+  };
+
+  // Drag handlers for Popular Fleet
+  const handlePopularStart = (clientX: number) => {
+    popularDragStartX.current = clientX;
+    isPopularDragging.current = true;
+    setIsPopularInteracted(true); // Pause autoplay
+  };
+
+  const handlePopularMove = (clientX: number) => {
+    if (!isPopularDragging.current) return;
+    const diff = clientX - popularDragStartX.current;
+    setPopularDragOffset(diff);
+  };
+
+  const handlePopularEnd = () => {
+    if (!isPopularDragging.current) return;
+    isPopularDragging.current = false;
+    
+    const dist = Math.abs(popularDragOffset);
+    if (dist > 10) {
+      popularWasDragged.current = true;
+      setTimeout(() => {
+        popularWasDragged.current = false;
+      }, 50);
+    } else {
+      popularWasDragged.current = false;
+    }
+
+    if (popularDragOffset > 50) {
+      setIsPopularTransitioning(true);
+      setActivePopularIndex((prev) => prev - 1);
+    } else if (popularDragOffset < -50) {
+      setIsPopularTransitioning(true);
+      setActivePopularIndex((prev) => prev + 1);
+    }
+    
+    setPopularDragOffset(0);
+  };
+
+  // Drag handlers for News & Offers (Mobile)
+  const handleNewsStart = (clientX: number) => {
+    newsDragStartX.current = clientX;
+    isNewsDragging.current = true;
+    setIsNewsHovered(true); // Pause autoplay
+  };
+
+  const handleNewsMove = (clientX: number) => {
+    if (!isNewsDragging.current) return;
+    const diff = clientX - newsDragStartX.current;
+    setNewsDragOffset(diff);
+  };
+
+  const handleNewsEnd = () => {
+    if (!isNewsDragging.current) return;
+    isNewsDragging.current = false;
+    
+    const dist = Math.abs(newsDragOffset);
+    if (dist > 10) {
+      newsWasDragged.current = true;
+      setTimeout(() => {
+        newsWasDragged.current = false;
+      }, 50);
+    } else {
+      newsWasDragged.current = false;
+    }
+
+    if (newsDragOffset > 50) {
+      setActiveNewsIndex((prev) => (prev - 1 + homeArticles.length) % homeArticles.length);
+    } else if (newsDragOffset < -50) {
+      setActiveNewsIndex((prev) => (prev + 1) % homeArticles.length);
+    }
+    
+    setNewsDragOffset(0);
+  };
+
   // Monitor scroll height to show/hide Back to Top button
   useEffect(() => {
     const handleScroll = () => {
@@ -245,20 +393,20 @@ export default function Home() {
     });
   };
 
-  // Auto-play hero slides every 6 seconds
+  // Auto-play hero slides every 2.5 seconds
   useEffect(() => {
     const timer = setInterval(() => {
       setActiveHeroIndex((prev) => (prev + 1) % heroSlides.length);
-    }, 6000);
+    }, 2500);
     return () => clearInterval(timer);
   }, [activeHeroIndex]);
 
-  // Auto-play testimonials every 3.5 seconds, pause on hover or if interacted
+  // Auto-play testimonials every 2.5 seconds, pause on hover or if interacted
   useEffect(() => {
     if (isHovered || isTestimonialInteracted) return;
     const timer = setInterval(() => {
       setActiveTestimonialIndex((prev) => (prev + 1) % testimonials.length);
-    }, 3500);
+    }, 2500);
     return () => clearInterval(timer);
   }, [isHovered, isTestimonialInteracted]);
 
@@ -272,13 +420,13 @@ export default function Home() {
     }
   }, [isTestimonialInteracted]);
 
-  // Auto-play popular fleet every 4.0 seconds, pause on hover or if interacted (with infinite loop support)
+  // Auto-play popular fleet every 2.5 seconds, pause on hover or if interacted (with infinite loop support)
   useEffect(() => {
     if (isPopularHovered || isPopularInteracted) return;
     const timer = setInterval(() => {
       setIsPopularTransitioning(true);
       setActivePopularIndex((prev) => prev + 1);
-    }, 4000);
+    }, 2500);
     return () => clearInterval(timer);
   }, [isPopularHovered, isPopularInteracted]);
 
@@ -292,15 +440,14 @@ export default function Home() {
     }
   }, [isPopularInteracted]);
 
-  // Auto-play news/offers every 4.5 seconds, pause on hover
+  // Auto-play news/offers every 2.5 seconds, pause on hover
   useEffect(() => {
     if (isNewsHovered || homeArticles.length === 0) return;
     const timer = setInterval(() => {
       setActiveNewsIndex((prev) => (prev + 1) % homeArticles.length);
-    }, 4500);
+    }, 2500);
     return () => clearInterval(timer);
   }, [isNewsHovered, homeArticles.length]);
-
   // Filter vehicles based on active showroom category
   const getFilteredVehicles = () => {
     if (vehiclesList.length === 0) {
@@ -376,7 +523,8 @@ export default function Home() {
   };
 
   const getPopularVehicleImageForSlide = (vehicle: any) => {
-    // API vehicles have image_url, static vehicles have images array
+    // Slider: ưu tiên ảnh featured panoramic, fallback về image_url
+    if (vehicle.image_featured_url) return vehicle.image_featured_url;
     if (vehicle.image_url) return vehicle.image_url;
     return getPopularVehicleImage(vehicle.id, vehicle.images?.[0] || "");
   };
@@ -384,8 +532,14 @@ export default function Home() {
   return (
     <div className="relative min-h-screen bg-light overflow-x-hidden font-sans">
 
-      {/* 1. HERO BANNER SECTION (WITH INTERACTIVE TABS & PREV/NEXT ARROWS) */}
-      <section className="relative lg:h-[746px] min-h-[600px] flex flex-col justify-end bg-black text-white overflow-hidden pt-12 md:pt-16 pb-0">
+      <section 
+        className="relative lg:h-[746px] min-h-[600px] flex flex-col justify-end bg-black text-white overflow-hidden pt-12 md:pt-16 pb-0 select-none cursor-grab active:cursor-grabbing"
+        onMouseDown={(e) => handleHeroStart(e.clientX)}
+        onMouseUp={(e) => handleHeroEnd(e.clientX)}
+        onMouseLeave={() => { isHeroDragging.current = false; }}
+        onTouchStart={(e) => handleHeroStart(e.touches[0].clientX)}
+        onTouchEnd={(e) => handleHeroEnd(e.changedTouches[0].clientX)}
+      >
 
         {/* Absolute Background Slides (with fade transitions) */}
         {heroSlides.map((slide, idx) => (
@@ -542,7 +696,7 @@ export default function Home() {
             {getFilteredVehicles().map((vehicle) => {
               const vehicleId = vehicle.slug || vehicle.id;
               const vehicleName = vehicle.title || vehicle.name;
-              const vehicleImage = vehicle.image_url || getPopularVehicleImage(vehicle.slug || vehicle.id, vehicle.images?.[0] || "");
+              const vehicleCardImage = vehicle.image_thumbnail_url || vehicle.image_url || getPopularVehicleImage(vehicle.slug || vehicle.id, vehicle.images?.[0] || "");
               const vehiclePrice = vehicle.base_price || vehicle.basePrice || 0;
 
               return (
@@ -551,14 +705,14 @@ export default function Home() {
                   href={`/san-pham/${vehicleId}`}
                   className="bg-white border border-[#EAECF0] rounded-2xl p-6 flex flex-col justify-between hover:shadow-lg transition-all duration-300 relative group cursor-pointer h-full"
                 >
-                  {/* Image Section */}
+                  {/* Image Section — white bg, object-contain for cutout thumbnail */}
                   <div className="relative h-48 w-full bg-white overflow-hidden mb-6 flex items-center justify-center">
                     <Image
-                      src={vehicleImage}
+                      src={vehicleCardImage}
                       alt={vehicleName}
                       fill
                       sizes="(max-width: 768px) 100vw, 30vw"
-                      className="object-contain object-center group-hover:scale-105 transition-transform duration-500"
+                      className="object-contain object-center group-hover:scale-105 transition-transform duration-500 p-2"
                       onError={handleImageError}
                     />
                   </div>
@@ -623,18 +777,31 @@ export default function Home() {
           </div>
 
           {/* Vehicle cards sliding container */}
-          <div className="relative w-full overflow-visible py-4 pl-4 xl:pl-[144px] min-[1440px]:pl-[calc((100vw-1152px)/2)]">
+          <div className="relative w-full overflow-visible py-4 pl-4 xl:pl-[144px] min-[1440px]:pl-[calc((100vw-1152px)/2)] select-none">
             <div
-              className="flex gap-[var(--card-gap-popular)]"
+              className="flex gap-[var(--card-gap-popular)] cursor-grab active:cursor-grabbing"
               style={{
-                transform: `translateX(calc(-${activePopularIndex} * (var(--card-width-popular) + var(--card-gap-popular))))`,
-                transition: isPopularTransitioning ? "transform 500ms ease-in-out" : "none"
+                transform: `translateX(calc(-${activePopularIndex} * (var(--card-width-popular) + var(--card-gap-popular)) + ${popularDragOffset}px))`,
+                transition: isPopularDragging.current ? "none" : (isPopularTransitioning ? "transform 500ms ease-in-out" : "none")
               }}
               onTransitionEnd={handlePopularTransitionEnd}
               onMouseEnter={() => setIsPopularHovered(true)}
-              onMouseLeave={() => setIsPopularHovered(false)}
-              onTouchStart={() => setIsPopularHovered(true)}
-              onTouchEnd={() => setIsPopularHovered(false)}
+              onMouseLeave={(e) => {
+                setIsPopularHovered(false);
+                handlePopularEnd();
+              }}
+              onMouseDown={(e) => handlePopularStart(e.clientX)}
+              onMouseMove={(e) => handlePopularMove(e.clientX)}
+              onMouseUp={handlePopularEnd}
+              onTouchStart={(e) => {
+                setIsPopularHovered(true);
+                handlePopularStart(e.touches[0].clientX);
+              }}
+              onTouchMove={(e) => handlePopularMove(e.touches[0].clientX)}
+              onTouchEnd={(e) => {
+                setIsPopularHovered(false);
+                handlePopularEnd();
+              }}
             >
               {[...popularVehicles, ...popularVehicles, ...popularVehicles].map((vehicle, idx) => {
                 const vSlug = vehicle.slug || vehicle.id;
@@ -643,6 +810,9 @@ export default function Home() {
                   <div
                     key={`${vehicle.id}-${idx}`}
                     onClick={(e) => {
+                      if (popularWasDragged.current) {
+                        return;
+                      }
                       const target = e.target as HTMLElement;
                       if (!target.closest('a')) {
                         router.push(`/san-pham/${vSlug}`);
@@ -855,24 +1025,41 @@ export default function Home() {
           </div>
 
           {/* Testimonial Active Display Card Row */}
-          <div className="relative w-full overflow-visible py-4">
+          <div className="relative w-full overflow-visible py-4 select-none">
             <div
-              className="flex transition-transform duration-500 ease-in-out"
+              className="flex cursor-grab active:cursor-grabbing"
               style={{
                 gap: 'var(--card-gap-testimonial)',
-                transform: `translateX(calc(50% - (var(--card-width-testimonial) / 2) - ${activeTestimonialIndex} * (var(--card-width-testimonial) + var(--card-gap-testimonial))))`
+                transform: `translateX(calc(50% - (var(--card-width-testimonial) / 2) - ${activeTestimonialIndex} * (var(--card-width-testimonial) + var(--card-gap-testimonial)) + ${testimonialDragOffset}px))`,
+                transition: isTestimonialDragging.current ? "none" : "transform 500ms ease-in-out"
               }}
               onMouseEnter={() => setIsHovered(true)}
-              onMouseLeave={() => setIsHovered(false)}
-              onTouchStart={() => setIsHovered(true)}
-              onTouchEnd={() => setIsHovered(false)}
+              onMouseLeave={(e) => {
+                setIsHovered(false);
+                handleTestimonialEnd();
+              }}
+              onMouseDown={(e) => handleTestimonialStart(e.clientX)}
+              onMouseMove={(e) => handleTestimonialMove(e.clientX)}
+              onMouseUp={handleTestimonialEnd}
+              onTouchStart={(e) => {
+                setIsHovered(true);
+                handleTestimonialStart(e.touches[0].clientX);
+              }}
+              onTouchMove={(e) => handleTestimonialMove(e.touches[0].clientX)}
+              onTouchEnd={(e) => {
+                setIsHovered(false);
+                handleTestimonialEnd();
+              }}
             >
               {testimonials.map((item, idx) => {
                 const isActive = idx === activeTestimonialIndex;
                 return (
                   <div
                     key={idx}
-                    onClick={() => setActiveTestimonialIndex(idx)}
+                    onClick={() => {
+                      if (testimonialWasDragged.current) return;
+                      setActiveTestimonialIndex(idx);
+                    }}
                     className={`h-[320px] bg-white px-6 py-8 rounded-[8px] flex-shrink-0 flex flex-col justify-between cursor-pointer transition-all ${isActive
                       ? "border-b-4 border-[#0562d2] shadow-md scale-100 opacity-100"
                       : "border-b border-[#d6d6d6] scale-95 opacity-50"
@@ -969,16 +1156,30 @@ export default function Home() {
             </div>
 
             {/* Mobile: horizontal slider container, Desktop: standard grid */}
-            <div className="relative w-full overflow-hidden md:overflow-visible py-4">
+            <div className="relative w-full overflow-hidden md:overflow-visible py-4 select-none">
               <div
-                className="flex md:grid md:grid-cols-3 gap-6 md:gap-8 transition-transform duration-500 ease-in-out news-track"
+                className="flex md:grid md:grid-cols-3 gap-6 md:gap-8 cursor-grab active:cursor-grabbing news-track"
                 style={{
-                  '--active-news-index': activeNewsIndex,
-                } as React.CSSProperties}
+                  transform: `translateX(calc(-1 * ${activeNewsIndex} * (var(--card-width-news) + var(--card-gap-news)) + ${newsDragOffset}px))`,
+                  transition: isNewsDragging.current ? "none" : "transform 500ms ease-in-out"
+                }}
                 onMouseEnter={() => setIsNewsHovered(true)}
-                onMouseLeave={() => setIsNewsHovered(false)}
-                onTouchStart={() => setIsNewsHovered(true)}
-                onTouchEnd={() => setIsNewsHovered(false)}
+                onMouseLeave={(e) => {
+                  setIsNewsHovered(false);
+                  handleNewsEnd();
+                }}
+                onMouseDown={(e) => handleNewsStart(e.clientX)}
+                onMouseMove={(e) => handleNewsMove(e.clientX)}
+                onMouseUp={handleNewsEnd}
+                onTouchStart={(e) => {
+                  setIsNewsHovered(true);
+                  handleNewsStart(e.touches[0].clientX);
+                }}
+                onTouchMove={(e) => handleNewsMove(e.touches[0].clientX)}
+                onTouchEnd={(e) => {
+                  setIsNewsHovered(false);
+                  handleNewsEnd();
+                }}
               >
                 {homeArticles.map((art) => (
                   <div
@@ -1008,6 +1209,11 @@ export default function Home() {
                       <div className="pt-4">
                         <Link
                           href={`/tin-tuc/${art.id}`}
+                          onClick={(e) => {
+                            if (newsWasDragged.current) {
+                              e.preventDefault();
+                            }
+                          }}
                           className="inline-block border border-white text-white hover:bg-white hover:text-[#00095b] w-[128px] py-2 rounded-full text-center text-sm font-semibold transition-all cursor-pointer"
                         >
                           Xem chi tiết

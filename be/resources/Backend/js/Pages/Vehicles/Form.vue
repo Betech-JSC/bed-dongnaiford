@@ -19,6 +19,33 @@
                     <!-- Thông tin cơ bản -->
                     <div class="card-body">
                         <p class="text-sm font-semibold text-gray-500 uppercase mb-3">Thông tin dòng xe</p>
+            <!-- Ảnh & Thư viện ảnh (KHÔNG dịch) -->
+            <div class="card mt-4">
+                <div class="card-header">Hình ảnh & Thư viện ảnh</div>
+                <div class="card-body">
+                    <Field v-model="form.image" :field="{
+                        type: 'file_upload',
+                        name: 'image',
+                        label: 'Ảnh đại diện (Thumbnail danh sách)',
+                    }" />
+                    <Field v-model="form.image_thumbnail" :field="{
+                        type: 'file_upload',
+                        name: 'image_thumbnail',
+                        label: 'Ảnh Thumbnail tách nền (Dùng hiển thị card sản phẩm)',
+                    }" />
+                    <Field v-model="form.image_featured" :field="{
+                        type: 'file_upload',
+                        name: 'image_featured',
+                        label: 'Ảnh Nổi bật (Featured - Dùng hiển thị slider trang chủ)',
+                    }" />
+                    <Field v-model="form.images" :field="{
+                        type: 'file_upload',
+                        name: 'images',
+                        label: 'Thư viện ảnh chi tiết',
+                        multiple: true,
+                    }" />
+                </div>
+            </div>
 
                         <Field v-model="form[currentTab].title" :field="{
                             type: 'text',
@@ -300,18 +327,18 @@
 
             <!-- Tab 4: Thiết kế trang (Shopify Mode Fullscreen Editor Overlay) -->
             <teleport to="body">
-                <div v-if="activeFormTab === 'builder'" class="fixed inset-0 z-[9999] bg-slate-950 flex flex-col font-sans select-none overflow-hidden h-screen w-screen">
+                <div v-if="activeFormTab === 'builder'" class="fixed inset-0 z-[9999] bg-[#00052a] flex flex-col font-sans select-none overflow-hidden h-screen w-screen">
                     <!-- Shopify-style Topbar -->
-                    <div class="flex items-center justify-between px-6 py-3.5 bg-slate-900 border-b border-slate-800 text-white shrink-0">
+                    <div class="flex items-center justify-between px-6 py-3.5 bg-[#00095B] border-b border-[#003478]/80 text-white shrink-0">
                         <div class="flex items-center space-x-4">
                             <button 
                                 type="button" 
-                                class="flex items-center text-xs font-bold text-slate-400 hover:text-white transition bg-slate-800 hover:bg-slate-700 px-3.5 py-2 rounded-lg border border-slate-700 cursor-pointer"
+                                class="flex items-center text-xs font-bold text-slate-350 hover:text-white transition bg-[#003478] hover:bg-[#0562d2] px-3.5 py-2 rounded-lg border border-[#0562d2]/40 cursor-pointer"
                                 @click="activeFormTab = 'general'"
                             >
                                 ← Quay lại
                             </button>
-                            <div class="h-4 w-[1px] bg-slate-800"></div>
+                            <div class="h-4 w-[1px] bg-[#003478]/50"></div>
                             <div class="flex flex-col">
                                 <span class="text-[9px] uppercase font-bold tracking-widest text-[#0562D2] font-mono">Trình dựng trang trực quan</span>
                                 <span class="text-xs font-black text-white mt-0.5">Shopify Editor Mode — {{ form.vi?.title || item.title || 'Dòng xe' }}</span>
@@ -321,14 +348,14 @@
                         <div class="flex items-center space-x-3">
                             <button 
                                 type="button"
-                                class="bg-transparent hover:bg-white/5 text-slate-400 hover:text-white text-xs font-semibold px-4 py-2 rounded-lg cursor-pointer transition-colors border border-solid border-slate-800 h-9 flex items-center justify-center"
+                                class="bg-transparent hover:bg-white/5 text-slate-350 hover:text-white text-xs font-semibold px-4 py-2 rounded-lg cursor-pointer transition-colors border border-solid border-[#003478] h-9 flex items-center justify-center"
                                 @click="activeFormTab = 'general'"
                             >
                                 Đóng
                             </button>
                             <button 
                                 type="button"
-                                class="bg-[#0562d2] hover:bg-[#044ea7] disabled:bg-slate-700 text-white text-xs font-bold px-4 py-2 rounded-lg cursor-pointer transition-colors shadow-md border-0 h-9 flex items-center justify-center"
+                                class="bg-[#0562d2] hover:bg-[#003478] disabled:bg-slate-700 text-white text-xs font-bold px-4 py-2 rounded-lg cursor-pointer transition-colors shadow-md border-0 h-9 flex items-center justify-center"
                                 @click="submit"
                                 :disabled="form.processing"
                             >
@@ -338,7 +365,7 @@
                     </div>
                     
                     <!-- Fullscreen Workspace -->
-                    <div class="flex-1 bg-slate-950 overflow-hidden relative h-full w-full">
+                    <div class="flex-1 bg-[#00052a] overflow-hidden relative h-full w-full">
                         <BlockEditor 
                             v-model="form.layout_blocks" 
                             :vehicle-slug="form.vi.slug || item.slug" 
@@ -488,6 +515,8 @@ export default {
                 type: 'suv',
                 category_id: null,
                 image: null,
+                image_thumbnail: null,
+                image_featured: null,
                 images: [],
                 colors: [],
                 images_360_external: [],

@@ -38,7 +38,7 @@ export default function ComparePage() {
             const staticV = vehicles.find((sv) => sv.id === v.slug || sv.id === v.id);
             const id = v.slug || v.id;
             const name = v.title || v.name;
-            const image = v.image_url || v.images?.[0] || getPopularVehicleImage(id, "");
+            const image = v.image_thumbnail_url || v.image_url || v.images?.[0] || getPopularVehicleImage(id, "");
             const price = typeof v.base_price === 'string' ? parseFloat(v.base_price) : (v.base_price || v.basePrice || 0);
             return {
               ...v,
@@ -120,7 +120,7 @@ export default function ComparePage() {
               id: data.slug || data.id,
               name: data.title || data.name,
               basePrice: typeof data.base_price === 'string' ? parseFloat(data.base_price) : (data.base_price || data.basePrice || 0),
-              images: (data.images && data.images.length > 0) ? data.images : [data.image_url].filter(Boolean),
+              images: (data.images && data.images.length > 0) ? [data.image_thumbnail_url || data.images[0]] : [data.image_thumbnail_url || data.image_url].filter(Boolean),
               typeName: data.type_name || data.typeName || (data.type === 'suv' ? 'SUV' : data.type === 'pickup' ? 'Bán tải' : 'Thương mại'),
               versions: data.versions ? data.versions.map((ver: any) => ({
                 id: ver.id,
@@ -237,7 +237,7 @@ export default function ComparePage() {
                   {selectedIds.length > 2 && (
                     <button
                       onClick={() => handleRemove(index)}
-                      className="absolute top-3 right-3 w-6 h-6 rounded-full bg-gray-100 hover:bg-red-50 flex items-center justify-center text-gray-400 hover:text-red-500 transition-colors cursor-pointer"
+                      className="absolute -top-2.5 -right-2.5 w-6 h-6 rounded-full bg-white border border-gray-200 hover:bg-red-50 hover:text-red-500 flex items-center justify-center text-gray-400 transition-all cursor-pointer shadow-sm z-10"
                     >
                       <X className="w-3.5 h-3.5" />
                     </button>

@@ -12,6 +12,17 @@ class AccessoryAndBrandSeeder extends Seeder
 {
     public function run(): void
     {
+        // Clean up existing data to prevent duplicate slugs (e.g. tham-san-cao-cap1)
+        \Illuminate\Support\Facades\Schema::disableForeignKeyConstraints();
+        \Illuminate\Support\Facades\DB::table('accessory_ref_categories')->truncate();
+        \Illuminate\Support\Facades\DB::table('accessory_translations')->truncate();
+        Accessory::truncate();
+        \Illuminate\Support\Facades\DB::table('brand_translations')->truncate();
+        Brand::truncate();
+        \Illuminate\Support\Facades\Schema::enableForeignKeyConstraints();
+
+        $this->command->info('✅ Cleaned accessories and brands tables');
+
         // 1. Seed Brands
         $brandsData = [
             ['name' => 'Ford', 'slug' => 'ford'],

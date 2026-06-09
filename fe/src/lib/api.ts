@@ -158,6 +158,13 @@ export const settingsAPI = {
 };
 
 /**
+ * Regions API
+ */
+export const regionsAPI = {
+  getProvinces: () => fetchAPI<{ success: boolean; data: { id: string; name: string }[] }>('/regions/provinces'),
+};
+
+/**
  * Contacts API
  */
 export const contactsAPI = {

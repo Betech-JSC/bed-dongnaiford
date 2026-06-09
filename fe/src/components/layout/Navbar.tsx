@@ -187,7 +187,7 @@ export default function Navbar() {
         id: v.slug || v.id,
         displayName: v.title || v.name,
         price: formatPrice(typeof v.base_price === 'string' ? parseFloat(v.base_price) : (v.base_price || v.basePrice || 0)),
-        image: v.image_url || v.images?.[0] || "",
+        image: v.image_thumbnail_url || v.image_url || v.images?.[0] || "",
       }));
 
     return {
@@ -218,7 +218,7 @@ export default function Navbar() {
     }
     return {
       price: formatPrice(vehicle.basePrice),
-      image: vehicle.images[0] || "",
+      image: (vehicle as any).image_thumbnail_url || (vehicle as any).image_url || vehicle.images[0] || "",
     };
   };
 
@@ -237,11 +237,11 @@ export default function Navbar() {
       href: "/san-pham",
       dropdownItems: [
         { name: "Tất cả dòng xe", href: "/san-pham" },
-        { name: "Ford Territory", href: "/san-pham/new-territory" },
-        { name: "Ford Everest", href: "/san-pham/new-everest" },
-        { name: "Ford Ranger", href: "/san-pham/ranger-raptor-669" },
-        { name: "Ford Raptor", href: "/san-pham/new-raptor" },
-        { name: "Ford Transit", href: "/san-pham/ford-transit-2024" },
+        { name: "Ford Ranger", href: "/san-pham/ranger-wildtrak" },
+        { name: "Ford Everest", href: "/san-pham/everest-titanium-plus" },
+        { name: "Ford Territory", href: "/san-pham/territory-titanium-x" },
+        { name: "Ford Transit", href: "/san-pham/transit-premium" },
+        { name: "Ford Explorer", href: "/san-pham/explorer-limited" },
         { name: "Phụ kiện chính hãng", href: "/phu-kien" },
       ],
     },
@@ -571,7 +571,7 @@ export default function Navbar() {
                       const id = acc.slug || acc.id;
                       const name = acc.title || acc.name;
                       const price = acc.price || 0;
-                      const image = acc.image_url || acc.images?.[0] || "";
+                      const image = acc.image?.url || acc.images?.[0]?.url || acc.image_url || "";
                       
                       return (
                         <Link

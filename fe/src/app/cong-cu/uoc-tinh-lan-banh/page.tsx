@@ -4,17 +4,16 @@ import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
-import { ChevronDown, Phone, ArrowRight } from "lucide-react";
+import { ChevronDown, Phone, ArrowRight, CreditCard, Scale } from "lucide-react";
 import {
   calculateRollingCost,
   formatVND,
-  PROVINCES,
-  type Province,
   type RollingCostBreakdown,
 } from "@/lib/rolling-cost";
 import { getPopularVehicleImage, handleImageError } from "@/lib/site-assets";
 import BookingBanner from "@/components/services/BookingBanner";
-import { vehiclesAPI } from "@/lib/api";
+import { vehiclesAPI, regionsAPI } from "@/lib/api";
+import AnimatedNumber from "@/components/shared/AnimatedNumber";
 
 // Helper function to group individual dynamic variants into parent model series
 function groupVehiclesBySeries(apiVehicles: any[]) {
@@ -102,11 +101,41 @@ function RollingCostContent() {
   const urlVersionId = searchParams.get("version");
 
   const [vehicles, setVehicles] = useState<any[]>([]);
+  const [provinces, setProvinces] = useState<{ id: string; name: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedVehicleId, setSelectedVehicleId] = useState("");
   const [selectedVersionId, setSelectedVersionId] = useState("");
-  const [selectedProvince, setSelectedProvince] = useState<Province>("Đồng Nai");
+  const [selectedProvince, setSelectedProvince] = useState<string>("Đồng Nai");
   const [result, setResult] = useState<RollingCostBreakdown | null>(null);
+  const [animateReset, setAnimateReset] = useState(false);
+
+  // Trigger fade/scale transition effect when values change
+  useEffect(() => {
+    setAnimateReset(true);
+    const timer = setTimeout(() => {
+      setAnimateReset(false);
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [selectedVehicleId, selectedVersionId, selectedProvince]);
+
+  // Fetch provinces from API
+  useEffect(() => {
+    regionsAPI.getProvinces()
+      .then((res) => {
+        if (res && res.success && Array.isArray(res.data)) {
+          setProvinces(res.data);
+          const hasDongNai = res.data.some(p => p.name.includes("Đồng Nai"));
+          if (hasDongNai) {
+            setSelectedProvince("Đồng Nai");
+          } else if (res.data.length > 0) {
+            setSelectedProvince(res.data[0].name);
+          }
+        }
+      })
+      .catch((err) => {
+        console.error("Error loading provinces:", err);
+      });
+  }, []);
 
   // Fetch dynamic vehicles from API
   useEffect(() => {
@@ -122,6 +151,16 @@ function RollingCostContent() {
             ? urlVehicleId
             : grouped[0]?.id || "";
           setSelectedVehicleId(defaultVehicleId);
+
+          // Set initial version selection
+          const vehicle = grouped.find((v) => v.id === defaultVehicleId);
+          if (vehicle) {
+            const matchVersion =
+              urlVersionId && vehicle.versions.some((v: any) => v.id === urlVersionId)
+                ? urlVersionId
+                : vehicle.versions[0]?.id || "";
+            setSelectedVersionId(matchVersion);
+          }
         }
       })
       .catch((err) => {
@@ -130,20 +169,17 @@ function RollingCostContent() {
       .finally(() => {
         setLoading(false);
       });
-  }, [urlVehicleId]);
+  }, [urlVehicleId, urlVersionId]);
 
-  // Initialize version when vehicle changes
-  useEffect(() => {
-    if (vehicles.length === 0 || !selectedVehicleId) return;
-    const vehicle = vehicles.find((v) => v.id === selectedVehicleId);
-    if (vehicle) {
-      const matchVersion =
-        urlVersionId && vehicle.versions.some((v: any) => v.id === urlVersionId)
-          ? urlVersionId
-          : vehicle.versions[0]?.id || "";
-      setSelectedVersionId(matchVersion);
+  const handleVehicleChange = (vehicleId: string) => {
+    setSelectedVehicleId(vehicleId);
+    const vehicle = vehicles.find((v) => v.id === vehicleId);
+    if (vehicle && vehicle.versions.length > 0) {
+      setSelectedVersionId(vehicle.versions[0].id);
+    } else {
+      setSelectedVersionId("");
     }
-  }, [selectedVehicleId, urlVersionId, vehicles]);
+  };
 
   // Calculate result whenever selections change
   useEffect(() => {
@@ -235,7 +271,7 @@ function RollingCostContent() {
                     <div className="relative">
                       <select
                         value={selectedVehicleId}
-                        onChange={(e) => setSelectedVehicleId(e.target.value)}
+                        onChange={(e) => handleVehicleChange(e.target.value)}
                         className="w-full appearance-none bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 pr-10 text-sm font-medium text-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-[#0562d2] focus:border-transparent cursor-pointer"
                       >
                         {vehicles.map((v) => (
@@ -280,13 +316,13 @@ function RollingCostContent() {
                       <select
                         value={selectedProvince}
                         onChange={(e) =>
-                          setSelectedProvince(e.target.value as Province)
+                          setSelectedProvince(e.target.value)
                         }
                         className="w-full appearance-none bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 pr-10 text-sm font-medium text-[#1a1a1a] focus:outline-none focus:ring-2 focus:ring-[#0562d2] focus:border-transparent cursor-pointer"
                       >
-                        {PROVINCES.map((p) => (
-                          <option key={p} value={p}>
-                            {p}
+                        {provinces.map((p) => (
+                          <option key={p.id} value={p.name}>
+                            {p.name}
                           </option>
                         ))}
                       </select>
@@ -318,7 +354,9 @@ function RollingCostContent() {
               {/* Right: Results */}
               <div className="lg:col-span-3">
                 {result && currentVehicle && currentVersion && (
-                  <div className="space-y-6">
+                  <div className={`space-y-6 transition-all duration-300 transform ${
+                    animateReset ? "opacity-30 scale-[0.98] translate-y-1 blur-[0.5px]" : "opacity-100 scale-100 translate-y-0 blur-0"
+                  }`}>
                     {/* Vehicle Title */}
                     <div>
                       <h3 className="text-xl font-bold text-[#1a1a1a] uppercase">
@@ -349,7 +387,7 @@ function RollingCostContent() {
                               idx === 0 ? "text-[#1a1a1a]" : "text-gray-700"
                             }`}
                           >
-                            {formatVND(item.value)}
+                            <AnimatedNumber value={item.value} formatFn={formatVND} />
                           </span>
                         </div>
                       ))}
@@ -360,7 +398,7 @@ function RollingCostContent() {
                           TỔNG GIÁ LĂN BÁNH (Dự kiến)
                         </span>
                         <span className="text-xl font-black">
-                          {formatVND(result.total)}
+                          <AnimatedNumber value={result.total} formatFn={formatVND} />
                         </span>
                       </div>
                     </div>
@@ -399,7 +437,7 @@ function RollingCostContent() {
                         className="flex items-center gap-3 p-4 rounded-xl border border-gray-200 hover:border-[#0562d2] transition-colors group"
                       >
                         <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center text-[#0562d2] flex-shrink-0">
-                          💳
+                          <CreditCard className="w-5 h-5" />
                         </div>
                         <div>
                           <p className="text-sm font-bold text-gray-800 group-hover:text-[#0562d2] transition-colors">
@@ -415,7 +453,7 @@ function RollingCostContent() {
                         className="flex items-center gap-3 p-4 rounded-xl border border-gray-200 hover:border-[#0562d2] transition-colors group"
                       >
                         <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center text-[#0562d2] flex-shrink-0">
-                          ⚖️
+                          <Scale className="w-5 h-5" />
                         </div>
                         <div>
                           <p className="text-sm font-bold text-gray-800 group-hover:text-[#0562d2] transition-colors">

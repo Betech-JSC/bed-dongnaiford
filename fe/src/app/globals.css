@@ -962,3 +962,50 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
+/* CMS Page Builder visual theme overrides mapping to dnf Design System */
+.page-builder-container {
+  background-color: var(--brand-primary) !important; /* #00095B */
+  font-family: var(--font-sans) !important;
+}
+.page-builder-container .bg-slate-950 {
+  background-color: #00052a !important; /* Deepest Navy sidebar background */
+}
+.page-builder-container .bg-slate-900 {
+  background-color: var(--brand-primary) !important; /* #00095B header/preview bg */
+}
+.page-builder-container .border-slate-800,
+.page-builder-container .border-r-slate-800,
+.page-builder-container .border-b-slate-800,
+.page-builder-container .border-t-slate-800 {
+  border-color: rgba(0, 52, 120, 0.5) !important; /* Classic Blue border transparent */
+}
+.page-builder-container .bg-slate-900\/50,
+.page-builder-container .bg-slate-900\/80,
+.page-builder-container .bg-slate-900\/60 {
+  background-color: #000d6b !important; /* Card navy matching secondary */
+}
+.page-builder-container .text-blue-400 {
+  color: var(--brand-accent) !important; /* #066FEF */
+}
+.page-builder-container .bg-blue-600 {
+  background-color: var(--brand-vivid) !important; /* #0562D2 */
+}
+.page-builder-container .bg-blue-950\/80 {
+  background-color: rgba(5, 98, 210, 0.15) !important;
+  border-color: rgba(5, 98, 210, 0.4) !important;
+}
+.page-builder-container input,
+.page-builder-container textarea,
+.page-builder-container select {
+  background-color: var(--brand-primary) !important; /* #00095B */
+  border-color: var(--brand-secondary) !important; /* #003478 */
+  color: #ffffff !important;
+}
+.page-builder-container input:focus,
+.page-builder-container textarea:focus,
+.page-builder-container select:focus {
+  border-color: var(--brand-vivid) !important; /* #0562D2 */
+  box-shadow: 0 0 0 2px rgba(5, 98, 210, 0.3) !important;
+}
+
+

@@ -28,7 +28,7 @@ return [
                 'Product' => [
                     'column' => 'product_url',
                     'route' => [
-                        'name' => 'products.show',
+                        'name' => 'api.vehicles.show',
                         'params' => [
                             'slug',
                         ],
@@ -41,7 +41,7 @@ return [
                 'Product.slug' => 'required',
                 'Product.title' => 'required',
             ],
-            'route' => 'advises',
+            'route' => 'contacts',
         ],
     ],
     'message' => [

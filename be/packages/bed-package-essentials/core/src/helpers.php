@@ -12,6 +12,8 @@ if (!function_exists('static_url')) {
     {
         if (!$path || str_contains($path, 'http')) return $path;
 
+        $path = ltrim($path, '/');
+
         if (!empty($parameters)) {
             $url = route('files.show') . '/' . $path . '?' . http_build_query($parameters);
         } else {
