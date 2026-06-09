@@ -7,18 +7,11 @@ use App\Http\Controllers\Backend\TagController;
 use App\Http\Controllers\Backend\AgencyController;
 use App\Http\Controllers\Backend\ContactController;
 use App\Http\Controllers\Backend\ApplyController;
-use App\Http\Controllers\Backend\BrandController;
 use App\Http\Controllers\Backend\CertificateController;
-use App\Http\Controllers\Backend\CustomerController;
-use App\Http\Controllers\Backend\FlashSaleController;
 use App\Http\Controllers\Backend\SliderController;
 use App\Http\Controllers\Backend\HistoryController;
 use App\Http\Controllers\Backend\JobController;
 use App\Http\Controllers\Backend\PolicyController;
-
-use App\Http\Controllers\Backend\OrderController;
-use App\Http\Controllers\Backend\ProductCategoryController;
-use App\Http\Controllers\Backend\ProductController;
 use App\Http\Controllers\Backend\ServiceController;
 use App\Http\Controllers\Backend\RegionController;
 use App\Http\Controllers\Backend\ConfigController;
@@ -40,8 +33,6 @@ Route::localized(function () {
         Route::module(PostController::class);
         Route::module(CertificateController::class);
         Route::module(FeedbackController::class);
-        Route::module(ProductController::class);
-        Route::module(BrandController::class);
         Route::module(PostCategoryController::class);
         Route::module(TagController::class);
         Route::module(PolicyController::class);
@@ -52,11 +43,7 @@ Route::localized(function () {
         Route::module(JobController::class);
         Route::module(ServiceController::class);
         Route::module(ApplyController::class);
-        Route::module(ProductCategoryController::class);
-        Route::module(OrderController::class);
-        Route::module(CustomerController::class);
         Route::module(RegionController::class);
-        Route::module(FlashSaleController::class);
         Route::module(ConfigController::class);
 
         // Ford DNF Modules
