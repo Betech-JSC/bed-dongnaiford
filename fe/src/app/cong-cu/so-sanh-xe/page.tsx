@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ChevronDown, X, Plus, ArrowRight } from "lucide-react";
@@ -28,6 +28,37 @@ export default function ComparePage() {
     vehicles[1]?.id || "",
   ]);
 
+  // Read URL params or localStorage on mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const idsParam = params.get("ids");
+      if (idsParam) {
+        const ids = idsParam.split(",").filter((id) => vehicles.some((v) => v.id === id));
+        if (ids.length >= 1) {
+          setSelectedIds(ids);
+          return;
+        }
+      }
+      
+      // Fallback to localStorage
+      const stored = localStorage.getItem("compare-vehicles");
+      if (stored) {
+        try {
+          const ids = JSON.parse(stored);
+          if (Array.isArray(ids) && ids.length >= 1) {
+            const validIds = ids.filter((id) => vehicles.some((v) => v.id === id));
+            if (validIds.length >= 1) {
+              setSelectedIds(validIds);
+            }
+          }
+        } catch (e) {
+          console.error("Error reading compare local storage:", e);
+        }
+      }
+    }
+  }, []);
+
   const selectedVehicles: (Vehicle | null)[] = selectedIds.map(
     (id) => vehicles.find((v) => v.id === id) || null
   );
@@ -36,12 +67,19 @@ export default function ComparePage() {
     setSelectedIds((prev) => {
       const updated = [...prev];
       updated[index] = vehicleId;
+      localStorage.setItem("compare-vehicles", JSON.stringify(updated.filter(Boolean)));
+      window.dispatchEvent(new Event("compare-updated"));
       return updated;
     });
   };
 
   const handleRemove = (index: number) => {
-    setSelectedIds((prev) => prev.filter((_, i) => i !== index));
+    setSelectedIds((prev) => {
+      const updated = prev.filter((_, i) => i !== index);
+      localStorage.setItem("compare-vehicles", JSON.stringify(updated.filter(Boolean)));
+      window.dispatchEvent(new Event("compare-updated"));
+      return updated;
+    });
   };
 
   const handleAdd = () => {
@@ -49,7 +87,12 @@ export default function ComparePage() {
       // Find a vehicle not already selected
       const available = vehicles.find((v) => !selectedIds.includes(v.id));
       if (available) {
-        setSelectedIds((prev) => [...prev, available.id]);
+        setSelectedIds((prev) => {
+          const updated = [...prev, available.id];
+          localStorage.setItem("compare-vehicles", JSON.stringify(updated));
+          window.dispatchEvent(new Event("compare-updated"));
+          return updated;
+        });
       }
     }
   };

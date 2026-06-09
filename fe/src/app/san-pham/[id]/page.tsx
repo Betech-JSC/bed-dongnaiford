@@ -14,7 +14,8 @@ import {
   X,
   Monitor,
   Tablet,
-  Smartphone
+  Smartphone,
+  GitCompare
 } from "lucide-react";
 import { vehicles } from "@/data/vehicles";
 import { vehicleMediaAssets } from "@/data/vehicle-media";
@@ -117,6 +118,54 @@ export default function ProductDetailPage() {
   const params = useParams();
   const router = useRouter();
   const id = params.id as string;
+
+  // Compare Vehicles State
+  const [compareIds, setCompareIds] = useState<string[]>([]);
+
+  const loadCompareIds = () => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("compare-vehicles");
+      if (stored) {
+        try {
+          const ids = JSON.parse(stored);
+          if (Array.isArray(ids)) {
+            setCompareIds(ids);
+            return;
+          }
+        } catch (e) {
+          console.error("Error loading compare list:", e);
+        }
+      }
+      setCompareIds([]);
+    }
+  };
+
+  useEffect(() => {
+    loadCompareIds();
+    const handleUpdate = () => {
+      loadCompareIds();
+    };
+    window.addEventListener("compare-updated", handleUpdate);
+    return () => {
+      window.removeEventListener("compare-updated", handleUpdate);
+    };
+  }, []);
+
+  const toggleCompare = (vehicleId: string) => {
+    let updated: string[];
+    if (compareIds.includes(vehicleId)) {
+      updated = compareIds.filter((id) => id !== vehicleId);
+    } else {
+      if (compareIds.length >= 3) {
+        alert("Bạn chỉ có thể so sánh tối đa 3 xe cùng lúc!");
+        return;
+      }
+      updated = [...compareIds, vehicleId];
+    }
+    localStorage.setItem("compare-vehicles", JSON.stringify(updated));
+    setCompareIds(updated);
+    window.dispatchEvent(new Event("compare-updated"));
+  };
 
   // Find the static fallback vehicle based on ID
   const staticVehicle = vehicles.find((v) => v.id === id);
@@ -2374,30 +2423,47 @@ export default function ProductDetailPage() {
 
           {/* 3. Sticky Tab Navigation Bar */}
           <div className="sticky-tabs bg-white border-b border-[#e5e5e5] shadow-xs">
-            <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full flex items-center gap-[32px] justify-between sm:justify-start">
-              <p className="font-['Ford_Antenna',sans-serif] font-semibold text-[#1a1a1a] text-[14px] whitespace-nowrap hidden sm:block">
-                {vehicle.name}
-              </p>
-              <div className="h-[24px] w-[1px] bg-[#e5e5e5] hidden sm:block" />
-              
-              <div className="flex items-center overflow-x-auto scrollbar-none gap-[16px] sm:gap-[24px] py-1">
-                {navigationTabs.map((tab) => {
-                  const isActive = activeTab === tab.id;
-                  return (
-                    <button
-                      key={tab.id}
-                      onClick={() => handleTabClick(tab.id)}
-                      className={`py-[16px] px-[8px] text-[16px] font-medium leading-[1.5] cursor-pointer text-center relative whitespace-nowrap bg-transparent border-0 flex-shrink-0 transition-colors
-                        ${isActive ? "text-[#0562d2]" : "text-[#424242] hover:text-[#0562d2]"}`}
-                    >
-                      <span>{tab.label}</span>
-                      {isActive && (
-                        <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#0562d2]" />
-                      )}
-                    </button>
-                  );
-                })}
+            <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full flex items-center justify-between gap-4">
+              <div className="flex items-center gap-[32px] overflow-hidden">
+                <p className="font-['Ford_Antenna',sans-serif] font-semibold text-[#1a1a1a] text-[14px] whitespace-nowrap hidden sm:block">
+                  {vehicle.name}
+                </p>
+                <div className="h-[24px] w-[1px] bg-[#e5e5e5] hidden sm:block" />
+                
+                <div className="flex items-center overflow-x-auto scrollbar-none gap-[16px] sm:gap-[24px] py-1">
+                  {navigationTabs.map((tab) => {
+                    const isActive = activeTab === tab.id;
+                    return (
+                      <button
+                        key={tab.id}
+                        onClick={() => handleTabClick(tab.id)}
+                        className={`py-[16px] px-[8px] text-[16px] font-medium leading-[1.5] cursor-pointer text-center relative whitespace-nowrap bg-transparent border-0 flex-shrink-0 transition-colors
+                          ${isActive ? "text-[#0562d2]" : "text-[#424242] hover:text-[#0562d2]"}`}
+                      >
+                        <span>{tab.label}</span>
+                        {isActive && (
+                          <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#0562d2]" />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
+
+              {/* Compare Toggle Button */}
+              <button
+                onClick={() => toggleCompare(vehicle.id)}
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition-all active:scale-95 border cursor-pointer select-none shrink-0 ${
+                  compareIds.includes(vehicle.id)
+                    ? "bg-[#0562D2] text-white border-[#0562D2] shadow-sm animate-pulse"
+                    : "bg-white text-gray-700 hover:text-[#0562D2] border-gray-250 hover:bg-gray-50"
+                }`}
+              >
+                <GitCompare className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">
+                  {compareIds.includes(vehicle.id) ? "Đã thêm so sánh" : "So sánh xe"}
+                </span>
+              </button>
             </div>
           </div>
 

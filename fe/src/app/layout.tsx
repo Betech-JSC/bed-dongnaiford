@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import AIChatWidget from "@/components/shared/AIChatWidget";
+import CompareDrawer from "@/components/shared/CompareDrawer";
 import "./globals.css";
 
 const inter = Inter({
@@ -93,6 +94,7 @@ export default function RootLayout({
         <main className="flex-1 flex flex-col">{children}</main>
         <Footer />
         <AIChatWidget />
+        <CompareDrawer />
       </body>
     </html>
   );

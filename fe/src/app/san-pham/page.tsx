@@ -14,7 +14,8 @@ import {
   Check,
   Fuel,
   Users,
-  Settings
+  Settings,
+  GitCompare
 } from "lucide-react";
 import { vehicles } from "@/data/vehicles";
 import { vehiclesAPI } from "@/lib/api";
@@ -44,6 +45,54 @@ export default function ProductsPage() {
   
   // Mobile drawer filter visibility
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+
+  // Compare Vehicles State
+  const [compareIds, setCompareIds] = useState<string[]>([]);
+
+  const loadCompareIds = () => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("compare-vehicles");
+      if (stored) {
+        try {
+          const ids = JSON.parse(stored);
+          if (Array.isArray(ids)) {
+            setCompareIds(ids);
+            return;
+          }
+        } catch (e) {
+          console.error("Error loading compare list:", e);
+        }
+      }
+      setCompareIds([]);
+    }
+  };
+
+  useEffect(() => {
+    loadCompareIds();
+    const handleUpdate = () => {
+      loadCompareIds();
+    };
+    window.addEventListener("compare-updated", handleUpdate);
+    return () => {
+      window.removeEventListener("compare-updated", handleUpdate);
+    };
+  }, []);
+
+  const toggleCompare = (vehicleId: string) => {
+    let updated: string[];
+    if (compareIds.includes(vehicleId)) {
+      updated = compareIds.filter((id) => id !== vehicleId);
+    } else {
+      if (compareIds.length >= 3) {
+        alert("Bạn chỉ có thể so sánh tối đa 3 xe cùng lúc!");
+        return;
+      }
+      updated = [...compareIds, vehicleId];
+    }
+    localStorage.setItem("compare-vehicles", JSON.stringify(updated));
+    setCompareIds(updated);
+    window.dispatchEvent(new Event("compare-updated"));
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -692,8 +741,24 @@ export default function ProductsPage() {
                   return (
                     <div
                       key={vehicleId}
-                      className="bg-white border border-[#EAECF0] hover:border-blue-200 rounded-2xl p-5 flex flex-col hover:shadow-xl transition-all duration-300 group"
+                      className="bg-white border border-[#EAECF0] hover:border-blue-200 rounded-2xl p-5 flex flex-col hover:shadow-xl transition-all duration-300 group relative"
                     >
+                      {/* Compare Toggle Button */}
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          toggleCompare(vehicleId);
+                        }}
+                        className={`absolute top-3 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-all active:scale-95 border cursor-pointer ${
+                          compareIds.includes(vehicleId)
+                            ? "bg-[#0562D2] text-white border-[#0562D2] shadow-md"
+                            : "bg-white/95 text-gray-500 hover:text-[#0562D2] border-gray-200/80 hover:shadow-md"
+                        }`}
+                        title={compareIds.includes(vehicleId) ? "Xóa khỏi so sánh" : "Thêm vào so sánh"}
+                      >
+                        <GitCompare className={`w-4 h-4 ${compareIds.includes(vehicleId) ? "animate-pulse" : ""}`} />
+                      </button>
                       {/* Image */}
                       <Link
                         href={`/san-pham/${vehicleId}`}
