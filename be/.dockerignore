@@ -9,6 +9,9 @@ storage/framework/cache/data/*
 storage/framework/sessions/*
 storage/framework/testing/*
 storage/framework/views/*
+storage/clockwork/*
+storage/app/*
+!storage/app/.gitkeep
 .env
 auth.json
 npm-debug.log
