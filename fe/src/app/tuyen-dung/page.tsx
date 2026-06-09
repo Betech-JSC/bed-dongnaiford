@@ -50,7 +50,7 @@ export default function JobsPage() {
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const JOBS_PER_PAGE = 4;
+  const JOBS_PER_PAGE = 20;
 
   useEffect(() => {
     const fetchJobs = async () => {

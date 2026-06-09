@@ -8,6 +8,7 @@ import { vehicles, type Vehicle, type Specs } from "@/data/vehicles";
 import { getPopularVehicleImage, handleImageError } from "@/lib/site-assets";
 import { formatPriceShort } from "@/lib/rolling-cost";
 import BookingBanner from "@/components/services/BookingBanner";
+import { vehiclesAPI } from "@/lib/api";
 
 const SPEC_LABELS: { key: keyof Specs; label: string }[] = [
   { key: "engine", label: "Động cơ" },
@@ -23,10 +24,39 @@ const SPEC_LABELS: { key: keyof Specs; label: string }[] = [
 const MAX_COMPARE = 3;
 
 export default function ComparePage() {
-  const [selectedIds, setSelectedIds] = useState<string[]>([
-    vehicles[0]?.id || "",
-    vehicles[1]?.id || "",
-  ]);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [allVehicles, setAllVehicles] = useState<any[]>([]);
+
+  // Fetch API vehicles on mount
+  useEffect(() => {
+    const fetchAll = async () => {
+      try {
+        const res = await vehiclesAPI.getAll().catch(() => null);
+        const items = res?.data || res;
+        if (Array.isArray(items) && items.length > 0) {
+          const mapped = items.map((v: any) => {
+            const staticV = vehicles.find((sv) => sv.id === v.slug || sv.id === v.id);
+            const id = v.slug || v.id;
+            const name = v.title || v.name;
+            const image = v.image_url || v.images?.[0] || getPopularVehicleImage(id, "");
+            const price = typeof v.base_price === 'string' ? parseFloat(v.base_price) : (v.base_price || v.basePrice || 0);
+            return {
+              ...v,
+              id,
+              name,
+              basePrice: price,
+              images: [image],
+              typeName: v.type_name || v.typeName || (staticV?.typeName) || (v.type === 'suv' ? 'SUV' : v.type === 'pickup' ? 'Bán tải' : 'Thương mại')
+            };
+          });
+          setAllVehicles(mapped);
+        }
+      } catch (err) {
+        console.error("Error loading vehicles in ComparePage:", err);
+      }
+    };
+    fetchAll();
+  }, []);
 
   // Read URL params or localStorage on mount
   useEffect(() => {
@@ -34,7 +64,7 @@ export default function ComparePage() {
       const params = new URLSearchParams(window.location.search);
       const idsParam = params.get("ids");
       if (idsParam) {
-        const ids = idsParam.split(",").filter((id) => vehicles.some((v) => v.id === id));
+        const ids = idsParam.split(",").filter(Boolean);
         if (ids.length >= 1) {
           setSelectedIds(ids);
           return;
@@ -47,21 +77,80 @@ export default function ComparePage() {
         try {
           const ids = JSON.parse(stored);
           if (Array.isArray(ids) && ids.length >= 1) {
-            const validIds = ids.filter((id) => vehicles.some((v) => v.id === id));
-            if (validIds.length >= 1) {
-              setSelectedIds(validIds);
-            }
+            setSelectedIds(ids.filter(Boolean));
+            return;
           }
         } catch (e) {
           console.error("Error reading compare local storage:", e);
         }
       }
+
+      // Default fallback
+      setSelectedIds([
+        vehicles[0]?.id || "",
+        vehicles[1]?.id || "",
+      ]);
     }
   }, []);
 
-  const selectedVehicles: (Vehicle | null)[] = selectedIds.map(
-    (id) => vehicles.find((v) => v.id === id) || null
-  );
+  const listToSearch = allVehicles.length > 0 ? allVehicles : vehicles;
+
+  const [selectedVehicles, setSelectedVehicles] = useState<(any | null)[]>([]);
+
+  useEffect(() => {
+    if (selectedIds.length === 0) {
+      setSelectedVehicles([]);
+      return;
+    }
+
+    const fetchSelectedDetails = async () => {
+      const promises = selectedIds.map(async (id) => {
+        // First check if it is a static vehicle slug
+        const staticV = vehicles.find((sv) => sv.id === id);
+        if (staticV) return staticV;
+
+        // Otherwise fetch from API
+        try {
+          const res: any = await vehiclesAPI.getBySlug(id).catch(() => null);
+          const data = res?.data || res;
+          if (data) {
+            // Map the API structure to the Vehicle interface structure
+            return {
+              ...data,
+              id: data.slug || data.id,
+              name: data.title || data.name,
+              basePrice: typeof data.base_price === 'string' ? parseFloat(data.base_price) : (data.base_price || data.basePrice || 0),
+              images: (data.images && data.images.length > 0) ? data.images : [data.image_url].filter(Boolean),
+              typeName: data.type_name || data.typeName || (data.type === 'suv' ? 'SUV' : data.type === 'pickup' ? 'Bán tải' : 'Thương mại'),
+              versions: data.versions ? data.versions.map((ver: any) => ({
+                id: ver.id,
+                name: ver.name,
+                price: typeof ver.price === 'string' ? parseFloat(ver.price) : ver.price,
+                specs: {
+                  engine: ver.specs?.engine || ver.specs?.engine_type || '',
+                  power: ver.specs?.power || '',
+                  torque: ver.specs?.torque || '',
+                  transmission: ver.specs?.transmission || '',
+                  drivetrain: ver.specs?.drivetrain || '',
+                  dimensions: ver.specs?.dimensions || '',
+                  clearance: ver.specs?.clearance || '',
+                  fuelEconomy: ver.specs?.fuelEconomy || ver.specs?.fuel_guide || ver.specs?.fuel_economy || '',
+                }
+              })) : []
+            };
+          }
+        } catch (err) {
+          console.error("Error fetching vehicle details for comparison:", err);
+        }
+        return null;
+      });
+
+      const details = await Promise.all(promises);
+      setSelectedVehicles(details);
+    };
+
+    fetchSelectedDetails();
+  }, [selectedIds]);
 
   const handleSelect = (index: number, vehicleId: string) => {
     setSelectedIds((prev) => {
@@ -85,7 +174,7 @@ export default function ComparePage() {
   const handleAdd = () => {
     if (selectedIds.length < MAX_COMPARE) {
       // Find a vehicle not already selected
-      const available = vehicles.find((v) => !selectedIds.includes(v.id));
+      const available = listToSearch.find((v) => !selectedIds.includes(v.id));
       if (available) {
         setSelectedIds((prev) => {
           const updated = [...prev, available.id];
@@ -161,7 +250,7 @@ export default function ComparePage() {
                       onChange={(e) => handleSelect(index, e.target.value)}
                       className="w-full appearance-none bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 pr-10 text-sm font-bold text-[#1a1a1a] uppercase focus:outline-none focus:ring-2 focus:ring-[#0562d2] focus:border-transparent cursor-pointer"
                     >
-                      {vehicles.map((v) => (
+                      {listToSearch.map((v) => (
                         <option key={v.id} value={v.id}>
                           {v.name}
                         </option>
@@ -175,10 +264,11 @@ export default function ComparePage() {
                     <>
                       <div className="relative w-full h-[130px] mb-3">
                         <Image
-                          src={getPopularVehicleImage(
-                            vehicle.id,
-                            vehicle.images[0]
-                          )}
+                          src={
+                            vehicle.images?.[0]?.startsWith("http") || vehicle.images?.[0]?.startsWith("/")
+                              ? vehicle.images[0]
+                              : getPopularVehicleImage(vehicle.id, vehicle.images?.[0] || "")
+                          }
                           alt={vehicle.name}
                           fill
                           sizes="300px"
@@ -225,11 +315,14 @@ export default function ComparePage() {
               }}
             >
               <div className="px-5 py-4 text-sm font-bold">Thông số</div>
-              {selectedVehicles.map((v, i) => (
-                <div key={i} className="px-5 py-4 text-sm font-bold text-center">
-                  {v?.name || "—"}
-                </div>
-              ))}
+              {selectedIds.map((id, index) => {
+                const v = selectedVehicles[index];
+                return (
+                  <div key={index} className="px-5 py-4 text-sm font-bold text-center">
+                    {v?.name || "Đang tải..."}
+                  </div>
+                );
+              })}
             </div>
 
             {/* Price Row */}
@@ -242,14 +335,17 @@ export default function ComparePage() {
               <div className="px-5 py-4 text-sm font-bold text-gray-700">
                 Giá khởi điểm
               </div>
-              {selectedVehicles.map((v, i) => (
-                <div
-                  key={i}
-                  className="px-5 py-4 text-sm font-bold text-[#0562D2] text-center"
-                >
-                  {v ? formatPriceShort(v.basePrice) : "—"}
-                </div>
-              ))}
+              {selectedIds.map((id, index) => {
+                const v = selectedVehicles[index];
+                return (
+                  <div
+                    key={index}
+                    className="px-5 py-4 text-sm font-bold text-[#0562D2] text-center"
+                  >
+                    {v ? formatPriceShort(v.basePrice) : "—"}
+                  </div>
+                );
+              })}
             </div>
 
             {/* Spec Rows */}
@@ -266,11 +362,12 @@ export default function ComparePage() {
                 <div className="px-5 py-4 text-sm font-semibold text-gray-600">
                   {spec.label}
                 </div>
-                {selectedVehicles.map((v, i) => {
-                  const specValue = v?.versions[0]?.specs[spec.key] || "—";
+                {selectedIds.map((id, index) => {
+                  const v = selectedVehicles[index];
+                  const specValue = v?.versions?.[0]?.specs?.[spec.key] || "—";
                   return (
                     <div
-                      key={i}
+                      key={index}
                       className="px-5 py-4 text-sm text-gray-700 text-center font-medium"
                     >
                       {specValue}
@@ -288,10 +385,11 @@ export default function ComparePage() {
               }}
             >
               <div className="px-5 py-5" />
-              {selectedVehicles.map((v, i) =>
-                v ? (
+              {selectedIds.map((id, index) => {
+                const v = selectedVehicles[index];
+                return v ? (
                   <div
-                    key={i}
+                    key={index}
                     className="px-5 py-5 flex flex-col items-center gap-2"
                   >
                     <Link
@@ -309,9 +407,9 @@ export default function ComparePage() {
                     </Link>
                   </div>
                 ) : (
-                  <div key={i} className="px-5 py-5" />
-                )
-              )}
+                  <div key={index} className="px-5 py-5" />
+                );
+              })}
             </div>
           </div>
         </div>

@@ -1228,7 +1228,7 @@ export default function ProductDetailPage() {
   const handleTabClick = (tab: ActiveTab) => {
     if (tab === "accessories") {
       // Navigate to accessories page pre-filtering by vehicle name
-      router.push(`/accessories?vehicle=${encodeURIComponent(vehicle.name)}`);
+      router.push(`/phu-kien?vehicle=${encodeURIComponent(vehicle.name)}`);
       return;
     }
 

@@ -82,6 +82,7 @@ export default function RootLayout({
     <html
       lang="vi"
       className={`${inter.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
       <head>
         <script
@@ -89,7 +90,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className="min-h-full flex flex-col bg-light text-dark font-sans">
+      <body className="min-h-full flex flex-col bg-light text-dark font-sans" suppressHydrationWarning>
         <Navbar />
         <main className="flex-1 flex flex-col">{children}</main>
         <Footer />

@@ -127,9 +127,19 @@ class Brand extends BaseModel
 
         if ($this->status == self::STATUS_ACTIVE) {
             foreach ($this->translations as $translation) {
-                $urls[strtoupper($translation->locale)] = route("$translation->locale.products.show", [
-                    'slug' => $translation->seo_slug ?? $translation->slug,
-                ]);
+                $routeName = "$translation->locale.products.show";
+                if (\Illuminate\Support\Facades\Route::has($routeName)) {
+                    $urls[strtoupper($translation->locale)] = route($routeName, [
+                        'slug' => $translation->seo_slug ?? $translation->slug,
+                    ]);
+                } else {
+                    $slug = $translation->seo_slug ?? $translation->slug;
+                    if ($translation->locale === 'vi') {
+                        $urls['VI'] = '/san-pham?brand=' . $slug;
+                    } else {
+                        $urls[strtoupper($translation->locale)] = '/en/products?brand=' . $slug;
+                    }
+                }
             }
         }
         return $urls;

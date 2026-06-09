@@ -75,7 +75,7 @@ class HandleInertiaFrontendRequests extends Middleware
                 'route' => [
                     'url' => $request->url(),
                     'path' => $request->path(),
-                    'name' => $request->route()->getName(),
+                    'name' => $request->route() ? $request->route()->getName() : null,
                     'query' => $request->query(),
                 ],
                 'data' => [

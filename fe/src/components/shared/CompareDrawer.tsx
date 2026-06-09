@@ -7,10 +7,12 @@ import { X, GitCompare, Trash2, ArrowRight } from "lucide-react";
 import { vehicles, type Vehicle } from "@/data/vehicles";
 import { getPopularVehicleImage, handleImageError } from "@/lib/site-assets";
 import { formatPriceShort } from "@/lib/rolling-cost";
+import { vehiclesAPI } from "@/lib/api";
 
 export default function CompareDrawer() {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isOpen, setIsOpen] = useState(false);
+  const [allVehicles, setAllVehicles] = useState<any[]>([]);
 
   // Sync with localStorage
   const loadCompareList = () => {
@@ -33,6 +35,36 @@ export default function CompareDrawer() {
       setIsOpen(false);
     }
   };
+
+  useEffect(() => {
+    const fetchAll = async () => {
+      try {
+        const res = await vehiclesAPI.getAll().catch(() => null);
+        const items = res?.data || res;
+        if (Array.isArray(items) && items.length > 0) {
+          const mapped = items.map((v: any) => {
+            const staticV = vehicles.find((sv) => sv.id === v.slug || sv.id === v.id);
+            const id = v.slug || v.id;
+            const name = v.title || v.name;
+            const image = v.image_url || v.images?.[0] || getPopularVehicleImage(id, "");
+            const price = typeof v.base_price === 'string' ? parseFloat(v.base_price) : (v.base_price || v.basePrice || 0);
+            return {
+              ...v,
+              id,
+              name,
+              basePrice: price,
+              images: [image],
+              typeName: v.type_name || v.typeName || (staticV?.typeName) || (v.type === 'suv' ? 'SUV' : v.type === 'pickup' ? 'Bán tải' : 'Thương mại')
+            };
+          });
+          setAllVehicles(mapped);
+        }
+      } catch (err) {
+        console.error("Error loading vehicles in CompareDrawer:", err);
+      }
+    };
+    fetchAll();
+  }, []);
 
   useEffect(() => {
     loadCompareList();
@@ -68,8 +100,12 @@ export default function CompareDrawer() {
 
   // Resolve vehicles details
   const compareVehicles = selectedIds
-    .map((id) => vehicles.find((v) => v.id === id))
-    .filter(Boolean) as Vehicle[];
+    .map((id) => {
+      const found = allVehicles.find((v) => v.id === id);
+      if (found) return found;
+      return vehicles.find((v) => v.id === id);
+    })
+    .filter(Boolean) as any[];
 
   return (
     <div
@@ -112,7 +148,11 @@ export default function CompareDrawer() {
               {/* Image Preview */}
               <div className="relative w-16 h-10 flex-shrink-0 bg-black/20 rounded-lg overflow-hidden">
                 <Image
-                  src={getPopularVehicleImage(vehicle.id, vehicle.images[0])}
+                  src={
+                    vehicle.images?.[0]?.startsWith("http") || vehicle.images?.[0]?.startsWith("/")
+                      ? vehicle.images[0]
+                      : getPopularVehicleImage(vehicle.id, vehicle.images?.[0] || "")
+                  }
                   alt={vehicle.name}
                   fill
                   sizes="64px"

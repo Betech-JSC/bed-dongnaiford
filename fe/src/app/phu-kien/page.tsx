@@ -53,24 +53,16 @@ const categories = [
 
 const sidebarModels = [
   {
-    name: "Ford Everest",
-    subModels: ["Ford Ranger", "Ford Territory", "Ford Explorer", "Ford Escape"]
+    name: "Dòng Xe Bán Tải",
+    subModels: ["Ford Ranger", "Ranger Raptor"]
   },
   {
-    name: "Ford EcoSport",
-    subModels: []
+    name: "Dòng Xe SUV",
+    subModels: ["Ford Everest", "Ford Territory", "Ford Explorer", "Ford EcoSport", "Ford Escape"]
   },
   {
-    name: "Ford Focus",
-    subModels: []
-  },
-  {
-    name: "Ford Fiesta",
-    subModels: []
-  },
-  {
-    name: "Ford Mondeo",
-    subModels: []
+    name: "Dòng Xe Thương Mại / MPV",
+    subModels: ["Ford Transit", "Ford Tourneo"]
   }
 ];
 
@@ -105,12 +97,27 @@ export default function AccessoriesPage() {
       if (vehicleParam) {
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setSelectedVehicle(vehicleParam);
+        
+        // Find which group contains this vehicle and expand it
+        const matchedGroup = sidebarModels.find(model => 
+          model.subModels.some(sub => 
+            sub.toLowerCase().includes(vehicleParam.toLowerCase()) || 
+            vehicleParam.toLowerCase().includes(sub.toLowerCase())
+          )
+        );
+        if (matchedGroup) {
+          // eslint-disable-next-line react-hooks/set-state-in-effect
+          setExpandedSidebar(prev => ({
+            ...prev,
+            [matchedGroup.name]: true
+          }));
+        }
       }
     }
   }, []);
 
   const [expandedSidebar, setExpandedSidebar] = useState<Record<string, boolean>>({
-    "Ford Everest": true
+    "Dòng Xe SUV": true
   });
   
   // Pagination State
@@ -281,7 +288,10 @@ export default function AccessoriesPage() {
                   {hasSubModels && isExpanded && (
                     <div className="flex flex-col gap-[12px] pt-[12px] pb-[4px]">
                       {model.subModels.map((sub) => {
-                        const isSelected = selectedVehicle === sub;
+                        const isSelected = !!selectedVehicle && (
+                          sub.toLowerCase().includes(selectedVehicle.toLowerCase()) ||
+                          selectedVehicle.toLowerCase().includes(sub.toLowerCase())
+                        );
                         return (
                           <button
                             key={sub}

@@ -41,7 +41,7 @@ trait Translatable
 
     public function scopeWhereLocaleActive($query)
     {
-        if (!empty(request()->route()->getName())) {
+        if (request()->route() && !empty(request()->route()->getName())) {
             $locale = current_locale();
             $default_locale = config('app.locale');
 

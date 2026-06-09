@@ -33,6 +33,15 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: "/accessories",
+        destination: "/phu-kien",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

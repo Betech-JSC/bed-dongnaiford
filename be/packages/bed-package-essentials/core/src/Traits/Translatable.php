@@ -41,7 +41,7 @@ trait Translatable
 
     public function scopeWhereLocaleActive($query)
     {
-        if (!empty(request()->route()->getName())) {
+        if (request()->route() && !empty(request()->route()->getName())) {
             $locale = current_locale();
             $default_locale = config('app.locale');
 
@@ -63,7 +63,8 @@ trait Translatable
             return $this->useTranslationFallback;
         }
 
-        if (str_contains(Route::current()->getName(), 'admin.')) {
+        $routeName = Route::current() ? Route::current()->getName() : '';
+        if (str_contains($routeName ?? '', 'admin.')) {
             return (bool) config('translatable.use_fallback_backend', config('translatable.use_fallback', false));
         } else {
             return (bool) config('translatable.use_fallback_frontend', config('translatable.use_fallback', false));
