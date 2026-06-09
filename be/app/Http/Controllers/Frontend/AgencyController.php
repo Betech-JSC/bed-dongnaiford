@@ -24,11 +24,13 @@ class AgencyController extends Controller
                     'agencies' => $item->map(function ($agency) {
                         return [
                             'title' => $agency['title'],
-                            'phone' => $agency['info']['phone'],
-                            'email' => $agency['info']['email'],
-                            'location' => $agency['location'],
+                            'phone' => $agency['info']['phone'] ?? ($agency['phones'][0]['number'] ?? null),
+                            'email' => $agency['info']['email'] ?? null,
+                            'location' => $agency['location'] ?? $agency['full_address'],
                             'link_google_map' => $agency['link_google_map'],
                             'code' => $agency['code'],
+                            'phones' => $agency['phones'] ?? [],
+                            'info' => $agency['info'] ?? [],
                         ];
                     })
                 ];
@@ -44,7 +46,7 @@ class AgencyController extends Controller
             'agencies' => $agencies
         ];
 
-        if (request()->wantsJson()) {
+        if (request()->wantsJson() || request()->is('*/api/*') || request()->is('api/*') || request()->routeIs('api.*')) {
             return response()->json($data);
         }
 

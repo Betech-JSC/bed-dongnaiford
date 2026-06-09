@@ -56,6 +56,9 @@ class Handler extends ExceptionHandler
 
         if (
             !request()->is('admin/*') &&
+            !request()->is('*/api/*') &&
+            !request()->is('api/*') &&
+            !request()->expectsJson() &&
             in_array($response->status(), [500, 503, 404, 403])
         ) {
             return Inertia::render('Error', ['status' => $response->status()])
