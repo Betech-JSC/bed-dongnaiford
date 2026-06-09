@@ -51,6 +51,9 @@ export const vehiclesAPI = {
   // Get featured vehicles
   getFeatured: () => fetchAPI('/vehicles/featured'),
   
+  // Get best sellers
+  getBestSellers: (params?: Record<string, any>) => fetchAPI('/vehicles/featured'),
+  
   // Get vehicle by slug
   getBySlug: (slug: string) => fetchAPI(`/vehicles/${slug}`),
   

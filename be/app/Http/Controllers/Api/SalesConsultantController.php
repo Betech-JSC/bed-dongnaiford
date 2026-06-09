@@ -49,7 +49,7 @@ class SalesConsultantController extends Controller
             ->first();
 
         if (!$consultant) {
-            return $this->error(__('Không tìm thấy cố vấn bán hàng'), 404);
+            return $this->failure(__('Không tìm thấy cố vấn bán hàng'), 404);
         }
 
         return $this->success($consultant->toLocalizedDetail($locale));

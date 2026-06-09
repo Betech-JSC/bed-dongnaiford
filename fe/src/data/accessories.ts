@@ -43,7 +43,8 @@ export const accessoriesData: AccessoryItem[] = [
     ],
     compatibilityText: "Tương thích hoàn toàn với dòng xe Ford Focus Estate phiên bản từ năm 2018 đến 2026. Lắp đặt trực tiếp vào hệ thống đường ray dọc có sẵn trên nóc xe mà không cần khoan đục.",
     safetyText: "Sản phẩm được kiểm định nghiêm ngặt về độ chịu tải và sức cản gió lên đến tốc độ 120km/h. Tải trọng khuyến nghị tối đa 75kg. Lưu ý: không mở cửa sổ trời toàn cảnh khi đang tải hành lý trên thanh ngang.",
-    productDescText: "Thanh ngang là nền tảng hoàn hảo cho các phụ kiện vận chuyển trên nóc xe. Mỗi bộ được thiết kế riêng cho xe Ford. Bộ 2 thanh nhôm có khóa, lắp vào ray bên hông, tải trọng tối đa 75 kg. Lưu ý: không thể mở cửa sổ trời toàn cảnh khi lắp thanh ngang."
+    productDescText: "Thanh ngang là nền tảng hoàn hảo cho các phụ kiện vận chuyển trên nóc xe. Mỗi bộ được thiết kế riêng cho xe Ford. Bộ 2 thanh nhôm có khóa, lắp vào ray bên hông, tải trọng tối đa 75 kg. Lưu ý: không thể mở cửa sổ trời toàn cảnh khi lắp thanh ngang.",
+    brand: { id: 1, title: "Ford", slug: "ford" }
   },
   {
     id: "tham-san-cao-cap",
@@ -64,7 +65,8 @@ export const accessoriesData: AccessoryItem[] = [
     ],
     compatibilityText: "Thiết kế riêng theo số đo sàn xe của từng dòng Ford Everest, Ranger, Territory, Explorer. Vui lòng ghi chú dòng xe khi đặt hàng.",
     safetyText: "Thảm có chốt khóa cố định chắc chắn vào sàn xe, đảm bảo không bị xê dịch gây kẹt chân ga hay chân phanh trong quá trình vận hành.",
-    productDescText: "Bộ thảm lót sàn cao cấp được làm từ nhựa TPE nguyên sinh thân thiện với môi trường, khả năng chịu nhiệt cao và không phát sinh mùi hôi ngay cả khi đỗ xe dưới trời nắng gắt."
+    productDescText: "Bộ thảm lót sàn cao cấp được làm từ nhựa TPE nguyên sinh thân thiện với môi trường, khả năng chịu nhiệt cao và không phát sinh mùi hôi ngay cả khi đỗ xe dưới trời nắng gắt.",
+    brand: { id: 2, title: "3M", slug: "3m" }
   },
   {
     id: "boc-ghe-da",
@@ -85,7 +87,8 @@ export const accessoriesData: AccessoryItem[] = [
     ],
     compatibilityText: "Phù hợp cho các phiên bản xe ghế nỉ của Ford Ranger, Territory hoặc bọc lại toàn bộ nội thất xe Transit VIP.",
     safetyText: "Quy trình may chuyên nghiệp chừa đường chỉ túi khí hông, bảo đảm túi khí bung bình thường khi xảy ra sự cố va chạm.",
-    productDescText: "Bọc da ghế ô tô sử dụng chất liệu cao cấp mang lại sự sang trọng bậc nhất cho chiếc xe của bạn. Da có khả năng co giãn tốt, lỗ thông hơi thông minh giúp chống nóng bí lưng."
+    productDescText: "Bọc da ghế ô tô sử dụng chất liệu cao cấp mang lại sự sang trọng bậc nhất cho chiếc xe của bạn. Da có khả năng co giãn tốt, lỗ thông hơi thông minh giúp chống nóng bí lưng.",
+    brand: { id: 6, title: "Nappa", slug: "nappa" }
   },
   {
     id: "camera-hanh-trinh-pro",
@@ -106,7 +109,8 @@ export const accessoriesData: AccessoryItem[] = [
     ],
     compatibilityText: "Lắp ráp được trên tất cả dòng xe Ford. Kết nối nguồn tẩu hoặc đi dây cầu chì giám sát đỗ xe 24/24.",
     safetyText: "Sử dụng tụ điện chịu nhiệt thay cho pin Li-on truyền thống, đảm bảo thiết bị hoạt động bền bỉ, không cháy nổ dưới nhiệt độ cao.",
-    productDescText: "Camera hành trình cao cấp Pro ghi lại mọi khoảnh khắc di chuyển trên đường với góc quay siêu rộng 170 độ, bảo vệ quyền lợi hợp pháp của bạn khi tham gia giao thông."
+    productDescText: "Camera hành trình cao cấp Pro ghi lại mọi khoảnh khắc di chuyển trên đường với góc quay siêu rộng 170 độ, bảo vệ quyền lợi hợp pháp của bạn khi tham gia giao thông.",
+    brand: { id: 3, title: "Vietmap", slug: "vietmap" }
   },
   {
     id: "bo-mam-hop-kim",
@@ -127,7 +131,8 @@ export const accessoriesData: AccessoryItem[] = [
     ],
     compatibilityText: "Sản phẩm thiết kế chuyên dụng cho hệ trục bánh xe Ford Ranger và Everest. Vui lòng liên hệ kỹ thuật viên để chọn đúng thông số lốp phù hợp.",
     safetyText: "Đạt tiêu chuẩn thử nghiệm va đập và chịu lực quốc tế, bảo đảm an toàn khi xe vận hành vượt địa hình gồ ghề.",
-    productDescText: "Nâng cấp mâm hợp kim thể thao giúp xe có ngoại hình bắt mắt, cứng cáp hơn đồng thời nâng cao tính năng lái, phản hồi mặt đường tốt hơn."
+    productDescText: "Nâng cấp mâm hợp kim thể thao giúp xe có ngoại hình bắt mắt, cứng cáp hơn đồng thời nâng cao tính năng lái, phản hồi mặt đường tốt hơn.",
+    brand: { id: 4, title: "Michelin", slug: "michelin" }
   },
   {
     id: "loc-gio-hieu-suat",
@@ -148,7 +153,8 @@ export const accessoriesData: AccessoryItem[] = [
     ],
     compatibilityText: "Tương thích hoàn toàn với hộp lọc gió zin của động cơ Single-Turbo và Bi-Turbo 2.0L trên Ranger và Everest.",
     safetyText: "Không gây lỗi cảm biến lưu lượng khí nạp (MAF) khi được tẩm dầu bảo dưỡng đúng định lượng quy chuẩn nhà sản xuất.",
-    productDescText: "Lọc gió hiệu suất cao là món phụ kiện nâng cấp động cơ hiệu quả nhất với chi phí tối ưu, giúp xe bốc hơn ở ga đầu và tăng tốc mượt mà hơn."
+    productDescText: "Lọc gió hiệu suất cao là món phụ kiện nâng cấp động cơ hiệu quả nhất với chi phí tối ưu, giúp xe bốc hơn ở ga đầu và tăng tốc mượt mà hơn.",
+    brand: { id: 7, title: "K&N", slug: "kn" }
   },
   {
     id: "bo-sap-xep-hanh-ly",
@@ -169,7 +175,8 @@ export const accessoriesData: AccessoryItem[] = [
     ],
     compatibilityText: "Sử dụng đặt gọn gàng trong cốp xe phía sau của tất cả các dòng xe ô tô từ 5 chỗ đến 7 chỗ.",
     safetyText: "Đế hộp tích hợp gai bám chống trượt, giữ cố định vị trí hộp không bị xô lệch khi xe tăng tốc hoặc phanh gấp.",
-    productDescText: "Khay hộp sắp xếp hành lý giúp khoang cốp xe của bạn luôn ngăn nắp, sạch sẽ, giải quyết tình trạng đồ đạc lăn lóc phát ra tiếng ồn khi xe chạy."
+    productDescText: "Khay hộp sắp xếp hành lý giúp khoang cốp xe của bạn luôn ngăn nắp, sạch sẽ, giải quyết tình trạng đồ đạc lăn lóc phát ra tiếng ồn khi xe chạy.",
+    brand: { id: 1, title: "Ford", slug: "ford" }
   },
   {
     id: "tam-chan-nang",
@@ -190,7 +197,8 @@ export const accessoriesData: AccessoryItem[] = [
     ],
     compatibilityText: "Gồm bộ 4 tấm thiết kế riêng theo kích thước khung kính cửa của Everest, Ranger, Territory, Explorer đời mới nhất.",
     safetyText: "Thiết kế chừa góc quan sát gương chiếu hậu bên tài và bên phụ, bảo đảm tầm nhìn an toàn khi lái xe.",
-    productDescText: "Tấm che nắng nam châm thế hệ mới loại bỏ sự lỉnh kỉnh của núm hút cao su cũ, mang lại tính thẩm mỹ cao và sự tiện lợi vượt trội cho người sử dụng."
+    productDescText: "Tấm che nắng nam châm thế hệ mới loại bỏ sự lỉnh kỉnh của núm hút cao su cũ, mang lại tính thẩm mỹ cao và sự tiện lợi vượt trội cho người sử dụng.",
+    brand: { id: 2, title: "3M", slug: "3m" }
   },
   {
     id: "sac-khong-day",
@@ -211,7 +219,8 @@ export const accessoriesData: AccessoryItem[] = [
     ],
     compatibilityText: "Lắp đặt gọn gàng vào hộc để đồ trung tâm cho các bản xe thiếu sạc không dây nguyên bản của Ranger và Territory.",
     safetyText: "Đạt chứng nhận an toàn chống quá nhiệt, quá dòng, phát hiện vật thể lạ bằng kim loại tránh gây chập cháy.",
-    productDescText: "Nâng cấp khay sạc không dây giúp khoang lái gọn gàng hơn, loại bỏ sự rườm rà của dây cáp sạc truyền thống mà vẫn đảm bảo điện thoại luôn đầy pin."
+    productDescText: "Nâng cấp khay sạc không dây giúp khoang lái gọn gàng hơn, loại bỏ sự rườm rà của dây cáp sạc truyền thống mà vẫn đảm bảo điện thoại luôn đầy pin.",
+    brand: { id: 5, title: "Steelmate", slug: "steelmate" }
   },
   {
     id: "tam-chan-bun",
@@ -232,7 +241,8 @@ export const accessoriesData: AccessoryItem[] = [
     ],
     compatibilityText: "Tương thích cho Ford Ranger (XLS, Wildtrak) và Ford Everest từ đời 2022 trở đi.",
     safetyText: "Ôm khít viền lốp xe, không gây cọ xát lốp hay cản trở góc lái an toàn của bánh trước.",
-    productDescText: "Tấm chắn bùn bánh xe là trang bị vô cùng thiết thực cho xe gầm cao khi di chuyển trong mùa mưa lũ ở Việt Nam, hạn chế tối đa chất bẩn bắn lên thân xe và xe phía sau."
+    productDescText: "Tấm chắn bùn bánh xe là trang bị vô cùng thiết thực cho xe gầm cao khi di chuyển trong mùa mưa lũ ở Việt Nam, hạn chế tối đa chất bẩn bắn lên thân xe và xe phía sau.",
+    brand: { id: 1, title: "Ford", slug: "ford" }
   },
   {
     id: "gia-noc",
@@ -253,7 +263,8 @@ export const accessoriesData: AccessoryItem[] = [
     ],
     compatibilityText: "Lắp ráp cố định vào 2 thanh dọc nóc xe sẵn có của xe Ford Everest và Ford Explorer.",
     safetyText: "Thiết kế khí động học tản gió giúp xe giữ thăng bằng tốt ở tốc độ cao, giảm thiểu tiếng ồn ù tai vọng vào khoang lái.",
-    productDescText: "Baga nóc là món phụ kiện không thể thiếu đối với các tín đồ du lịch tự lái (road trip), cắm trại dã ngoại ngoài trời, giúp giải phóng hoàn toàn không gian cốp xe chật hẹp."
+    productDescText: "Baga nóc là món phụ kiện không thể thiếu đối với các tín đồ du lịch tự lái (road trip), cắm trại dã ngoại ngoài trời, giúp giải phóng hoàn toàn không gian cốp xe chật hẹp.",
+    brand: { id: 1, title: "Ford", slug: "ford" }
   },
   {
     id: "bac-len-xuong",
@@ -274,7 +285,8 @@ export const accessoriesData: AccessoryItem[] = [
     ],
     compatibilityText: "Thay thế bệ bước chân cũ hoặc nâng cấp mới cho Ford Ranger và Ford Everest đời thế hệ mới.",
     safetyText: "Khả năng chịu tải trọng dậm chân kiểm nghiệm thực tế lên đến 200kg trên mỗi bậc, vô cùng chắc chắn và an toàn.",
-    productDescText: "Bệ bước chân lên xuống vừa là điểm nhấn ngoại thất thể thao khỏe khoắn cho xe gầm cao vừa là trợ thủ đắc lực hỗ trợ trẻ nhỏ, phụ nữ mang thai lên xuống xe an toàn."
+    productDescText: "Bệ bước chân lên xuống vừa là điểm nhấn ngoại thất thể thao khỏe khoắn cho xe gầm cao vừa là trợ thủ đắc lực hỗ trợ trẻ nhỏ, phụ nữ mang thai lên xuống xe an toàn.",
+    brand: { id: 1, title: "Ford", slug: "ford" }
   },
   {
     id: "he-thong-ong-xa",
@@ -295,6 +307,7 @@ export const accessoriesData: AccessoryItem[] = [
     ],
     compatibilityText: "Lắp đặt plug and play trực tiếp vào hệ thống đường ống xả nguyên bản của Ranger Wildtrak và Raptor.",
     safetyText: "Được thiết kế cách nhiệt tốt bảo vệ các chi tiết gầm xe xung quanh, đạt chứng nhận đăng kiểm tiêu chuẩn khí thải.",
-    productDescText: "Nâng cấp hệ thống pô thể thao mang lại cảm xúc phấn khích mỗi khi đạp ga với tiếng nổ đầy uy lực, đồng thời tối ưu hóa khả năng vận hành hiệu suất cao của động cơ tăng áp."
+    productDescText: "Nâng cấp hệ thống pô thể thao mang lại cảm xúc phấn khích mỗi khi đạp ga với tiếng nổ đầy uy lực, đồng thời tối ưu hóa khả năng vận hành hiệu suất cao của động cơ tăng áp.",
+    brand: { id: 8, title: "Akrapovic", slug: "akrapovic" }
   }
 ];

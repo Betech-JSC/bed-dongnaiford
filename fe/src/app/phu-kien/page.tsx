@@ -72,6 +72,7 @@ export default function AccessoriesPage() {
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedVehicle, setSelectedVehicle] = useState<string | null>(null);
+  const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadData() {
@@ -117,7 +118,8 @@ export default function AccessoriesPage() {
   }, []);
 
   const [expandedSidebar, setExpandedSidebar] = useState<Record<string, boolean>>({
-    "Dòng Xe SUV": true
+    "Dòng Xe SUV": true,
+    "Thương Hiệu": true
   });
   
   // Pagination State
@@ -149,6 +151,24 @@ export default function AccessoriesPage() {
     setCurrentPage(1);
   };
 
+  // Get all unique brands dynamically
+  const availableBrands = Array.from(
+    new Set(
+      accessories
+        .map((item) => item.brand?.title)
+        .filter((title): title is string => !!title)
+    )
+  ).sort();
+
+  const handleBrandSelect = (brandName: string) => {
+    if (selectedBrand === brandName) {
+      setSelectedBrand(null);
+    } else {
+      setSelectedBrand(brandName);
+    }
+    setCurrentPage(1);
+  };
+
   // Filter Logic
   const filteredAccessories = accessories.filter((item) => {
     const matchesCategory = activeCategory === "all" || item.category === activeCategory;
@@ -161,7 +181,9 @@ export default function AccessoriesPage() {
       item.fitVehicles.some(v => v.toLowerCase().includes(selectedVehicle.toLowerCase()) || 
       selectedVehicle.toLowerCase().includes(v.toLowerCase()));
 
-    return matchesCategory && matchesSearch && matchesVehicle;
+    const matchesBrand = !selectedBrand || item.brand?.title === selectedBrand;
+
+    return matchesCategory && matchesSearch && matchesVehicle && matchesBrand;
   });
 
   // Paginated Items
@@ -308,6 +330,43 @@ export default function AccessoriesPage() {
                 </div>
               );
             })}
+
+            {/* Brands Filter Accordion */}
+            {availableBrands.length > 0 && (
+              <div className="flex flex-col border-b border-[#e5e5e5] py-[16px] w-[280px]">
+                <button
+                  onClick={() => toggleSidebar("Thương Hiệu")}
+                  className="flex items-center justify-between text-left w-full cursor-pointer border-0 bg-transparent transition-colors py-1"
+                >
+                  <span className={`font-['Ford_Antenna',sans-serif] font-semibold text-[16px] ${selectedBrand || expandedSidebar["Thương Hiệu"] ? "text-[#0562d2]" : "text-[#1a1a1a] hover:text-[#0562d2]"}`}>
+                    Thương Hiệu
+                  </span>
+                  {expandedSidebar["Thương Hiệu"] ? (
+                    <Minus className="w-[20px] h-[20px] text-[#0562d2]" />
+                  ) : (
+                    <Plus className="w-[20px] h-[20px] text-[#0562d2]" />
+                  )}
+                </button>
+
+                {expandedSidebar["Thương Hiệu"] && (
+                  <div className="flex flex-col gap-[12px] pt-[12px] pb-[4px]">
+                    {availableBrands.map((brandName) => {
+                      const isSelected = selectedBrand === brandName;
+                      return (
+                        <button
+                          key={brandName}
+                          onClick={() => handleBrandSelect(brandName)}
+                          className={`text-left text-[16px] font-['Ford_Antenna',sans-serif] cursor-pointer border-0 bg-transparent transition-colors
+                            ${isSelected ? "text-[#0562d2] font-semibold" : "text-[#333] hover:text-[#0562d2]"}`}
+                        >
+                          {brandName}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Right Accessories Grid panel */}
@@ -340,6 +399,7 @@ export default function AccessoriesPage() {
                     setSearchQuery("");
                     setActiveCategory("all");
                     setSelectedVehicle(null);
+                    setSelectedBrand(null);
                     setCurrentPage(1);
                   }}
                   className="btn-ford-primary text-xs py-2 px-5 font-bold uppercase cursor-pointer"

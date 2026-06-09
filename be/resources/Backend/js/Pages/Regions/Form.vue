@@ -38,8 +38,9 @@
                     <Field
                         v-model="form.shipping_price"
                         :field="{
-                            type: 'decimal',
+                            type: 'money',
                             name: 'shipping_price',
+                            label: 'Phí vận chuyển (VNĐ)',
                         }"
                     />
                     <Field

@@ -18,7 +18,7 @@ import {
   GitCompare
 } from "lucide-react";
 import { vehicles } from "@/data/vehicles";
-import { vehicleMediaAssets } from "@/data/vehicle-media";
+import { vehicleMediaAssets, getVehicleMediaAssets } from "@/data/vehicle-media";
 import BookingBanner from "@/components/services/BookingBanner";
 import Blocks from "@/components/blocks/Blocks";
 
@@ -204,7 +204,13 @@ export default function ProductDetailPage() {
               : (apiVehicle.title?.toLowerCase().includes('transit') ? 'Xe Thương Mại 16 Chỗ' : apiVehicle.title?.toLowerCase().includes('tourneo') ? 'Thương Mại 7 Chỗ' : 'Thương mại')
         ),
         basePrice: typeof apiVehicle.base_price === 'string' ? parseFloat(apiVehicle.base_price) : apiVehicle.base_price,
-        colors: apiVehicle.colors ? apiVehicle.colors.map((c: any) => ({ name: c.name, hex: c.hex, image: c.image_path || c.image })) : [],
+        colors: apiVehicle.colors ? apiVehicle.colors.map((c: any) => ({ 
+          name: c.name, 
+          hex: c.hex, 
+          image: c.image_path || c.image,
+          images_360: c.images_360 || [],
+          image_360_internal: c.image_360_internal || null
+        })) : [],
         images: (apiVehicle.images && apiVehicle.images.length > 0) ? apiVehicle.images : [apiVehicle.image_url].filter(Boolean),
         versions: apiVehicle.versions ? apiVehicle.versions.map((v: any) => ({
           id: v.id,
@@ -225,7 +231,7 @@ export default function ProductDetailPage() {
       }
     : staticVehicle;
 
-  const media = vehicle ? (vehicleMediaAssets[vehicle.id] || vehicleMediaAssets["new-territory"]) : vehicleMediaAssets["new-territory"];
+  const media = vehicle ? getVehicleMediaAssets(vehicle.id) : getVehicleMediaAssets("new-territory");
 
   // Scroll references for programmatic scrolling
   const isProgrammaticScroll = useRef(false);
@@ -260,6 +266,7 @@ export default function ProductDetailPage() {
   const [failedImages, setFailedImages] = useState<Record<string, boolean>>({});
 
   const [isEditMode, setIsEditMode] = useState(false);
+  const [isEmbedded, setIsEmbedded] = useState(false);
   const [originalBlocks, setOriginalBlocks] = useState<any[]>([]);
   const [currentBlocks, setCurrentBlocks] = useState<any[]>([]);
   const [saving, setSaving] = useState(false);
@@ -386,20 +393,96 @@ export default function ProductDetailPage() {
     }
   }, [apiVehicle, id]);
 
-  // Check if ?edit=true in URL to auto-enable edit mode
+  // Check if ?edit=true or ?embed=true in URL to auto-enable modes
   useEffect(() => {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
       if (params.get("edit") === "true") {
         setIsEditMode(true);
       }
+      if (params.get("embed") === "true") {
+        setIsEmbedded(true);
+      }
     }
   }, []);
+
+  // Synchronize layout blocks with the parent window (CMS) when in iframe/embedded mode
+  const syncBlocksToCMS = (blocks: any[], newActiveIndex?: number | null) => {
+    if (typeof window !== "undefined" && window.parent) {
+      window.parent.postMessage({
+        type: 'SYNC_BLOCKS_FROM_IFRAME',
+        blocks: blocks,
+        activeIndex: newActiveIndex !== undefined ? newActiveIndex : activeIndex
+      }, '*');
+    }
+  };
+
+  const handleSelectBlock = (idx: number) => {
+    setActiveIndex(idx);
+    if (isEmbedded && typeof window !== "undefined" && window.parent) {
+      window.parent.postMessage({
+        type: 'SELECT_BLOCK',
+        index: idx
+      }, '*');
+    }
+  };
+
+  // Set up message event listener for parent/CMS postMessages
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const handleMessage = (event: MessageEvent) => {
+      const data = event.data;
+      if (!data || typeof data !== 'object') return;
+
+      switch (data.type) {
+        case 'INIT_PREVIEW':
+          if (data.vehicle) {
+            setApiVehicle(data.vehicle);
+          }
+          if (data.blocks) {
+            setCurrentBlocks(data.blocks);
+          }
+          if (data.activeIndex !== undefined) {
+            setActiveIndex(data.activeIndex);
+          }
+          setIsEditMode(true);
+          setLoading(false);
+          break;
+        case 'UPDATE_VEHICLE':
+          if (data.vehicle) {
+            setApiVehicle(data.vehicle);
+          }
+          break;
+        case 'UPDATE_BLOCKS':
+          if (data.blocks) {
+            setCurrentBlocks(data.blocks);
+          }
+          if (data.activeIndex !== undefined) {
+            setActiveIndex(data.activeIndex);
+          }
+          break;
+        case 'UPDATE_ACTIVE_INDEX':
+          if (data.activeIndex !== undefined) {
+            setActiveIndex(data.activeIndex);
+          }
+          break;
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => {
+      window.removeEventListener('message', handleMessage);
+    };
+  }, [activeIndex, isEmbedded]);
 
   const handleBlockChange = (index: number, updatedData: any) => {
     const updated = [...currentBlocks];
     updated[index] = { ...updated[index], data: updatedData };
     setCurrentBlocks(updated);
+    if (isEmbedded) {
+      syncBlocksToCMS(updated);
+    }
   };
 
   const handleBlockMove = (index: number, direction: 'up' | 'down') => {
@@ -414,10 +497,17 @@ export default function ProductDetailPage() {
     
     setCurrentBlocks(updated);
 
+    let newActiveIndex = activeIndex;
     if (activeIndex === index) {
+      newActiveIndex = targetIndex;
       setActiveIndex(targetIndex);
     } else if (activeIndex === targetIndex) {
+      newActiveIndex = index;
       setActiveIndex(index);
+    }
+
+    if (isEmbedded) {
+      syncBlocksToCMS(updated, newActiveIndex);
     }
   };
 
@@ -425,10 +515,17 @@ export default function ProductDetailPage() {
     if (confirm("Bạn có chắc chắn muốn xóa khối nội dung này không?")) {
       const updated = currentBlocks.filter((_, i) => i !== index);
       setCurrentBlocks(updated);
+      let newActiveIndex = activeIndex;
       if (activeIndex === index) {
+        newActiveIndex = null;
         setActiveIndex(null);
       } else if (activeIndex !== null && activeIndex > index) {
+        newActiveIndex = activeIndex - 1;
         setActiveIndex(activeIndex - 1);
+      }
+
+      if (isEmbedded) {
+        syncBlocksToCMS(updated, newActiveIndex);
       }
     }
   };
@@ -439,6 +536,10 @@ export default function ProductDetailPage() {
     updated.splice(index + 1, 0, blockCopy);
     setCurrentBlocks(updated);
     setActiveIndex(index + 1);
+
+    if (isEmbedded) {
+      syncBlocksToCMS(updated, index + 1);
+    }
   };
 
   // Drag and Drop Event Handlers
@@ -464,18 +565,26 @@ export default function ProductDetailPage() {
 
     setCurrentBlocks(updated);
     
+    let newActiveIndex = activeIndex;
     if (activeIndex === sourceIndex) {
+      newActiveIndex = targetIndex;
       setActiveIndex(targetIndex);
     } else if (activeIndex !== null) {
       if (sourceIndex < activeIndex && targetIndex >= activeIndex) {
+        newActiveIndex = activeIndex - 1;
         setActiveIndex(activeIndex - 1);
       } else if (sourceIndex > activeIndex && targetIndex <= activeIndex) {
+        newActiveIndex = activeIndex + 1;
         setActiveIndex(activeIndex + 1);
       }
     }
 
     setDraggedIndex(null);
     setDraggedOverIndex(null);
+
+    if (isEmbedded) {
+      syncBlocksToCMS(updated, newActiveIndex);
+    }
   };
 
   const handleDragEnd = () => {
@@ -662,6 +771,9 @@ export default function ProductDetailPage() {
     setCurrentBlocks(updated);
     setActiveIndex(updated.length - 1);
     setBuilderTab("sections");
+    if (isEmbedded) {
+      syncBlocksToCMS(updated, updated.length - 1);
+    }
   };
 
   const handleSaveLayout = async () => {
@@ -737,36 +849,74 @@ export default function ProductDetailPage() {
 
   useEffect(() => {
     if (!threeLoaded || !is360Active || viewType !== "interior" || !threeRef.current) return;
-    const interiorImg = vehicle?.id === "new-territory" 
-      ? "/assets/territory-interior.png" 
-      : media.bannerLarge || "/assets/territory-interior.png";
+    const currentColor = vehicle?.colors?.[selectedColorIndex];
+    const interiorImg = (currentColor as any)?.image_360_internal 
+      || vehicle?.image_360_internal_url 
+      || (vehicle?.id === "new-territory" 
+          ? "/assets/territory-interior.png" 
+          : (media.bannerLarge || "/assets/territory-interior.png"));
 
     const cleanUpThree = initThreeInterior(threeRef.current, interiorImg);
     return () => {
       if (cleanUpThree) cleanUpThree();
     };
-  }, [threeLoaded, is360Active, viewType, vehicle, media]);
+  }, [threeLoaded, is360Active, viewType, vehicle, media, selectedColorIndex]);
 
   const renderCarPicture = () => {
     if (!vehicle) return null;
-    // 28 frames rotation logic
-    const frameIdx = Math.floor(((rotation % 360 + 360) % 360) / (360 / 28)) + 1;
-    
+
+    const currentColor = vehicle.colors[selectedColorIndex];
+
+    // 1. Dynamic 360 External Image Sequence uploaded from CMS
+    if (currentColor && (currentColor as any).images_360 && (currentColor as any).images_360.length > 0) {
+      const images360 = (currentColor as any).images_360;
+      const imagesCount = images360.length;
+      const frameIdx = Math.floor(((rotation % 360 + 360) % 360) / (360 / imagesCount)) % imagesCount;
+
+      return (
+        <div className="cmp-360-image-container w-full h-full relative" tabIndex={0}>
+          {images360.map((imgUrl: string, idx: number) => {
+            const isActive = idx === frameIdx;
+            return (
+              <picture 
+                key={idx}
+                className="cmp-360-image absolute inset-0 w-full h-full flex items-center justify-center"
+                style={{ 
+                  opacity: isActive ? 1 : 0,
+                  pointerEvents: isActive ? 'auto' : 'none',
+                  zIndex: isActive ? 10 : 0
+                }}
+              >
+                <img 
+                  src={imgUrl} 
+                  alt={`${currentColor.name} - 360 Frame ${idx}`} 
+                  className="max-h-[420px] md:max-h-[480px] w-auto object-contain select-none pointer-events-none"
+                  loading="eager"
+                />
+              </picture>
+            );
+          })}
+        </div>
+      );
+    }
+
+    // 2. Legacy / Special Mustang Hardcoded 360 Sequence
     if (vehicle.id === "mustang-fastback") {
       const activeTrim = vehicle.versions[activeVersionIndex]?.id || "ecoboostfastback";
       const colorId = vehicle.colors[selectedColorIndex]?.image || "adriatic-blue-green";
       const wheelId = selectedWheel || "64f";
-      
+      const frameIdx = Math.floor(((rotation % 360 + 360) % 360) / (360 / 28)) + 1;
+
       return (
         <div className="cmp-360-image-container w-full h-full relative" id={`${activeTrim}-exterior-${colorId}-${wheelId}`} tabIndex={0}>
           {Array.from({ length: 28 }, (_, i) => {
             const currentIdx = i + 1;
             const isActive = currentIdx === frameIdx;
-            
+
             let desktopUrl = `https://www.ford.com/acslibs/content/dam/na/ford/en_us/images/mustang/2026/360/${activeTrim}/exterior/desktop/${colorId}/${wheelId}/00${currentIdx}-${colorId}-${wheelId}.jpeg`;
             let tabletUrl = `https://www.ford.com/acslibs/content/dam/na/ford/en_us/images/mustang/2026/360/${activeTrim}/exterior/tablet/${colorId}/${wheelId}/00${currentIdx}-${colorId}-${wheelId}.jpeg`;
             let mobileUrl = `https://www.ford.com/acslibs/content/dam/na/ford/en_us/images/mustang/2026/360/${activeTrim}/exterior/mobile/${colorId}/${wheelId}/00${currentIdx}-${colorId}-${wheelId}.jpeg`;
-            
+
             // Map to downloaded local files for the EcoBoost Adriatic Blue combination
             if (activeTrim === "ecoboostfastback" && colorId === "adriatic-blue-green" && wheelId === "64f") {
               const localPath = `/images/360/mustang/${activeTrim}/exterior/desktop/${colorId}/${wheelId}/00${currentIdx}-${colorId}-${wheelId}.jpeg`;
@@ -776,7 +926,7 @@ export default function ProductDetailPage() {
                 mobileUrl = localPath;
               }
             }
-            
+
             return (
               <picture 
                 key={currentIdx}
@@ -807,8 +957,9 @@ export default function ProductDetailPage() {
         </div>
       );
     }
-    
-    // Fallback for other vehicles
+
+    // 3. Fallback for other vehicles with single static image (CSS 3D rotate simulation)
+    const fallbackImage = currentColor?.image || (vehicle.images && vehicle.images[0]) || "/assets/car-everest.png";
     return (
       <div 
         className="relative w-[700px] h-[400px] transition-transform duration-100 ease-out"
@@ -817,13 +968,13 @@ export default function ProductDetailPage() {
         }}
       >
         <Image 
-          src={vehicle.id === "new-territory" ? "/assets/territory-3d.png" : vehicle.images[0]}
+          src={fallbackImage}
           alt="3D Exterior rotation fallback"
           fill
           priority
           className="object-contain pointer-events-none"
         />
-        
+
         {/* Glossy Metallic highlight reflection sweep */}
         <div 
           className="absolute inset-0 pointer-events-none mix-blend-overlay opacity-30 rounded-xl"
@@ -1356,7 +1507,7 @@ export default function ProductDetailPage() {
   }
   navigationTabs.push({ id: "accessories", label: "Phụ kiện" });
 
-  if (isEditMode) {
+  if (isEditMode && !isEmbedded) {
     const activeBlock = activeIndex !== null ? currentBlocks[activeIndex] : null;
 
     const updateActiveBlockData = (key: string, value: any) => {
@@ -2418,6 +2569,14 @@ export default function ProductDetailPage() {
               threeSixtyProps={threeSixtyPropsObj}
               startIndex={0}
               totalBlocks={blocksWithAnchors.length}
+              activeIndex={activeIndex}
+              onSelectBlock={handleSelectBlock}
+              onDragStart={handleDragStart}
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
+              onDragEnd={handleDragEnd}
+              draggedIndex={draggedIndex}
+              draggedOverIndex={draggedOverIndex}
             />
           )}
 
@@ -2481,6 +2640,14 @@ export default function ProductDetailPage() {
               threeSixtyProps={threeSixtyPropsObj}
               startIndex={blocksWithAnchors[0]?.type === "HeroBanner" ? 1 : 0}
               totalBlocks={blocksWithAnchors.length}
+              activeIndex={activeIndex}
+              onSelectBlock={handleSelectBlock}
+              onDragStart={handleDragStart}
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
+              onDragEnd={handleDragEnd}
+              draggedIndex={draggedIndex}
+              draggedOverIndex={draggedOverIndex}
             />
             {!currentBlocks.some(b => b.type === "BookingBanner") && <BookingBanner />}
           </div>
@@ -2903,8 +3070,8 @@ export default function ProductDetailPage() {
       )}
 
       {/* Floating builder toolbar for reordering and saving */}
-      {isEditMode && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-[#1a1a1a]/95 backdrop-blur-md text-white rounded-2xl shadow-2xl border border-white/10 px-6 py-4 flex flex-col sm:flex-row items-center gap-4 min-w-[320px] max-w-[90vw] md:max-w-2xl">
+      {isEditMode && !isEmbedded && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-[#1a1a1a]/95 backdrop-blur-md text-white rounded-2xl shadow-2xl border border-white/10 px-6 py-4 flex flex-col sm:flex-row items-center gap-4 min-w-[320px] max-w-[90vw] md:max-w-2xl text-left select-none">
           <div className="flex flex-col gap-1 items-start">
             <span className="text-[10px] font-bold text-blue-400 uppercase tracking-widest">Trình Dựng Trang Trực Quan</span>
             <span className="text-xs font-semibold">Đang chỉnh sửa dòng xe: <strong className="text-white font-bold">{vehicle?.name}</strong></span>
@@ -2954,7 +3121,7 @@ export default function ProductDetailPage() {
         </div>
       )}
 
-      {!isEditMode && (
+      {!isEditMode && !isEmbedded && (
         <button 
           type="button"
           onClick={() => {

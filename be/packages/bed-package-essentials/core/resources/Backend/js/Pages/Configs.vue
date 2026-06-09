@@ -57,7 +57,7 @@
                         <Field
                             v-model="shipping.default"
                             :field="{
-                                type: 'decimal',
+                                type: 'money',
                                 name: 'default',
                                 label: 'Phí ship mặc định'
                             }"
@@ -65,7 +65,7 @@
                         <Field
                             v-model="shipping.free_shipping"
                             :field="{
-                                type: 'decimal',
+                                type: 'money',
                                 name: 'free_shipping',
                                 label: 'Hạn mức free ship'
                             }"

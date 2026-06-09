@@ -152,7 +152,7 @@
                     </div>
                 </div>
                 <div class="summary-card__footer">
-                    <a :href="route('admin.orders.index')" class="summary-link summary-link--indigo">
+                    <a :href="(route().has('vi.admin.orders.index') || route().has('admin.orders.index')) ? route('admin.orders.index') : '#'" class="summary-link summary-link--indigo">
                         Quản lý danh sách đặt cọc xe →
                     </a>
                 </div>

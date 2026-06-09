@@ -148,6 +148,31 @@ export const vehicleMediaAssets: Record<string, VehicleMediaAssets> = {
   },
 };
 
-export function getVehicleMediaAssets(vehicleId: string): VehicleMediaAssets | undefined {
-  return vehicleMediaAssets[vehicleId];
+export function getVehicleMediaAssets(vehicleId: string): VehicleMediaAssets {
+  if (vehicleMediaAssets[vehicleId]) {
+    return vehicleMediaAssets[vehicleId];
+  }
+  const idLower = vehicleId.toLowerCase();
+  if (idLower.includes("everest") || idLower.includes("explorer")) {
+    return vehicleMediaAssets["new-everest"];
+  }
+  if (idLower.includes("territory")) {
+    return vehicleMediaAssets["new-territory"];
+  }
+  if (idLower.includes("raptor")) {
+    return vehicleMediaAssets["new-raptor"];
+  }
+  if (idLower.includes("ranger")) {
+    return vehicleMediaAssets["ranger-raptor-669"];
+  }
+  if (idLower.includes("transit")) {
+    return vehicleMediaAssets["ford-transit-2024"];
+  }
+  if (idLower.includes("mach-e")) {
+    return vehicleMediaAssets["new-mustang-mach-e"];
+  }
+  if (idLower.includes("mustang")) {
+    return vehicleMediaAssets["mustang-fastback"];
+  }
+  return vehicleMediaAssets["new-territory"]; // ultimate fallback
 }

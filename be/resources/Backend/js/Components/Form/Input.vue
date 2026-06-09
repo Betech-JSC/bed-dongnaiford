@@ -42,13 +42,26 @@
     <template v-else-if="field.type === 'richtext'">
         <CustomEditor :model-value="modelValue" @change="$emit('update:modelValue', $event)" :field="field" />
     </template>
-    <template v-else-if="field.type === 'money' || field.type === 'prefix'">
+    <template v-else-if="field.type === 'money'">
+        <InputNumber
+            class="w-full"
+            :min="0"
+            mode="currency"
+            currency="VND"
+            locale="vi-VN"
+            :model-value="isNaN(parseFloat(modelValue)) ? null : parseFloat(modelValue)"
+            @input="$emit('update:modelValue', $event.value ?? 0)"
+            @blur="validateAsync(field.name)"
+            :disabled="disabled"
+        />
+    </template>
+    <template v-else-if="field.type === 'prefix'">
         <InputNumber
             class="w-full"
             :min="0"
             :prefix="field.prefix || 'ATN '"
-            :model-value="parseFloat(modelValue)"
-            @input="$emit('update:modelValue', $event.value || 0)"
+            :model-value="isNaN(parseFloat(modelValue)) ? null : parseFloat(modelValue)"
+            @input="$emit('update:modelValue', $event.value ?? 0)"
             @blur="validateAsync(field.name)"
             :disabled="disabled"
         />

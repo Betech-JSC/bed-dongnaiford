@@ -7,7 +7,7 @@
             showActions &&
             (canDestroyResource || canStore) &&
             config?.showActionOntop
-        " class="flex justify-between col-span-full lg:col-span-8">
+        " class="flex justify-between col-span-full" :class="config?.wide ? 'lg:col-span-12' : 'lg:col-span-8'">
             <Button v-if="canDestroyResource && !form.deleted_at && form.id" :label="tt('models.form.delete')"
                 class="btn-danger-link" @click="destroy" />
             <Button v-if="reloadOctane" label="Xóa cache" class="btn-primary" @click="reloadOctane"
@@ -19,7 +19,7 @@
                 <Button v-if="canStore" :label="tt('models.form.save')" type="submit" :loading="form.processing" />
             </div>
         </div>
-        <div class="space-y-6 col-span-full lg:col-span-8">
+        <div class="space-y-6 col-span-full" :class="config?.wide ? 'lg:col-span-12' : 'lg:col-span-8'">
             <div class="card" v-if="form.deleted_at">
                 <TrashedMessage v-if="form.deleted_at" />
             </div>
@@ -40,7 +40,7 @@
                 </div>
             </div>
         </div>
-        <div v-if="$slots.aside" class="col-span-full lg:col-span-4" :class="{ 'order-first': !!config.reverse }">
+        <div v-if="$slots.aside && !config?.wide" class="col-span-full lg:col-span-4" :class="{ 'order-first': !!config.reverse }">
             <slot name="aside" :form="form" />
         </div>
     </form>

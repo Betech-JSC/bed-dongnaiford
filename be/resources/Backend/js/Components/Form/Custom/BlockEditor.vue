@@ -1,5 +1,8 @@
 <template>
-    <div class="page-builder-container flex flex-col md:flex-row gap-6 h-[calc(100vh-160px)] min-h-[500px] bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden font-sans">
+    <div 
+        class="page-builder-container flex flex-col md:flex-row bg-slate-900 overflow-hidden font-sans"
+        :class="fullscreen ? 'h-full w-full rounded-none border-0 gap-0' : 'h-[calc(100vh-120px)] min-h-[750px] gap-6 border border-slate-800 rounded-2xl'"
+    >
         <!-- LEFT PANEL: Sidebar Settings (4/12 width equivalent) -->
         <div class="w-full md:w-[420px] flex flex-col bg-slate-950 border-r border-slate-800 h-full overflow-hidden select-none">
             <!-- Sidebar Header -->
@@ -40,7 +43,7 @@
             </div>
 
             <!-- Scrollable Content of Left Sidebar -->
-            <div class="flex-1 overflow-y-auto p-5 scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent">
+            <div class="flex-1 overflow-y-auto p-5 scrollbar-thin scrollbar-thumb-slate-880 scrollbar-track-transparent">
                 <!-- SCENE A: ACTIVE BLOCK DETAILS EDITOR -->
                 <div v-if="activeIndex !== null && blocks[activeIndex]" class="space-y-5">
                     <div class="bg-slate-900 p-4 border border-slate-800 rounded-xl">
@@ -287,6 +290,142 @@
                                 }" />
                             </div>
                         </div>
+
+                        <!-- 9. BookingBanner Edit Form -->
+                        <div v-else-if="blocks[activeIndex].type === 'BookingBanner'" class="space-y-4">
+                            <Field v-model="blocks[activeIndex].data.title" :field="{
+                                type: 'text',
+                                name: 'bb_title_' + activeIndex,
+                                label: 'Tiêu đề Banner',
+                            }" />
+                            <div class="grid grid-cols-2 gap-3">
+                                <Field v-model="blocks[activeIndex].data.phone" :field="{
+                                    type: 'text',
+                                    name: 'bb_phone_' + activeIndex,
+                                    label: 'Số điện thoại',
+                                }" />
+                                <Field v-model="blocks[activeIndex].data.btn_text" :field="{
+                                    type: 'text',
+                                    name: 'bb_btn_text_' + activeIndex,
+                                    label: 'Nhãn nút đặt lịch',
+                                }" />
+                            </div>
+                            <Field v-model="blocks[activeIndex].data.btn_link" :field="{
+                                type: 'text',
+                                name: 'bb_btn_link_' + activeIndex,
+                                label: 'Liên kết đặt lịch',
+                            }" />
+                            <Field v-model="blocks[activeIndex].data.car_image" :field="{
+                                type: 'file_upload',
+                                name: 'bb_car_image_' + activeIndex,
+                                label: 'Ảnh xe đè',
+                            }" />
+                        </div>
+                    </div>
+
+                    <!-- Styling & Layout Panel -->
+                    <div v-if="['HeroBanner', 'Promotions', 'ThreeSixtyViewer', 'BookingBanner'].includes(blocks[activeIndex].type)" class="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-4">
+                        <div class="text-xs font-bold text-blue-400 flex items-center gap-1.5 border-b border-slate-800 pb-2">
+                            <span>🎨</span>
+                            <span>Cấu hình kiểu dáng</span>
+                        </div>
+                        
+                        <!-- Alignment Option -->
+                        <div v-if="['HeroBanner', 'Promotions', 'ThreeSixtyViewer'].includes(blocks[activeIndex].type)">
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Căn lề chữ (Alignment)</label>
+                            <div class="grid grid-cols-3 gap-2">
+                                <button 
+                                    v-for="opt in [{value: 'left', label: 'Trái'}, {value: 'center', label: 'Giữa'}, {value: 'right', label: 'Phải'}]"
+                                    :key="opt.value"
+                                    type="button" 
+                                    class="py-1.5 px-2 text-xs rounded-lg font-medium border transition-all text-center"
+                                    :class="(blocks[activeIndex].data.align || 'left') === opt.value ? 'bg-blue-600 text-white border-blue-500 shadow-md' : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'"
+                                    @click="blocks[activeIndex].data.align = opt.value"
+                                >
+                                    {{ opt.label }}
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Title Size & Title Color -->
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Cỡ chữ tiêu đề</label>
+                                <select 
+                                    v-model="blocks[activeIndex].data.title_size" 
+                                    class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                >
+                                    <option value="small">Nhỏ</option>
+                                    <option value="medium">Vừa (Mặc định)</option>
+                                    <option value="large">Lớn</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Màu chữ tiêu đề</label>
+                                <div class="flex gap-2 items-center">
+                                    <input 
+                                        type="color" 
+                                        v-model="blocks[activeIndex].data.title_color" 
+                                        class="w-8 h-8 rounded-lg cursor-pointer border border-slate-800 bg-transparent p-0 shrink-0"
+                                    />
+                                    <input 
+                                        type="text" 
+                                        v-model="blocks[activeIndex].data.title_color" 
+                                        placeholder="#ffffff"
+                                        class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2 py-1.5 text-xs text-white uppercase focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Description Size & Description Color (for Promotions, ThreeSixtyViewer) -->
+                        <div v-if="['Promotions', 'ThreeSixtyViewer'].includes(blocks[activeIndex].type)" class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Cỡ chữ mô tả</label>
+                                <select 
+                                    v-model="blocks[activeIndex].data.desc_size" 
+                                    class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                >
+                                    <option value="small">Nhỏ</option>
+                                    <option value="medium">Vừa (Mặc định)</option>
+                                    <option value="large">Lớn</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Màu chữ mô tả</label>
+                                <div class="flex gap-2 items-center">
+                                    <input 
+                                        type="color" 
+                                        v-model="blocks[activeIndex].data.desc_color" 
+                                        class="w-8 h-8 rounded-lg cursor-pointer border border-slate-800 bg-transparent p-0 shrink-0"
+                                    />
+                                    <input 
+                                        type="text" 
+                                        v-model="blocks[activeIndex].data.desc_color" 
+                                        placeholder="#1a1a1a"
+                                        class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2 py-1.5 text-xs text-white uppercase focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tagline Color (for HeroBanner only) -->
+                        <div v-if="blocks[activeIndex].type === 'HeroBanner'">
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Màu chữ Tagline / Slogan</label>
+                            <div class="flex gap-2 items-center">
+                                <input 
+                                    type="color" 
+                                    v-model="blocks[activeIndex].data.tagline_color" 
+                                    class="w-8 h-8 rounded-lg cursor-pointer border border-slate-800 bg-transparent p-0 shrink-0"
+                                />
+                                <input 
+                                    type="text" 
+                                    v-model="blocks[activeIndex].data.tagline_color" 
+                                    placeholder="#ffffff"
+                                    class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2 py-1.5 text-xs text-white uppercase focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                />
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -366,335 +505,28 @@
         <!-- RIGHT PANEL: Live Visual Preview Browser Mockup (8/12 equivalent) -->
         <div class="flex-1 flex flex-col bg-slate-950 h-full overflow-hidden relative">
             <!-- Simulated Browser Address Bar -->
-            <div class="flex items-center px-4 py-3 bg-slate-900 border-b border-slate-800">
+            <div class="flex items-center px-4 py-3 bg-slate-900 border-b border-slate-800 shrink-0">
                 <div class="flex space-x-1.5 mr-4 select-none">
                     <span class="w-3 h-3 rounded-full bg-red-500/80 inline-block"></span>
                     <span class="w-3 h-3 rounded-full bg-yellow-500/80 inline-block"></span>
                     <span class="w-3 h-3 rounded-full bg-green-500/80 inline-block"></span>
                 </div>
                 <div class="flex-1 bg-slate-950 border border-slate-800 rounded-lg py-1 px-4 text-slate-500 text-xs font-mono truncate select-all flex items-center space-x-2">
-                    <span class="text-slate-600">🌐 https://dongnaiford.com.vn/xe/chi-tiet-xem-truoc</span>
+                    <span class="text-slate-650">🌐 https://dongnaiford.com.vn/xe/chi-tiet-xem-truoc</span>
                 </div>
                 <span class="text-[10px] text-blue-400 font-bold uppercase ml-4 select-none tracking-widest bg-blue-950 px-2 py-0.5 rounded border border-blue-900">
                     Live Preview
                 </span>
             </div>
 
-            <!-- Visual Drag-and-Drop Page Preview Arena -->
-            <div class="flex-1 overflow-y-auto bg-slate-950 p-6 scrollbar-thin scrollbar-thumb-slate-850 scrollbar-track-transparent">
-                <!-- Virtual Website Layout Shell -->
-                <div class="max-w-4xl mx-auto bg-slate-900 rounded-2xl shadow-2xl overflow-hidden border border-slate-850">
-                    <!-- Simulated Header Navbar -->
-                    <div class="bg-slate-950 px-6 py-4 border-b border-slate-850 flex justify-between items-center select-none">
-                        <div class="flex items-center space-x-2">
-                            <span class="text-white font-extrabold text-sm font-sans tracking-tight">DONGNAI <span class="text-blue-500">FORD</span></span>
-                        </div>
-                        <div class="flex space-x-4 text-xs font-bold text-slate-400">
-                            <span>Sản phẩm</span>
-                            <span>Ưu đãi</span>
-                            <span>Dịch vụ</span>
-                            <span>Tin tức</span>
-                        </div>
-                        <span class="bg-blue-600 text-white font-bold text-[10px] px-3.5 py-1.5 rounded-full">Đăng ký lái thử</span>
-                    </div>
-
-                    <!-- Draggable Layout Preview Container -->
-                    <Draggable
-                        v-if="blocks && blocks.length > 0"
-                        tag="div"
-                        v-model="blocks"
-                        item-key="id"
-                        handle=".preview-handle"
-                        :animation="200"
-                        class="divide-y divide-slate-850 min-h-[400px]"
-                    >
-                        <template #item="{ index, element }">
-                            <div 
-                                class="relative group border-2 border-transparent hover:border-blue-500/80 transition"
-                                :class="{'border-blue-500 bg-blue-950/5': activeIndex === index}"
-                                @click="activeIndex = index"
-                            >
-                                <!-- Interactive Hover Controls & Drag Overlays -->
-                                <div class="absolute top-2 left-2 z-30 flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition duration-150">
-                                    <span class="bg-blue-600 text-white font-black text-[9px] uppercase tracking-wider py-1 px-2.5 rounded-md shadow-lg select-none">
-                                        #{{ index + 1 }} {{ getBlockLabel(element.type) }}
-                                    </span>
-                                </div>
-                                <div class="absolute top-2 right-2 z-30 flex items-center space-x-1.5 opacity-0 group-hover:opacity-100 transition duration-150">
-                                    <!-- Drag Handle -->
-                                    <div class="preview-handle cursor-move bg-blue-600 text-white hover:bg-blue-500 p-1.5 rounded-md shadow-lg transition">
-                                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 20 20">
-                                            <path d="M7 2a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm7 0a2 2 0 1 1-4 0 2 2 0 0 1 4 0zM7 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm7 0a2 2 0 1 1-4 0 2 2 0 0 1 4 0zM7 14a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm7 0a2 2 0 1 1-4 0 2 2 0 0 1 4 0z"/>
-                                        </svg>
-                                    </div>
-                                    <!-- Edit -->
-                                    <button type="button" class="bg-slate-800 text-white hover:bg-slate-700 p-1.5 rounded-md shadow-lg border border-slate-700 text-xs" @click.stop="activeIndex = index">
-                                        ✏️ Sửa
-                                    </button>
-                                    <!-- Duplicate -->
-                                    <button type="button" class="bg-slate-800 text-white hover:bg-slate-700 p-1.5 rounded-md shadow-lg border border-slate-700 text-xs" @click.stop="duplicateBlock(index)">
-                                        ➕
-                                    </button>
-                                    <!-- Delete -->
-                                    <button type="button" class="bg-red-600 text-white hover:bg-red-500 p-1.5 rounded-md shadow-lg text-xs" @click.stop="removeBlock(index)">
-                                        ✕
-                                    </button>
-                                </div>
-
-                                <!-- HIGH-FIDELITY COMPONENT PREVIEWS -->
-                                <div class="preview-inner select-none pointer-events-none">
-                                    <!-- 1. HeroBanner Live Preview -->
-                                    <div 
-                                        v-if="element.type === 'HeroBanner'" 
-                                        class="relative h-72 w-full bg-cover bg-center flex items-center justify-center overflow-hidden transition-all duration-200"
-                                        :style="getBackgroundStyle(element.data.background_image)"
-                                    >
-                                        <div class="absolute inset-0 bg-gradient-to-r from-slate-950/80 to-slate-950/20 z-10"></div>
-                                        <div class="relative z-20 text-center px-8 max-w-lg">
-                                            <h1 class="text-2xl md:text-3xl font-black text-white uppercase tracking-wider mb-2 drop-shadow">
-                                                {{ element.data.title || 'CHƯA NHẬP TIÊU ĐỀ BANNER' }}
-                                            </h1>
-                                            <p class="text-xs md:text-sm text-slate-300 font-light tracking-wide mb-4 drop-shadow">
-                                                {{ element.data.tagline || 'Hãy nhập câu khẩu hiệu cho dòng xe này...' }}
-                                            </p>
-                                            <span class="inline-block bg-[#0562D2] text-white px-5 py-2 rounded-full font-bold text-[10px] uppercase tracking-wider">
-                                                {{ element.data.button_text || 'Tìm hiểu thêm' }}
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    <!-- 2. Promotions Live Preview -->
-                                    <div v-else-if="element.type === 'Promotions'" class="p-8 bg-slate-900/40 border-y border-slate-850 flex flex-col md:flex-row items-center gap-6">
-                                        <div class="flex-1 space-y-3">
-                                            <span class="text-[9px] bg-red-600 text-white font-bold px-2 py-0.5 rounded">ƯU ĐÃI LỚN TRONG THÁNG</span>
-                                            <h2 class="text-lg font-extrabold text-white">
-                                                {{ element.data.title || 'Tiêu đề chương trình khuyến mãi' }}
-                                            </h2>
-                                            <p class="text-xs text-slate-400 leading-relaxed max-w-md">
-                                                {{ element.data.description || 'Chi tiết quà tặng tặng tiền mặt, bảo hiểm vật chất, gói phụ kiện chính hãng kèm cam kết giao xe ngay...' }}
-                                            </p>
-                                            <span class="inline-block bg-orange-600 text-white px-4 py-2 rounded-lg font-bold text-[10px] uppercase">
-                                                {{ element.data.button_text || 'Nhận báo giá ngay' }}
-                                            </span>
-                                        </div>
-                                        <div class="w-full md:w-48 h-32 rounded-xl overflow-hidden border border-slate-800 bg-slate-950 flex items-center justify-center">
-                                            <img v-if="element.data.image" :src="resolveImageUrl(element.data.image)" class="w-full h-full object-cover" />
-                                            <div v-else class="text-slate-600 text-[10px] text-center italic p-3">Chưa tải ảnh lên</div>
-                                        </div>
-                                    </div>
-
-                                    <!-- 3. ThreeSixtyViewer Live Preview -->
-                                    <div v-else-if="element.type === 'ThreeSixtyViewer'" class="p-8 bg-slate-950 border-y border-slate-850 text-center">
-                                        <h3 class="text-sm font-extrabold text-slate-200 uppercase tracking-widest mb-1">
-                                            {{ element.data.title || 'TRẢI NGHIỆM GÓC NHÌN 360°' }}
-                                        </h3>
-                                        <p class="text-[11px] text-slate-500 mb-6 max-w-sm mx-auto">
-                                            {{ element.data.description || 'Xoay chuột hoặc vuốt tay để ngắm toàn diện ngoại thất của xe' }}
-                                        </p>
-                                        
-                                        <!-- Simulated 360 Frame -->
-                                        <div class="relative max-w-md mx-auto aspect-[16/9] bg-slate-900 border border-slate-850 rounded-2xl flex items-center justify-center overflow-hidden shadow-inner group-hover:scale-[1.01] transition duration-200">
-                                            <span class="absolute top-3 left-3 text-[9px] text-slate-500 tracking-wider">🔄 MÔ PHỎNG 360 VIEW</span>
-                                            <!-- Car Mockup placeholder image -->
-                                            <div class="text-center p-4">
-                                                <span class="text-4xl">🚘</span>
-                                                <p class="text-[10px] text-slate-500 mt-2">Nhấp giữ kéo xoay xe (Giả lập màn hình)</p>
-                                            </div>
-                                            <!-- Rotate Indicator -->
-                                            <div class="absolute bottom-4 inset-x-0 flex justify-center">
-                                                <span class="bg-black/60 border border-slate-800 text-white rounded-full p-2.5 text-xs shadow-lg animate-bounce">
-                                                    🔄
-                                                </span>
-                                            </div>
-                                        </div>
-                                        
-                                        <!-- Color Selection Mockup -->
-                                        <div class="flex justify-center space-x-2.5 mt-5">
-                                            <span class="w-6 h-6 rounded-full border border-slate-700 bg-red-600 cursor-pointer shadow-lg"></span>
-                                            <span class="w-6 h-6 rounded-full border border-slate-700 bg-slate-950 cursor-pointer shadow-lg ring-2 ring-blue-500"></span>
-                                            <span class="w-6 h-6 rounded-full border border-slate-700 bg-slate-200 cursor-pointer shadow-lg"></span>
-                                            <span class="w-6 h-6 rounded-full border border-slate-700 bg-slate-500 cursor-pointer shadow-lg"></span>
-                                            <span class="w-6 h-6 rounded-full border border-slate-700 bg-amber-600 cursor-pointer shadow-lg"></span>
-                                        </div>
-                                    </div>
-
-                                    <!-- 4. FeaturesGrid Live Preview -->
-                                    <div v-else-if="element.type === 'FeaturesGrid'" class="p-8 bg-slate-900/30 border-y border-slate-850 space-y-6">
-                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <!-- Section 1: Design Grid -->
-                                            <div class="bg-slate-950 border border-slate-850 rounded-2xl p-4 flex flex-col justify-between min-h-[200px]">
-                                                <div>
-                                                    <span class="text-[9px] text-blue-500 font-extrabold uppercase">Thiết kế xe</span>
-                                                    <h4 class="text-xs font-bold text-white mt-1">{{ element.data.title_1 || 'Ấn tượng từ cái nhìn đầu tiên' }}</h4>
-                                                </div>
-                                                <div class="mt-4 grid grid-cols-3 gap-2 flex-1">
-                                                    <div class="col-span-3 rounded-lg overflow-hidden border border-slate-850 bg-slate-900 flex items-center justify-center h-20">
-                                                        <img v-if="element.data.image_1" :src="resolveImageUrl(element.data.image_1)" class="w-full h-full object-cover" />
-                                                        <span v-else class="text-[9px] text-slate-600">Ảnh chính</span>
-                                                    </div>
-                                                    <div class="rounded-lg overflow-hidden border border-slate-850 bg-slate-900 flex items-center justify-center h-12">
-                                                        <img v-if="element.data.image_2" :src="resolveImageUrl(element.data.image_2)" class="w-full h-full object-cover" />
-                                                        <span v-else class="text-[9px] text-slate-650">Góc nghiêng</span>
-                                                    </div>
-                                                    <div class="rounded-lg overflow-hidden border border-slate-850 bg-slate-900 flex items-center justify-center h-12">
-                                                        <img v-if="element.data.image_3" :src="resolveImageUrl(element.data.image_3)" class="w-full h-full object-cover" />
-                                                        <span v-else class="text-[9px] text-slate-650">Đuôi xe</span>
-                                                    </div>
-                                                    <div class="rounded-lg border border-dashed border-slate-800 bg-slate-900 flex items-center justify-center h-12 text-[9px] text-slate-600 italic">
-                                                        + Thêm ảnh
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <!-- Section 2: Interior Grid -->
-                                            <div class="bg-slate-950 border border-slate-850 rounded-2xl p-4 flex flex-col justify-between min-h-[200px]">
-                                                <div>
-                                                    <span class="text-[9px] text-blue-500 font-extrabold uppercase">Không gian Nội thất</span>
-                                                    <h4 class="text-xs font-bold text-white mt-1">{{ element.data.title_2 || 'Sang trọng & Tiện nghi rộng rãi' }}</h4>
-                                                </div>
-                                                <div class="mt-4 rounded-xl overflow-hidden border border-slate-850 bg-slate-900 flex-1 flex items-center justify-center min-h-[100px]">
-                                                    <img v-if="element.data.image_large" :src="resolveImageUrl(element.data.image_large)" class="w-full h-full object-cover" />
-                                                    <span v-else class="text-[9px] text-slate-600 p-4 text-center">Chưa chọn ảnh nội thất chính</span>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Section 3: Specs Split Grid -->
-                                        <div class="bg-slate-950 border border-slate-850 rounded-2xl p-5 grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-                                            <div class="rounded-xl overflow-hidden border border-slate-850 bg-slate-900 aspect-video flex items-center justify-center">
-                                                <img v-if="element.data.split_image" :src="resolveImageUrl(element.data.split_image)" class="w-full h-full object-cover" />
-                                                <span v-else class="text-[9px] text-slate-600">Ảnh công nghệ động cơ</span>
-                                            </div>
-                                            <div class="space-y-4">
-                                                <div>
-                                                    <span class="text-[9px] text-blue-500 font-extrabold uppercase">Khả năng vận hành</span>
-                                                    <h4 class="text-xs font-bold text-white mt-1">{{ element.data.split_title || 'Động cơ & Tính năng vượt trội' }}</h4>
-                                                </div>
-                                                <div class="grid grid-cols-2 gap-3">
-                                                    <div v-for="(feat, fIndex) in element.data.split_features" :key="fIndex" class="bg-slate-900 border border-slate-850 p-3 rounded-xl">
-                                                        <p class="text-xs font-black text-blue-400 tracking-tight">{{ feat.value || '10-Cấp' }}</p>
-                                                        <p class="text-[9px] text-slate-500 mt-0.5">{{ feat.label || 'Hộp số tự động' }}</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- 5. VersionsGrid Live Preview -->
-                                    <div v-else-if="element.type === 'VersionsGrid'" class="p-8 bg-slate-950 border-y border-slate-850">
-                                        <h3 class="text-sm font-extrabold text-slate-200 uppercase text-center mb-6">
-                                            {{ element.data.title || 'CÁC PHIÊN BẢN XE' }}
-                                        </h3>
-                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                            <div 
-                                                v-for="indexMock in [1, 2, 3]" 
-                                                :key="indexMock" 
-                                                class="bg-slate-900 border border-slate-850 rounded-xl p-4.5 space-y-3 shadow-md hover:border-slate-700 transition"
-                                            >
-                                                <div class="flex justify-between items-start">
-                                                    <h4 class="text-xs font-extrabold text-white">Everest Phiên bản {{ indexMock }}</h4>
-                                                    <span class="text-[9px] bg-blue-900/50 text-blue-400 font-bold px-1.5 py-0.5 rounded border border-blue-800">4x4</span>
-                                                </div>
-                                                <p class="text-[10px] text-slate-400 leading-normal line-clamp-3">
-                                                    {{ element.data.descriptions && element.data.descriptions[indexMock - 1] || 'Thông tin giới thiệu động cơ, hộp số, và tiện nghi nội thất cho phiên bản này.' }}
-                                                </p>
-                                                <div class="pt-2 border-t border-slate-800 flex justify-between items-center">
-                                                    <span class="text-slate-500 text-[9px]">Giá dự kiến:</span>
-                                                    <span class="text-blue-400 font-black text-xs">Liên hệ</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- 6. SpecsGrid Live Preview -->
-                                    <div v-else-if="element.type === 'SpecsGrid'" class="p-8 bg-slate-900/20 border-y border-slate-850">
-                                        <h3 class="text-sm font-extrabold text-slate-200 uppercase text-center mb-6">BẢNG SO SÁNH THÔNG SỐ CHI TIẾT</h3>
-                                        <div class="border border-slate-850 rounded-xl overflow-hidden text-xs bg-slate-950">
-                                            <div class="grid grid-cols-4 bg-slate-900 p-3 border-b border-slate-850 font-bold text-slate-300 text-[10px]">
-                                                <div>Thông số kỹ thuật</div>
-                                                <div class="text-center text-blue-400">Phiên bản Titanium+</div>
-                                                <div class="text-center text-slate-400">Phiên bản Sport</div>
-                                                <div class="text-center text-slate-400">Phiên bản Ambiente</div>
-                                            </div>
-                                            <div class="divide-y divide-slate-850/60 text-[10px] text-slate-400">
-                                                <div class="grid grid-cols-4 p-3 hover:bg-slate-900/30">
-                                                    <div class="font-semibold text-slate-300">Động cơ</div>
-                                                    <div class="text-center">Bi-Turbo 2.0L Diesel</div>
-                                                    <div class="text-center">Single-Turbo 2.0L Diesel</div>
-                                                    <div class="text-center">Single-Turbo 2.0L Diesel</div>
-                                                </div>
-                                                <div class="grid grid-cols-4 p-3 hover:bg-slate-900/30">
-                                                    <div class="font-semibold text-slate-300">Hộp số</div>
-                                                    <div class="text-center">Tự động 10 cấp điện tử</div>
-                                                    <div class="text-center">Tự động 6 cấp</div>
-                                                    <div class="text-center">Tự động 6 cấp</div>
-                                                </div>
-                                                <div class="grid grid-cols-4 p-3 hover:bg-slate-900/30">
-                                                    <div class="font-semibold text-slate-300">Màn hình giải trí</div>
-                                                    <div class="text-center">12-inch TFT cảm ứng dọc</div>
-                                                    <div class="text-center">10.1-inch cảm ứng dọc</div>
-                                                    <div class="text-center">10.1-inch cảm ứng dọc</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- 7. FeaturesList Live Preview -->
-                                    <div v-else-if="element.type === 'FeaturesList'" class="p-8 bg-slate-950 border-y border-slate-850 space-y-6">
-                                        <h3 class="text-sm font-extrabold text-slate-200 uppercase text-center mb-2">TÍNH NĂNG VÀ CÔNG NGHỆ NỔI BẬT</h3>
-                                        <div class="space-y-6 max-w-2xl mx-auto">
-                                            <div 
-                                                v-for="(feature, fIndex) in element.data.features" 
-                                                :key="fIndex" 
-                                                class="flex flex-col md:flex-row items-center gap-6"
-                                                :class="{'md:flex-row-reverse': fIndex % 2 === 1}"
-                                            >
-                                                <div class="flex-1 space-y-2">
-                                                    <h4 class="text-xs font-extrabold text-white flex items-center gap-2">
-                                                        <span class="w-5 h-5 rounded-full bg-blue-900/60 border border-blue-800 text-[10px] text-blue-400 flex items-center justify-center font-bold">✓</span>
-                                                        <span>{{ feature.title || 'Tên tính năng nổi bật' }}</span>
-                                                    </h4>
-                                                    <p class="text-[10px] text-slate-400 leading-relaxed">
-                                                        {{ feature.description || 'Mô tả chi tiết tính năng của xe. Động cơ cải tiến giúp nâng cao hiệu suất và tiết kiệm nhiên liệu tối đa.' }}
-                                                    </p>
-                                                </div>
-                                                <div class="w-full md:w-56 h-36 rounded-2xl overflow-hidden border border-slate-850 bg-slate-900 flex items-center justify-center">
-                                                    <img v-if="feature.image" :src="resolveImageUrl(feature.image)" class="w-full h-full object-cover" />
-                                                    <span v-else class="text-3xl">🛠️</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- 8. AccordionFAQs Live Preview -->
-                                    <div v-else-if="element.type === 'AccordionFAQs'" class="p-8 bg-slate-900/20 border-y border-slate-850">
-                                        <h3 class="text-sm font-extrabold text-slate-200 uppercase text-center mb-6">CÂU HỎI THƯỜNG GẶP (FAQs)</h3>
-                                        <div class="max-w-xl mx-auto space-y-3.5">
-                                            <div v-for="(faq, faqIndex) in element.data.faqs" :key="faqIndex" class="border border-slate-850 rounded-xl bg-slate-950 overflow-hidden">
-                                                <div class="flex justify-between items-center p-4 bg-slate-900/50 cursor-pointer hover:bg-slate-900 transition" @click.stop="toggleFaqOpen(index, faqIndex)">
-                                                    <span class="text-xs font-bold text-slate-200">{{ faq.q || 'Đặt câu hỏi của bạn tại đây?' }}</span>
-                                                    <span class="text-xs text-slate-500">{{ faq.is_open ? '▲' : '▼' }}</span>
-                                                </div>
-                                                <div v-show="faq.is_open" class="p-4 border-t border-slate-850/60 text-[11px] text-slate-400 leading-relaxed bg-slate-950">
-                                                    {{ faq.a || 'Nhập câu trả lời ngắn gọn và súc tích để khách hàng tham khảo...' }}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </template>
-                    </Draggable>
-
-                    <!-- Drag-and-drop Area Empty State -->
-                    <div v-else class="flex flex-col items-center justify-center border border-dashed border-slate-800 rounded-2xl p-12 text-center select-none text-slate-500 m-8">
-                        <span class="text-4xl mb-3">🎨</span>
-                        <h4 class="text-sm font-bold text-slate-300">Bắt đầu thiết kế trang xe trực tuyến</h4>
-                        <p class="text-xs max-w-xs text-slate-500 mt-2 leading-relaxed">
-                            Bấm chọn các khối từ thư viện ở bảng bên trái như <b>Banner lớn</b>, <b>Xoay xe 360°</b> hay <b>Bảng so sánh thông số</b> để dựng trang động cho dòng xe này.
-                        </p>
-                    </div>
-                </div>
+            <!-- Embedded NextJS Realtime Iframe Preview -->
+            <div class="flex-1 bg-slate-950 overflow-hidden relative w-full h-full">
+                <iframe 
+                    ref="previewIframe"
+                    :src="iframeUrl"
+                    class="w-full h-full border-0 bg-[#fafafa]"
+                    @load="onIframeLoad"
+                ></iframe>
             </div>
         </div>
     </div>
@@ -710,6 +542,18 @@ export default {
         modelValue: {
             type: Array,
             default: () => [],
+        },
+        vehicleSlug: {
+            type: String,
+            default: '',
+        },
+        vehicleData: {
+            type: Object,
+            default: () => ({}),
+        },
+        fullscreen: {
+            type: Boolean,
+            default: false,
         }
     },
     emits: ['update:modelValue'],
@@ -717,6 +561,7 @@ export default {
         return {
             activeTab: 'sections', // 'sections' or 'library'
             activeIndex: null, // Index of the block being edited in Left Panel
+            iframeLoaded: false,
             libraryBlocks: [
                 { type: 'HeroBanner', icon: '📢', name: 'Banner lớn (Hero)', desc: 'Banner trần viền ấn tượng, có chữ và nút bấm hành động' },
                 { type: 'Promotions', icon: '🎁', name: 'Ưu đãi khuyến mãi', desc: 'Thông tin quà tặng tiền mặt, bảo hiểm và quà độc quyền' },
@@ -726,6 +571,7 @@ export default {
                 { type: 'SpecsGrid', icon: '📊', name: 'Bảng so sánh thông số', desc: 'So sánh song song thông số chi tiết động cơ, hộp số...' },
                 { type: 'FeaturesList', icon: '✨', name: 'Danh sách công nghệ', desc: 'Liệt kê so le các tính năng lái an toàn chủ động' },
                 { type: 'AccordionFAQs', icon: '❓', name: 'Câu hỏi thường gặp', desc: 'Các thắc mắc xếp gập về bảo dưỡng, giá lăn bánh' },
+                { type: 'BookingBanner', icon: '📞', name: 'Tư vấn & Đặt lịch', desc: 'Khối liên hệ hotline và liên kết đặt lịch hẹn bảo dưỡng' },
             ]
         }
     },
@@ -737,6 +583,13 @@ export default {
             set(value) {
                 this.$emit('update:modelValue', value)
             }
+        },
+        iframeUrl() {
+            const host = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                ? 'http://localhost:3000'
+                : window.location.origin;
+            const slug = this.vehicleSlug || 'preview';
+            return `${host}/san-pham/${slug}?edit=true&embed=true`;
         }
     },
     watch: {
@@ -746,11 +599,116 @@ export default {
                 if (this.activeIndex !== null && this.activeIndex >= newVal.length) {
                     this.activeIndex = null
                 }
+                this.syncToIframe();
+            },
+            deep: true
+        },
+        activeIndex(newVal) {
+            this.syncActiveIndex();
+        },
+        vehicleData: {
+            handler(newVal) {
+                this.syncVehicleData();
             },
             deep: true
         }
     },
+    mounted() {
+        window.addEventListener('message', this.handleIframeMessage);
+    },
+    beforeUnmount() {
+        window.removeEventListener('message', this.handleIframeMessage);
+    },
     methods: {
+        onIframeLoad() {
+            this.iframeLoaded = true;
+            this.syncAllData();
+        },
+        syncAllData() {
+            const iframe = this.$refs.previewIframe;
+            if (iframe && iframe.contentWindow && this.iframeLoaded) {
+                const resolvedBlocks = this.resolveBlockImages(this.blocks);
+                iframe.contentWindow.postMessage({
+                    type: 'INIT_PREVIEW',
+                    vehicle: this.vehicleData,
+                    blocks: resolvedBlocks,
+                    activeIndex: this.activeIndex
+                }, '*');
+            }
+        },
+        syncToIframe() {
+            if (!this.iframeLoaded) return;
+            const iframe = this.$refs.previewIframe;
+            if (iframe && iframe.contentWindow) {
+                iframe.contentWindow.postMessage({
+                    type: 'UPDATE_BLOCKS',
+                    blocks: this.resolveBlockImages(this.blocks),
+                    activeIndex: this.activeIndex
+                }, '*');
+            }
+        },
+        syncActiveIndex() {
+            if (!this.iframeLoaded) return;
+            const iframe = this.$refs.previewIframe;
+            if (iframe && iframe.contentWindow) {
+                iframe.contentWindow.postMessage({
+                    type: 'UPDATE_ACTIVE_INDEX',
+                    activeIndex: this.activeIndex
+                }, '*');
+            }
+        },
+        syncVehicleData() {
+            if (!this.iframeLoaded) return;
+            const iframe = this.$refs.previewIframe;
+            if (iframe && iframe.contentWindow) {
+                iframe.contentWindow.postMessage({
+                    type: 'UPDATE_VEHICLE',
+                    vehicle: this.vehicleData
+                }, '*');
+            }
+        },
+        handleIframeMessage(event) {
+            const data = event.data;
+            if (!data || typeof data !== 'object') return;
+
+            if (data.type === 'SELECT_BLOCK') {
+                if (data.index !== undefined) {
+                    this.activeIndex = data.index;
+                }
+            } else if (data.type === 'SYNC_BLOCKS_FROM_IFRAME') {
+                if (data.blocks) {
+                    this.$emit('update:modelValue', data.blocks);
+                }
+                if (data.activeIndex !== undefined) {
+                    this.activeIndex = data.activeIndex;
+                }
+            }
+        },
+        resolveBlockImages(blocks) {
+            const cloned = JSON.parse(JSON.stringify(blocks || []));
+            cloned.forEach(block => {
+                if (block.data) {
+                    if (block.type === 'HeroBanner') {
+                        block.data.background_image = this.resolveImageUrl(block.data.background_image);
+                    } else if (block.type === 'Promotions') {
+                        block.data.image = this.resolveImageUrl(block.data.image);
+                    } else if (block.type === 'FeaturesGrid') {
+                        block.data.image_1 = this.resolveImageUrl(block.data.image_1);
+                        block.data.image_2 = this.resolveImageUrl(block.data.image_2);
+                        block.data.image_3 = this.resolveImageUrl(block.data.image_3);
+                        block.data.image_large = this.resolveImageUrl(block.data.image_large);
+                        block.data.split_image = this.resolveImageUrl(block.data.split_image);
+                    } else if (block.type === 'FeaturesList' && block.data.features) {
+                        block.data.features.forEach(f => {
+                            f.image = this.resolveImageUrl(f.image);
+                        });
+                    } else if (block.type === 'BookingBanner') {
+                        block.data.car_image = this.resolveImageUrl(block.data.car_image);
+                    }
+                }
+            });
+            return cloned;
+        },
         getBlockLabel(type) {
             return {
                 HeroBanner: 'Banner lớn (Hero Banner)',
@@ -761,6 +719,7 @@ export default {
                 SpecsGrid: 'Bảng so sánh thông số (Specs Grid)',
                 FeaturesList: 'Danh sách công nghệ (Features List)',
                 AccordionFAQs: 'Câu hỏi thường gặp (Accordion FAQs)',
+                BookingBanner: 'Tư vấn & Đặt lịch (Booking Banner)',
             }[type] || type
         },
         getBlockIcon(type) {
@@ -773,6 +732,7 @@ export default {
                 SpecsGrid: '📊',
                 FeaturesList: '✨',
                 AccordionFAQs: '❓',
+                BookingBanner: '📞',
             }[type] || '📦'
         },
         addBlockType(type) {
@@ -790,6 +750,10 @@ export default {
                     button_text: 'Tìm hiểu thêm',
                     button_link: '/lien-he',
                     background_image: null,
+                    align: 'center',
+                    title_size: 'medium',
+                    title_color: '#ffffff',
+                    tagline_color: '#ffffff'
                 }
             } else if (type === 'Promotions') {
                 newBlock.data = {
@@ -797,11 +761,21 @@ export default {
                     description: '',
                     image: null,
                     button_text: 'Nhận báo giá ngay',
+                    align: 'left',
+                    title_size: 'medium',
+                    title_color: '#0562d2',
+                    desc_size: 'medium',
+                    desc_color: '#1a1a1a'
                 }
             } else if (type === 'ThreeSixtyViewer') {
                 newBlock.data = {
                     title: '',
                     description: '',
+                    align: 'left',
+                    title_size: 'medium',
+                    title_color: '#0562d2',
+                    desc_size: 'medium',
+                    desc_color: '#1a1a1a'
                 }
             } else if (type === 'FeaturesGrid') {
                 newBlock.data = {
@@ -837,6 +811,16 @@ export default {
                     faqs: [
                         { q: 'Chi phí bảo dưỡng xe định kỳ là bao nhiêu?', a: 'Tùy thuộc vào các cấp bảo dưỡng nhỏ hay lớn, trung bình giao động từ 1.5 - 4.5 triệu đồng.', is_open: true }
                     ]
+                }
+            } else if (type === 'BookingBanner') {
+                newBlock.data = {
+                    title: 'Kết nối ngay với chuyên viên Đồng Nai Ford',
+                    phone: '1800 55 68 58',
+                    btn_text: 'Đặt lịch hẹn',
+                    btn_link: '/lien-he?reason=Đặt hẹn dịch vụ',
+                    car_image: null,
+                    title_size: 'medium',
+                    title_color: '#ffffff'
                 }
             }
 
@@ -940,5 +924,148 @@ export default {
 }
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
     background-color: #334155;
+}
+
+/* Dark Theme Design System Overrides for CMS Page Builder inputs */
+.page-builder-container :deep(input[type="text"]),
+.page-builder-container :deep(input[type="number"]),
+.page-builder-container :deep(textarea),
+.page-builder-container :deep(select),
+.page-builder-container :deep(.p-inputtext),
+.page-builder-container :deep(.p-inputtextarea),
+.page-builder-container :deep(.p-dropdown),
+.page-builder-container :deep(.p-selectbutton),
+.page-builder-container :deep(.bg-gray-50) {
+    background-color: #0d1527 !important; /* Premium dark navy input background matching dnf brand */
+    color: #e2e8f0 !important; /* text-slate-200 */
+    border: 1px solid #1e293b !important; /* border-slate-800 */
+    border-radius: 8px !important;
+    padding: 0.625rem 0.875rem !important;
+    font-size: 0.8rem !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06) !important;
+}
+
+/* Specific Select Tag dropdown styling */
+.page-builder-container :deep(select) {
+    height: 42px !important;
+    appearance: none !important;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 0.75rem center !important;
+    background-size: 1rem !important;
+    padding-right: 2rem !important;
+    cursor: pointer;
+}
+
+/* Hover and Focus States */
+.page-builder-container :deep(input[type="text"]:hover),
+.page-builder-container :deep(input[type="number"]:hover),
+.page-builder-container :deep(textarea:hover),
+.page-builder-container :deep(select:hover),
+.page-builder-container :deep(.p-inputtext:hover),
+.page-builder-container :deep(.p-inputtextarea:hover),
+.page-builder-container :deep(.p-dropdown:hover) {
+    border-color: #334155 !important; /* border-slate-700 */
+    background-color: #111a2e !important;
+}
+
+.page-builder-container :deep(input[type="text"]:focus),
+.page-builder-container :deep(input[type="number"]:focus),
+.page-builder-container :deep(textarea:focus),
+.page-builder-container :deep(select:focus),
+.page-builder-container :deep(.p-inputtext:focus),
+.page-builder-container :deep(.p-inputtextarea:focus),
+.page-builder-container :deep(.p-dropdown:focus) {
+    border-color: #0562d2 !important; /* Ford brand primary blue */
+    background-color: #111a2e !important;
+    box-shadow: 0 0 0 3px rgba(5, 98, 210, 0.2) !important;
+    outline: none !important;
+}
+
+/* Textarea min height */
+.page-builder-container :deep(textarea),
+.page-builder-container :deep(.p-inputtextarea) {
+    min-height: 84px !important;
+    line-height: 1.6 !important;
+    resize: vertical !important;
+}
+
+/* Dark layout overrides for file uploads & media selector */
+.page-builder-container :deep(.bg-gray-50) {
+    background-color: #0d1527 !important;
+    border: 1px dashed #1e293b !important;
+    border-radius: 8px !important;
+    color: #94a3b8 !important;
+    padding: 0.75rem !important;
+}
+.page-builder-container :deep(.bg-gray-50:hover) {
+    background-color: #111a2e !important;
+    border-color: #334155 !important;
+    color: #cbd5e1 !important;
+}
+.page-builder-container :deep(.border-gray-400),
+.page-builder-container :deep(.border-gray-300),
+.page-builder-container :deep(.border-gray-250),
+.page-builder-container :deep(.border-gray-200) {
+    border-color: #1e293b !important;
+    border-style: dashed !important;
+}
+.page-builder-container :deep(.text-gray-600),
+.page-builder-container :deep(.text-gray-700) {
+    color: #94a3b8 !important; /* slate-400 */
+}
+
+/* Premium Color picker swatch customization */
+.page-builder-container input[type="color"] {
+    -webkit-appearance: none;
+    border: 1px solid #1e293b !important;
+    border-radius: 8px !important;
+    width: 42px !important;
+    height: 42px !important;
+    cursor: pointer;
+    background: transparent !important;
+    padding: 0 !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+.page-builder-container input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 0 !important;
+}
+.page-builder-container input[type="color"]::-webkit-color-swatch {
+    border: none !important;
+    border-radius: 7px !important;
+}
+
+/* Label visual design overrides (clean typography) */
+.page-builder-container :deep(label),
+.page-builder-container label {
+    color: #94a3b8 !important; /* slate-400 text-muted */
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    margin-bottom: 6px !important;
+    display: block !important;
+}
+
+/* Design & Layout cards styling */
+.page-builder-container .bg-slate-900,
+.page-builder-container .border-slate-800 {
+    background-color: #0b1329 !important; /* deep card navy */
+    border-color: #1a2542 !important; /* slate-800 equivalent */
+}
+
+/* Alignment group button overrides */
+.page-builder-container button.bg-slate-950 {
+    background-color: #0d1527 !important;
+    border-color: #1e293b !important;
+}
+.page-builder-container button.bg-slate-950:hover {
+    background-color: #111a2e !important;
+    color: #f8fafc !important;
+}
+.page-builder-container button.bg-blue-600 {
+    background-color: #0562d2 !important; /* Ford blue */
+    border-color: #0562d2 !important;
 }
 </style>

@@ -100,7 +100,7 @@ class AccessoryController extends Controller
         }
 
         if (!$accessory) {
-            return $this->error(__('Không tìm thấy phụ kiện'), 404);
+            return $this->failure(__('Không tìm thấy phụ kiện'), 404);
         }
 
         return $this->success($accessory->transformDetails());

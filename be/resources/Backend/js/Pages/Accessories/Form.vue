@@ -163,7 +163,7 @@
                     }" />
 
                     <Field v-model="form.price" :field="{
-                        type: 'number',
+                        type: 'money',
                         name: 'price',
                         label: 'Giá (VNĐ)',
                     }" />

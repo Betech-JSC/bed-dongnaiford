@@ -280,6 +280,27 @@ function HeroBannerBlock({ data, vehicle, openQuoteDrawer, openDriveModal, isEdi
   const btnLink = data.button_link || "#drive";
   const bgImg = data.background_image || vehicle.images?.[0] || "/assets/territory-hero.png";
 
+  // Alignment classes
+  const alignClass = data.align === 'left' ? 'items-start text-left' 
+                   : data.align === 'right' ? 'items-end text-right ml-auto'
+                   : 'items-center text-center mx-auto';
+
+  const btnAlignClass = data.align === 'center' ? 'justify-center'
+                      : data.align === 'right' ? 'justify-end'
+                      : 'justify-start';
+
+  // Title Size Classes
+  let titleSizeClass = "text-[36px] sm:text-[48px] md:text-[56px]";
+  if (data.title_size === 'small') {
+    titleSizeClass = "text-[28px] sm:text-[36px] md:text-[42px]";
+  } else if (data.title_size === 'large') {
+    titleSizeClass = "text-[44px] sm:text-[58px] md:text-[68px]";
+  }
+
+  // Styles for colors
+  const titleStyle = data.title_color ? { color: data.title_color } : {};
+  const taglineStyle = data.tagline_color ? { color: data.tagline_color } : {};
+
   const handleUploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -330,9 +351,9 @@ function HeroBannerBlock({ data, vehicle, openQuoteDrawer, openDriveModal, isEdi
       </div>
 
       <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full relative z-20">
-        <div className="flex flex-col gap-[16px] sm:gap-[24px] items-start justify-center py-[24px] max-w-2xl">
+        <div className={`flex flex-col gap-[16px] sm:gap-[24px] py-[24px] w-full ${alignClass}`}>
           {isEditMode ? (
-            <div className="space-y-3 w-full bg-black/55 p-4 rounded-xl border border-white/20 backdrop-blur-xs">
+            <div className="space-y-3 w-full bg-black/55 p-4 rounded-xl border border-white/20 backdrop-blur-xs text-left">
               <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider">Slogan / Tagline</label>
               <input 
                 type="text"
@@ -341,7 +362,7 @@ function HeroBannerBlock({ data, vehicle, openQuoteDrawer, openDriveModal, isEdi
                 className="bg-transparent text-[#0562d2] font-semibold text-sm border border-dashed border-white/30 px-3 py-1.5 rounded-lg w-full focus:outline-none focus:border-blue-500"
                 placeholder="Nhập Slogan"
               />
-              <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider">Tiêu đề Banner</label>
+              <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider">Tiêu đề Banner</label>
               <input 
                 type="text"
                 value={title}
@@ -375,15 +396,21 @@ function HeroBannerBlock({ data, vehicle, openQuoteDrawer, openDriveModal, isEdi
           ) : (
             <>
               {tagline && (
-                <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-[#0562d2] bg-blue-50/10 px-3 py-1 rounded-full backdrop-blur-xs">
+                <span 
+                  className="text-xs sm:text-sm font-bold uppercase tracking-wider text-[#0562d2] bg-blue-50/10 px-3 py-1 rounded-full backdrop-blur-xs"
+                  style={taglineStyle}
+                >
                   {tagline}
                 </span>
               )}
-              <h1 className="font-['Ford_Antenna',sans-serif] font-semibold text-[36px] sm:text-[48px] md:text-[56px] text-white tracking-[-0.96px] leading-[1.15] uppercase">
+              <h1 
+                className={`font-['Ford_Antenna',sans-serif] font-semibold text-white tracking-[-0.96px] leading-[1.15] uppercase ${titleSizeClass}`}
+                style={titleStyle}
+              >
                 {title}
               </h1>
               
-              <div className="flex flex-wrap gap-[12px] items-start mt-2">
+              <div className={`flex flex-wrap gap-[12px] items-start mt-2 w-full ${btnAlignClass}`}>
                 <a 
                   href={btnLink}
                   onClick={handleBtnClick}
@@ -826,12 +853,37 @@ function PromotionsBlock({ data, isEditMode, onChangeData, openQuoteDrawer, vehi
     }
   };
 
+  // Alignment classes
+  const alignClass = data.align === 'center' ? 'items-center text-center mx-auto' 
+                   : data.align === 'right' ? 'items-end text-right ml-auto'
+                   : 'items-start text-left';
+
+  // Title Size Classes
+  let titleSizeClass = "text-[36px] sm:text-[48px]";
+  if (data.title_size === 'small') {
+    titleSizeClass = "text-xl sm:text-2xl md:text-3xl";
+  } else if (data.title_size === 'large') {
+    titleSizeClass = "text-[40px] sm:text-[52px] md:text-[58px]";
+  }
+
+  // Desc Size Classes
+  let descSizeClass = "text-[18px]";
+  if (data.desc_size === 'small') {
+    descSizeClass = "text-[14px] sm:text-[16px]";
+  } else if (data.desc_size === 'large') {
+    descSizeClass = "text-[20px] sm:text-[22px]";
+  }
+
+  // Styles for colors
+  const titleStyle = data.title_color ? { color: data.title_color } : {};
+  const descStyle = data.desc_color ? { color: data.desc_color } : {};
+
   return (
     <section id={anchorId || undefined} className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full py-16">
-      <div className="flex flex-col gap-[32px] items-center">
-        <div className="flex flex-col gap-[24px] items-start pt-[32px] w-full max-w-[1152px]">
+      <div className="flex flex-col gap-[32px] w-full">
+        <div className={`flex flex-col gap-[24px] pt-[32px] w-full max-w-[1152px] mx-auto ${alignClass}`}>
           {isEditMode ? (
-            <div className="space-y-3 w-full bg-white p-4 rounded-xl border border-gray-200 shadow-xs text-black">
+            <div className="space-y-3 w-full bg-white p-4 rounded-xl border border-gray-200 shadow-xs text-black text-left">
               <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider">Tiêu đề khuyến mãi</label>
               <input 
                 type="text" 
@@ -849,11 +901,17 @@ function PromotionsBlock({ data, isEditMode, onChangeData, openQuoteDrawer, vehi
               />
             </div>
           ) : (
-            <div className="flex flex-col gap-[12px] items-start">
-              <h2 className="font-['Ford_Antenna',sans-serif] font-semibold text-[#0562d2] text-[36px] sm:text-[48px] tracking-[-0.96px] leading-[1.2]">
+            <div className={`flex flex-col gap-[12px] ${data.align === 'center' ? 'items-center' : data.align === 'right' ? 'items-end' : 'items-start'}`}>
+              <h2 
+                className={`font-['Ford_Antenna',sans-serif] font-semibold text-[#0562d2] tracking-[-0.96px] leading-[1.2] ${titleSizeClass}`}
+                style={titleStyle}
+              >
                 {title}
               </h2>
-              <p className="font-['Ford_Antenna',sans-serif] font-normal text-[#1a1a1a] text-[18px] leading-[1.5]">
+              <p 
+                className={`font-['Ford_Antenna',sans-serif] font-normal text-[#1a1a1a] leading-[1.5] ${descSizeClass}`}
+                style={descStyle}
+              >
                 {desc}
               </p>
             </div>
@@ -861,7 +919,7 @@ function PromotionsBlock({ data, isEditMode, onChangeData, openQuoteDrawer, vehi
           
           <button 
             onClick={() => openQuoteDrawer(vehicle?.id)}
-            className="bg-[#0562d2] hover:bg-[#044ea7] border border-[#0562d2] border-solid flex gap-[8px] items-center justify-center overflow-clip px-[24px] py-[10px] rounded-[800px] text-white text-[16px] font-semibold transition-all cursor-pointer"
+            className="bg-[#0562d2] hover:bg-[#044ea7] border border-[#0562d2] border-solid flex gap-[8px] items-center justify-center overflow-clip px-[24px] py-[10px] rounded-[800px] text-white text-[16px] font-semibold transition-all cursor-pointer shadow-md hover:shadow-blue-500/20"
           >
             {btnText}
           </button>
@@ -899,6 +957,31 @@ function ThreeSixtyViewerBlock({ data, vehicle, isEditMode, onChangeData, threeS
     ? "Tùy biến ngoại thất và nội thất theo phong cách riêng của bạn. Kéo để xoay 360 độ hoặc chọn màu sơn và mâm xe."
     : "Diện mạo mới đầy cuốn hút! Trải nghiệm góc nhìn đa chiều và chọn màu sắc ngoại thất yêu thích.");
 
+  // Alignment classes
+  const alignClass = data.align === 'center' ? 'items-center text-center mx-auto' 
+                   : data.align === 'right' ? 'items-end text-right ml-auto'
+                   : 'items-start text-left';
+
+  // Title Size Classes
+  let titleSizeClass = "text-[36px] sm:text-[48px]";
+  if (data.title_size === 'small') {
+    titleSizeClass = "text-xl sm:text-2xl md:text-3xl";
+  } else if (data.title_size === 'large') {
+    titleSizeClass = "text-[40px] sm:text-[52px] md:text-[58px]";
+  }
+
+  // Desc Size Classes
+  let descSizeClass = "text-[18px]";
+  if (data.desc_size === 'small') {
+    descSizeClass = "text-[14px] sm:text-[16px]";
+  } else if (data.desc_size === 'large') {
+    descSizeClass = "text-[20px] sm:text-[22px]";
+  }
+
+  // Styles for colors
+  const titleStyle = data.title_color ? { color: data.title_color } : {};
+  const descStyle = data.desc_color ? { color: data.desc_color } : {};
+
   if (!threeSixtyProps) {
     return (
       <section className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full py-16 border-t border-[#e5e5e5] text-center text-gray-400">
@@ -933,9 +1016,9 @@ function ThreeSixtyViewerBlock({ data, vehicle, isEditMode, onChangeData, threeS
   return (
     <section id={anchorId || undefined} className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full py-16 border-t border-[#e5e5e5]">
       <div className="flex flex-col gap-[32px] items-start w-full">
-        <div className="flex flex-col items-start pt-[32px] w-full max-w-[1152px] gap-[12px]">
+        <div className={`flex flex-col pt-[32px] w-full max-w-[1152px] gap-[12px] ${alignClass}`}>
           {isEditMode ? (
-            <div className="space-y-3 w-full bg-gray-50 p-4 rounded-xl border border-gray-200 shadow-xs text-black">
+            <div className="space-y-3 w-full bg-gray-50 p-4 rounded-xl border border-gray-200 shadow-xs text-black text-left">
               <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider">Tiêu đề xoay 360</label>
               <input 
                 type="text" 
@@ -954,10 +1037,16 @@ function ThreeSixtyViewerBlock({ data, vehicle, isEditMode, onChangeData, threeS
             </div>
           ) : (
             <>
-              <h2 className="font-['Ford_Antenna',sans-serif] font-semibold text-[#0562d2] text-[36px] sm:text-[48px] tracking-[-0.96px] leading-[1.2] uppercase">
+              <h2 
+                className={`font-['Ford_Antenna',sans-serif] font-semibold text-[#0562d2] tracking-[-0.96px] leading-[1.2] uppercase ${titleSizeClass}`}
+                style={titleStyle}
+              >
                 {title}
               </h2>
-              <p className="font-['Ford_Antenna',sans-serif] font-normal text-[#1a1a1a] text-[18px] leading-[1.5]">
+              <p 
+                className={`font-['Ford_Antenna',sans-serif] font-normal text-[#1a1a1a] leading-[1.5] ${descSizeClass}`}
+                style={descStyle}
+              >
                 {desc}
               </p>
             </>
@@ -1517,6 +1606,17 @@ function BookingBannerBlock({ data, vehicle, isEditMode, onChangeData, anchorId 
     }
   };
 
+  // Title Size Classes
+  let titleSizeClass = "text-3xl lg:text-[36px]";
+  if (data.title_size === 'small') {
+    titleSizeClass = "text-xl lg:text-2xl";
+  } else if (data.title_size === 'large') {
+    titleSizeClass = "text-[36px] lg:text-[44px]";
+  }
+
+  // Styles for colors
+  const titleStyle = data.title_color ? { color: data.title_color } : {};
+
   return (
     <section id={anchorId || undefined} className="w-full bg-[#00095b] py-[32px] px-4 md:px-[144px] flex justify-center overflow-visible">
       <div className="max-w-[1152px] w-full relative flex flex-col lg:flex-row items-center overflow-visible">
@@ -1525,7 +1625,7 @@ function BookingBannerBlock({ data, vehicle, isEditMode, onChangeData, anchorId 
           {/* Content */}
           <div className="flex flex-col gap-6 max-w-full lg:max-w-[505px] relative z-10 text-white w-full">
             {isEditMode ? (
-              <div className="space-y-3 bg-black/45 p-4 rounded-xl border border-white/20 backdrop-blur-xs text-white">
+              <div className="space-y-3 bg-black/45 p-4 rounded-xl border border-white/20 backdrop-blur-xs text-white text-left">
                 <div>
                   <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-1">Tiêu đề Banner</label>
                   <input
@@ -1571,7 +1671,10 @@ function BookingBannerBlock({ data, vehicle, isEditMode, onChangeData, anchorId 
               </div>
             ) : (
               <>
-                <h3 className="text-3xl lg:text-[36px] font-bold font-display leading-[1.32] text-white">
+                <h3 
+                  className={`font-bold font-display leading-[1.32] ${titleSizeClass}`}
+                  style={titleStyle}
+                >
                   {title}
                 </h3>
                 <div className="flex flex-col sm:flex-row gap-4">

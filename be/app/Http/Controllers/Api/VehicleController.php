@@ -102,7 +102,7 @@ class VehicleController extends Controller
             ->first();
 
         if (!$vehicle) {
-            return $this->error(__('Không tìm thấy xe'), 404);
+            return $this->failure(__('Không tìm thấy xe'), 404);
         }
 
         return $this->success([
@@ -114,11 +114,34 @@ class VehicleController extends Controller
             'description'            => $vehicle->description,
             'image_url'              => $vehicle->image_url,
             'images'                 => collect($vehicle->images)->map(fn($img) => isset($img['path']) ? static_url($img['path']) : $img),
-            'colors'                 => collect($vehicle->colors)->map(fn($color) => [
-                'name'       => $color['name'] ?? '',
-                'hex'        => $color['hex'] ?? '',
-                'image_path' => isset($color['image_path']) ? static_url($color['image_path']) : null,
-            ]),
+            'colors'                 => collect($vehicle->colors)->map(function ($color) {
+                $imagePath = null;
+                if (isset($color['image_path'])) {
+                    $imagePath = static_url($color['image_path']);
+                } elseif (isset($color['image'])) {
+                    $imagePath = $this->resolveFileUrl($color['image']);
+                }
+
+                $images360 = [];
+                if (isset($color['images_360']) && is_array($color['images_360'])) {
+                    $images360 = collect($color['images_360'])->map(function($img) {
+                        return $this->resolveFileUrl($img);
+                    })->filter()->values()->toArray();
+                }
+
+                $image360Internal = null;
+                if (isset($color['image_360_internal'])) {
+                    $image360Internal = $this->resolveFileUrl($color['image_360_internal']);
+                }
+
+                return [
+                    'name'               => $color['name'] ?? ($color['color_name'] ?? ''),
+                    'hex'                => $color['hex'] ?? ($color['color_code'] ?? ''),
+                    'image_path'         => $imagePath,
+                    'images_360'         => $images360,
+                    'image_360_internal' => $image360Internal,
+                ];
+            })->toArray(),
             'images_360_external'    => collect($vehicle->images_360_external)->map(fn($img) => isset($img['path']) ? static_url($img['path']) : $img),
             'image_360_internal_url' => $vehicle->image_360_internal_url,
             'type'                   => $vehicle->type,
