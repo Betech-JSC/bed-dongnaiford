@@ -9,10 +9,24 @@ import { getPopularVehicleImage, handleImageError } from "@/lib/site-assets";
 import { formatPriceShort } from "@/lib/rolling-cost";
 import { vehiclesAPI } from "@/lib/api";
 
+interface ApiVehicleData {
+  id: string | number;
+  slug: string;
+  title?: string;
+  name?: string;
+  image_url?: string;
+  images?: string[];
+  base_price?: string | number;
+  basePrice?: number;
+  type_name?: string;
+  typeName?: string;
+  type?: string;
+}
+
 export default function CompareDrawer() {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isOpen, setIsOpen] = useState(false);
-  const [allVehicles, setAllVehicles] = useState<any[]>([]);
+  const [allVehicles, setAllVehicles] = useState<Vehicle[]>([]);
 
   // Sync with localStorage
   const loadCompareList = () => {
@@ -42,19 +56,23 @@ export default function CompareDrawer() {
         const res = await vehiclesAPI.getAll().catch(() => null);
         const items = res?.data || res;
         if (Array.isArray(items) && items.length > 0) {
-          const mapped = items.map((v: any) => {
-            const staticV = vehicles.find((sv) => sv.id === v.slug || sv.id === v.id);
-            const id = v.slug || v.id;
-            const name = v.title || v.name;
+          const mapped: Vehicle[] = items.map((v: ApiVehicleData) => {
+            const staticV = vehicles.find((sv) => sv.id === v.slug || sv.id === String(v.id));
+            const id = v.slug || String(v.id);
+            const name = v.title || v.name || "";
             const image = v.image_url || v.images?.[0] || getPopularVehicleImage(id, "");
             const price = typeof v.base_price === 'string' ? parseFloat(v.base_price) : (v.base_price || v.basePrice || 0);
             return {
-              ...v,
               id,
               name,
+              type: (v.type === 'suv' || v.type === 'pickup' || v.type === 'commercial' ? v.type : 'suv') as "suv" | "pickup" | "commercial",
+              typeName: v.type_name || v.typeName || (staticV?.typeName) || (v.type === 'suv' ? 'SUV' : v.type === 'pickup' ? 'Bán tải' : 'Thương mại'),
               basePrice: price,
+              tagline: staticV?.tagline || "",
+              description: staticV?.description || "",
               images: [image],
-              typeName: v.type_name || v.typeName || (staticV?.typeName) || (v.type === 'suv' ? 'SUV' : v.type === 'pickup' ? 'Bán tải' : 'Thương mại')
+              colors: staticV?.colors || [],
+              versions: staticV?.versions || []
             };
           });
           setAllVehicles(mapped);
@@ -67,7 +85,10 @@ export default function CompareDrawer() {
   }, []);
 
   useEffect(() => {
-    loadCompareList();
+    // Call asynchronously to avoid calling setState synchronously during render/effect mount phase
+    const timer = setTimeout(() => {
+      loadCompareList();
+    }, 0);
 
     // Listen for global comparison updates
     const handleUpdate = () => {
@@ -76,6 +97,7 @@ export default function CompareDrawer() {
 
     window.addEventListener("compare-updated", handleUpdate);
     return () => {
+      clearTimeout(timer);
       window.removeEventListener("compare-updated", handleUpdate);
     };
   }, []);
@@ -105,30 +127,30 @@ export default function CompareDrawer() {
       if (found) return found;
       return vehicles.find((v) => v.id === id);
     })
-    .filter(Boolean) as any[];
+    .filter((v): v is Vehicle => !!v);
 
   return (
     <div
-      className={`fixed bottom-0 left-0 right-0 z-50 bg-[#00095B]/90 backdrop-blur-md border-t border-white/10 text-white shadow-[0_-8px_30px_rgb(0,0,0,0.3)] transition-all duration-500 ease-out transform ${
-        isOpen ? "translate-y-0" : "translate-y-[calc(100%-48px)]"
+      className={`fixed z-50 bg-[#00095B]/95 backdrop-blur-md border border-white/10 text-white shadow-[0_12px_40px_rgba(0,0,0,0.4)] rounded-2xl transition-all duration-500 ease-in-out overflow-hidden bottom-4 left-4 right-4 sm:right-auto sm:left-6 sm:bottom-6 sm:w-80 ${
+        isOpen ? "max-h-[520px]" : "max-h-12"
       }`}
     >
       {/* Header bar / Toggle */}
       <div 
         onClick={() => setIsOpen(!isOpen)}
-        className="h-12 flex items-center justify-between px-6 cursor-pointer border-b border-white/5 hover:bg-white/5 transition-colors select-none"
+        className="h-12 flex items-center justify-between px-5 cursor-pointer border-b border-white/10 hover:bg-white/5 transition-colors select-none"
       >
         <div className="flex items-center gap-2">
           <GitCompare className="w-4 h-4 text-blue-400 animate-pulse" />
-          <span className="text-sm font-bold tracking-wide uppercase">
+          <span className="text-xs font-bold tracking-wide uppercase">
             So sánh xe ({compareVehicles.length}/3)
           </span>
         </div>
-        <div className="flex items-center gap-4 text-xs font-semibold text-white/70">
+        <div className="flex items-center gap-2 text-[10px] font-semibold text-white/70">
           <span>{isOpen ? "Thu nhỏ" : "Mở rộng"}</span>
-          <div className="w-4 h-4 flex items-center justify-center">
+          <div className="w-3 h-3 flex items-center justify-center">
             <span
-              className={`block w-2 h-2 border-r border-b border-white transform transition-transform duration-300 ${
+              className={`block w-1.5 h-1.5 border-r border-b border-white transform transition-transform duration-300 ${
                 isOpen ? "rotate-45 -translate-y-0.5" : "-rotate-135 translate-y-0.5"
               }`}
             />
@@ -137,9 +159,9 @@ export default function CompareDrawer() {
       </div>
 
       {/* Content body */}
-      <div className="max-w-[1440px] mx-auto px-6 py-6 flex flex-col md:flex-row items-center justify-between gap-6">
-        {/* Vehicles list */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 flex-1 w-full">
+      <div className="p-4 flex flex-col gap-4">
+        {/* Vehicles list - Stacked Vertically */}
+        <div className="flex flex-col gap-3 w-full">
           {compareVehicles.map((vehicle) => (
             <div
               key={vehicle.id}
@@ -196,11 +218,11 @@ export default function CompareDrawer() {
           ))}
         </div>
 
-        {/* Action button panel */}
-        <div className="flex flex-row md:flex-col items-center gap-3 w-full md:w-auto shrink-0 border-t md:border-t-0 md:border-l border-white/10 pt-4 md:pt-0 md:pl-6">
+        {/* Action button panel - Stacked Vertically */}
+        <div className="flex flex-col gap-2 pt-3 border-t border-white/10">
           <Link
             href={`/cong-cu/so-sanh-xe?ids=${selectedIds.join(",")}`}
-            className="flex-1 md:flex-initial flex items-center justify-center gap-2 bg-[#0562D2] hover:bg-[#044ea7] hover:scale-105 active:scale-95 text-white font-bold uppercase text-xs tracking-wider px-6 py-3 rounded-full transition-all shadow-md cursor-pointer border-0 w-full"
+            className="flex items-center justify-center gap-2 bg-[#0562D2] hover:bg-[#044ea7] hover:scale-102 active:scale-98 text-white font-bold uppercase text-xs tracking-wider py-2.5 rounded-xl transition-all shadow-md cursor-pointer border-0 w-full"
           >
             <span>So sánh ngay</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -208,7 +230,7 @@ export default function CompareDrawer() {
           
           <button
             onClick={handleClearAll}
-            className="flex items-center justify-center gap-1.5 text-xs font-semibold text-white/60 hover:text-red-400 py-2.5 px-4 rounded-full transition-colors cursor-pointer bg-transparent border border-solid border-white/20 hover:border-red-500/30 w-full md:w-auto"
+            className="flex items-center justify-center gap-1.5 text-xs font-semibold text-white/60 hover:text-red-400 py-2.5 px-4 rounded-xl transition-colors cursor-pointer bg-transparent border border-solid border-white/20 hover:border-red-550/30 w-full"
           >
             <Trash2 className="w-3.5 h-3.5" />
             <span>Xóa tất cả</span>

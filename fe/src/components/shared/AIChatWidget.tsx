@@ -251,8 +251,10 @@ export default function AIChatWidget() {
   // Focus input when opened
   useEffect(() => {
     if (isOpen) {
-      setTimeout(() => inputRef.current?.focus(), 300);
-      setShowPulse(false);
+      setTimeout(() => {
+        inputRef.current?.focus();
+        setShowPulse(false);
+      }, 300);
     }
   }, [isOpen]);
 

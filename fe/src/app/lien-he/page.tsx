@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { MapPin, Phone, Mail, CheckCircle, X } from "lucide-react";
+import { vehicles } from "@/data/vehicles";
 import { siteAssets } from "@/lib/site-assets";
-import { contactsAPI, vehiclesAPI, agenciesAPI } from "@/lib/api";
+import { contactsAPI } from "@/lib/api";
 
 function ContactFormContent() {
   const searchParams = useSearchParams();
@@ -18,56 +19,16 @@ function ContactFormContent() {
   const [formPhone, setFormPhone] = useState("");
   const [formEmail, setFormEmail] = useState("");
   const [formNote, setFormNote] = useState(() => noteParam || "");
-  const [formVehicle, setFormVehicle] = useState(vehicleParam || "new-everest");
+  
+  // Hidden/Implicit state derived from query params
+  const [formVehicle] = useState(() => 
+    (vehicleParam && vehicles.some((v) => v.id === vehicleParam)) ? vehicleParam : "new-everest"
+  );
   const [formReason] = useState(() => reasonParam || "Đăng ký lái thử");
   
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Dynamic Data States
-  const [vehiclesList, setVehiclesList] = useState<any[]>([]);
-  const [agenciesList, setAgenciesList] = useState<any[]>([]);
-  const [selectedAgencyIndex, setSelectedAgencyIndex] = useState(0);
-  const [loading, setLoading] = useState(true);
-
-  // Fetch dynamic data
-  useEffect(() => {
-    Promise.all([
-      vehiclesAPI.getAll().catch(() => ({ success: false, data: [] })),
-      agenciesAPI.getAll().catch(() => ({ success: false, data: [] }))
-    ]).then(([vehRes, agRes]: [any, any]) => {
-      if (vehRes && vehRes.success && Array.isArray(vehRes.data)) {
-        setVehiclesList(vehRes.data);
-      }
-      
-      if (agRes) {
-        const responseData = agRes.data || agRes;
-        const list: any[] = [];
-        if (responseData.agencies && Array.isArray(responseData.agencies)) {
-          responseData.agencies.forEach((group: any) => {
-            if (group.agencies && Array.isArray(group.agencies)) {
-              list.push(...group.agencies);
-            }
-          });
-        } else if (Array.isArray(responseData)) {
-          list.push(...responseData);
-        }
-        setAgenciesList(list);
-      }
-    }).catch(err => {
-      console.error("Error loading dynamic contact page data:", err);
-    }).finally(() => {
-      setLoading(false);
-    });
-  }, []);
-
-  const getSelectedVehicleName = () => {
-    const matched = vehiclesList.find(
-      (v) => v.slug === formVehicle || String(v.id) === String(formVehicle)
-    );
-    return matched ? matched.title : formVehicle;
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -86,7 +47,7 @@ function ContactFormContent() {
             Name: formName,
             Phone: formPhone,
             Email: formEmail || undefined,
-            "Nội dung cần hỗ trợ": formNote || `Yêu cầu liên hệ: ${formReason} cho xe ${getSelectedVehicleName()}`,
+            "Nội dung cần hỗ trợ": formNote || `Yêu cầu liên hệ: ${formReason} cho xe ${vehicles.find((v) => v.id === formVehicle)?.name || ""}`,
           }
         }
       });
@@ -95,7 +56,7 @@ function ContactFormContent() {
         setToastMessage(response.message || "Gửi yêu cầu thất bại. Vui lòng thử lại!");
         setShowToast(true);
       } else {
-        const selectedVehicleName = getSelectedVehicleName();
+        const selectedVehicleName = vehicles.find((v) => v.id === formVehicle)?.name || "";
         setToastMessage(
           `Đăng ký thành công! Đồng Nai Ford đã nhận được yêu cầu ${formReason.toLowerCase()} của quý khách cho dòng xe ${selectedVehicleName}. Chúng tôi sẽ liên hệ tư vấn trong vòng 15 phút.`
         );
@@ -113,6 +74,7 @@ function ContactFormContent() {
       if (error && error.data && error.data.message) {
         const backendMessage = error.data.message;
         if (typeof backendMessage === "object") {
+          // Validation error keys (Phone, Name)
           if (backendMessage.Phone) {
             errMsg = "Số điện thoại không hợp lệ (yêu cầu từ 9 đến 12 chữ số)!";
           } else if (backendMessage.Name) {
@@ -127,36 +89,6 @@ function ContactFormContent() {
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-
-
-  const defaultAgency = {
-    title: "Showroom Đồng Nai Ford - Biên Hòa",
-    location: "Số B04, Khu thương mại Amata, Khu phố 29, Phường Long Bình, Thành Phố Đồng Nai",
-    phone: "0918 90 90 60",
-    email: "marketing@dongnaiford.com.vn",
-    phones: [
-      { type: "Dịch vụ", number: "1800 55 68 58" },
-      { type: "Kinh doanh", number: "0918 90 90 60" },
-      { type: "Điện thoại bàn", number: "(0251) 3857 130 – (0251) 3857 131" }
-    ],
-    link_google_map: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3918.847587130283!2d106.84501431471853!3d10.940989992211995!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3174dd0039755497%3A0x6e788090885c353c!2s%C4%90%E1%BB%93ng%20Nai%20Ford!5e0!3m2!1svi!2s!4v1717380000000!5m2!1svi!2s"
-  };
-
-  const displayAgencies = agenciesList.length > 0 ? agenciesList : [defaultAgency];
-  const activeAgency = displayAgencies[selectedAgencyIndex] || displayAgencies[0];
-
-  const getEmbedMapUrl = (linkGoogleMap: string) => {
-    if (!linkGoogleMap) return defaultAgency.link_google_map;
-    if (linkGoogleMap.includes("embed") || linkGoogleMap.includes("pb=")) return linkGoogleMap;
-
-    let url = linkGoogleMap.replace("maps.google.com/?", "maps.google.com/maps?");
-    url = url.replace("google.com/maps/?", "google.com/maps?");
-    if (!url.includes("output=embed")) {
-      url += (url.includes("?") ? "&" : "?") + "output=embed";
-    }
-    return url;
   };
 
   return (
@@ -205,68 +137,54 @@ function ContactFormContent() {
             </p>
           </div>
 
-          {/* Details Wrapper Cards */}
-          <div className="flex flex-col gap-6 w-full">
-            {displayAgencies.map((agency: any, idx: number) => {
-              const isSelected = selectedAgencyIndex === idx;
-              return (
-                <div
-                  key={idx}
-                  onClick={() => setSelectedAgencyIndex(idx)}
-                  className={`bg-white border cursor-pointer p-6 rounded-[12px] shadow-sm transition-all duration-300 ${
-                    isSelected ? "border-[#0562d2] ring-2 ring-[#0562d2]/10" : "border-[#d6d6d6] hover:border-gray-400"
-                  }`}
-                >
-                  <div className="flex justify-between items-start mb-4">
-                    <h3 className="font-['Ford_Antenna',sans-serif] font-bold text-lg text-[#101828] uppercase">
-                      {agency.title}
-                    </h3>
-                    {isSelected && (
-                      <span className="text-xs bg-[#0562d2] text-white font-semibold px-2.5 py-1 rounded-full">
-                        Đang chọn bản đồ
-                      </span>
-                    )}
-                  </div>
-                  
-                  <div className="flex flex-col gap-4">
-                    {/* Showroom Address */}
-                    <div className="flex gap-3 items-start">
-                      <MapPin className="w-4 h-4 text-[#0562d2] mt-0.5 flex-shrink-0" />
-                      <p className="font-['Ford_Antenna',sans-serif] text-sm text-[#424242] leading-relaxed">
-                        {agency.location}
-                      </p>
-                    </div>
+          {/* Details Wrapper Card */}
+          <div className="bg-white border border-[#d6d6d6] flex flex-col gap-6 p-6 rounded-[12px] shadow-sm">
+            {/* Showroom Address */}
+            <div className="flex gap-4 items-start">
+              <div className="w-10 h-10 bg-[#0562d2]/10 text-[#0562d2] flex items-center justify-center rounded-lg flex-shrink-0">
+                <MapPin className="w-5 h-5" />
+              </div>
+              <div className="flex-1 flex flex-col gap-1">
+                <h4 className="font-['Ford_Antenna',sans-serif] font-semibold text-sm uppercase tracking-wider text-[#0562d2]">
+                  Showroom
+                </h4>
+                <p className="font-['Ford_Antenna',sans-serif] text-sm text-[#1a1a1a] leading-relaxed">
+                  Số B04, Khu thương mại Amata, Khu phố 29, Phường Long Bình, Thành Phố Đồng Nai
+                </p>
+              </div>
+            </div>
 
-                    {/* Hotlines */}
-                    <div className="flex gap-3 items-start border-t border-gray-150 pt-4">
-                      <Phone className="w-4 h-4 text-[#0562d2] mt-0.5 flex-shrink-0" />
-                      <div className="font-['Ford_Antenna',sans-serif] text-sm text-[#424242] leading-relaxed space-y-1">
-                        {agency.phones && agency.phones.length > 0 ? (
-                          agency.phones.map((phoneItem: any, pIdx: number) => (
-                            <p key={pIdx}>
-                              {phoneItem.type === 'main' || phoneItem.type === 'Kinh doanh' ? 'Kinh doanh' : phoneItem.type || 'Hotline'}:{' '}
-                              <span className="font-semibold text-black">{phoneItem.number}</span>
-                            </p>
-                          ))
-                        ) : (
-                          <p>Kinh doanh: <span className="font-semibold text-black">{agency.phone}</span></p>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Email */}
-                    {agency.email && (
-                      <div className="flex gap-3 items-start border-t border-gray-150 pt-4">
-                        <Mail className="w-4 h-4 text-[#0562d2] mt-0.5 flex-shrink-0" />
-                        <p className="font-['Ford_Antenna',sans-serif] text-sm text-[#424242]">
-                          {agency.email}
-                        </p>
-                      </div>
-                    )}
-                  </div>
+            {/* Hotlines */}
+            <div className="flex gap-4 items-start border-t border-gray-100 pt-6">
+              <div className="w-10 h-10 bg-[#0562d2]/10 text-[#0562d2] flex items-center justify-center rounded-lg flex-shrink-0">
+                <Phone className="w-5 h-5" />
+              </div>
+              <div className="flex-1 flex flex-col gap-1">
+                <h4 className="font-['Ford_Antenna',sans-serif] font-semibold text-sm uppercase tracking-wider text-[#0562d2]">
+                  Hotline
+                </h4>
+                <div className="font-['Ford_Antenna',sans-serif] text-sm text-[#1a1a1a] leading-relaxed space-y-1">
+                  <p>Dịch vụ: <span className="font-semibold text-dark">1800 55 68 58</span></p>
+                  <p>Kinh doanh: <span className="font-semibold text-dark">0918 90 90 60</span></p>
+                  <p>Điện thoại bàn: <span className="text-[#424242]">(0251) 3857 130 – (0251) 3857 131</span></p>
                 </div>
-              );
-            })}
+              </div>
+            </div>
+
+            {/* Email & Website */}
+            <div className="flex gap-4 items-start border-t border-gray-100 pt-6">
+              <div className="w-10 h-10 bg-[#0562d2]/10 text-[#0562d2] flex items-center justify-center rounded-lg flex-shrink-0">
+                <Mail className="w-5 h-5" />
+              </div>
+              <div className="flex-1 flex flex-col gap-1">
+                <h4 className="font-['Ford_Antenna',sans-serif] font-semibold text-sm uppercase tracking-wider text-[#0562d2]">
+                  Email
+                </h4>
+                <p className="font-['Ford_Antenna',sans-serif] text-sm text-[#1a1a1a]">
+                  marketing@dongnaiford.com.vn
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -321,33 +239,6 @@ function ContactFormContent() {
               </div>
             </div>
 
-            {/* Dynamic Vehicle Selector Dropdown */}
-            {vehiclesList.length > 0 && (
-              <div className="flex flex-col gap-1.5">
-                <label className="font-['Ford_Antenna',sans-serif] font-medium text-sm text-white">
-                  Dòng xe quan tâm
-                </label>
-                <div className="relative">
-                  <select
-                    value={formVehicle}
-                    onChange={(e) => setFormVehicle(e.target.value)}
-                    className="w-full bg-white border border-[#d6d6d6] text-gray-900 rounded-[8px] px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#0562d2] focus:ring-4 focus:ring-[#0562d2]/20 transition shadow-sm font-sans cursor-pointer appearance-none"
-                  >
-                    {vehiclesList.map((veh: any) => (
-                      <option key={veh.id} value={veh.slug || veh.id}>
-                        {veh.title}
-                      </option>
-                    ))}
-                  </select>
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-550 flex items-center">
-                    <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
-                    </svg>
-                  </div>
-                </div>
-              </div>
-            )}
-
             {/* Message */}
             <div className="flex flex-col gap-1.5">
               <label className="font-['Ford_Antenna',sans-serif] font-medium text-sm text-white">
@@ -357,7 +248,7 @@ function ContactFormContent() {
                 value={formNote}
                 onChange={(e) => setFormNote(e.target.value)}
                 placeholder="Nhập lời nhắn..."
-                className="w-full h-[140px] bg-white border border-[#d6d6d6] text-gray-900 placeholder-[#808080] rounded-[8px] px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#0562d2] focus:ring-4 focus:ring-[#0562d2]/20 transition shadow-sm resize-none font-sans"
+                className="w-full h-[180px] bg-white border border-[#d6d6d6] text-gray-900 placeholder-[#808080] rounded-[8px] px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#0562d2] focus:ring-4 focus:ring-[#0562d2]/20 transition shadow-sm resize-none font-sans"
               />
             </div>
 
@@ -378,14 +269,14 @@ function ContactFormContent() {
       {/* Google Maps Full Width at Bottom */}
       <div className="w-full h-[427px] rounded-[24px] overflow-hidden border border-[#d6d6d6] shadow-sm relative mb-6">
         <iframe
-          src={getEmbedMapUrl(activeAgency?.link_google_map || activeAgency?.map_embed_url)}
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3918.847587130283!2d106.84501431471853!3d10.940989992211995!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3174dd0039755497%3A0x6e788090885c353c!2s%C4%90%E1%BB%93ng%20Nai%20Ford!5e0!3m2!1svi!2s!4v1717380000000!5m2!1svi!2s"
           width="100%"
           height="100%"
           style={{ border: 0 }}
           allowFullScreen={true}
           loading="lazy"
           referrerPolicy="no-referrer-when-downgrade"
-          title={`Địa chỉ ${activeAgency?.title} trên Google Map`}
+          title="Địa chỉ Đồng Nai Ford trên Google Map"
           className="absolute inset-0"
         ></iframe>
       </div>
