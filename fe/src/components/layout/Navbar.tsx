@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { MapPin, Mail, Phone, Menu, X, Search, ChevronDown, ChevronRight } from "lucide-react";
+import { MapPin, Mail, Phone, Search, ChevronDown, ChevronRight } from "lucide-react";
 import { vehicles } from "@/data/vehicles";
 import { vehiclesAPI, accessoriesAPI } from "@/lib/api";
 import { accessoriesData } from "@/data/accessories";
@@ -472,10 +472,23 @@ export default function Navbar() {
             </Link>
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="p-2 text-primary hover:text-accent transition-colors cursor-pointer"
+              className="p-2 text-[#333333] hover:text-[#0562d2] transition-colors cursor-pointer relative w-10 h-10 flex items-center justify-center"
               aria-label="Toggle menu"
             >
-              {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              <div className="relative w-6 h-[18px]">
+                <span 
+                  className={`absolute block h-[2px] w-6 bg-current transform transition-all duration-300 ease-in-out
+                    ${isOpen ? "rotate-45 top-[8px]" : "top-0"}`} 
+                />
+                <span 
+                  className={`absolute block h-[2px] w-6 bg-current transition-all duration-300 ease-in-out
+                    ${isOpen ? "opacity-0 w-0 top-[8px]" : "opacity-100 top-[8px]"}`} 
+                />
+                <span 
+                  className={`absolute block h-[2px] w-6 bg-current transform transition-all duration-300 ease-in-out
+                    ${isOpen ? "-rotate-45 top-[8px]" : "top-[16px]"}`} 
+                />
+              </div>
             </button>
           </div>
         </div>
@@ -692,8 +705,12 @@ export default function Navbar() {
       </div>
 
       {/* Mobile Drawer Menu */}
-      {isOpen && (
-        <div className="md:hidden border-t border-gray-100 bg-white px-4 py-4 space-y-3 shadow-inner">
+      <div 
+        className={`md:hidden bg-white shadow-inner transition-all duration-300 ease-in-out overflow-y-auto
+          ${isOpen 
+            ? "max-h-[calc(100vh-72px)] opacity-100 visible px-4 py-4 space-y-3 border-t border-gray-100" 
+            : "max-h-0 opacity-0 invisible px-4 py-0 space-y-0 border-t-0"}`}
+      >
           {navLinks.map((link) => {
             if (link.name === "Sản phẩm") {
               return (
@@ -706,8 +723,12 @@ export default function Navbar() {
                     <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform duration-300 ${isMobileProductOpen ? "rotate-180 text-[#0562D2]" : ""}`} />
                   </button>
                   
-                  {isMobileProductOpen && (
-                    <div className="pl-4 border-l border-gray-100 flex flex-col gap-2 py-1">
+                  <div 
+                    className={`pl-4 border-l border-gray-100 flex flex-col gap-2 transition-all duration-300 ease-in-out overflow-hidden
+                      ${isMobileProductOpen 
+                        ? "max-h-[1000px] opacity-100 py-1" 
+                        : "max-h-0 opacity-0 py-0"}`}
+                  >
                       {finalCategories.map((cat) => {
                         const isSubOpen = mobileActiveTab === cat.id;
                         return (
@@ -719,8 +740,12 @@ export default function Navbar() {
                               <span>{cat.name}</span>
                               <ChevronDown className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-200 ${isSubOpen ? "rotate-180 text-[#0562D2]" : ""}`} />
                             </button>
-                            {isSubOpen && (
-                              <div className="pl-4 flex flex-col gap-1 py-1">
+                            <div 
+                              className={`pl-4 flex flex-col gap-1 transition-all duration-300 ease-in-out overflow-hidden
+                                ${isSubOpen 
+                                  ? "max-h-[400px] opacity-100 py-1" 
+                                  : "max-h-0 opacity-0 py-0"}`}
+                            >
                                 {cat.cars.map((car) => (
                                   <Link
                                     key={car.id}
@@ -740,7 +765,6 @@ export default function Navbar() {
                                   </div>
                                 )}
                               </div>
-                            )}
                           </div>
                         );
                       })}
@@ -763,8 +787,12 @@ export default function Navbar() {
                               <span>Phụ kiện chính hãng</span>
                               <ChevronDown className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-200 ${isSubOpen ? "rotate-180 text-[#0562D2]" : ""}`} />
                             </button>
-                            {isSubOpen && (
-                              <div className="pl-4 flex flex-col gap-1 py-1">
+                            <div 
+                              className={`pl-4 flex flex-col gap-1 transition-all duration-300 ease-in-out overflow-hidden
+                                ${isSubOpen 
+                                  ? "max-h-[400px] opacity-100 py-1" 
+                                  : "max-h-0 opacity-0 py-0"}`}
+                            >
                                 {displayAccessories.map((acc) => {
                                   const accId = acc.slug || acc.id;
                                   const accName = acc.title || acc.name;
@@ -793,12 +821,10 @@ export default function Navbar() {
                                   Xem tất cả phụ kiện →
                                 </Link>
                               </div>
-                            )}
                           </div>
                         );
                       })()}
-                    </div>
-                  )}
+                  </div>
                 </div>
               );
             }
@@ -837,7 +863,6 @@ export default function Navbar() {
             </div>
           </div>
         </div>
-      )}
     </header>
   );
 }
