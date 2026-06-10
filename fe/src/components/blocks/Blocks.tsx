@@ -1526,6 +1526,10 @@ function VersionsGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId, 
   const versions = vehicle?.versions || [];
   
   const sliderRef = React.useRef<HTMLDivElement>(null);
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleDescChange = (idx: number, val: string) => {
     const newDescs = [...descriptions];
@@ -1614,7 +1618,7 @@ function VersionsGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId, 
               
               // Quyết định ảnh: Lấy ảnh trong images array theo index, nếu không có lấy ảnh chính của xe
               const versionImage = vehicle?.images?.[idx] || vehicle?.images?.[0] || vehicle?.image;
-              const imgUrl = getFullImageUrl(versionImage);
+              const imgUrl = mounted ? getFullImageUrl(versionImage) : "/assets/img-gradient-1.png";
 
               return (
                 <div
