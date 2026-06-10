@@ -180,6 +180,13 @@ export const contactsAPI = {
 };
 
 /**
+ * Maintenance API
+ */
+export const maintenanceAPI = {
+  getSchedules: () => fetchAPI<any>('/maintenance-schedules'),
+};
+
+/**
  * Media API for uploads
  */
 export const mediaAPI = {

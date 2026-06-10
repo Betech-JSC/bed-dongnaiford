@@ -3,6 +3,7 @@ import Link from "next/link";
 import BookingBanner from "@/components/services/BookingBanner";
 import FaqAccordion from "@/components/services/FaqAccordion";
 import ServicePageBanner from "@/components/services/ServicePageBanner";
+import { maintenanceAPI } from "@/lib/api";
 
 export const metadata = {
   title: "Dịch vụ bảo dưỡng định kỳ | Đồng Nai Ford",
@@ -89,7 +90,21 @@ const schedules: VehicleSchedule[] = [
   }
 ];
 
-export default function PeriodicMaintenancePage() {
+export default async function PeriodicMaintenancePage() {
+  let displaySchedules = schedules;
+  try {
+    const response = await maintenanceAPI.getSchedules();
+    if (response && response.success && Array.isArray(response.data) && response.data.length > 0) {
+      displaySchedules = response.data.map((item: any) => ({
+        name: item.name || "",
+        image: item.image || "/assets/car-placeholder.png",
+        links: Array.isArray(item.links) ? item.links : [],
+      }));
+    }
+  } catch (error) {
+    console.error("Failed to load maintenance schedules from CMS API, using static fallback:", error);
+  }
+
   return (
     <div className="w-full bg-[#fafafa] min-h-screen flex flex-col">
       <ServicePageBanner title="Lịch bảo dưỡng xe ô tô định kỳ">
@@ -119,7 +134,7 @@ export default function PeriodicMaintenancePage() {
       {/* Grid of Vehicle Schedule Cards */}
       <div className="max-w-[1440px] w-full mx-auto px-4 lg:px-[128px] pb-20">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-          {schedules.map((car, idx) => (
+          {displaySchedules.map((car, idx) => (
             <div 
               key={idx} 
               className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col gap-4"

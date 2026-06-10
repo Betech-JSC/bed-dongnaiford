@@ -56,6 +56,9 @@ Route::localized(function () {
     // AI Chatbot
     Route::post('ai/chat', [ChatController::class, 'chat'])->name('api.ai.chat');
 
+    // Lịch bảo dưỡng xe
+    Route::get('maintenance-schedules', [\App\Http\Controllers\Api\MaintenanceScheduleController::class, 'index'])->name('api.maintenance_schedules.index');
+
     // Tải ảnh trực tiếp từ FrontEnd Page Builder
     Route::post('upload', [VehicleController::class, 'uploadImage'])->name('api.upload');
 

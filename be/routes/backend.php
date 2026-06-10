@@ -29,6 +29,7 @@ use App\Http\Controllers\Backend\AccessoryCategoryController;
 use App\Http\Controllers\Backend\ChatSessionController;
 use App\Http\Controllers\Backend\BrandController;
 use App\Http\Controllers\Backend\CmsManualController;
+use App\Http\Controllers\Backend\MaintenanceScheduleController;
 
 Route::localized(function () {
     Route::middleware(['auth:admin'])->name('admin.')->group(function () {
@@ -62,5 +63,6 @@ Route::localized(function () {
         Route::module(ChatSessionController::class);
         Route::module(BrandController::class);
         Route::module(CmsManualController::class);
+        Route::module(MaintenanceScheduleController::class);
     });
 });
