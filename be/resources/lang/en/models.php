@@ -36,6 +36,7 @@ return [
         'awards' => 'Awards',
         'chat-sessions' => 'AI Chat History',
         'ChatSessions' => 'AI Chat History',
+        'cms-manuals' => 'CMS Manuals',
     ],
     'chat-sessions' => [
         'id' => 'ID',

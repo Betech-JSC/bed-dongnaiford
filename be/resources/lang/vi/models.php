@@ -71,7 +71,7 @@ return [
         'accessory_categories' => 'Danh mục phụ kiện',
         'chat-sessions' => 'Lịch sử Chat AI',
         'ChatSessions' => 'Lịch sử Chat AI',
-
+        'cms-manuals' => 'Hướng dẫn sử dụng',
     ],
     'common' => [
         'id' => 'ID',

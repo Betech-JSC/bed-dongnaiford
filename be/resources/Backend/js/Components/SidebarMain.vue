@@ -110,6 +110,15 @@
         <ph:medal-light />
         <span>Giải thưởng</span>
     </Link>
+
+    <!-- ===== HỆ THỐNG & HƯỚNG DẪN ===== -->
+    <div class="item-group-label">Hệ thống & Hướng dẫn</div>
+
+    <Link v-if="can('admin.cms-manuals.index')" :href="route('admin.cms-manuals.index')"
+        :class="{ active: isUrl('admin.cms-manuals.*') }" class="item">
+        <ph:book-open-light />
+        <span>Hướng dẫn sử dụng</span>
+    </Link>
 </template>
 
 <script>

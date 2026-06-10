@@ -28,6 +28,7 @@ use App\Http\Controllers\Backend\AccessoryController;
 use App\Http\Controllers\Backend\AccessoryCategoryController;
 use App\Http\Controllers\Backend\ChatSessionController;
 use App\Http\Controllers\Backend\BrandController;
+use App\Http\Controllers\Backend\CmsManualController;
 
 Route::localized(function () {
     Route::middleware(['auth:admin'])->name('admin.')->group(function () {
@@ -60,5 +61,6 @@ Route::localized(function () {
         Route::module(AccessoryCategoryController::class);
         Route::module(ChatSessionController::class);
         Route::module(BrandController::class);
+        Route::module(CmsManualController::class);
     });
 });
