@@ -6,7 +6,7 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { MapPin, Mail, Phone, Search, ChevronDown, ChevronRight } from "lucide-react";
 import { vehicles } from "@/data/vehicles";
-import { vehiclesAPI, accessoriesAPI, postsAPI } from "@/lib/api";
+import { vehiclesAPI, accessoriesAPI } from "@/lib/api";
 import { accessoriesData } from "@/data/accessories";
 
 type DropdownItem = {
@@ -34,7 +34,6 @@ export default function Navbar() {
   const [categoriesList, setCategoriesList] = useState<any[]>([]);
   const [vehiclesList, setVehiclesList] = useState<any[]>([]);
   const [accessoriesList, setAccessoriesList] = useState<any[]>([]);
-  const [postCategories, setPostCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -70,16 +69,15 @@ export default function Navbar() {
     };
   }, []);
 
-  // Fetch Category, Vehicle, Accessories & Post Categories data from API
+  // Fetch Category, Vehicle & Accessories data from API
   useEffect(() => {
     let active = true;
     const fetchMenuData = async () => {
       try {
-        const [catsData, vehsData, accsData, postsData] = await Promise.all([
+        const [catsData, vehsData, accsData] = await Promise.all([
           vehiclesAPI.getCategories().catch(() => null),
           vehiclesAPI.getAll().catch(() => null),
           accessoriesAPI.getAll({ limit: 6 }).catch(() => null),
-          postsAPI.getAll().catch(() => null),
         ]);
         
         if (!active) return;
@@ -87,7 +85,6 @@ export default function Navbar() {
         const cats = (catsData as any)?.data || catsData;
         const vehs = (vehsData as any)?.data || vehsData;
         const accs = (accsData as any)?.data || accsData;
-        const postsRes = (postsData as any)?.categories || postsData?.data?.categories || [];
 
         if (Array.isArray(cats) && cats.length > 0) {
           setCategoriesList(cats);
@@ -98,11 +95,8 @@ export default function Navbar() {
         if (Array.isArray(accs) && accs.length > 0) {
           setAccessoriesList(accs);
         }
-        if (Array.isArray(postsRes) && postsRes.length > 0) {
-          setPostCategories(postsRes);
-        }
       } catch (err) {
-        console.error("Error fetching menu categories/vehicles/accessories/posts:", err);
+        console.error("Error fetching menu categories/vehicles/accessories:", err);
       } finally {
         if (active) setLoading(false);
       }
@@ -264,13 +258,7 @@ export default function Navbar() {
       name: "Bài viết",
       href: "/tin-tuc",
       dropdownItems: [
-        { name: "Tất cả tin tức", href: "/tin-tuc" },
-        ...postCategories
-          .filter((cat) => cat.slug !== "thu-vien-media")
-          .map((cat) => ({
-            name: cat.title,
-            href: `/tin-tuc?category=${cat.id}`,
-          })),
+        { name: "Tin tức & Ưu đãi", href: "/tin-tuc" },
         { name: "Thư viện Media", href: "/thu-vien-media" },
       ],
     },

@@ -1,13 +1,12 @@
 "use client";
 
-import { useState, useEffect, useMemo, Suspense } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { handleImageError } from "@/lib/site-assets";
 import { postsAPI } from "@/lib/api";
-import { useSearchParams } from "next/navigation";
 
-function NewsListPageContent() {
+export default function NewsListPage() {
   const [categories, setCategories] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<number | "all">("all");
   const [currentPage, setCurrentPage] = useState(1);
@@ -17,24 +16,6 @@ function NewsListPageContent() {
   const [topPosts, setTopPosts] = useState<any[]>([]);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
-
-  const searchParams = useSearchParams();
-  const categoryParam = searchParams.get("category");
-
-  // Sync category parameter from URL to activeTab state
-  useEffect(() => {
-    if (categoryParam) {
-      const catId = parseInt(categoryParam);
-      if (!isNaN(catId)) {
-        setActiveTab(catId);
-      } else {
-        setActiveTab("all");
-      }
-    } else {
-      setActiveTab("all");
-    }
-    setCurrentPage(1);
-  }, [categoryParam]);
 
   // Debounce search query to prevent excessive API requests
   useEffect(() => {
@@ -310,17 +291,5 @@ function NewsListPageContent() {
         </div>
       </section>
     </div>
-  );
-}
-
-export default function NewsListPage() {
-  return (
-    <Suspense fallback={
-      <div className="bg-[#fafafa] min-h-screen py-12 flex items-center justify-center">
-        <p className="text-gray-500 text-sm">Đang tải trang tin tức...</p>
-      </div>
-    }>
-      <NewsListPageContent />
-    </Suspense>
   );
 }
