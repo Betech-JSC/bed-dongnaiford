@@ -4,10 +4,8 @@ import { useState, useEffect, useMemo, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Search, Car, Wrench, FileText, ChevronRight, HelpCircle, X } from "lucide-react";
-import { vehicles } from "@/data/vehicles";
-import { accessoriesData } from "@/data/accessories";
-import { articles } from "@/data/articles";
 import { handleImageError } from "@/lib/site-assets";
+import { vehiclesAPI, accessoriesAPI, postsAPI } from "@/lib/api";
 
 // Helper function to remove Vietnamese accents for fuzzy searching
 function removeAccents(str: string): string {
@@ -29,10 +27,55 @@ function SearchPageContent() {
   const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [activeTab, setActiveTab] = useState<"all" | "vehicles" | "accessories" | "articles">("all");
 
+  const [apiVehicles, setApiVehicles] = useState<any[]>([]);
+  const [apiAccessories, setApiAccessories] = useState<any[]>([]);
+  const [apiArticles, setApiArticles] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
   // Keep search input state updated with URL changes
   useEffect(() => {
     setSearchQuery(initialQuery);
   }, [initialQuery]);
+
+  // Fetch all CMS data on mount
+  useEffect(() => {
+    let active = true;
+    const loadAllData = async () => {
+      setLoading(true);
+      try {
+        const [vehsRes, accsRes, postsRes] = await Promise.all([
+          vehiclesAPI.getAll({ with_versions: 1 }).catch(() => null),
+          accessoriesAPI.getAll().catch(() => null),
+          postsAPI.getAll().catch(() => null),
+        ]);
+
+        if (!active) return;
+
+        const vehs = vehsRes?.data || vehsRes;
+        const accs = accsRes?.data || accsRes;
+        const postsData = (postsRes as any)?.posts?.data || (postsRes as any)?.posts || (postsRes as any)?.data || postsRes;
+
+        if (Array.isArray(vehs)) {
+          setApiVehicles(vehs);
+        }
+        if (Array.isArray(accs)) {
+          setApiAccessories(accs);
+        }
+        if (Array.isArray(postsData)) {
+          setApiArticles(postsData);
+        }
+      } catch (err) {
+        console.error("Error loading search page CMS data:", err);
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+
+    loadAllData();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   // Handle search submit (updates URL query parameter)
   const handleSearchSubmit = (e?: React.FormEvent, customQuery?: string) => {
@@ -57,6 +100,96 @@ function SearchPageContent() {
     handleSearchSubmit(undefined, keyword);
   };
 
+  // Map API data to standard frontend models
+  const { mappedVehicles, mappedAccessories, mappedArticles } = useMemo(() => {
+    const formatDate = (dateStr: string) => {
+      if (!dateStr) return "";
+      try {
+        const date = new Date(dateStr);
+        const day = String(date.getUTCDate()).padStart(2, '0');
+        const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+        const year = date.getUTCFullYear();
+        return `${day}/${month}/${year}`;
+      } catch {
+        return dateStr;
+      }
+    };
+
+    const mv = apiVehicles.map((v: any) => {
+      const id = v.slug || String(v.id);
+      const name = v.title || v.name || "";
+      const price = typeof v.base_price === 'string' ? parseFloat(v.base_price) : (v.base_price || v.basePrice || 0);
+      const image = v.image_thumbnail_url || v.image_url || v.images?.[0] || "";
+      
+      let typeName = "SUV";
+      const titleLower = name.toLowerCase();
+      if (titleLower.includes("territory")) {
+        typeName = "SUV 5 Chỗ";
+      } else if (titleLower.includes("everest")) {
+        typeName = "SUV 7 Chỗ";
+      } else if (titleLower.includes("explorer")) {
+        typeName = "SUV 7 Chỗ";
+      } else if (titleLower.includes("ranger") || titleLower.includes("raptor")) {
+        typeName = "Bán tải 5 Chỗ";
+      } else if (titleLower.includes("transit")) {
+        typeName = "Thương mại 16 Chỗ";
+      } else {
+        typeName = v.type_name || v.typeName || (v.type === 'suv' ? 'SUV' : v.type === 'pickup' ? 'Bán tải' : 'Thương mại');
+      }
+
+      return {
+        id,
+        name,
+        basePrice: price,
+        typeName,
+        tagline: v.tagline || "",
+        description: v.description || "",
+        images: [image],
+        versions: v.versions || [],
+        isBestSeller: v.is_best_seller || v.isBestSeller || false
+      };
+    });
+
+    const ma = apiAccessories.map((a: any) => {
+      const id = a.slug || String(a.id);
+      const name = a.title || a.name || "";
+      const price = typeof a.price === 'string' ? parseFloat(a.price) : (a.price || 0);
+      const image = a.image_url || a.images?.[0]?.url || a.image || "";
+      const categoryName = a.category_name || a.categoryName || "Phụ Kiện";
+      
+      return {
+        id,
+        name,
+        code: a.code || "",
+        price,
+        categoryName,
+        description: a.description || "",
+        images: [image]
+      };
+    });
+
+    const mart = apiArticles.map((art: any) => {
+      const id = art.slug || String(art.id);
+      const title = art.title || "";
+      const content = art.description || art.content || "";
+      const date = formatDate(art.published_at || art.created_at);
+      const category = art.category?.title || art.category || "Tin tức";
+      const image = art.image?.url || art.image_url || art.image || "/placeholder-news.jpg";
+
+      return {
+        id,
+        title,
+        content,
+        date,
+        category,
+        image,
+        body: []
+      };
+    });
+
+    return { mappedVehicles: mv, mappedAccessories: ma, mappedArticles: mart };
+  }, [apiVehicles, apiAccessories, apiArticles]);
+
   // Perform search matching
   const searchResults = useMemo(() => {
     const query = removeAccents(initialQuery.trim());
@@ -65,17 +198,17 @@ function SearchPageContent() {
     }
 
     // 1. Filter Vehicles
-    const vehiclesList = vehicles.filter((v) => {
+    const vehiclesList = mappedVehicles.filter((v: any) => {
       const nameMatch = removeAccents(v.name).includes(query);
       const typeMatch = removeAccents(v.typeName).includes(query);
       const taglineMatch = removeAccents(v.tagline).includes(query);
       const descMatch = removeAccents(v.description).includes(query);
-      const versionMatch = v.versions.some((ver) => removeAccents(ver.name).includes(query));
+      const versionMatch = v.versions.some((ver: any) => removeAccents(ver.name || "").includes(query));
       return nameMatch || typeMatch || taglineMatch || descMatch || versionMatch;
     });
 
     // 2. Filter Accessories
-    const accessoriesList = accessoriesData.filter((a) => {
+    const accessoriesList = mappedAccessories.filter((a: any) => {
       const nameMatch = removeAccents(a.name).includes(query);
       const codeMatch = removeAccents(a.code).includes(query);
       const descMatch = removeAccents(a.description).includes(query);
@@ -84,25 +217,17 @@ function SearchPageContent() {
     });
 
     // 3. Filter Articles
-    const articlesList = articles.filter((art) => {
+    const articlesList = mappedArticles.filter((art: any) => {
       const titleMatch = removeAccents(art.title).includes(query);
       const contentMatch = removeAccents(art.content).includes(query);
       const catMatch = removeAccents(art.category).includes(query);
-      const bodyMatch = art.body.some((block) => {
-        if (typeof block.value === "string") {
-          return removeAccents(block.value).includes(query);
-        } else if (Array.isArray(block.value)) {
-          return block.value.some((v) => removeAccents(v).includes(query));
-        }
-        return false;
-      });
-      return titleMatch || contentMatch || catMatch || bodyMatch;
+      return titleMatch || contentMatch || catMatch;
     });
 
     const totalCount = vehiclesList.length + accessoriesList.length + articlesList.length;
 
     return { vehiclesList, accessoriesList, articlesList, totalCount };
-  }, [initialQuery]);
+  }, [initialQuery, mappedVehicles, mappedAccessories, mappedArticles]);
 
   const { vehiclesList, accessoriesList, articlesList, totalCount } = searchResults;
 
@@ -112,8 +237,8 @@ function SearchPageContent() {
 
   // Best seller vehicles to suggest when no results are found
   const suggestedVehicles = useMemo(() => {
-    return vehicles.filter((v) => v.isBestSeller).slice(0, 3);
-  }, []);
+    return mappedVehicles.filter((v: any) => v.isBestSeller).slice(0, 3);
+  }, [mappedVehicles]);
 
   return (
     <div className="bg-[#fafafa] min-h-screen pb-20 text-[#1a1a1a]">
@@ -212,7 +337,14 @@ function SearchPageContent() {
 
       {/* 3. SEARCH RESULTS LISTING */}
       <main className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full py-12">
-        {!initialQuery.trim() ? (
+        {loading ? (
+          <div className="py-24 text-center">
+            <div className="animate-spin inline-block w-10 h-10 border-4 border-[#0562D2] border-t-transparent rounded-full" role="status">
+              <span className="sr-only">Đang tải...</span>
+            </div>
+            <p className="mt-4 text-gray-500 font-medium">Đang tải dữ liệu tìm kiếm...</p>
+          </div>
+        ) : !initialQuery.trim() ? (
           // Empty state: guide user to enter query
           <div className="text-center py-20 bg-white border border-[#e5e5e5] rounded-xl shadow-xs max-w-3xl mx-auto space-y-4">
             <div className="w-16 h-16 bg-[#0562D2]/10 text-[#0562D2] flex items-center justify-center rounded-full mx-auto">
