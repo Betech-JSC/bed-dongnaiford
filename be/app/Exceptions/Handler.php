@@ -52,6 +52,12 @@ class Handler extends ExceptionHandler
 
     public function render($request, Throwable $e)
     {
+        if ($request->is('admin/*') || $request->is('admin')) {
+            $this->rootView = 'backend::app';
+        } else {
+            $this->rootView = 'frontend::app';
+        }
+
         $response = parent::render($request, $e);
 
         if (

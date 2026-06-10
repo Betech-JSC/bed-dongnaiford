@@ -316,6 +316,11 @@
                         </div>
                     </div>
                     
+                    <!-- Flash Messages inside Fullscreen Editor -->
+                    <div v-if="$page.props.flash?.success || $page.props.flash?.error || Object.keys($page.props.errors || {}).length > 0" class="px-6 py-2 bg-white border-b border-gray-200 shrink-0">
+                        <FlashMessages />
+                    </div>
+                    
                     <!-- Fullscreen Workspace -->
                     <div class="flex-1 bg-[#f6f6f7] overflow-hidden relative h-full w-full">
                         <BlockEditor 
@@ -451,7 +456,9 @@ export default {
                             }
                         });
                     }
-                    ver.specs = specs;
+                    if (JSON.stringify(ver.specs) !== JSON.stringify(specs)) {
+                        ver.specs = specs;
+                    }
                 });
             }
         }
