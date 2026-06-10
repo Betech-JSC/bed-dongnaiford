@@ -41,7 +41,7 @@ export default function InstallmentCalculatorPage() {
   const [isVersionOpen, setIsVersionOpen] = useState(false);
   const [isTermOpen, setIsTermOpen] = useState(false);
   const [showAllSchedule, setShowAllSchedule] = useState(false);
-  const [isCalculated, setIsCalculated] = useState(true);
+  const [isCalculated, setIsCalculated] = useState(false);
   const [currentDate, setCurrentDate] = useState("");
 
   const resultsRef = useRef<HTMLDivElement>(null);

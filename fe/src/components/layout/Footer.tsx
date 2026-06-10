@@ -135,7 +135,7 @@ export default function Footer() {
             {/* Facebook Fanpage Embed */}
             <div className="w-full overflow-hidden rounded-lg bg-white/5 border border-white/10" style={{ height: "180px" }}>
               <iframe
-                src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2FFordDongNai.Official&tabs&width=340&height=180&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=false&appId"
+                src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2FFordDongNai.Official&tabs&width=500&height=180&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=false&appId"
                 width="100%"
                 height="180"
                 style={{ border: "none", overflow: "hidden" }}
