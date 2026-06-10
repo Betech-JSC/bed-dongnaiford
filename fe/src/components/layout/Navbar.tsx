@@ -158,9 +158,9 @@ export default function Navbar() {
       bannerDesc: "Mạnh mẽ, thông minh, sẵn sàng cho mọi hành trình gia đình",
       bannerBg: "bg-gradient-to-r from-[#00095B] via-[#02337A] to-[#0562D2]",
       cars: [
-        { id: "new-territory", displayName: "TERRITORY" },
-        { id: "new-everest", displayName: "FORD EVEREST" },
-        { id: "new-mustang-mach-e", displayName: "FORD MUSTANG MACH-E" },
+        { id: "ford-territory", displayName: "TERRITORY" },
+        { id: "ford-everest", displayName: "FORD EVEREST" },
+        { id: "mustang-fastback", displayName: "FORD MUSTANG" },
       ],
     },
     {
@@ -170,9 +170,8 @@ export default function Navbar() {
       bannerDesc: "Bền bỉ, hiệu quả, tối ưu hóa lợi ích kinh doanh",
       bannerBg: "bg-gradient-to-r from-[#1A1A1A] via-[#2D2D2D] to-[#404040]",
       cars: [
-        { id: "ranger-raptor-669", displayName: "NEW RANGER" },
+        { id: "ford-ranger", displayName: "FORD RANGER" },
         { id: "ford-transit-2024", displayName: "FORD TRANSIT" },
-        { id: "new-raptor", displayName: "FORD RAPTOR" },
       ],
     },
   ];
@@ -237,11 +236,11 @@ export default function Navbar() {
       href: "/san-pham",
       dropdownItems: [
         { name: "Tất cả dòng xe", href: "/san-pham" },
-        { name: "Ford Ranger", href: "/san-pham/ranger-wildtrak" },
-        { name: "Ford Everest", href: "/san-pham/everest-titanium-plus" },
-        { name: "Ford Territory", href: "/san-pham/territory-titanium-x" },
-        { name: "Ford Transit", href: "/san-pham/transit-premium" },
-        { name: "Ford Explorer", href: "/san-pham/explorer-limited" },
+        { name: "Ford Ranger", href: "/san-pham/ford-ranger" },
+        { name: "Ford Everest", href: "/san-pham/ford-everest" },
+        { name: "Ford Territory", href: "/san-pham/ford-territory" },
+        { name: "Ford Transit", href: "/san-pham/ford-transit-2024" },
+        { name: "Ford Mustang", href: "/san-pham/mustang-fastback" },
         { name: "Phụ kiện chính hãng", href: "/phu-kien" },
       ],
     },

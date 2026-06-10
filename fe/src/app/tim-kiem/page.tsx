@@ -127,8 +127,10 @@ function SearchPageContent() {
         typeName = "SUV 5 Chỗ";
       } else if (titleLower.includes("everest")) {
         typeName = "SUV 7 Chỗ";
-      } else if (titleLower.includes("explorer")) {
-        typeName = "SUV 7 Chỗ";
+      } else if (titleLower.includes("mach-e")) {
+        typeName = "SUV điện 5 Chỗ";
+      } else if (titleLower.includes("mustang")) {
+        typeName = "Xe thể thao 4 Chỗ";
       } else if (titleLower.includes("ranger") || titleLower.includes("raptor")) {
         typeName = "Bán tải 5 Chỗ";
       } else if (titleLower.includes("transit")) {

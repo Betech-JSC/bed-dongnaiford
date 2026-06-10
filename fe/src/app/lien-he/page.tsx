@@ -22,7 +22,7 @@ function ContactFormContent() {
   
   // Hidden/Implicit state derived from query params
   const [formVehicle] = useState(() => 
-    (vehicleParam && vehicles.some((v) => v.id === vehicleParam)) ? vehicleParam : "new-everest"
+    (vehicleParam && vehicles.some((v) => v.id === vehicleParam)) ? vehicleParam : "ford-everest"
   );
   const [formReason] = useState(() => reasonParam || "Đăng ký lái thử");
   

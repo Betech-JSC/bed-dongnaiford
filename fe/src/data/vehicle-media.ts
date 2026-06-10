@@ -13,7 +13,7 @@ export type VehicleMediaAssets = {
 };
 
 export const vehicleMediaAssets: Record<string, VehicleMediaAssets> = {
-  "new-territory": {
+  "ford-territory": {
     promoTitle: "Cơ hội vàng. Sẵn sàng rước xế.",
     promoDesc:
       "Ưu đãi lãi suất cố định 0% trị giá lên đến 15 triệu đồng khi mua Ford Territory trong tháng 5/2026.",
@@ -32,7 +32,7 @@ export const vehicleMediaAssets: Record<string, VehicleMediaAssets> = {
       "Android AutoTM Kết nối không dây",
     ],
   },
-  "new-everest": {
+  "ford-everest": {
     promoTitle: "Bứt phá giới hạn. Dẫn đầu mọi hành trình.",
     promoDesc:
       "Tặng gói bảo hiểm vật chất 1 năm và ưu đãi 50% lệ phí trước bạ khi ký hợp đồng xe Ford Everest trong tháng.",
@@ -70,7 +70,7 @@ export const vehicleMediaAssets: Record<string, VehicleMediaAssets> = {
       "Cập nhật phần mềm qua mạng không dây (OTA)",
     ],
   },
-  "ranger-raptor-669": {
+  "ford-ranger": {
     promoTitle: "Vua bán tải. Sức mạnh bứt phá mọi cung đường.",
     promoDesc:
       "Tặng nắp thùng cuộn điện chính hãng và gói phụ kiện offroad chuyên dụng cho các hợp đồng giao xe nhanh.",
@@ -87,25 +87,6 @@ export const vehicleMediaAssets: Record<string, VehicleMediaAssets> = {
       "Bộ giảm xóc FOX Racing 2.5 inch chất lượng",
       "Bảng điều khiển phụ trợ cho thiết bị gắn ngoài",
       "Hệ thống xả van chủ động (Active Valve Exhaust)",
-    ],
-  },
-  "new-raptor": {
-    promoTitle: "Bản lĩnh độc tôn. Chiến binh sa mạc đích thực.",
-    promoDesc:
-      "Ưu đãi gói bảo dưỡng miễn phí 2 năm từ Ford Việt Nam cùng chương trình tặng bảo hiểm thân vỏ đặc biệt.",
-    promoImage: "/assets/car-ranger.png",
-    grid1: "/assets/img-gradient-2.png",
-    grid2: "/assets/img-gradient-1.png",
-    grid3: "/assets/img-gradient-3.png",
-    bannerLarge: "/assets/territory-interior.png",
-    splitLeft: "/assets/territory-tech-split.png",
-    splitTitle: "Hệ thống quản lý địa hình Terrain Management System",
-    splitDesc:
-      "7 chế độ lái tùy chỉnh linh hoạt kết hợp khóa vi sai cầu trước và cầu sau điện tử nâng tầm khả năng vượt chướng ngại vật.",
-    features: [
-      "Chế độ lái Baja dành cho đua sa mạc tốc độ cao",
-      "Lốp địa hình BFGoodrich KO2 chuyên dụng",
-      "Ghế thể thao ôm sát lấy cảm hứng từ máy bay chiến đấu",
     ],
   },
   "ford-transit-2024": {
@@ -153,17 +134,14 @@ export function getVehicleMediaAssets(vehicleId: string): VehicleMediaAssets {
     return vehicleMediaAssets[vehicleId];
   }
   const idLower = vehicleId.toLowerCase();
-  if (idLower.includes("everest") || idLower.includes("explorer")) {
-    return vehicleMediaAssets["new-everest"];
+  if (idLower.includes("everest")) {
+    return vehicleMediaAssets["ford-everest"];
   }
   if (idLower.includes("territory")) {
-    return vehicleMediaAssets["new-territory"];
+    return vehicleMediaAssets["ford-territory"];
   }
-  if (idLower.includes("raptor")) {
-    return vehicleMediaAssets["new-raptor"];
-  }
-  if (idLower.includes("ranger")) {
-    return vehicleMediaAssets["ranger-raptor-669"];
+  if (idLower.includes("ranger") || idLower.includes("raptor")) {
+    return vehicleMediaAssets["ford-ranger"];
   }
   if (idLower.includes("transit")) {
     return vehicleMediaAssets["ford-transit-2024"];
@@ -174,5 +152,5 @@ export function getVehicleMediaAssets(vehicleId: string): VehicleMediaAssets {
   if (idLower.includes("mustang")) {
     return vehicleMediaAssets["mustang-fastback"];
   }
-  return vehicleMediaAssets["new-territory"]; // ultimate fallback
+  return vehicleMediaAssets["ford-territory"]; // ultimate fallback
 }

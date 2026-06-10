@@ -58,11 +58,11 @@ const sidebarModels = [
   },
   {
     name: "Dòng Xe SUV",
-    subModels: ["Ford Everest", "Ford Territory", "Ford Explorer", "Ford EcoSport", "Ford Escape"]
+    subModels: ["Ford Everest", "Ford Territory", "Ford Mustang"]
   },
   {
-    name: "Dòng Xe Thương Mại / MPV",
-    subModels: ["Ford Transit", "Ford Tourneo"]
+    name: "Dòng Xe Thương Mại",
+    subModels: ["Ford Transit"]
   }
 ];
 

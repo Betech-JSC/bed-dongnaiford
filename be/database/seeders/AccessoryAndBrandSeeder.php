@@ -78,7 +78,7 @@ class AccessoryAndBrandSeeder extends Seeder
                 'images' => [
                     ['path' => '/uploads/accessories/focus_rack_1.jpg', 'alt' => 'Thanh Giá/Giá Ngang Mái Xe Ford Focus']
                 ],
-                'fit_vehicles' => ['Ford Focus Estate', 'Ford Ranger', 'Ford Territory', 'Ford Explorer', 'Ford Escape'],
+                'fit_vehicles' => ['Ford Focus Estate', 'Ford Ranger', 'Ford Territory', 'Ford Escape'],
                 'features' => [
                     'Khách hàng thân thiết nhận thêm 10% giảm giá cho lần mua tiếp theo.',
                     'Đổi trả sản phẩm trong vòng 30 ngày nếu không hài lòng.',
@@ -99,13 +99,13 @@ class AccessoryAndBrandSeeder extends Seeder
                 'images' => [
                     ['path' => '/uploads/accessories/floor_mat_1.jpg', 'alt' => 'Thảm Sàn Cao Cấp']
                 ],
-                'fit_vehicles' => ['Ford Everest', 'Ford Ranger', 'Ford Territory', 'Ford Explorer', 'Ford Escape'],
+                'fit_vehicles' => ['Ford Everest', 'Ford Ranger', 'Ford Territory', 'Ford Escape'],
                 'features' => [
                     'Chất liệu nhựa TPE cao cấp không mùi độc hại.',
                     'Thiết kế 3D ôm khít từng góc cạnh sàn xe.',
                     'Dễ dàng tháo rời và xịt rửa vệ sinh nhanh chóng.'
                 ],
-                'compatibility_text' => 'Thiết kế riêng theo số đo sàn xe của từng dòng Ford Everest, Ranger, Territory, Explorer. Vui lòng ghi chú dòng xe khi đặt hàng.',
+                'compatibility_text' => 'Thiết kế riêng theo số đo sàn xe của từng dòng Ford Everest, Ranger, Territory. Vui lòng ghi chú dòng xe khi đặt hàng.',
                 'safety_text' => 'Thảm có chốt khóa cố định chắc chắn vào sàn xe, đảm bảo không bị xê dịch gây kẹt chân ga hay chân phanh trong quá trình vận hành.',
                 'product_desc_text' => 'Bộ thảm lót sàn cao cấp được làm từ nhựa TPE nguyên sinh thân thiện với môi trường, khả năng chịu nhiệt cao và không phát sinh mùi hôi ngay cả khi đỗ xe dưới trời nắng gắt.'
             ],
@@ -141,7 +141,7 @@ class AccessoryAndBrandSeeder extends Seeder
                 'images' => [
                     ['path' => '/uploads/accessories/dashcam_1.jpg', 'alt' => 'Camera Hành Trình Pro']
                 ],
-                'fit_vehicles' => ['Ford Everest', 'Ford Ranger', 'Ford Territory', 'Ford Explorer', 'Ford Escape'],
+                'fit_vehicles' => ['Ford Everest', 'Ford Ranger', 'Ford Territory', 'Ford Escape'],
                 'features' => [
                     'Độ phân giải Ultra HD 4K sắc nét cả ngày lẫn đêm.',
                     'Tích hợp GPS hiển thị tốc độ và bản đồ hành trình.',
@@ -204,7 +204,7 @@ class AccessoryAndBrandSeeder extends Seeder
                 'images' => [
                     ['path' => '/uploads/accessories/trunk_organizer_1.jpg', 'alt' => 'Bộ Sắp Xếp Hành Lý Cốp Sau']
                 ],
-                'fit_vehicles' => ['Ford Everest', 'Ford Territory', 'Ford Explorer', 'Ford Escape'],
+                'fit_vehicles' => ['Ford Everest', 'Ford Territory', 'Ford Escape'],
                 'features' => [
                     'Chất liệu vải Oxford chống thấm nước và bụi bẩn bám dính.',
                     'Có vách ngăn di động giúp phân loại đồ dùng thông minh.',
@@ -225,13 +225,13 @@ class AccessoryAndBrandSeeder extends Seeder
                 'images' => [
                     ['path' => '/uploads/accessories/sunshade_1.jpg', 'alt' => 'Tấm Chắn Nắng']
                 ],
-                'fit_vehicles' => ['Ford Everest', 'Ford Ranger', 'Ford Territory', 'Ford Explorer'],
+                'fit_vehicles' => ['Ford Everest', 'Ford Ranger', 'Ford Territory'],
                 'features' => [
                     'Khung viền tích hợp nam châm hít chặt viền cửa kính.',
                     'Lưới cản nắng cao cấp giảm nhiệt bên trong cabin đến 70%.',
                     'Vẫn có thể hạ kính lấy gió ngoài khi tấm chắn nắng đang gắn.'
                 ],
-                'compatibility_text' => 'Gồm bộ 4 tấm thiết kế riêng theo kích thước khung kính cửa của Everest, Ranger, Territory, Explorer đời mới nhất.',
+                'compatibility_text' => 'Gồm bộ 4 tấm thiết kế riêng theo kích thước khung kính cửa của Everest, Ranger, Territory đời mới nhất.',
                 'safety_text' => 'Thiết kế chừa góc quan sát gương chiếu hậu bên tài và bên phụ, bảo đảm tầm nhìn an toàn khi lái xe.',
                 'product_desc_text' => 'Tấm che nắng nam châm thế hệ mới loại bỏ sự lỉnh kỉnh của núm hút cao su cũ, mang lại tính thẩm mỹ cao và sự tiện lợi vượt trội cho người sử dụng.'
             ],
@@ -288,13 +288,13 @@ class AccessoryAndBrandSeeder extends Seeder
                 'images' => [
                     ['path' => '/uploads/accessories/roof_basket_1.jpg', 'alt' => 'Giá Nóc Baga Cao Cấp']
                 ],
-                'fit_vehicles' => ['Ford Everest', 'Ford Explorer'],
+                'fit_vehicles' => ['Ford Everest'],
                 'features' => [
                     'Cấu trúc thép sơn tĩnh điện chống rỉ sét dưới mọi thời tiết.',
                     'Tích hợp chốt khóa chống trộm an toàn tuyệt đối.',
                     'Tải trọng động cho phép tối đa lên đến 100kg.'
                 ],
-                'compatibility_text' => 'Lắp ráp cố định vào 2 thanh dọc nóc xe sẵn có của xe Ford Everest và Ford Explorer.',
+                'compatibility_text' => 'Lắp ráp cố định vào 2 thanh dọc nóc xe sẵn có của xe Ford Everest.',
                 'safety_text' => 'Thiết kế khí động học tản gió giúp xe giữ thăng bằng tốt ở tốc độ cao, giảm thiểu tiếng ồn ù tai vọng vào khoang lái.',
                 'product_desc_text' => 'Baga nóc là món phụ kiện không thể thiếu đối với các tín đồ du lịch tự lái (road trip), cắm trại dã ngoại ngoài trời, giúp giải phóng hoàn toàn không gian cốp xe chật hẹp.'
             ],

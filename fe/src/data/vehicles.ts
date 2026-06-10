@@ -38,8 +38,8 @@ export interface Vehicle {
 
 export const vehicles: Vehicle[] = [
   {
-    id: "new-territory",
-    name: "NEW TERRITORY",
+    id: "ford-territory",
+    name: "FORD TERRITORY",
     type: "suv",
     typeName: "SUV 5 Chỗ",
     isBestSeller: true,
@@ -105,8 +105,8 @@ export const vehicles: Vehicle[] = [
     ]
   },
   {
-    id: "new-everest",
-    name: "NEW EVEREST",
+    id: "ford-everest",
+    name: "FORD EVEREST",
     type: "suv",
     typeName: "SUV 7 Chỗ",
     isBestSeller: true,
@@ -119,12 +119,13 @@ export const vehicles: Vehicle[] = [
     colors: [
       { name: "Đỏ Cam", hex: "#c2410c", image: "orange" },
       { name: "Xám Falcon", hex: "#4b5563", image: "gray" },
-      { name: "Trắng Tuyết", hex: "#fafafa", image: "white" }
+      { name: "Trắng Tuyết", hex: "#fafafa", image: "white" },
+      { name: "Đen Bóng", hex: "#000000", image: "black" }
     ],
     versions: [
       {
-        id: "everest-ambient",
-        name: "Everest Ambient 2.0L Turbo 6AT",
+        id: "everest-active",
+        name: "Everest Active 2.0L Single-Turbo 6AT",
         price: 1099000000,
         specs: {
           engine: "Single-Turbo Diesel 2.0L i4",
@@ -135,6 +136,226 @@ export const vehicles: Vehicle[] = [
           dimensions: "4.914 x 1.923 x 1.842 mm",
           clearance: "200 mm",
           fuelEconomy: "7.5 L/100km"
+        }
+      },
+      {
+        id: "everest-sport",
+        name: "Everest Sport 2.0L Single-Turbo 6AT",
+        price: 1178000000,
+        specs: {
+          engine: "Single-Turbo Diesel 2.0L i4",
+          power: "170 Hp @ 3500 rpm",
+          torque: "405 Nm @ 1750-2500 rpm",
+          transmission: "Tự động 6 cấp",
+          drivetrain: "Một cầu sau (RWD)",
+          dimensions: "4.914 x 1.923 x 1.842 mm",
+          clearance: "200 mm",
+          fuelEconomy: "7.6 L/100km"
+        }
+      },
+      {
+        id: "everest-platinum-4x2",
+        name: "Everest Platinum 2.0L Bi-Turbo 10AT 4x2",
+        price: 1399000000,
+        specs: {
+          engine: "Bi-Turbo Diesel 2.0L i4",
+          power: "210 Hp @ 3750 rpm",
+          torque: "500 Nm @ 1750-2000 rpm",
+          transmission: "Tự động 10 cấp điện tử",
+          drivetrain: "Một cầu sau (RWD)",
+          dimensions: "4.914 x 1.923 x 1.842 mm",
+          clearance: "200 mm",
+          fuelEconomy: "7.8 L/100km"
+        }
+      },
+      {
+        id: "everest-platinum-4x4",
+        name: "Everest Platinum 2.0L Bi-Turbo 10AT 4x4",
+        price: 1468000000,
+        specs: {
+          engine: "Bi-Turbo Diesel 2.0L i4",
+          power: "210 Hp @ 3750 rpm",
+          torque: "500 Nm @ 1750-2000 rpm",
+          transmission: "Tự động 10 cấp điện tử",
+          drivetrain: "Hai cầu chủ động (4WD)",
+          dimensions: "4.914 x 1.923 x 1.842 mm",
+          clearance: "200 mm",
+          fuelEconomy: "8.0 L/100km"
+        }
+      },
+      {
+        id: "everest-platinum-23",
+        name: "Everest Platinum 2.3L EcoBoost 10AT 4x4",
+        price: 1540000000,
+        specs: {
+          engine: "2.3L EcoBoost Xăng tăng áp",
+          power: "270 Hp @ 5500 rpm",
+          torque: "420 Nm @ 3000 rpm",
+          transmission: "Tự động 10 cấp điện tử",
+          drivetrain: "Hai cầu chủ động (4WD)",
+          dimensions: "4.914 x 1.923 x 1.842 mm",
+          clearance: "200 mm",
+          fuelEconomy: "9.2 L/100km"
+        }
+      }
+    ]
+  },
+  {
+    id: "ford-ranger",
+    name: "FORD RANGER",
+    type: "pickup",
+    typeName: "Xe Bán Tải",
+    isBestSeller: true,
+    basePrice: 669000000,
+    tagline: "Vua bán tải chinh phục mọi nẻo đường.",
+    description: "Được thiết kế để chinh phục những địa hình khắc nghiệt nhất, Ford Ranger kết hợp khả năng vận hành mạnh mẽ ưu việt cùng thiết kế hầm hố chuẩn Mỹ.",
+    images: [
+      "/assets/car-ranger.png"
+    ],
+    colors: [
+      { name: "Cam Code Orange", hex: "#ea580c", image: "orange" },
+      { name: "Xám Meteor", hex: "#4b5563", image: "gray" },
+      { name: "Đen Tuyệt Đối", hex: "#000000", image: "black" },
+      { name: "Trắng Bạch Kim", hex: "#f8fafc", image: "white" }
+    ],
+    versions: [
+      {
+        id: "ranger-xls",
+        name: "Ranger XLS 2.0L Single-Turbo 6AT 4x2",
+        price: 669000000,
+        specs: {
+          engine: "Single-Turbo Diesel 2.0L i4",
+          power: "170 Hp @ 3500 rpm",
+          torque: "405 Nm @ 1750-2500 rpm",
+          transmission: "Tự động 6 cấp",
+          drivetrain: "Một cầu sau (4x2)",
+          dimensions: "5.362 x 1.918 x 1.875 mm",
+          clearance: "235 mm",
+          fuelEconomy: "7.8 L/100km"
+        }
+      },
+      {
+        id: "ranger-xlt",
+        name: "Ranger XLT 2.0L Single-Turbo 6AT 4x4",
+        price: 779000000,
+        specs: {
+          engine: "Single-Turbo Diesel 2.0L i4",
+          power: "170 Hp @ 3500 rpm",
+          torque: "405 Nm @ 1750-2500 rpm",
+          transmission: "Tự động 6 cấp",
+          drivetrain: "Hai cầu chủ động (4x4)",
+          dimensions: "5.362 x 1.918 x 1.875 mm",
+          clearance: "235 mm",
+          fuelEconomy: "7.9 L/100km"
+        }
+      },
+      {
+        id: "ranger-wildtrak",
+        name: "Ranger Wildtrak 2.0L Bi-Turbo 10AT 4x4",
+        price: 979000000,
+        specs: {
+          engine: "Bi-Turbo Diesel 2.0L i4",
+          power: "210 Hp @ 3750 rpm",
+          torque: "500 Nm @ 1750-2000 rpm",
+          transmission: "Tự động 10 cấp điện tử",
+          drivetrain: "Hai cầu chủ động bán thời gian",
+          dimensions: "5.362 x 1.918 x 1.875 mm",
+          clearance: "235 mm",
+          fuelEconomy: "8.0 L/100km"
+        }
+      },
+      {
+        id: "ranger-stormtrak",
+        name: "Ranger Stormtrak 2.0L Bi-Turbo 10AT 4x4",
+        price: 1039000000,
+        specs: {
+          engine: "Bi-Turbo Diesel 2.0L i4",
+          power: "210 Hp @ 3750 rpm",
+          torque: "500 Nm @ 1750-2000 rpm",
+          transmission: "Tự động 10 cấp điện tử",
+          drivetrain: "Hai cầu chủ động bán thời gian",
+          dimensions: "5.362 x 1.918 x 1.875 mm",
+          clearance: "235 mm",
+          fuelEconomy: "8.1 L/100km"
+        }
+      },
+      {
+        id: "ranger-raptor",
+        name: "Ranger Raptor 2.0L Bi-Turbo 10AT 4x4",
+        price: 1299000000,
+        specs: {
+          engine: "Bi-Turbo Diesel 2.0L i4 Ford Performance",
+          power: "210 Hp @ 3750 rpm",
+          torque: "500 Nm @ 1750-2000 rpm",
+          transmission: "Tự động 10 cấp điện tử",
+          drivetrain: "Hai cầu chủ động bán thời gian thông minh",
+          dimensions: "5.381 x 2.028 x 1.922 mm",
+          clearance: "272 mm",
+          fuelEconomy: "8.9 L/100km"
+        }
+      }
+    ]
+  },
+  {
+    id: "ford-transit-2024",
+    name: "FORD TRANSIT",
+    type: "commercial",
+    typeName: "Xe Thương Mại",
+    isBestSeller: false,
+    basePrice: 905000000,
+    tagline: "Giải pháp vận chuyển hành khách chuyên nghiệp.",
+    description: "Ford Transit Thế hệ Mới được thiết kế tối ưu với không gian rộng rãi hơn, tiện nghi vượt trội cùng độ bền bỉ cao, giúp tối đa hóa hiệu quả kinh doanh của doanh nghiệp.",
+    images: [
+      "/assets/car-transit.png"
+    ],
+    colors: [
+      { name: "Bạc Tinh Thể", hex: "#cbd5e1", image: "silver" },
+      { name: "Trắng Kim Cương", hex: "#ffffff", image: "white" }
+    ],
+    versions: [
+      {
+        id: "transit-trend",
+        name: "Transit Trend 2.2L TDCi 6MT",
+        price: 905000000,
+        specs: {
+          engine: "Turbo Diesel 2.2L TDCi",
+          power: "135 Hp @ 3750 rpm",
+          torque: "375 Nm @ 1500-2500 rpm",
+          transmission: "Số sàn 6 cấp",
+          drivetrain: "Cầu sau (RWD)",
+          dimensions: "5.981 x 2.059 x 2.481 mm",
+          clearance: "165 mm",
+          fuelEconomy: "8.5 L/100km"
+        }
+      },
+      {
+        id: "transit-premium-16s",
+        name: "Transit Premium 16S 2.2L TDCi 6MT",
+        price: 949000000,
+        specs: {
+          engine: "Turbo Diesel 2.2L TDCi",
+          power: "135 Hp @ 3750 rpm",
+          torque: "375 Nm @ 1500-2500 rpm",
+          transmission: "Số sàn 6 cấp",
+          drivetrain: "Cầu sau (RWD)",
+          dimensions: "5.981 x 2.059 x 2.481 mm",
+          clearance: "165 mm",
+          fuelEconomy: "8.6 L/100km"
+        }
+      },
+      {
+        id: "transit-premium-18s",
+        name: "Transit Premium 18S 2.2L TDCi 6MT",
+        price: 1087000000,
+        specs: {
+          engine: "Turbo Diesel 2.2L TDCi",
+          power: "135 Hp @ 3750 rpm",
+          torque: "375 Nm @ 1500-2500 rpm",
+          transmission: "Số sàn 6 cấp",
+          drivetrain: "Cầu sau (RWD)",
+          dimensions: "6.081 x 2.059 x 2.581 mm",
+          clearance: "165 mm",
+          fuelEconomy: "9.0 L/100km"
         }
       }
     ]
@@ -175,110 +396,6 @@ export const vehicles: Vehicle[] = [
     ]
   },
   {
-    id: "ranger-raptor-669",
-    name: "Ranger Raptor",
-    type: "pickup",
-    typeName: "Bán Tải Địa Hình",
-    isBestSeller: true,
-    basePrice: 669000000,
-    tagline: "Vua bán tải chinh phục mọi nẻo đường.",
-    description: "Được phát triển để chinh phục những địa hình khắc nghiệt nhất. Ranger Raptor mang trong mình dòng máu hiệu năng cao đặc trưng cùng thiết kế hầm hố chuẩn Mỹ.",
-    images: [
-      "/assets/car-ranger.png"
-    ],
-    colors: [
-      { name: "Cam Code Orange", hex: "#ea580c", image: "orange" },
-      { name: "Xám Meteor", hex: "#4b5563", image: "gray" },
-      { name: "Đen Tuyệt Đối", hex: "#000000", image: "black" }
-    ],
-    versions: [
-      {
-        id: "raptor-xls",
-        name: "Ranger XLS 2.0L Single-Turbo 6AT",
-        price: 669000000,
-        specs: {
-          engine: "Single-Turbo Diesel 2.0L i4",
-          power: "170 Hp @ 3500 rpm",
-          torque: "405 Nm @ 1750-2500 rpm",
-          transmission: "Tự động 6 cấp",
-          drivetrain: "Một cầu sau (4x2)",
-          dimensions: "5.362 x 1.918 x 1.875 mm",
-          clearance: "235 mm",
-          fuelEconomy: "7.8 L/100km"
-        }
-      }
-    ]
-  },
-  {
-    id: "ford-transit-2024",
-    name: "FORD TRANSIT 2024",
-    type: "commercial",
-    typeName: "Xe Thương Mại 16 Chỗ",
-    isBestSeller: false,
-    basePrice: 905000000,
-    tagline: "Giải pháp vận chuyển hành khách chuyên nghiệp.",
-    description: "Ford Transit Thế hệ Mới được thiết kế tối ưu với không gian rộng rãi hơn, tiện nghi vượt trội cùng độ bền bỉ cao, giúp tối đa hóa hiệu quả kinh doanh của doanh nghiệp.",
-    images: [
-      "/assets/car-transit.png"
-    ],
-    colors: [
-      { name: "Bạc Tinh Thể", hex: "#cbd5e1", image: "silver" },
-      { name: "Trắng Kim Cương", hex: "#ffffff", image: "white" }
-    ],
-    versions: [
-      {
-        id: "transit-trend",
-        name: "Transit Trend 2.2L TDCi 6MT",
-        price: 905000000,
-        specs: {
-          engine: "Turbo Diesel 2.2L TDCi",
-          power: "135 Hp @ 3750 rpm",
-          torque: "375 Nm @ 1500-2500 rpm",
-          transmission: "Số sàn 6 cấp",
-          drivetrain: "Cầu sau (RWD)",
-          dimensions: "5.981 x 2.059 x 2.481 mm",
-          clearance: "165 mm",
-          fuelEconomy: "8.5 L/100km"
-        }
-      }
-    ]
-  },
-  {
-    id: "new-raptor",
-    name: "NEW RAPTOR",
-    type: "pickup",
-    typeName: "Bán Tải Hiệu Năng Cao",
-    isBestSeller: true,
-    basePrice: 1299000000,
-    tagline: "Độc bản hiệu năng. Chiến binh sa mạc.",
-    description: "Được phát triển bởi bộ phận Ford Performance, NEW Ranger Raptor 2026 sở hữu động cơ Bi-Turbo cực đại kết hợp hệ thống treo FOX đỉnh cao.",
-    images: [
-      "/assets/car-ranger.png"
-    ],
-    colors: [
-      { name: "Cam Code Orange", hex: "#ea580c", image: "orange" },
-      { name: "Xám Meteor", hex: "#374151", image: "gray" },
-      { name: "Đen Bóng", hex: "#000000", image: "black" }
-    ],
-    versions: [
-      {
-        id: "new-raptor-biturbo",
-        name: "Ranger Raptor 2.0L Bi-Turbo 10AT",
-        price: 1299000000,
-        specs: {
-          engine: "Bi-Turbo Diesel 2.0L i4 Ford Performance",
-          power: "210 Hp @ 3750 rpm",
-          torque: "500 Nm @ 1750-2000 rpm",
-          transmission: "Tự động 10 cấp điện tử",
-          drivetrain: "Hai cầu chủ động bán thời gian thông minh",
-          dimensions: "5.381 x 2.028 x 1.922 mm",
-          clearance: "272 mm",
-          fuelEconomy: "8.9 L/100km"
-        }
-      }
-    ]
-  },
-  {
     id: "mustang-fastback",
     name: "MUSTANG FASTBACK",
     type: "suv",
@@ -288,7 +405,7 @@ export const vehicles: Vehicle[] = [
     tagline: "Biểu tượng xe cơ bắp Mỹ thế hệ mới.",
     description: "Trải nghiệm sức mạnh huyền thoại từ khối động cơ Coyote V8 kết hợp với thiết kế đột phá và khoang lái kỹ thuật số tối tân hướng trọn về người lái.",
     images: [
-      "/images/360/mustang/ecoboostfastback/exterior/desktop/adriatic-blue-green/64f/001-adriatic-blue-green-64f.jpeg"
+      "/assets/mustang-hero.png"
     ],
     colors: [
       { name: "Adriatic Blue Metallic", hex: "#15444c", image: "adriatic-blue-green" },

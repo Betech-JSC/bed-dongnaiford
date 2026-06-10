@@ -580,11 +580,11 @@ export default function AccessoryDetailPage() {
                       className="w-full px-4 py-2.5 rounded-sm border border-gray-200 text-xs bg-white focus:outline-none focus:border-[#0562D2] cursor-pointer"
                     >
                       <option value="Ford Everest">Ford Everest</option>
-                      <option value="Ford Explorer">Ford Explorer</option>
                       <option value="Ford Territory">Ford Territory</option>
                       <option value="Ford Ranger">Ford Ranger</option>
                       <option value="Ranger Raptor">Ranger Raptor</option>
                       <option value="Ford Transit">Ford Transit</option>
+                      <option value="Ford Mustang">Ford Mustang</option>
                       <option value="Dòng xe khác">Dòng xe khác</option>
                     </select>
                   </div>

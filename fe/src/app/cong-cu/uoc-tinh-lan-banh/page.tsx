@@ -33,23 +33,19 @@ function groupVehiclesBySeries(apiVehicles: any[]) {
     
     const titleLower = vehicle.title.toLowerCase();
     if (titleLower.includes("territory")) {
-      seriesKey = "new-territory";
+      seriesKey = "ford-territory";
       seriesName = "FORD TERRITORY";
       typeName = "SUV 5 Chỗ";
     } else if (titleLower.includes("everest")) {
-      seriesKey = "new-everest";
+      seriesKey = "ford-everest";
       seriesName = "FORD EVEREST";
       typeName = "SUV 7 Chỗ";
-    } else if (titleLower.includes("explorer")) {
-      seriesKey = "new-explorer";
-      seriesName = "FORD EXPLORER";
-      typeName = "SUV 7 Chỗ";
     } else if (titleLower.includes("ranger") || titleLower.includes("raptor")) {
-      seriesKey = "next-gen-ranger";
+      seriesKey = "ford-ranger";
       seriesName = "FORD RANGER";
       typeName = "Bán tải 5 Chỗ";
     } else if (titleLower.includes("transit")) {
-      seriesKey = "new-transit";
+      seriesKey = "ford-transit-2024";
       seriesName = "FORD TRANSIT";
       typeName = "Thương mại 16 Chỗ";
     } else if (titleLower.includes("tourneo")) {
@@ -58,6 +54,11 @@ function groupVehiclesBySeries(apiVehicles: any[]) {
       typeName = "MPV 7 Chỗ";
     } else {
       seriesKey = vehicle.slug || `vehicle-${vehicle.id}`;
+      seriesName = vehicle.title;
+      seriesKey = seriesKey === "ranger-wildtrak" ? "ford-ranger" : seriesKey;
+      seriesKey = seriesKey === "everest-titanium-plus" ? "ford-everest" : seriesKey;
+      seriesKey = seriesKey === "territory-titanium-x" ? "ford-territory" : seriesKey;
+      seriesKey = seriesKey === "transit-premium" ? "ford-transit-2024" : seriesKey;
       seriesName = vehicle.title;
       typeName = vehicle.type === "suv" ? "SUV" : vehicle.type === "pickup" ? "Bán tải" : "Thương mại";
     }

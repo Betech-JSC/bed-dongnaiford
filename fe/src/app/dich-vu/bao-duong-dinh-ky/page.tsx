@@ -81,13 +81,6 @@ const schedules: VehicleSchedule[] = [
     ]
   },
   {
-    name: "Explorer",
-    image: "/assets/car-explorer.png",
-    links: [
-      { label: "Explorer 2016", url: "https://www.ford.com.vn/content/dam/Ford/website-assets/ap/vn/Owner-Dashboard/Service%20&%20Maintainance/maintenance-schedule-plan/Explorer-2016.pdf" },
-    ]
-  },
-  {
     name: "Tourneo",
     image: "/assets/car-tourneo.png",
     links: [

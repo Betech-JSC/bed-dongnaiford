@@ -2,7 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
-import { Plus, Minus, ChevronDown, Phone, Bookmark } from "lucide-react";
+import { Plus, Minus, ChevronDown, Phone, Bookmark, ChevronLeft, ChevronRight } from "lucide-react";
 import { mediaAPI } from "@/lib/api";
 
 const formatUploadError = (err: any): string => {
@@ -1524,12 +1524,8 @@ function VersionsGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId, 
   const title = data.title || `Các mẫu xe Ford ${cleanName.replace("NEW ", "") || ""}`;
   const descriptions = data.descriptions || [];
   const versions = vehicle?.versions || [];
-
-  const versionGradients = [
-    "/assets/img-gradient-1.png",
-    "/assets/img-gradient-2.png",
-    "/assets/img-gradient-3.png"
-  ];
+  
+  const sliderRef = React.useRef<HTMLDivElement>(null);
 
   const handleDescChange = (idx: number, val: string) => {
     const newDescs = [...descriptions];
@@ -1541,84 +1537,135 @@ function VersionsGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId, 
     return new Intl.NumberFormat("vi-VN").format(price) + " VNĐ";
   };
 
+  const scroll = (direction: 'left' | 'right') => {
+    if (sliderRef.current) {
+      const offset = direction === 'left' ? -360 : 360;
+      sliderRef.current.scrollBy({ left: offset, behavior: 'smooth' });
+    }
+  };
+
+  const getFullImageUrl = (img: string) => {
+    if (!img) return "/assets/img-gradient-1.png";
+    if (img.startsWith("/") || img.startsWith("http")) return img;
+    
+    // Resolve full URL via API base domain
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
+    const baseDomain = apiUrl.replace(/\/api$/, "");
+    return `${baseDomain}/static/${img}`;
+  };
+
   return (
     <section id={anchorId || undefined} className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full py-16 border-t border-[#e5e5e5]">
-      <div className="flex flex-col gap-[32px] items-center">
+      <div className="flex flex-col gap-[32px] items-center w-full">
         
-        <div className="flex flex-col items-center pt-[32px] w-full max-w-[1152px] text-center text-black">
-          {isEditMode ? (
-            <input 
-              type="text" 
-              value={title} 
-              onChange={(e) => onChangeData({ ...data, title: e.target.value })}
-              className="text-center font-['Ford_Antenna',sans-serif] font-semibold text-[#1a1a1a] text-[36px] sm:text-[48px] border border-dashed border-gray-300 rounded px-2 w-full focus:outline-none focus:border-blue-500 bg-transparent uppercase"
-            />
-          ) : (
-            <h2 className="font-['Ford_Antenna',sans-serif] font-semibold text-[#1a1a1a] text-[36px] sm:text-[48px] tracking-[-0.96px] leading-[1.2]">
-              {title}
-            </h2>
-          )}
+        <div className="flex items-center justify-between w-full max-w-[1152px]">
+          <div className="flex-1"></div>
+          <div className="flex-grow text-center text-black">
+            {isEditMode ? (
+              <input 
+                type="text" 
+                value={title} 
+                onChange={(e) => onChangeData({ ...data, title: e.target.value })}
+                className="text-center font-['Ford_Antenna',sans-serif] font-semibold text-[#1a1a1a] text-[32px] sm:text-[42px] border border-dashed border-gray-300 rounded px-2 w-full focus:outline-none focus:border-blue-500 bg-transparent uppercase"
+              />
+            ) : (
+              <h2 className="font-['Ford_Antenna',sans-serif] font-semibold text-[#1a1a1a] text-[32px] sm:text-[42px] tracking-[-0.96px] leading-[1.2] uppercase">
+                {title}
+              </h2>
+            )}
+          </div>
+          {/* Slider Buttons */}
+          <div className="flex-1 flex justify-end gap-2">
+            {!isEditMode && versions.length > 3 && (
+              <>
+                <button 
+                  onClick={() => scroll('left')} 
+                  className="p-2 border border-gray-200 rounded-full bg-white hover:bg-gray-100 transition shadow-xs cursor-pointer focus:outline-none"
+                  aria-label="Scroll left"
+                >
+                  <ChevronLeft className="w-5 h-5 text-gray-600" />
+                </button>
+                <button 
+                  onClick={() => scroll('right')} 
+                  className="p-2 border border-gray-200 rounded-full bg-white hover:bg-gray-100 transition shadow-xs cursor-pointer focus:outline-none"
+                  aria-label="Scroll right"
+                >
+                  <ChevronRight className="w-5 h-5 text-gray-600" />
+                </button>
+              </>
+            )}
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-[20px] w-full">
-          {versions.map((ver: any, idx: number) => {
-            const defaultDesc = idx === 0 
-              ? `Ford Territory ${ver.name.replace("Territory ", "")} 2026 xe SUV 5 chỗ cao cấp của Ford gây ấn tượng mạnh với thiết kế đặc biệt sắc sảo và công nghệ tối tân.`
-              : idx === 1 
-                ? `Ford Territory ${ver.name.replace("Territory ", "")} 2026 vượt trội cùng nhiều nét độc đáo về thiết kế, công nghệ. Một lựa chọn xe SUV 5 chỗ lý tưởng.`
-                : `Ford Territory ${ver.name.replace("Territory ", "")} 2026 với những cải tiến rõ rệt.`;
+        {/* Outer container */}
+        <div className="relative w-full overflow-hidden">
+          {/* Horizontal scroll container */}
+          <div 
+            ref={sliderRef}
+            className="flex gap-[24px] overflow-x-auto snap-x snap-mandatory scroll-smooth scrollbar-none w-full pb-4"
+            style={{ WebkitOverflowScrolling: 'touch' }}
+          >
+            {versions.map((ver: any, idx: number) => {
+              const defaultDesc = idx === 0 
+                ? `Phiên bản Ford ${cleanName} ${ver.name} 2026 sở hữu nhiều nâng cấp đắt giá về cả thiết kế ngoại thất lẫn nội thất.`
+                : `Trải nghiệm vận hành ấn tượng cùng công nghệ kết nối thông minh vượt trội của Ford ${cleanName} ${ver.name}.`;
 
-            const desc = descriptions[idx] || defaultDesc;
+              const desc = descriptions[idx] || defaultDesc;
+              
+              // Quyết định ảnh: Lấy ảnh trong images array theo index, nếu không có lấy ảnh chính của xe
+              const versionImage = vehicle?.images?.[idx] || vehicle?.images?.[0] || vehicle?.image;
+              const imgUrl = getFullImageUrl(versionImage);
 
-            return (
-              <div
-                key={ver.id}
-                onClick={isEditMode ? undefined : () => openQuoteDrawer?.(vehicle?.id, ver.id)}
-                className={`bg-[#fafafa] flex flex-col items-center overflow-hidden rounded-[8px] text-left border border-gray-200/50 p-4 transition-all duration-300 shadow-xs h-full justify-between ${
-                  isEditMode ? "" : "hover:scale-[1.02] hover:shadow-md cursor-pointer group"
-                }`}
-              >
-                <div className="aspect-[272/272] relative rounded-[12px] overflow-hidden w-full bg-gray-150 shrink-0">
-                  <img 
-                    src={versionGradients[idx] || "/assets/img-gradient-1.png"} 
-                    alt={ver.name}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                
-                <div className="flex flex-col items-start pt-[24px] pb-[8px] w-full flex-grow justify-between">
-                  <div className="flex flex-col gap-[12px] items-start w-full">
-                    <p className="font-['Ford_Antenna',sans-serif] font-semibold text-[#1a1a1a] text-[20px] leading-[1.25]">
-                      {ver.name}
-                    </p>
-                    <p className="font-['Ford_Antenna',sans-serif] font-semibold text-[#0562d2] text-[16px]">
-                      {formatPrice(ver.price)}
-                    </p>
-                    
-                    {isEditMode ? (
-                      <textarea
-                        value={desc}
-                        onChange={(e) => handleDescChange(idx, e.target.value)}
-                        className="text-xs text-gray-600 border border-dashed border-gray-300 px-2 py-1 rounded-sm w-full focus:outline-none focus:border-blue-500 bg-transparent resize-none h-24 text-black"
-                        placeholder="Mô tả phiên bản"
-                      />
-                    ) : (
-                      <p className="font-['Ford_Antenna',sans-serif] font-normal text-[#424242] text-[14px] leading-[1.5]">
-                        {desc}
+              return (
+                <div
+                  key={ver.id}
+                  onClick={isEditMode ? undefined : () => openQuoteDrawer?.(vehicle?.id, ver.id)}
+                  className={`flex flex-col items-center overflow-hidden rounded-[12px] text-left border border-gray-200/60 p-5 bg-white transition-all duration-300 shadow-xs h-auto justify-between snap-start shrink-0 w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] ${
+                    isEditMode ? "" : "hover:scale-[1.01] hover:shadow-md cursor-pointer group hover:border-[#0562d2]/40"
+                  }`}
+                >
+                  <div className="aspect-[4/3] relative rounded-[8px] overflow-hidden w-full bg-gray-50 shrink-0">
+                    <img 
+                      src={imgUrl} 
+                      alt={ver.name}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 pointer-events-none"
+                    />
+                  </div>
+                  
+                  <div className="flex flex-col items-start pt-[20px] w-full flex-grow justify-between">
+                    <div className="flex flex-col gap-[10px] items-start w-full">
+                      <p className="font-['Ford_Antenna',sans-serif] font-bold text-[#1a1a1a] text-[18px] sm:text-[20px] leading-[1.3] group-hover:text-[#0562d2] transition-colors">
+                        {ver.name}
                       </p>
+                      <p className="font-['Ford_Antenna',sans-serif] font-semibold text-[#0562d2] text-[15px] sm:text-[16px]">
+                        {formatPrice(ver.price)}
+                      </p>
+                      
+                      {isEditMode ? (
+                        <textarea
+                          value={desc}
+                          onChange={(e) => handleDescChange(idx, e.target.value)}
+                          className="text-xs text-gray-600 border border-dashed border-gray-300 px-2 py-1.5 rounded-sm w-full focus:outline-none focus:border-blue-500 bg-transparent resize-none h-20 text-black"
+                          placeholder="Mô tả phiên bản"
+                        />
+                      ) : (
+                        <p className="font-['Ford_Antenna',sans-serif] font-normal text-[#616161] text-[13px] sm:text-[14px] leading-[1.5] line-clamp-3">
+                          {desc}
+                        </p>
+                      )}
+                    </div>
+
+                    {!isEditMode && (
+                      <div className="mt-5 font-['Ford_Antenna',sans-serif] font-semibold text-[#0562d2] text-[13px] sm:text-[14px] flex items-center gap-1 group-hover:text-[#044ea7] transition-colors">
+                        <span>Xem chi tiết &amp; Ước tính lăn bánh</span>
+                        <span className="transform group-hover:translate-x-1 transition-transform">→</span>
+                      </div>
                     )}
                   </div>
-
-                  {!isEditMode && (
-                    <div className="mt-6 font-['Ford_Antenna',sans-serif] font-semibold text-[#0562d2] text-[14px] flex items-center gap-1 group-hover:text-[#044ea7] transition-colors">
-                      <span>Xem chi tiết &amp; Ước tính lăn bánh</span>
-                      <span className="transform group-hover:translate-x-1 transition-transform">→</span>
-                    </div>
-                  )}
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
 
       </div>

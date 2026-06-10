@@ -62,7 +62,7 @@ const sections = [
     content: (
       <>
         <p className="mb-4 text-gray-700 leading-relaxed font-['Ford_Antenna',sans-serif]">
-          <strong>Đồng Nai Ford</strong> luôn nỗ lực đảm bảo thông tin về các dòng xe (Ranger, Everest, Territory, Explorer...), giá bán, chương trình khuyến mãi và phụ kiện trên website được chính xác nhất tại thời điểm đăng tải.
+          <strong>Đồng Nai Ford</strong> luôn nỗ lực đảm bảo thông tin về các dòng xe (Ranger, Everest, Territory, Transit, Mustang...), giá bán, chương trình khuyến mãi và phụ kiện trên website được chính xác nhất tại thời điểm đăng tải.
         </p>
         <p className="mb-4 text-gray-700 leading-relaxed font-['Ford_Antenna',sans-serif]">
           Tuy nhiên, thông số kỹ thuật thực tế của xe hoặc giá bán thực tế tại showroom có thể thay đổi tùy theo quy định của nhà sản xuất Ford Việt Nam hoặc tùy thuộc vào thời điểm giao dịch thực tế. Các hình ảnh hiển thị có thể bao gồm những trang bị tùy chọn không đi kèm phiên bản tiêu chuẩn.

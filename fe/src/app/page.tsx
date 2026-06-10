@@ -121,7 +121,26 @@ const quickActions = [
 export default function Home() {
   const router = useRouter();
 
-  const [heroSlides, setHeroSlides] = useState<any[]>([]);
+  const [heroSlides, setHeroSlides] = useState<any[]>([
+    {
+      title: "Ford Ranger Wildtrak Mới",
+      subtitle: "Bản lĩnh dẫn đầu phân khúc bán tải​",
+      image: "/assets/ranger_wildtrak.png",
+      linkVehicleId: "ford-ranger"
+    },
+    {
+      title: "Khuyến Mãi Đặc Biệt",
+      subtitle: "Ưu Đãi Lệ Phí Trước Bạ & Quà Tặng Cho Khách Hàng Biên Hòa",
+      image: "/assets/img-gradient-2.png",
+      linkVehicleId: "lien-he?reason=Nhận%20chương%20trình%20ưu%20đãi"
+    },
+    {
+      title: "Ford Everest Mới",
+      subtitle: "Dấn bước phiêu lưu - Đỉnh cao SUV 7 chỗ​",
+      image: "/assets/everest_platinum.png",
+      linkVehicleId: "ford-everest"
+    }
+  ]);
   const [testimonials, setTestimonials] = useState<any[]>([]);
   const [homeArticles, setHomeArticles] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
@@ -395,20 +414,21 @@ export default function Home() {
 
   // Auto-play hero slides every 2.5 seconds
   useEffect(() => {
+    if (heroSlides.length <= 1) return;
     const timer = setInterval(() => {
       setActiveHeroIndex((prev) => (prev + 1) % heroSlides.length);
     }, 2500);
     return () => clearInterval(timer);
-  }, [activeHeroIndex]);
+  }, [heroSlides.length]);
 
   // Auto-play testimonials every 2.5 seconds, pause on hover or if interacted
   useEffect(() => {
-    if (isHovered || isTestimonialInteracted) return;
+    if (isHovered || isTestimonialInteracted || testimonials.length <= 1) return;
     const timer = setInterval(() => {
       setActiveTestimonialIndex((prev) => (prev + 1) % testimonials.length);
     }, 2500);
     return () => clearInterval(timer);
-  }, [isHovered, isTestimonialInteracted]);
+  }, [isHovered, isTestimonialInteracted, testimonials.length]);
 
   // Reset testimonial interacted flag after 5 seconds of inactivity to resume auto-play
   useEffect(() => {
