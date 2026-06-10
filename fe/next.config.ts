@@ -28,6 +28,10 @@ const nextConfig: NextConfig = {
         hostname: "www.ford.com",
       },
       {
+        protocol: "https",
+        hostname: "cms.dnf.betech-digital.com",
+      },
+      {
         protocol: "http",
         hostname: "localhost",
         port: "8000",
