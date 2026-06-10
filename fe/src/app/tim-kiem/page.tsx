@@ -194,7 +194,7 @@ function SearchPageContent() {
   const searchResults = useMemo(() => {
     const query = removeAccents(initialQuery.trim());
     if (!query) {
-      return { vehiclesList: [], accessoriesList: [], articlesList: [], totalCount: 0 };
+      return { vehiclesList: mappedVehicles, accessoriesList: [], articlesList: [], totalCount: mappedVehicles.length };
     }
 
     // 1. Filter Vehicles
@@ -302,7 +302,7 @@ function SearchPageContent() {
       </section>
 
       {/* 2. RESULTS FILTER TABS */}
-      {initialQuery.trim() && (
+      {!loading && (
         <section className="bg-white border-b border-[#e5e5e5] sticky top-[72px] lg:top-[104px] z-30 shadow-xs">
           <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full flex items-center justify-start overflow-x-auto scrollbar-none gap-2">
             {[
