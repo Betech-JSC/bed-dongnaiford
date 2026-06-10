@@ -12,6 +12,7 @@ storage/framework/views/*
 storage/clockwork/*
 storage/app/*
 !storage/app/.gitkeep
+.phpunit.result.cache
 .env
 auth.json
 npm-debug.log
