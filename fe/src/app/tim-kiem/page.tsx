@@ -194,7 +194,12 @@ function SearchPageContent() {
   const searchResults = useMemo(() => {
     const query = removeAccents(initialQuery.trim());
     if (!query) {
-      return { vehiclesList: mappedVehicles, accessoriesList: [], articlesList: [], totalCount: mappedVehicles.length };
+      return {
+        vehiclesList: mappedVehicles,
+        accessoriesList: mappedAccessories,
+        articlesList: mappedArticles,
+        totalCount: mappedVehicles.length + mappedAccessories.length + mappedArticles.length
+      };
     }
 
     // 1. Filter Vehicles
@@ -344,19 +349,6 @@ function SearchPageContent() {
             </div>
             <p className="mt-4 text-gray-500 font-medium">Đang tải dữ liệu tìm kiếm...</p>
           </div>
-        ) : !initialQuery.trim() ? (
-          // Empty state: guide user to enter query
-          <div className="text-center py-20 bg-white border border-[#e5e5e5] rounded-xl shadow-xs max-w-3xl mx-auto space-y-4">
-            <div className="w-16 h-16 bg-[#0562D2]/10 text-[#0562D2] flex items-center justify-center rounded-full mx-auto">
-              <Search className="w-8 h-8" />
-            </div>
-            <h3 className="font-['Ford_Antenna',sans-serif] font-bold text-xl text-gray-800">
-              Bắt đầu tìm kiếm thông tin
-            </h3>
-            <p className="text-xs text-gray-500 max-w-sm mx-auto leading-relaxed">
-              Nhập từ khóa vào thanh tìm kiếm ở trên để bắt đầu tra cứu xe, phụ tùng phụ kiện, dịch vụ và thông tin khuyến mãi tại Đồng Nai Ford.
-            </p>
-          </div>
         ) : totalCount === 0 ? (
           // No results found page state
           <div className="space-y-16">
@@ -368,7 +360,7 @@ function SearchPageContent() {
                 Không tìm thấy kết quả
               </h3>
               <p className="text-xs text-gray-500 max-w-md mx-auto leading-relaxed">
-                Chúng tôi không tìm thấy kết quả nào phù hợp với từ khóa <strong className="text-gray-900">"{initialQuery}"</strong>. 
+                Chúng tôi không tìm thấy kết quả nào phù hợp với từ khóa <strong className="text-gray-900">&ldquo;{initialQuery}&rdquo;</strong>. 
                 Vui lòng thử lại với các từ khóa khác hoặc xem qua các dòng xe nổi bật bên dưới.
               </p>
             </div>
