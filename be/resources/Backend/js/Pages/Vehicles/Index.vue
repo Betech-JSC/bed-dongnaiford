@@ -16,6 +16,7 @@ export default {
         displayColumns() {
             return [
                 'id',
+                'image',
                 'title',
                 {
                     field: 'category_id',

@@ -1,7 +1,7 @@
 <template>
-    <div class="flex items-center flex-shrink-0 p-5 border-b border-gray-800">
-        <Link href="/" class="flex items-center w-full p-2 space-x-2">
-            <img src="/assets/images/logo.png" class="max-w-[9rem]" />
+    <div class="flex items-center justify-center flex-shrink-0 p-5 border-b border-gray-800">
+        <Link href="/" class="flex items-center justify-center w-full p-2">
+            <img src="/assets/images/logo.png" style="max-height: 40px;" class="w-auto object-contain" alt="Ford Logo" />
         </Link>
     </div>
     <nav class="flex-1 px-2 pb-4 space-y-1 navs">

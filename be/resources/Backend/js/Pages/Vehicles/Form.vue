@@ -279,35 +279,35 @@
 
             <!-- Tab 4: Thiết kế trang (Shopify Mode Fullscreen Editor Overlay) -->
             <teleport to="body">
-                <div v-if="activeFormTab === 'builder'" class="fixed inset-0 z-[9999] bg-[#00052a] flex flex-col font-sans select-none overflow-hidden h-screen w-screen">
+                <div v-if="activeFormTab === 'builder'" class="fixed inset-0 z-[9999] bg-[#f6f6f7] flex flex-col font-sans select-none overflow-hidden h-screen w-screen">
                     <!-- Shopify-style Topbar -->
-                    <div class="flex items-center justify-between px-6 py-3.5 bg-[#00095B] border-b border-[#003478]/80 text-white shrink-0">
+                    <div class="flex items-center justify-between px-6 py-3.5 bg-white border-b border-gray-200 text-gray-900 shrink-0">
                         <div class="flex items-center space-x-4">
                             <button 
                                 type="button" 
-                                class="flex items-center text-xs font-bold text-slate-350 hover:text-white transition bg-[#003478] hover:bg-[#0562d2] px-3.5 py-2 rounded-lg border border-[#0562d2]/40 cursor-pointer"
+                                class="flex items-center text-xs font-bold text-gray-750 hover:text-gray-900 transition bg-gray-100 hover:bg-gray-200 px-3.5 py-2 rounded-lg border border-gray-300 cursor-pointer"
                                 @click="activeFormTab = 'general'"
                             >
                                 ← Quay lại
                             </button>
-                            <div class="h-4 w-[1px] bg-[#003478]/50"></div>
+                            <div class="h-4 w-[1px] bg-gray-300"></div>
                             <div class="flex flex-col">
-                                <span class="text-[9px] uppercase font-bold tracking-widest text-[#0562D2] font-mono">Trình dựng trang trực quan</span>
-                                <span class="text-xs font-black text-white mt-0.5">Shopify Editor Mode — {{ form.vi?.title || item.title || 'Dòng xe' }}</span>
+                                <span class="text-[9px] uppercase font-bold tracking-widest text-gray-500 font-mono">Trình dựng trang trực quan</span>
+                                <span class="text-xs font-bold text-gray-900 mt-0.5">Shopify Editor Mode — {{ form.vi?.title || item.title || 'Dòng xe' }}</span>
                             </div>
                         </div>
                         
                         <div class="flex items-center space-x-3">
                             <button 
                                 type="button"
-                                class="bg-transparent hover:bg-white/5 text-slate-350 hover:text-white text-xs font-semibold px-4 py-2 rounded-lg cursor-pointer transition-colors border border-solid border-[#003478] h-9 flex items-center justify-center"
+                                class="bg-white hover:bg-gray-50 text-gray-755 hover:text-gray-900 text-xs font-semibold px-4 py-2 rounded-lg cursor-pointer transition-colors border border-solid border-gray-300 h-9 flex items-center justify-center"
                                 @click="activeFormTab = 'general'"
                             >
                                 Đóng
                             </button>
                             <button 
                                 type="button"
-                                class="bg-[#0562d2] hover:bg-[#003478] disabled:bg-slate-700 text-white text-xs font-bold px-4 py-2 rounded-lg cursor-pointer transition-colors shadow-md border-0 h-9 flex items-center justify-center"
+                                class="bg-[#008060] hover:bg-[#006e52] disabled:bg-gray-300 text-white text-xs font-bold px-4 py-2 rounded-lg cursor-pointer transition-colors shadow-xs border-0 h-9 flex items-center justify-center"
                                 @click="submit"
                                 :disabled="form.processing"
                             >
@@ -317,7 +317,7 @@
                     </div>
                     
                     <!-- Fullscreen Workspace -->
-                    <div class="flex-1 bg-[#00052a] overflow-hidden relative h-full w-full">
+                    <div class="flex-1 bg-[#f6f6f7] overflow-hidden relative h-full w-full">
                         <BlockEditor 
                             v-model="form.layout_blocks" 
                             :vehicle-slug="form.vi.slug || item.slug" 

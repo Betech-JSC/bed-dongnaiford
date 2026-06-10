@@ -1,41 +1,55 @@
 <template>
     <div 
-        class="page-builder-container flex flex-col md:flex-row bg-slate-900 overflow-hidden font-sans"
-        :class="fullscreen ? 'h-full w-full rounded-none border-0 gap-0' : 'h-[calc(100vh-120px)] min-h-[750px] gap-6 border border-slate-800 rounded-2xl'"
+        class="page-builder-container flex flex-col md:flex-row bg-[#f6f6f7] overflow-hidden font-sans"
+        :class="fullscreen ? 'h-full w-full rounded-none border-0 gap-0' : 'h-[calc(100vh-120px)] min-h-[750px] gap-6 border border-gray-200 rounded-2xl'"
     >
         <!-- LEFT PANEL: Sidebar Settings (4/12 width equivalent) -->
-        <div class="w-full md:w-[420px] flex flex-col bg-slate-950 border-r border-slate-800 h-full overflow-hidden select-none">
+        <div 
+            v-if="!isSidebarCollapsed"
+            class="w-full md:w-[420px] flex flex-col bg-white border-r border-gray-200 h-full overflow-hidden select-none"
+        >
             <!-- Sidebar Header -->
-            <div class="px-5 py-4 border-b border-slate-800 flex justify-between items-center bg-slate-900">
+            <div class="px-5 py-4 border-b border-gray-200 flex justify-between items-center bg-white">
                 <div class="flex items-center space-x-2">
-                    <span class="flex h-3 w-3 rounded-full bg-blue-500 animate-pulse"></span>
-                    <h3 class="text-sm font-bold text-slate-200 tracking-wide uppercase">Cấu hình giao diện</h3>
+                    <span class="flex h-3 w-3 rounded-full bg-[#008060] animate-pulse"></span>
+                    <h3 class="text-sm font-bold text-gray-800 tracking-wide uppercase">Cấu hình giao diện</h3>
                 </div>
-                <!-- Back Button when editing a specific block -->
-                <button 
-                    v-if="activeIndex !== null" 
-                    type="button" 
-                    class="flex items-center text-xs font-semibold text-slate-400 hover:text-white transition bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg border border-slate-700"
-                    @click="activeIndex = null"
-                >
-                    <span class="mr-1">←</span> Danh sách
-                </button>
+                <div class="flex items-center space-x-2">
+                    <!-- Back Button when editing a specific block -->
+                    <button 
+                        v-if="activeIndex !== null" 
+                        type="button" 
+                        class="flex items-center text-xs font-semibold text-gray-650 hover:text-gray-900 transition bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-lg border border-gray-300 cursor-pointer"
+                        @click="activeIndex = null"
+                    >
+                        <span class="mr-1">←</span> Danh sách
+                    </button>
+                    <!-- Collapse Button -->
+                    <button
+                        type="button"
+                        class="flex items-center text-xs font-semibold text-gray-650 hover:text-gray-900 transition bg-gray-100 hover:bg-gray-200 p-1.5 rounded-lg border border-gray-300 cursor-pointer"
+                        @click="isSidebarCollapsed = true"
+                        title="Thu gọn sidebar"
+                    >
+                        ←
+                    </button>
+                </div>
             </div>
 
             <!-- Tab Buttons (Only shown when not editing a specific block) -->
-            <div v-if="activeIndex === null" class="flex border-b border-slate-800 bg-slate-950/60 p-2">
+            <div v-if="activeIndex === null" class="flex border-b border-gray-200 bg-gray-50 p-2">
                 <button 
                     type="button"
-                    class="flex-1 text-center py-2.5 rounded-lg text-xs font-bold transition duration-200"
-                    :class="activeTab === 'sections' ? 'bg-[#0562D2] text-white shadow-md' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'"
+                    class="flex-1 text-center py-2.5 rounded-lg text-xs font-bold transition duration-200 cursor-pointer border-0"
+                    :class="activeTab === 'sections' ? 'bg-[#008060] text-white shadow-xs' : 'text-gray-600 hover:text-gray-950 hover:bg-gray-150 bg-transparent'"
                     @click="activeTab = 'sections'"
                 >
                     📁 Khối hiển thị ({{ blocks.length }})
                 </button>
                 <button 
                     type="button"
-                    class="flex-1 text-center py-2.5 rounded-lg text-xs font-bold transition duration-200"
-                    :class="activeTab === 'library' ? 'bg-[#0562D2] text-white shadow-md' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'"
+                    class="flex-1 text-center py-2.5 rounded-lg text-xs font-bold transition duration-200 cursor-pointer border-0"
+                    :class="activeTab === 'library' ? 'bg-[#008060] text-white shadow-xs' : 'text-gray-600 hover:text-gray-950 hover:bg-gray-150 bg-transparent'"
                     @click="activeTab = 'library'"
                 >
                     ✨ Thêm khối mới
@@ -43,12 +57,12 @@
             </div>
 
             <!-- Scrollable Content of Left Sidebar -->
-            <div class="flex-1 overflow-y-auto p-5 scrollbar-thin scrollbar-thumb-slate-880 scrollbar-track-transparent">
+            <div class="flex-1 overflow-y-auto p-5 scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent bg-white">
                 <!-- SCENE A: ACTIVE BLOCK DETAILS EDITOR -->
                 <div v-if="activeIndex !== null && blocks[activeIndex]" class="space-y-5">
-                    <div class="bg-slate-900 p-4 border border-slate-800 rounded-xl">
-                        <div class="text-[10px] uppercase font-bold text-blue-400 mb-1">Đang chỉnh sửa</div>
-                        <h4 class="text-sm font-black text-white flex items-center gap-2">
+                    <div class="bg-gray-50 p-4 border border-gray-200 rounded-xl">
+                        <div class="text-[10px] uppercase font-bold text-[#008060] mb-1">Đang chỉnh sửa</div>
+                        <h4 class="text-sm font-bold text-gray-900 flex items-center gap-2">
                             <span>{{ getBlockIcon(blocks[activeIndex].type) }}</span>
                             <span>{{ getBlockLabel(blocks[activeIndex].type) }}</span>
                         </h4>
@@ -347,22 +361,22 @@
                     </div>
 
                     <!-- Styling & Layout Panel -->
-                    <div v-if="['HeroBanner', 'Promotions', 'ThreeSixtyViewer', 'BookingBanner'].includes(blocks[activeIndex].type)" class="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-4">
-                        <div class="text-xs font-bold text-blue-400 flex items-center gap-1.5 border-b border-slate-800 pb-2">
+                    <div v-if="['HeroBanner', 'Promotions', 'ThreeSixtyViewer', 'BookingBanner'].includes(blocks[activeIndex].type)" class="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-4">
+                        <div class="text-xs font-bold text-[#008060] flex items-center gap-1.5 border-b border-gray-200 pb-2">
                             <span>🎨</span>
                             <span>Cấu hình kiểu dáng</span>
                         </div>
                         
                         <!-- Alignment Option -->
                         <div v-if="['HeroBanner', 'Promotions', 'ThreeSixtyViewer'].includes(blocks[activeIndex].type)">
-                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Căn lề chữ (Alignment)</label>
+                            <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Căn lề chữ (Alignment)</label>
                             <div class="grid grid-cols-3 gap-2">
                                 <button 
                                     v-for="opt in [{value: 'left', label: 'Trái'}, {value: 'center', label: 'Giữa'}, {value: 'right', label: 'Phải'}]"
                                     :key="opt.value"
                                     type="button" 
-                                    class="py-1.5 px-2 text-xs rounded-lg font-medium border transition-all text-center"
-                                    :class="(blocks[activeIndex].data.align || 'left') === opt.value ? 'bg-blue-600 text-white border-blue-500 shadow-md' : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'"
+                                    class="py-1.5 px-2 text-xs rounded-lg font-medium border transition-all text-center cursor-pointer"
+                                    :class="(blocks[activeIndex].data.align || 'left') === opt.value ? 'bg-[#008060] text-white border-[#008060] shadow-xs' : 'bg-white text-gray-750 border-gray-300 hover:bg-gray-50'"
                                     @click="blocks[activeIndex].data.align = opt.value"
                                 >
                                     {{ opt.label }}
@@ -373,10 +387,10 @@
                         <!-- Title Size & Title Color -->
                         <div class="grid grid-cols-2 gap-3">
                             <div>
-                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Cỡ chữ tiêu đề</label>
+                                <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Cỡ chữ tiêu đề</label>
                                 <select 
                                     v-model="blocks[activeIndex].data.title_size" 
-                                    class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                    class="w-full bg-white border border-gray-200 rounded-lg p-2 text-xs text-gray-800 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                                 >
                                     <option value="small">Nhỏ</option>
                                     <option value="medium">Vừa (Mặc định)</option>
@@ -384,19 +398,19 @@
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Màu chữ tiêu đề</label>
+                                <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Màu chữ tiêu đề</label>
                                 <div class="flex gap-2 items-center">
                                     <input 
                                         type="color" 
                                         :value="lowercaseColor(blocks[activeIndex].data.title_color)" 
                                         @input="blocks[activeIndex].data.title_color = $event.target.value"
-                                        class="w-8 h-8 rounded-lg cursor-pointer border border-slate-800 bg-transparent p-0 shrink-0"
+                                        class="w-8 h-8 rounded-lg cursor-pointer border border-gray-200 bg-transparent p-0 shrink-0"
                                     />
                                     <input 
                                         type="text" 
                                         v-model="blocks[activeIndex].data.title_color" 
                                         placeholder="#ffffff"
-                                        class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2 py-1.5 text-xs text-white uppercase focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        class="w-full bg-white border border-gray-200 rounded-lg px-2 py-1.5 text-xs text-gray-800 uppercase focus:outline-none focus:ring-2 focus:ring-emerald-500"
                                     />
                                 </div>
                             </div>
@@ -405,10 +419,10 @@
                         <!-- Description Size & Description Color (for Promotions, ThreeSixtyViewer) -->
                         <div v-if="['Promotions', 'ThreeSixtyViewer'].includes(blocks[activeIndex].type)" class="grid grid-cols-2 gap-3">
                             <div>
-                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Cỡ chữ mô tả</label>
+                                <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Cỡ chữ mô tả</label>
                                 <select 
                                     v-model="blocks[activeIndex].data.desc_size" 
-                                    class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                    class="w-full bg-white border border-gray-200 rounded-lg p-2 text-xs text-gray-800 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                                 >
                                     <option value="small">Nhỏ</option>
                                     <option value="medium">Vừa (Mặc định)</option>
@@ -416,19 +430,19 @@
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Màu chữ mô tả</label>
+                                <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Màu chữ mô tả</label>
                                 <div class="flex gap-2 items-center">
                                     <input 
                                         type="color" 
                                         :value="lowercaseColor(blocks[activeIndex].data.desc_color)" 
                                         @input="blocks[activeIndex].data.desc_color = $event.target.value"
-                                        class="w-8 h-8 rounded-lg cursor-pointer border border-slate-800 bg-transparent p-0 shrink-0"
+                                        class="w-8 h-8 rounded-lg cursor-pointer border border-gray-200 bg-transparent p-0 shrink-0"
                                     />
                                     <input 
                                         type="text" 
                                         v-model="blocks[activeIndex].data.desc_color" 
                                         placeholder="#1a1a1a"
-                                        class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2 py-1.5 text-xs text-white uppercase focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        class="w-full bg-white border border-gray-200 rounded-lg px-2 py-1.5 text-xs text-gray-800 uppercase focus:outline-none focus:ring-2 focus:ring-emerald-500"
                                     />
                                 </div>
                             </div>
@@ -436,19 +450,19 @@
 
                         <!-- Tagline Color (for HeroBanner only) -->
                         <div v-if="blocks[activeIndex].type === 'HeroBanner'">
-                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Màu chữ Tagline / Slogan</label>
+                            <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Màu chữ Tagline / Slogan</label>
                             <div class="flex gap-2 items-center">
                                 <input 
                                     type="color" 
                                     :value="lowercaseColor(blocks[activeIndex].data.tagline_color)" 
                                     @input="blocks[activeIndex].data.tagline_color = $event.target.value"
-                                    class="w-8 h-8 rounded-lg cursor-pointer border border-slate-800 bg-transparent p-0 shrink-0"
+                                    class="w-8 h-8 rounded-lg cursor-pointer border border-gray-200 bg-transparent p-0 shrink-0"
                                 />
                                 <input 
                                     type="text" 
                                     v-model="blocks[activeIndex].data.tagline_color" 
                                     placeholder="#ffffff"
-                                    class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2 py-1.5 text-xs text-white uppercase focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    class="w-full bg-white border border-gray-200 rounded-lg px-2 py-1.5 text-xs text-gray-800 uppercase focus:outline-none focus:ring-2 focus:ring-emerald-500"
                                 />
                             </div>
                         </div>
@@ -468,33 +482,33 @@
                     >
                         <template #item="{ index, element }">
                             <div 
-                                class="flex items-center justify-between bg-slate-900 border border-slate-800 hover:border-slate-700 p-3.5 rounded-xl cursor-pointer transition select-none group"
-                                :class="{'ring-2 ring-blue-500 border-transparent': activeIndex === index}"
+                                class="flex items-center justify-between bg-white border border-gray-200 hover:border-gray-300 hover:shadow-xs p-3.5 rounded-xl cursor-pointer transition select-none group"
+                                :class="{'ring-2 ring-[#008060] border-transparent bg-emerald-50/5': activeIndex === index}"
                                 @click="activeIndex = index"
                             >
                                 <div class="flex items-center space-x-3">
                                     <!-- Drag Handle -->
-                                    <div class="list-handle cursor-move p-1 text-slate-500 hover:text-slate-300 transition">
+                                    <div class="list-handle cursor-move p-1 text-gray-400 hover:text-gray-600 transition">
                                         <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20">
                                             <path d="M7 2a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm7 0a2 2 0 1 1-4 0 2 2 0 0 1 4 0zM7 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm7 0a2 2 0 1 1-4 0 2 2 0 0 1 4 0zM7 14a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm7 0a2 2 0 1 1-4 0 2 2 0 0 1 4 0z"/>
                                         </svg>
                                     </div>
                                     <div class="flex flex-col">
-                                        <span class="text-slate-400 text-[9px] font-bold uppercase tracking-wider">Khối số {{ index + 1 }}</span>
-                                        <span class="text-xs font-bold text-white flex items-center gap-1.5 mt-0.5">
+                                        <span class="text-gray-400 text-[9px] font-bold uppercase tracking-wider">Khối số {{ index + 1 }}</span>
+                                        <span class="text-xs font-bold text-gray-800 flex items-center gap-1.5 mt-0.5">
                                             <span>{{ getBlockIcon(element.type) }}</span>
                                             <span>{{ getBlockLabel(element.type) }}</span>
                                         </span>
                                     </div>
                                 </div>
                                 <div class="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition">
-                                    <button type="button" class="text-xs text-slate-400 hover:text-white bg-slate-800 p-1.5 rounded-lg border border-slate-700" title="Nhấn để sửa">
+                                    <button type="button" class="text-xs text-gray-500 hover:text-gray-800 bg-gray-50 hover:bg-gray-100 p-1.5 rounded-lg border border-gray-250 cursor-pointer" title="Nhấn để sửa">
                                         ⚙️
                                     </button>
-                                    <button type="button" class="text-xs text-slate-400 hover:text-white bg-slate-800 p-1.5 rounded-lg border border-slate-700" title="Nhân bản" @click.stop="duplicateBlock(index)">
+                                    <button type="button" class="text-xs text-gray-500 hover:text-gray-800 bg-gray-50 hover:bg-gray-100 p-1.5 rounded-lg border border-gray-250 cursor-pointer" title="Nhân bản" @click.stop="duplicateBlock(index)">
                                         ➕
                                     </button>
-                                    <button type="button" class="text-xs text-red-400 hover:text-red-300 bg-slate-800 p-1.5 rounded-lg border border-slate-700" title="Xóa" @click.stop="removeBlock(index)">
+                                    <button type="button" class="text-xs text-red-500 hover:text-red-650 bg-red-50 hover:bg-red-100 p-1.5 rounded-lg border border-red-200 cursor-pointer" title="Xóa" @click.stop="removeBlock(index)">
                                         ✕
                                     </button>
                                 </div>
@@ -502,7 +516,7 @@
                         </template>
                     </Draggable>
 
-                    <div v-else class="border border-dashed border-slate-800 rounded-2xl p-8 text-center text-slate-500 italic text-xs">
+                    <div v-else class="border border-dashed border-gray-200 rounded-2xl p-8 text-center text-gray-400 italic text-xs">
                         Chưa có khối giao diện nào được thêm vào trang xe này. Hãy chọn tab "Thêm khối mới" để bắt đầu thiết kế.
                     </div>
                 </div>
@@ -512,41 +526,52 @@
                     <div 
                         v-for="tpl in libraryBlocks" 
                         :key="tpl.type" 
-                        class="flex items-center p-3.5 bg-slate-900 border border-slate-800 hover:border-blue-500 hover:bg-slate-900/60 rounded-xl cursor-pointer transition select-none group"
+                        class="flex items-center p-3.5 bg-white border border-gray-200 hover:border-[#008060] hover:bg-emerald-50/5 rounded-xl cursor-pointer transition select-none group"
                         @click="addBlockType(tpl.type)"
                     >
-                        <div class="h-10 w-10 flex items-center justify-center bg-slate-950 border border-slate-800 rounded-lg text-lg group-hover:bg-[#0562D2]/10 group-hover:border-[#0562D2] transition">
+                        <div class="h-10 w-10 flex items-center justify-center bg-gray-50 border border-gray-200 rounded-lg text-lg group-hover:bg-emerald-50/10 group-hover:border-[#008060] transition">
                             {{ tpl.icon }}
                         </div>
                         <div class="ml-3.5 flex-1">
-                            <h4 class="text-xs font-bold text-white group-hover:text-blue-400 transition">{{ tpl.name }}</h4>
-                            <p class="text-[10px] text-slate-500 mt-0.5">{{ tpl.desc }}</p>
+                            <h4 class="text-xs font-bold text-gray-800 group-hover:text-[#008060] transition">{{ tpl.name }}</h4>
+                            <p class="text-[10px] text-gray-500 mt-0.5">{{ tpl.desc }}</p>
                         </div>
-                        <span class="text-slate-600 group-hover:text-blue-400 text-xs font-black transition">＋</span>
+                        <span class="text-gray-400 group-hover:text-[#008060] text-xs font-black transition">＋</span>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- RIGHT PANEL: Live Visual Preview Browser Mockup (8/12 equivalent) -->
-        <div class="flex-1 flex flex-col bg-slate-950 h-full overflow-hidden relative">
+        <div class="flex-1 flex flex-col bg-[#f6f6f7] h-full overflow-hidden relative">
+            <!-- Floating toggle sidebar button (only shown when sidebar is collapsed) -->
+            <button 
+                v-if="isSidebarCollapsed"
+                type="button"
+                class="absolute top-1/2 left-0 -translate-y-1/2 z-[999] bg-white text-gray-750 hover:text-black border border-gray-250 border-l-0 rounded-r-lg w-7 h-14 flex items-center justify-center cursor-pointer shadow-md transition-all hover:w-8 hover:bg-gray-50"
+                @click="isSidebarCollapsed = false"
+                title="Mở rộng sidebar"
+            >
+                <span class="font-bold text-base">→</span>
+            </button>
+
             <!-- Simulated Browser Address Bar -->
-            <div class="flex items-center px-4 py-3 bg-slate-900 border-b border-slate-800 shrink-0">
+            <div class="flex items-center px-4 py-3 bg-gray-100 border-b border-gray-200 shrink-0">
                 <div class="flex space-x-1.5 mr-4 select-none">
-                    <span class="w-3 h-3 rounded-full bg-red-500/80 inline-block"></span>
-                    <span class="w-3 h-3 rounded-full bg-yellow-500/80 inline-block"></span>
-                    <span class="w-3 h-3 rounded-full bg-green-500/80 inline-block"></span>
+                    <span class="w-3 h-3 rounded-full bg-red-400 inline-block"></span>
+                    <span class="w-3 h-3 rounded-full bg-yellow-400 inline-block"></span>
+                    <span class="w-3 h-3 rounded-full bg-green-400 inline-block"></span>
                 </div>
-                <div class="flex-1 bg-slate-950 border border-slate-800 rounded-lg py-1 px-4 text-slate-500 text-xs font-mono truncate select-all flex items-center space-x-2">
-                    <span class="text-slate-650">🌐 https://dongnaiford.com.vn/xe/chi-tiet-xem-truoc</span>
+                <div class="flex-1 bg-white border border-gray-300 rounded-lg py-1 px-4 text-gray-500 text-xs font-mono truncate select-all flex items-center space-x-2">
+                    <span class="text-gray-400">🌐 https://dongnaiford.com.vn/xe/chi-tiet-xem-truoc</span>
                 </div>
-                <span class="text-[10px] text-blue-400 font-bold uppercase ml-4 select-none tracking-widest bg-blue-950 px-2 py-0.5 rounded border border-blue-900">
+                <span class="text-[10px] text-[#008060] font-bold uppercase ml-4 select-none tracking-widest bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
                     Live Preview
                 </span>
             </div>
 
             <!-- Embedded NextJS Realtime Iframe Preview -->
-            <div class="flex-1 bg-slate-950 overflow-hidden relative w-full h-full">
+            <div class="flex-1 bg-[#f6f6f7] overflow-hidden relative w-full h-full">
                 <iframe 
                     ref="previewIframe"
                     :src="iframeUrl"
@@ -588,6 +613,7 @@ export default {
             activeTab: 'sections', // 'sections' or 'library'
             activeIndex: null, // Index of the block being edited in Left Panel
             iframeLoaded: false,
+            isSidebarCollapsed: false, // Control sidebar toggle collapse/expand
             libraryBlocks: [
                 { type: 'HeroBanner', icon: '📢', name: 'Banner lớn (Hero)', desc: 'Banner trần viền ấn tượng, có chữ và nút bấm hành động' },
                 { type: 'Promotions', icon: '🎁', name: 'Ưu đãi khuyến mãi', desc: 'Thông tin quà tặng tiền mặt, bảo hiểm và quà độc quyền' },
@@ -971,37 +997,19 @@ export default {
     background: transparent;
 }
 .scrollbar-thin::-webkit-scrollbar-thumb {
-    background-color: #003478; /* dnf Classic Blue */
+    background-color: #cbd5e1; /* Gray thumb */
     border-radius: 20px;
 }
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-    background-color: #0562d2; /* dnf Vivid Blue */
+    background-color: #94a3b8;
 }
 
 /* Page builder container background colors */
 .page-builder-container {
-    background-color: #00095B !important; /* Ford Deep Navy */
+    background-color: #f6f6f7 !important; /* Shopify Light Gray */
 }
 
-.page-builder-container .w-full.md\:w-\[420px\] {
-    background-color: #00052a !important; /* Extra Deep Navy Sidebar */
-    border-color: #002256 !important;
-}
-
-/* Address bar & live preview wrapper */
-.page-builder-container .bg-slate-900 {
-    background-color: #00095B !important;
-}
-.page-builder-container .border-b-slate-800,
-.page-builder-container .border-slate-800,
-.page-builder-container .border-r-slate-800 {
-    border-color: #002256 !important;
-}
-.page-builder-container .bg-slate-950 {
-    background-color: #00052a !important;
-}
-
-/* Dark Theme Design System Overrides for CMS Page Builder inputs */
+/* Light Theme Design System Overrides for CMS Page Builder inputs */
 .page-builder-container :deep(input[type="text"]),
 .page-builder-container :deep(input[type="number"]),
 .page-builder-container :deep(textarea),
@@ -1011,21 +1019,21 @@ export default {
 .page-builder-container :deep(.p-dropdown),
 .page-builder-container :deep(.p-selectbutton),
 .page-builder-container :deep(.bg-gray-50) {
-    background-color: #00095B !important; /* Deep Navy input background matching dnf brand */
-    color: #f8fafc !important;
-    border: 1px solid #003478 !important; /* border Classic Blue */
+    background-color: #ffffff !important; /* White inputs */
+    color: #1a1a1a !important; /* Dark text */
+    border: 1px solid #cbd5e1 !important; /* light gray border */
     border-radius: 6px !important;
     padding: 0.625rem 0.875rem !important;
     font-size: 0.8rem !important;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.2) !important;
+    box-shadow: inset 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
 }
 
 /* Specific Select Tag dropdown styling */
 .page-builder-container :deep(select) {
     height: 42px !important;
     appearance: none !important;
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2338bdf8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
     background-repeat: no-repeat !important;
     background-position: right 0.75rem center !important;
     background-size: 1rem !important;
@@ -1041,8 +1049,8 @@ export default {
 .page-builder-container :deep(.p-inputtext:hover),
 .page-builder-container :deep(.p-inputtextarea:hover),
 .page-builder-container :deep(.p-dropdown:hover) {
-    border-color: #066fef !important; /* Vivid Accent Blue hover */
-    background-color: #000c4f !important;
+    border-color: #94a3b8 !important;
+    background-color: #ffffff !important;
 }
 
 .page-builder-container :deep(input[type="text"]:focus),
@@ -1052,9 +1060,9 @@ export default {
 .page-builder-container :deep(.p-inputtext:focus),
 .page-builder-container :deep(.p-inputtextarea:focus),
 .page-builder-container :deep(.p-dropdown:focus) {
-    border-color: #0562d2 !important; /* Ford brand primary blue */
-    background-color: #000c4f !important;
-    box-shadow: 0 0 0 3px rgba(5, 98, 210, 0.3) !important;
+    border-color: #008060 !important; /* Shopify green */
+    background-color: #ffffff !important;
+    box-shadow: 0 0 0 3px rgba(0, 128, 96, 0.15) !important;
     outline: none !important;
 }
 
@@ -1066,42 +1074,42 @@ export default {
     resize: vertical !important;
 }
 
-/* Dark layout overrides for file uploads & media selector */
+/* Light layout overrides for file uploads & media selector */
 .page-builder-container :deep(.bg-gray-50) {
-    background-color: #00095B !important;
-    border: 1px dashed #003478 !important;
+    background-color: #f9fafb !important;
+    border: 1px dashed #cbd5e1 !important;
     border-radius: 6px !important;
-    color: #94a3b8 !important;
+    color: #4b5563 !important;
     padding: 0.75rem !important;
 }
 .page-builder-container :deep(.bg-gray-50:hover) {
-    background-color: #000c4f !important;
-    border-color: #066fef !important;
-    color: #cbd5e1 !important;
+    background-color: #f3f4f6 !important;
+    border-color: #94a3b8 !important;
+    color: #1f2937 !important;
 }
 .page-builder-container :deep(.border-gray-400),
 .page-builder-container :deep(.border-gray-300),
 .page-builder-container :deep(.border-gray-250),
 .page-builder-container :deep(.border-gray-200) {
-    border-color: #003478 !important;
+    border-color: #cbd5e1 !important;
     border-style: dashed !important;
 }
 .page-builder-container :deep(.text-gray-600),
 .page-builder-container :deep(.text-gray-700) {
-    color: #94a3b8 !important; /* slate-400 */
+    color: #4b5563 !important;
 }
 
 /* Premium Color picker swatch customization */
 .page-builder-container input[type="color"] {
     -webkit-appearance: none;
-    border: 1px solid #003478 !important;
+    border: 1px solid #cbd5e1 !important;
     border-radius: 6px !important;
     width: 42px !important;
     height: 42px !important;
     cursor: pointer;
     background: transparent !important;
     padding: 0 !important;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
 }
 .page-builder-container input[type="color"]::-webkit-color-swatch-wrapper {
     padding: 0 !important;
@@ -1114,7 +1122,7 @@ export default {
 /* Label visual design overrides (clean typography) */
 .page-builder-container :deep(label),
 .page-builder-container label {
-    color: #94a3b8 !important; /* slate-400 text-muted */
+    color: #4b5563 !important; /* gray-600 */
     font-size: 11px !important;
     font-weight: 700 !important;
     text-transform: uppercase !important;
@@ -1123,32 +1131,11 @@ export default {
     display: block !important;
 }
 
-/* Design & Layout cards styling */
-.page-builder-container .bg-slate-900,
-.page-builder-container .border-slate-800 {
-    background-color: #000d6b !important; /* deep card navy matching dnf secondary */
-    border-color: #003478 !important; /* Classic Blue border */
-}
-
-/* Alignment group button overrides */
-.page-builder-container button.bg-slate-950 {
-    background-color: #00095B !important;
-    border-color: #003478 !important;
-}
-.page-builder-container button.bg-slate-950:hover {
-    background-color: #000c4f !important;
-    color: #f8fafc !important;
-}
-.page-builder-container button.bg-blue-600 {
-    background-color: #0562d2 !important; /* Ford blue */
-    border-color: #0562d2 !important;
-}
-
 /* Active index border highlights */
 .page-builder-container .ring-2.ring-blue-500 {
-    --tw-ring-color: #0562d2 !important;
+    --tw-ring-color: #008060 !important;
 }
 .page-builder-container .text-blue-400 {
-    color: #066fef !important;
+    color: #008060 !important;
 }
 </style>

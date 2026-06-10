@@ -36,6 +36,7 @@
                 <slot />
             </main>
         </div>
+        <ChatWidget />
     </div>
 </template>
 
@@ -43,6 +44,7 @@
 import Breadcrumbs from "@Core/Components/Breadcrumbs.vue";
 import SidebarDesktop from "@Core/Components/Sidebar/SidebarDesktop.vue";
 import SidebarMobile from "@Core/Components/Sidebar/SidebarMobile.vue";
+import ChatWidget from "../Components/ChatWidget.vue";
 
 export default {
     props: ["admin"],
@@ -50,6 +52,7 @@ export default {
         SidebarDesktop,
         SidebarMobile,
         Breadcrumbs,
+        ChatWidget,
     },
     data() {
         return {

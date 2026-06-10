@@ -229,7 +229,7 @@ class Accessory extends BaseModel
             'brand'         => $this->brand ? $this->brand->transform() : null,
             'price'         => $this->price,
             'description'   => $this->description,
-            'image'         => $this->getImageDetail($this->image ?? []),
+            'image'         => array_merge($this->getImageDetail($this->image ?? []), ['path' => $this->image['path'] ?? null]),
             'images'        => collect($this->images)->map(fn($item) => $this->getImageDetail($item)),
             'fit_vehicles'  => $this->fit_vehicles ?? [],
             'features'      => $this->features ?? [],
