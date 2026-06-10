@@ -15,7 +15,7 @@ ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/do
 
 # Cài đặt các extension PHP cần thiết cho Laravel
 RUN chmod +x /usr/local/bin/install-php-extensions && \
-    install-php-extensions pdo_mysql mbstring exif pcntl bcmath gd zip opcache
+    MAKEFLAGS="-j1" install-php-extensions pdo_mysql mbstring exif pcntl bcmath gd zip opcache
 
 # Cài đặt Composer
 COPY --from=composer:2.5 /usr/bin/composer /usr/bin/composer
