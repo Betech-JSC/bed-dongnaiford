@@ -62,7 +62,7 @@ function groupVehiclesBySeries(apiVehicles: any[]) {
         name: seriesName,
         type: vehicle.type || "suv",
         typeName: typeName,
-        image_url: vehicle.image_url || "",
+        image_url: vehicle.image_thumbnail_url || vehicle.image_url || "",
         versions: []
       };
     }
@@ -182,10 +182,10 @@ export default function PriceListPage() {
                             >
                               <div className="relative w-[72px] h-[48px]">
                                 <Image
-                                  src={getPopularVehicleImage(
-                                    vehicle.id,
-                                    vehicle.image_url
-                                  )}
+                                  src={
+                                    vehicle.image_url ||
+                                    getPopularVehicleImage(vehicle.id)
+                                  }
                                   alt={vehicle.name}
                                   fill
                                   sizes="72px"
@@ -274,10 +274,10 @@ export default function PriceListPage() {
                     >
                       <div className="relative w-[64px] h-[42px] flex-shrink-0">
                         <Image
-                          src={getPopularVehicleImage(
-                            vehicle.id,
-                            vehicle.image_url
-                          )}
+                          src={
+                            vehicle.image_url ||
+                            getPopularVehicleImage(vehicle.id)
+                          }
                           alt={vehicle.name}
                           fill
                           sizes="64px"

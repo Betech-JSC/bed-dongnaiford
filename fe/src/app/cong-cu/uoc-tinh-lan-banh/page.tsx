@@ -68,7 +68,7 @@ function groupVehiclesBySeries(apiVehicles: any[]) {
         name: seriesName,
         type: vehicle.type || "suv",
         typeName: typeName,
-        image_url: vehicle.image_url || "",
+        image_url: vehicle.image_thumbnail_url || vehicle.image_url || "",
         versions: []
       };
     }
@@ -335,10 +335,10 @@ function RollingCostContent() {
                     <div className="pt-4 border-t border-gray-100">
                       <div className="relative w-full h-[120px]">
                         <Image
-                          src={getPopularVehicleImage(
-                            currentVehicle.id,
-                            currentVehicle.image_url
-                          )}
+                          src={
+                            currentVehicle.image_url ||
+                            getPopularVehicleImage(currentVehicle.id)
+                          }
                           alt={currentVehicle.name}
                           fill
                           sizes="300px"

@@ -110,7 +110,7 @@ export default function InstallmentCalculatorPage() {
               basePrice: typeof apiCar.base_price === 'string' ? parseFloat(apiCar.base_price) : apiCar.base_price,
               tagline: apiCar.tagline || '',
               description: apiCar.description || '',
-              images: apiCar.images || [apiCar.image_url].filter(Boolean),
+              images: (apiCar.images && apiCar.images.length > 0) ? [apiCar.image_thumbnail_url || apiCar.images[0]] : [apiCar.image_thumbnail_url || apiCar.image_url].filter(Boolean),
               colors: apiCar.colors ? apiCar.colors.map((c: any) => ({
                 name: c.name,
                 hex: c.hex,
