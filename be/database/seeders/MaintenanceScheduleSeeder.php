@@ -15,7 +15,7 @@ class MaintenanceScheduleSeeder extends Seeder
         $schedules = [
             [
                 'title' => 'Fiesta',
-                'image' => ['path' => '/assets/car-fiesta.png'],
+                'image' => ['path' => 'uploads/car-fiesta.png'],
                 'links' => [
                     ['label' => 'Fiesta 2011 - 2013', 'url' => 'https://www.ford.com.vn/content/dam/Ford/website-assets/ap/vn/Owner-Dashboard/Service%20%26%20Maintainance/maintenance-schedule-plan/Fiesta-2011-2013.pdf'],
                     ['label' => 'Fiesta 2013 - 2018', 'url' => 'https://www.ford.com.vn/content/dam/Ford/website-assets/ap/vn/Owner-Dashboard/Service%20&%20Maintainance/maintenance-schedule-plan/Fiesta-2013-nay.pdf'],
@@ -25,7 +25,7 @@ class MaintenanceScheduleSeeder extends Seeder
             ],
             [
                 'title' => 'Focus',
-                'image' => ['path' => '/assets/car-focus.png'],
+                'image' => ['path' => 'uploads/car-focus.png'],
                 'links' => [
                     ['label' => 'Focus 2005 - 2012', 'url' => 'https://www.ford.com.vn/content/dam/Ford/website-assets/ap/vn/Owner-Dashboard/Service%20&%20Maintainance/maintenance-schedule-plan/Focus-2005-2012.pdf'],
                     ['label' => 'Focus 2012 - 2015', 'url' => 'https://www.ford.com.vn/content/dam/Ford/website-assets/ap/vn/Owner-Dashboard/Service%20&%20Maintainance/maintenance-schedule-plan/Focus%202012-2015.pdf'],
@@ -36,7 +36,7 @@ class MaintenanceScheduleSeeder extends Seeder
             ],
             [
                 'title' => 'Ecosport',
-                'image' => ['path' => '/assets/car-ecosport.png'],
+                'image' => ['path' => 'uploads/car-ecosport.png'],
                 'links' => [
                     ['label' => 'EcoSport 2014 - 2018', 'url' => 'https://www.ford.com.vn/content/dam/Ford/website-assets/ap/vn/Owner-Dashboard/Service%20&%20Maintainance/maintenance-schedule-plan/EcoSport-2014-2018.pdf'],
                     ['label' => 'EcoSport 2018 - nay', 'url' => 'https://www.ford.com.vn/content/dam/Ford/website-assets/ap/vn/Owner-Dashboard/Service%20&%20Maintainance/maintenance-schedule-plan/EcoSport-2018.pdf'],
@@ -46,7 +46,7 @@ class MaintenanceScheduleSeeder extends Seeder
             ],
             [
                 'title' => 'Everest',
-                'image' => ['path' => '/assets/car-everest.png'],
+                'image' => ['path' => 'uploads/car-everest.png'],
                 'links' => [
                     ['label' => 'Everest 2009 - 2015', 'url' => 'https://www.ford.com.vn/content/dam/Ford/website-assets/ap/vn/Owner-Dashboard/Service%20&%20Maintainance/maintenance-schedule-plan/Everest-2009-2015.pdf'],
                     ['label' => 'Everest 2016', 'url' => 'https://www.ford.com.vn/content/dam/Ford/website-assets/ap/vn/Owner-Dashboard/Service%20&%20Maintainance/maintenance-schedule-plan/Everest-2016.pdf'],
@@ -57,7 +57,7 @@ class MaintenanceScheduleSeeder extends Seeder
             ],
             [
                 'title' => 'Ranger',
-                'image' => ['path' => '/assets/car-ranger.png'],
+                'image' => ['path' => 'uploads/car-ranger.png'],
                 'links' => [
                     ['label' => 'Ranger 2012 - 2015', 'url' => 'https://www.ford.com.vn/content/dam/Ford/website-assets/ap/vn/Owner-Dashboard/Service%20&%20Maintainance/maintenance-schedule-plan/Ranger-2012-2015.pdf'],
                     ['label' => 'Ranger 2016', 'url' => 'https://www.ford.com.vn/content/dam/Ford/website-assets/ap/vn/Owner-Dashboard/Service%20&%20Maintainance/maintenance-schedule-plan/Ranger-2016.pdf'],
@@ -67,7 +67,7 @@ class MaintenanceScheduleSeeder extends Seeder
             ],
             [
                 'title' => 'Transit',
-                'image' => ['path' => '/assets/car-transit.png'],
+                'image' => ['path' => 'uploads/car-transit.png'],
                 'links' => [
                     ['label' => 'Transit 2007 - 2012', 'url' => 'https://www.ford.com.vn/content/dam/Ford/website-assets/ap/vn/Owner-Dashboard/Service%20&%20Maintainance/maintenance-schedule-plan/Transit-2007-2012.pdf'],
                     ['label' => 'Transit 2012 - 2018', 'url' => 'https://www.ford.com.vn/content/dam/Ford/website-assets/ap/vn/Owner-Dashboard/Service%20&%20Maintainance/maintenance-schedule-plan/Transit-2012-nay.pdf'],
@@ -77,7 +77,7 @@ class MaintenanceScheduleSeeder extends Seeder
             ],
             [
                 'title' => 'Escape',
-                'image' => ['path' => '/assets/car-escape.png'],
+                'image' => ['path' => 'uploads/car-escape.png'],
                 'links' => [
                     ['label' => 'Escape 2001 - 2013', 'url' => 'https://www.ford.com.vn/content/dam/Ford/website-assets/ap/vn/Owner-Dashboard/Service%20&%20Maintainance/maintenance-schedule-plan/Escape-2001-2013.pdf'],
                 ],
@@ -86,7 +86,7 @@ class MaintenanceScheduleSeeder extends Seeder
             ],
             [
                 'title' => 'Mondeo',
-                'image' => ['path' => '/assets/car-mondeo.png'],
+                'image' => ['path' => 'uploads/car-mondeo.png'],
                 'links' => [
                     ['label' => 'Mondeo 2009 - 2013', 'url' => 'https://www.ford.com.vn/content/dam/Ford/website-assets/ap/vn/Owner-Dashboard/Service%20&%20Maintainance/maintenance-schedule-plan/Mondeo-2009-2013.pdf'],
                 ],
@@ -95,7 +95,7 @@ class MaintenanceScheduleSeeder extends Seeder
             ],
             [
                 'title' => 'Tourneo',
-                'image' => ['path' => '/assets/car-tourneo.png'],
+                'image' => ['path' => 'uploads/car-tourneo.png'],
                 'links' => [
                     ['label' => 'Tourneo 2020', 'url' => 'https://www.ford.com.vn/content/dam/Ford/website-assets/ap/vn/Owner-Dashboard/Service%20&%20Maintainance/maintenance-schedule-plan/Tourneo-2020.pdf'],
                 ],
