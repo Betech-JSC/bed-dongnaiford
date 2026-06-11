@@ -116,16 +116,73 @@ class File
             ->filter(fn($item) => $item->isFile())
             ->values()
             ->map(fn($item) => $this->transformFile($item))
-            ->reject(fn($item) => $this->firstCharIs($item['filename'], '.'))
-            ->sortByDesc('last_modified')
-            ->keyBy('path');
+            ->reject(fn($item) => $this->firstCharIs($item['filename'], '.'));
 
-        if (request()->has('keyword')) {
-            $files = $files->filter(fn($item) => str_contains($item['search_name'], (request()->input('keyword'))));
-        } else if (request()->has('limit')) {
-            $page = request()->input('page') ?? 1;
-            $limit = request()->input('limit');
+        // 1. Search/Keyword Filter
+        $search = request()->input('search') ?? request()->input('keyword');
+        if (!empty($search)) {
+            $searchLower = mb_strtolower($search);
+            $files = $files->filter(function($item) use ($searchLower) {
+                return str_contains(mb_strtolower($item['filename']), $searchLower) ||
+                       str_contains(mb_strtolower($item['search_name']), $searchLower);
+            });
+        }
 
+        // 2. Type Filter (image, video, document, other)
+        $type = request()->input('type');
+        if (!empty($type) && $type !== 'all') {
+            $files = $files->filter(function($item) use ($type) {
+                $ext = strtolower($item['extension']);
+                if ($type === 'image') {
+                    return in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'ico', 'heic', 'avif']);
+                }
+                if ($type === 'video') {
+                    return in_array($ext, ['mp4', 'avi', 'mov', 'wmv', 'flv', 'mkv', 'webm', '3gp', 'm4v']);
+                }
+                if ($type === 'document') {
+                    return in_array($ext, ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'csv', 'odt', 'ods']);
+                }
+                if ($type === 'other') {
+                    return !in_array($ext, [
+                        'jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'ico', 'heic', 'avif',
+                        'mp4', 'avi', 'mov', 'wmv', 'flv', 'mkv', 'webm', '3gp', 'm4v',
+                        'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'csv', 'odt', 'ods'
+                    ]);
+                }
+                return true;
+            });
+        }
+
+        // 3. Sorting
+        $sort = request()->input('sort', 'date_desc');
+        switch ($sort) {
+            case 'date_asc':
+                $files = $files->sortBy('last_modified');
+                break;
+            case 'name_asc':
+                $files = $files->sortBy('filename', SORT_NATURAL | SORT_FLAG_CASE);
+                break;
+            case 'name_desc':
+                $files = $files->sortByDesc('filename', SORT_NATURAL | SORT_FLAG_CASE);
+                break;
+            case 'size_desc':
+                $files = $files->sortByDesc('file_size');
+                break;
+            case 'size_asc':
+                $files = $files->sortBy('file_size');
+                break;
+            case 'date_desc':
+            default:
+                $files = $files->sortByDesc('last_modified');
+                break;
+        }
+
+        $files = $files->values()->keyBy('path');
+
+        // 4. Pagination
+        if (request()->has('limit')) {
+            $page = (int) request()->input('page', 1);
+            $limit = (int) request()->input('limit', 50);
             return $files->skip(($page - 1) * $limit)->take($limit);
         }
 

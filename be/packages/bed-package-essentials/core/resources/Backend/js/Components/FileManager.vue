@@ -69,11 +69,52 @@
                     draggable: false,
                 }" />
             </aside>
-            <main class="overflow-y-auto grow group-image-admin"
-                :class="!Object.keys(searchFiles).length ? 'flex items-center flex-col justify-center' : 'flex-1'">
+            <main class="overflow-y-auto grow group-image-admin flex flex-col">
+                <!-- Toolbar for filters and sorting -->
+                <div class="sticky top-0 z-20 px-4 py-3 bg-white border-b border-gray-200 flex flex-wrap items-center justify-between gap-4 sm:px-6 lg:px-8">
+                    <!-- Type filters (tabs/pills) -->
+                    <div class="flex items-center space-x-1.5 overflow-x-auto">
+                        <button v-for="t in types" :key="t.value"
+                            @click="selectType(t.value)"
+                            type="button"
+                            class="px-3.5 py-1.5 text-xs font-medium rounded-full border transition-all duration-150 flex items-center space-x-1"
+                            :class="currentType === t.value 
+                                ? 'bg-black text-white border-black shadow-sm' 
+                                : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100 hover:text-gray-900'"
+                        >
+                            <span v-if="t.icon" class="mr-1 text-xs">{{ t.icon }}</span>
+                            <span>{{ t.label }}</span>
+                        </button>
+                    </div>
+
+                    <!-- Sorting and Search in Embed -->
+                    <div class="flex items-center space-x-3 ml-auto">
+                        <!-- Search for embed mode -->
+                        <div v-if="embed" class="w-48 sm:w-64">
+                            <input type="text" :placeholder="tt('models.files.input_file')"
+                                v-model="searchVal"
+                                class="w-full py-1.5 px-3 text-xs border border-gray-300 focus:border-solid focus:outline-none focus:ring-0 rounded hover:border-gray-400 focus:border-gray-500"
+                                @input="onChange" />
+                        </div>
+
+                        <!-- Select all button -->
+                        <Button v-if="searchFiles.length" @click="toggleSelectAll" class="space-x-1.5 btn-outline-secondary btn-xs flex items-center">
+                            <component :is="isAllSelected ? 'ph-minus-square-light' : 'ph-check-square-light'" class="w-3.5 h-3.5 mr-1" />
+                            <span>{{ isAllSelected ? 'Bỏ chọn hết' : 'Chọn tất cả' }}</span>
+                        </Button>
+
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xs font-medium text-gray-500 whitespace-nowrap">Sắp xếp:</span>
+                            <select v-model="currentSort" @change="onSortChange"
+                                class="text-xs py-1.5 pl-2.5 pr-8 border border-gray-300 rounded focus:border-solid focus:outline-none focus:ring-0 focus:border-gray-500 hover:border-gray-400 bg-white">
+                                <option v-for="s in sorts" :key="s.value" :value="s.value">{{ s.label }}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
                 
                 <!-- Trạng thái trống (No Data) -->
-                <div v-if="!Object.keys(searchFiles).length && !loading" class="flex flex-col items-center justify-center p-12 text-center">
+                <div v-if="!Object.keys(searchFiles).length && !loading" class="flex flex-col items-center justify-center flex-1 p-12 text-center">
                     <div class="p-6 mb-4 bg-gray-50 rounded-full">
                         <ph:folder-open-light class="w-16 h-16 text-gray-300" />
                     </div>
@@ -109,8 +150,9 @@
                         <li class="relative" v-if="data" v-for="(file, index) in searchFiles" :key="file.static_url">
                             <div class="group w-full rounded bg-gray-100 overflow-hidden aspect-[1/1] flex cursor-pointer justify-center items-center border border-transparent hover:border-gray-400 relative outline outline-offset-2 outline-2"
                                 :class="selectedFiles.includes(file) ? 'outline-black' : 'outline-transparent'"
-                                @click="onSelect(file)">
-                                <Thumbnail :file="file" @remove="onRemove(file)" />
+                                @click="onSelect(file)"
+                                @dblclick="openLightbox(file)">
+                                <Thumbnail :file="file" @remove="onRemove(file)" @copy="copyUrl" />
                             </div>
                             <p class="block mt-2 text-sm font-medium text-gray-900 truncate pointer-events-none">
                                 {{ file.filename }}
@@ -139,6 +181,10 @@
                 {{ selectedFiles.length }} {{ tt('models.table_list.files').toLowerCase() }} Đã chọn
             </span>
             <Button @click="selectedFiles = []" class="btn-outline-secondary"> {{ tt('models.files.unchecked') }} </Button>
+            <Button v-if="selectedFiles.length === 1" @click="copyUrl(selectedFiles[0])" class="btn-outline-primary">
+                <ph:link-light class="mr-1" />
+                Sao chép liên kết
+            </Button>
             <Button class="btn-danger" @click="deleteSelected()">
                 <ph:trash-light class="mr-1" />
                 {{ tt('models.files.delete') }}
@@ -160,6 +206,86 @@
                     :label="tt('models.files.save')" />
             </template>
         </Dialog>
+
+        <!-- Lightbox Preview Modal -->
+        <div v-if="lightboxVisible && lightboxFile" 
+            class="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-95 backdrop-blur-sm transition-opacity duration-300"
+            @click.self="closeLightbox"
+            tabindex="0"
+            @keydown.esc="closeLightbox"
+            @keydown.left="prevLightbox"
+            @keydown.right="nextLightbox"
+            ref="lightboxContainer"
+        >
+            <!-- Close Button -->
+            <button @click="closeLightbox" 
+                class="absolute top-4 right-4 z-[10000] p-2 text-gray-400 hover:text-white transition-colors duration-150 bg-gray-900 bg-opacity-50 hover:bg-opacity-80 rounded-full">
+                <ph:x-light class="w-6 h-6" />
+            </button>
+
+            <!-- Navigation Arrows -->
+            <button v-if="hasMultiplePreviewItems" @click="prevLightbox" 
+                class="absolute left-4 z-[10000] p-3 text-gray-400 hover:text-white transition-colors duration-150 bg-gray-900 bg-opacity-50 hover:bg-opacity-80 rounded-full">
+                <ph:caret-left-light class="w-8 h-8" />
+            </button>
+            <button v-if="hasMultiplePreviewItems" @click="nextLightbox" 
+                class="absolute right-4 z-[10000] p-3 text-gray-400 hover:text-white transition-colors duration-150 bg-gray-900 bg-opacity-50 hover:bg-opacity-80 rounded-full">
+                <ph:caret-right-light class="w-8 h-8" />
+            </button>
+
+            <!-- Main Display Area -->
+            <div class="flex flex-col md:flex-row w-full h-full max-w-7xl max-h-[85vh] p-4 md:p-8 items-center justify-center gap-6" @click.stop>
+                <!-- Media Wrapper -->
+                <div class="flex-1 flex items-center justify-center h-full max-h-[60vh] md:max-h-full relative select-none">
+                    <video v-if="isVideo(lightboxFile.static_url)" 
+                        controls autoplay class="max-w-full max-h-full rounded shadow-2xl object-contain">
+                        <source :src="lightboxFile.static_url" type="video/mp4" />
+                    </video>
+                    <img v-else :src="lightboxFile.static_url" 
+                        class="max-w-full max-h-full rounded shadow-2xl object-contain transition-transform duration-200"
+                        alt="Preview image" />
+                </div>
+
+                <!-- Info Sidebar (Glassmorphic Detail Panel) -->
+                <div class="w-full md:w-80 bg-gray-900 bg-opacity-85 backdrop-blur-md rounded-lg p-5 text-gray-200 border border-gray-800 flex flex-col justify-between max-h-[30vh] md:max-h-full overflow-y-auto">
+                    <div>
+                        <h3 class="text-base font-semibold text-white truncate mb-4" :title="lightboxFile.filename">
+                            {{ lightboxFile.filename }}
+                        </h3>
+                        <div class="space-y-2.5 text-xs text-gray-400">
+                            <div class="flex justify-between border-b border-gray-800 pb-1.5">
+                                <span>Định dạng:</span>
+                                <span class="font-medium text-white uppercase">{{ lightboxFile.extension }}</span>
+                            </div>
+                            <div class="flex justify-between border-b border-gray-800 pb-1.5">
+                                <span>Dung lượng:</span>
+                                <span class="font-medium text-white">{{ lightboxFile.formatted_file_size }}</span>
+                            </div>
+                            <div class="flex justify-between border-b border-gray-800 pb-1.5">
+                                <span>Ngày cập nhật:</span>
+                                <span class="font-medium text-white">{{ toDate(lightboxFile.last_modified * 1000) || '-' }}</span>
+                            </div>
+                            <div class="flex flex-col space-y-1 pt-1.5">
+                                <span>Đường dẫn tệp:</span>
+                                <span class="font-mono text-[10px] text-gray-500 break-all select-all p-1.5 bg-black bg-opacity-50 rounded">{{ staticUrl(lightboxFile.static_url) }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 flex flex-col space-y-2">
+                        <Button @click="copyUrl(lightboxFile)" class="w-full space-x-2 btn-primary btn-sm flex items-center justify-center">
+                            <ph:copy-light class="w-4 h-4 mr-1" />
+                            <span>Sao chép liên kết</span>
+                        </Button>
+                        <a :href="lightboxFile.static_url" download 
+                            class="w-full space-x-2 btn-outline-secondary btn-sm flex items-center justify-center text-center text-xs py-2 bg-gray-800 hover:bg-gray-700 text-white rounded font-medium border border-gray-700 transition-colors">
+                            <ph:download-light class="w-4 h-4 mr-1" />
+                            <span>Tải xuống tệp</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div v-show="loading" class="fixed inset-0 z-[9999] flex items-center justify-center bg-white bg-opacity-70" :class="embed ? '' : 'left-from-sidebar'">
             <div class="flex flex-col items-center">
@@ -241,6 +367,27 @@ export default {
             page: 1,
             fetchData: true,
             loading: false,
+            currentType: 'all',
+            currentSort: 'date_desc',
+            searchVal: '',
+            types: [
+                { value: 'all', label: 'Tất cả', icon: '📂' },
+                { value: 'image', label: 'Hình ảnh', icon: '🖼️' },
+                { value: 'video', label: 'Video', icon: '🎥' },
+                { value: 'document', label: 'Tài liệu', icon: '📄' },
+                { value: 'other', label: 'Khác', icon: '⚙️' }
+            ],
+            sorts: [
+                { value: 'date_desc', label: 'Mới nhất' },
+                { value: 'date_asc', label: 'Cũ nhất' },
+                { value: 'name_asc', label: 'Tên A-Z' },
+                { value: 'name_desc', label: 'Tên Z-A' },
+                { value: 'size_desc', label: 'Dung lượng lớn' },
+                { value: 'size_asc', label: 'Dung lượng nhỏ' }
+            ],
+            lightboxVisible: false,
+            lightboxFile: null,
+            lightboxIndex: -1,
         }
     },
 
@@ -302,6 +449,18 @@ export default {
         canSelectMultiple() {
             return this.multiple || this.selectMultiple
         },
+        previewableFiles() {
+            if (!this.data || !this.data.files) return []
+            return this.data.files
+        },
+        hasMultiplePreviewItems() {
+            return this.previewableFiles.length > 1
+        },
+        isAllSelected() {
+            const files = this.searchFiles || []
+            if (!files.length) return false
+            return files.every(file => this.selectedFiles.includes(file))
+        },
     },
 
     methods: {
@@ -330,6 +489,8 @@ export default {
                     limit: this.limit,
                     search: this.search,
                     path: this.currentPath,
+                    type: this.currentType,
+                    sort: this.currentSort,
                     ...params,
                 }
 
@@ -364,7 +525,79 @@ export default {
         async copyUrl(file) {
             try {
                 await navigator.clipboard.writeText(this.staticUrl(file.static_url))
-            } catch ($e) { }
+                this.$toast.add({
+                    severity: 'success',
+                    summary: this.tt('models.admins.success') || 'Thành công',
+                    detail: this.tt('models.files.copied') || 'Đã sao chép liên kết vào bộ nhớ tạm!',
+                    life: 2000,
+                })
+            } catch ($e) {
+                this.$toast.add({
+                    severity: 'error',
+                    summary: 'Thất bại',
+                    detail: 'Không thể sao chép liên kết.',
+                    life: 2000,
+                })
+            }
+        },
+        selectType(type) {
+            this.currentType = type
+            this.getFiles({ page: 1 })
+        },
+        onSortChange() {
+            this.getFiles({ page: 1 })
+        },
+        toggleSelectAll() {
+            if (this.isAllSelected) {
+                this.selectedFiles = []
+            } else {
+                const files = this.searchFiles || []
+                this.selectedFiles = [...files]
+            }
+        },
+        openLightbox(file) {
+            this.lightboxFile = file
+            this.lightboxVisible = true
+            this.lightboxIndex = this.previewableFiles.indexOf(file)
+            this.$nextTick(() => {
+                if (this.$refs.lightboxContainer) {
+                    this.$refs.lightboxContainer.focus()
+                }
+            })
+        },
+        closeLightbox() {
+            this.lightboxVisible = false
+            this.lightboxFile = null
+            this.lightboxIndex = -1
+        },
+        prevLightbox() {
+            if (!this.previewableFiles.length) return
+            let nextIndex = this.lightboxIndex - 1
+            if (nextIndex < 0) {
+                nextIndex = this.previewableFiles.length - 1
+            }
+            this.lightboxIndex = nextIndex
+            this.lightboxFile = this.previewableFiles[nextIndex]
+        },
+        nextLightbox() {
+            if (!this.previewableFiles.length) return
+            let nextIndex = this.lightboxIndex + 1
+            if (nextIndex >= this.previewableFiles.length) {
+                nextIndex = 0
+            }
+            this.lightboxIndex = nextIndex
+            this.lightboxFile = this.previewableFiles[nextIndex]
+        },
+        isVideo(url) {
+            if (!url) return false
+            return (
+                url.endsWith('.mp4') ||
+                url.endsWith('.avi') ||
+                url.endsWith('.mov') ||
+                url.endsWith('.wmv') ||
+                url.endsWith('.flv') ||
+                url.endsWith('.mkv')
+            )
         },
         submitToParentIframe() {
             let htmlImages = ''

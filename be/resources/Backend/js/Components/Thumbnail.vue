@@ -15,6 +15,15 @@
         >
             <ph:arrow-square-up-right />
         </a>
+        <button
+            v-if="resolvedUrl"
+            class="absolute top-0 right-[22px] invisible text-white bg-blue-600 hover:bg-blue-700 group-hover:visible w-[20px] h-[20px] flex items-center justify-center rounded-sm transition-all duration-200"
+            type="button"
+            title="Copy Link"
+            @click.stop.prevent="$emit('copy', file)"
+        >
+            <ph:link-light class="w-3.5 h-3.5" />
+        </button>
         <Button
             class="absolute invisible right-1 bottom-1 group-hover:visible btn-white btn-sm"
             :label="tt('models.files.delete')"

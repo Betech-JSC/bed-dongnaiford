@@ -37,20 +37,39 @@ class TelegramService
         $name = $leadData['name'] ?? 'Chưa rõ';
         $phone = $leadData['phone'] ?? 'Chưa có';
         $vehicle = $leadData['vehicle'] ?? 'Chưa xác định';
+        $type = $leadData['type'] ?? 'general';
+        
+        $typeLabel = match ($type) {
+            'test_drive' => '🚘 ĐĂNG KÝ LÁI THỬ',
+            'quote' => '💰 YÊU CẦU BÁO GIÁ',
+            'service_booking' => '🛠️ ĐẶT LỊCH HẸN BẢO DƯỠNG',
+            'callback' => '📞 YÊU CẦU GỌI LẠI',
+            default => '💬 LEAD HỘI THOẠI KHÁCH HÀNG',
+        };
 
-        $message = <<<MSG
-{$scoreEmoji} *LEAD MỚI TỪ AI CHATBOT*
+        $message = "{$scoreEmoji} *{$typeLabel} TỪ AI CHATBOT*\n\n";
+        $message .= "👤 *Khách hàng:* {$name}\n";
+        $message .= "📞 *SĐT:* `{$phone}`\n";
+        
+        if (!empty($leadData['email'])) {
+            $message .= "📧 *Email:* {$leadData['email']}\n";
+        }
+        
+        $message .= "🚗 *Xe quan tâm:* {$vehicle}\n";
 
-👤 *Khách hàng:* {$name}
-📞 *SĐT:* `{$phone}`
-🚗 *Xe quan tâm:* {$vehicle}
-📊 *Mức độ:* {$score}
-🆔 *Session:* `{$sessionId}`
+        if ($type === 'service_booking') {
+            $date = $leadData['date'] ?? 'N/A';
+            $time = $leadData['time'] ?? 'N/A';
+            $plate = $leadData['license_plate'] ?? 'Chưa rõ';
+            $message .= "📅 *Ngày hẹn:* {$date}\n";
+            $message .= "⏰ *Giờ hẹn:* {$time}\n";
+            $message .= "🔢 *Biển số xe:* {$plate}\n";
+        }
 
-⏰ {$this->formatTime()}
-
-💡 _Vui lòng liên hệ khách hàng trong 15 phút để tối ưu tỉ lệ chuyển đổi!_
-MSG;
+        $message .= "📊 *Mức độ:* {$score}\n";
+        $message .= "🆔 *Session:* `{$sessionId}`\n\n";
+        $message .= "⏰ " . $this->formatTime() . "\n\n";
+        $message .= "💡 _Vui lòng kiểm tra và xử lý liên hệ ngay để hỗ trợ khách hàng!_";
 
         try {
             $response = Http::timeout(10)->post(

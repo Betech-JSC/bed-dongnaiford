@@ -13,7 +13,11 @@ import {
   Minus,
   Plus,
   MoreHorizontal,
+  ChevronRight,
+  Calendar,
 } from "lucide-react";
+import { vehicles, Vehicle } from "@/data/vehicles";
+import Link from "next/link";
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
@@ -42,6 +46,338 @@ const BUBBLE_SIZE = 56; // 14 * 4 = 56px (w-14)
 const CHAT_WIDTH = 480;
 const CHAT_HEIGHT = 650;
 const EDGE_MARGIN = 16;
+
+interface ParsedContent {
+  text: string;
+  recommendation?: { slugs: string[]; reason: string };
+  leadForm?: { type: "test_drive" | "quote" | "callback"; vehicle?: string };
+  serviceForm?: { step: string };
+}
+
+function parseMessageContent(content: string): ParsedContent {
+  let text = content;
+  let recommendation: ParsedContent["recommendation"];
+  let leadForm: ParsedContent["leadForm"];
+  let serviceForm: ParsedContent["serviceForm"];
+
+  // 1. Check for RECOMMEND_VEHICLE
+  const recommendMatch = text.match(/\[RECOMMEND_VEHICLE\](.*?)\[\/RECOMMEND_VEHICLE\]/s);
+  if (recommendMatch) {
+    try {
+      recommendation = JSON.parse(recommendMatch[1]);
+      text = text.replace(recommendMatch[0], "");
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  // 2. Check for SHOW_LEAD_FORM
+  const leadMatch = text.match(/\[SHOW_LEAD_FORM\](.*?)\[\/SHOW_LEAD_FORM\]/s);
+  if (leadMatch) {
+    try {
+      leadForm = JSON.parse(leadMatch[1]);
+      text = text.replace(leadMatch[0], "");
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  // 3. Check for SHOW_SERVICE_FORM
+  const serviceMatch = text.match(/\[SHOW_SERVICE_FORM\](.*?)\[\/SHOW_SERVICE_FORM\]/s);
+  if (serviceMatch) {
+    try {
+      serviceForm = JSON.parse(serviceMatch[1]);
+      text = text.replace(serviceMatch[0], "");
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  return {
+    text: text.trim(),
+    recommendation,
+    leadForm,
+    serviceForm,
+  };
+}
+
+const getVehicleBySlug = (slug: string): Vehicle | undefined => {
+  const cleanSlug = slug.toLowerCase();
+  const id = cleanSlug.startsWith("ford-") ? cleanSlug : `ford-${cleanSlug}`;
+  return vehicles.find((v) => v.id === id);
+};
+
+interface RecommendationCarouselProps {
+  slugs: string[];
+  reason: string;
+}
+
+export function RecommendationCarousel({ slugs, reason }: RecommendationCarouselProps) {
+  const recommendedVehicles = slugs
+    .map((slug) => getVehicleBySlug(slug))
+    .filter((v): v is Vehicle => !!v);
+
+  if (!recommendedVehicles.length) return null;
+
+  return (
+    <div className="mt-2 space-y-2 max-w-[90%]">
+      {reason && (
+        <p className="text-[11px] text-gray-500 italic font-medium">💡 {reason}</p>
+      )}
+      <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-200">
+        {recommendedVehicles.map((vehicle) => (
+          <div key={vehicle.id} className="flex-shrink-0 w-48 bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col justify-between hover:shadow-md transition-shadow">
+            <div className="p-2 bg-gray-50 flex items-center justify-center h-24 relative">
+              <img 
+                src={vehicle.images[0]} 
+                alt={vehicle.name} 
+                className="object-contain max-h-full max-w-full"
+              />
+            </div>
+            <div className="p-3 flex-1 flex flex-col justify-between space-y-1.5">
+              <div>
+                <h4 className="text-xs font-bold text-gray-900 truncate tracking-tight">{vehicle.name}</h4>
+                <p className="text-[9px] text-gray-400 truncate mt-0.5">{vehicle.tagline}</p>
+                <p className="text-[10px] font-semibold text-[#0562d2] mt-0.5">
+                  Giá từ: {vehicle.basePrice.toLocaleString("vi-VN")}đ
+                </p>
+              </div>
+              <Link 
+                href={`/san-pham/${vehicle.id}`}
+                className="w-full py-1.5 bg-[#0562d2] hover:bg-[#044ea7] text-white text-[9px] font-bold rounded-lg text-center flex items-center justify-center transition-colors"
+              >
+                <span>Xem chi tiết</span>
+                <ChevronRight className="w-2.5 h-2.5 ml-0.5" />
+              </Link>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+interface InChatLeadFormProps {
+  type: "test_drive" | "quote" | "callback";
+  vehicle?: string;
+  onSubmit: (data: any) => void;
+}
+
+export function InChatLeadForm({ type, vehicle, onSubmit }: InChatLeadFormProps) {
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [error, setError] = useState("");
+
+  const title = {
+    test_drive: `Đăng ký Lái thử ${vehicle ? `- ${vehicle}` : ""}`,
+    quote: `Yêu cầu báo giá xe ${vehicle ? `- ${vehicle}` : ""}`,
+    callback: "Yêu cầu Gọi lại Tư vấn",
+  }[type];
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name.trim() || !phone.trim()) {
+      setError("Vui lòng điền Họ tên và Số điện thoại.");
+      return;
+    }
+    if (!/^(0|\+84)\d{9,10}$/.test(phone.trim())) {
+      setError("Số điện thoại không hợp lệ.");
+      return;
+    }
+    setError("");
+    onSubmit({ name, phone, email, vehicle, type });
+    setIsSubmitted(true);
+  };
+
+  if (isSubmitted) {
+    return (
+      <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-xl text-center max-w-[90%]">
+        <p className="text-xs font-bold text-green-800">✅ Đăng ký thông tin thành công!</p>
+        <p className="text-[10px] text-green-600 mt-1">Yêu cầu của bạn đã được ghi nhận. Tư vấn viên sẽ liên hệ lại trong thời gian sớm nhất.</p>
+      </div>
+    );
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="mt-2 p-3.5 bg-gray-50 border border-gray-200 rounded-xl space-y-2 max-w-[90%] shadow-sm">
+      <h4 className="text-xs font-bold text-gray-900 border-b border-gray-200 pb-1">{title}</h4>
+      
+      <div className="space-y-1">
+        <label className="text-[9px] font-bold text-gray-500 uppercase">Họ và tên *</label>
+        <input 
+          type="text" 
+          required 
+          value={name} 
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Ví dụ: Nguyễn Văn A"
+          className="w-full bg-white border border-gray-300 rounded-lg px-2.5 py-1 text-xs focus:ring-1 focus:ring-[#0562d2] focus:border-[#0562d2] focus:outline-none"
+        />
+      </div>
+
+      <div className="space-y-1">
+        <label className="text-[9px] font-bold text-gray-500 uppercase">Số điện thoại *</label>
+        <input 
+          type="tel" 
+          required 
+          value={phone} 
+          onChange={(e) => setPhone(e.target.value)}
+          placeholder="Ví dụ: 0912345678"
+          className="w-full bg-white border border-gray-300 rounded-lg px-2.5 py-1 text-xs focus:ring-1 focus:ring-[#0562d2] focus:border-[#0562d2] focus:outline-none"
+        />
+      </div>
+
+      <div className="space-y-1">
+        <label className="text-[9px] font-bold text-gray-500 uppercase">Email (Không bắt buộc)</label>
+        <input 
+          type="email" 
+          value={email} 
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Ví dụ: name@example.com"
+          className="w-full bg-white border border-gray-300 rounded-lg px-2.5 py-1 text-xs focus:ring-1 focus:ring-[#0562d2] focus:border-[#0562d2] focus:outline-none"
+        />
+      </div>
+
+      {error && <p className="text-[10px] font-semibold text-red-600">{error}</p>}
+
+      <button 
+        type="submit"
+        className="w-full py-1.5 bg-[#0562d2] hover:bg-[#044ea7] text-white text-xs font-bold rounded-lg transition-colors border-0 cursor-pointer shadow-sm"
+      >
+        Gửi thông tin đăng ký
+      </button>
+    </form>
+  );
+}
+
+interface InChatServiceFormProps {
+  onSubmit: (data: any) => void;
+}
+
+export function InChatServiceForm({ onSubmit }: InChatServiceFormProps) {
+  const [phone, setPhone] = useState("");
+  const [licensePlate, setLicensePlate] = useState("");
+  const [vehicle, setVehicle] = useState("Ranger");
+  const [date, setDate] = useState("");
+  const [time, setTime] = useState("09:00");
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!phone.trim() || !licensePlate.trim() || !date || !time) {
+      setError("Vui lòng điền đầy đủ các thông tin bắt buộc.");
+      return;
+    }
+    if (!/^(0|\+84)\d{9,10}$/.test(phone.trim())) {
+      setError("Số điện thoại không hợp lệ.");
+      return;
+    }
+    setError("");
+    onSubmit({
+      phone,
+      license_plate: licensePlate,
+      vehicle,
+      date,
+      time,
+      type: "service_booking",
+    });
+    setIsSubmitted(true);
+  };
+
+  const today = new Date().toISOString().split("T")[0];
+
+  return (
+    <form onSubmit={handleSubmit} className="mt-2 p-3.5 bg-gray-50 border border-gray-200 rounded-xl space-y-2 max-w-[90%] shadow-sm">
+      <h4 className="text-xs font-bold text-gray-900 border-b border-gray-200 pb-1 flex items-center">
+        <Calendar className="w-3.5 h-3.5 mr-1 text-[#0562d2]" />
+        Đặt lịch Hẹn Bảo dưỡng / Sửa chữa
+      </h4>
+      
+      <div className="grid grid-cols-2 gap-2">
+        <div className="space-y-1">
+          <label className="text-[9px] font-bold text-gray-500 uppercase">SĐT liên hệ *</label>
+          <input 
+            type="tel" 
+            required 
+            value={phone} 
+            onChange={(e) => setPhone(e.target.value)}
+            placeholder="09123..."
+            className="w-full bg-white border border-gray-300 rounded-lg px-2 py-1 text-xs focus:ring-1 focus:ring-[#0562d2] focus:outline-none"
+          />
+        </div>
+        <div className="space-y-1">
+          <label className="text-[9px] font-bold text-gray-500 uppercase">Biển số xe *</label>
+          <input 
+            type="text" 
+            required 
+            value={licensePlate} 
+            onChange={(e) => setLicensePlate(e.target.value)}
+            placeholder="Ví dụ: 60A-12345"
+            className="w-full bg-white border border-gray-300 rounded-lg px-2 py-1 text-xs focus:ring-1 focus:ring-[#0562d2] focus:outline-none"
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2">
+        <div className="space-y-1">
+          <label className="text-[9px] font-bold text-gray-500 uppercase">Ngày hẹn *</label>
+          <input 
+            type="date" 
+            required 
+            min={today}
+            value={date} 
+            onChange={(e) => setDate(e.target.value)}
+            className="w-full bg-white border border-gray-300 rounded-lg px-2 py-1 text-xs focus:ring-1 focus:ring-[#0562d2] focus:outline-none"
+          />
+        </div>
+        <div className="space-y-1">
+          <label className="text-[9px] font-bold text-gray-500 uppercase">Giờ hẹn *</label>
+          <select 
+            value={time} 
+            onChange={(e) => setTime(e.target.value)}
+            className="w-full bg-white border border-gray-300 rounded-lg px-2 py-1 text-xs focus:ring-1 focus:ring-[#0562d2] focus:outline-none bg-transparent"
+          >
+            <option value="08:00">08:00</option>
+            <option value="09:00">09:00</option>
+            <option value="10:00">10:00</option>
+            <option value="11:00">11:00</option>
+            <option value="13:30">13:30</option>
+            <option value="14:30">14:30</option>
+            <option value="15:30">15:30</option>
+            <option value="16:30">16:30</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="space-y-1">
+        <label className="text-[9px] font-bold text-gray-500 uppercase">Dòng xe bảo dưỡng</label>
+        <select 
+          value={vehicle} 
+          onChange={(e) => setVehicle(e.target.value)}
+          className="w-full bg-white border border-gray-300 rounded-lg px-2 py-1 text-xs focus:ring-1 focus:ring-[#0562d2] focus:outline-none bg-transparent"
+        >
+          <option value="Everest">Ford Everest</option>
+          <option value="Ranger">Ford Ranger</option>
+          <option value="Territory">Ford Territory</option>
+          <option value="Transit">Ford Transit</option>
+          <option value="Raptor">Ford Raptor</option>
+          <option value="Mach-E">Ford Mustang Mach-E</option>
+        </select>
+      </div>
+
+      {error && <p className="text-[10px] font-semibold text-red-600">{error}</p>}
+
+      <button 
+        type="submit"
+        className="w-full py-1.5 bg-[#0562d2] hover:bg-[#044ea7] text-white text-xs font-bold rounded-lg transition-colors border-0 cursor-pointer shadow-sm"
+      >
+        Gửi yêu cầu đặt lịch hẹn
+      </button>
+    </form>
+  );
+}
 
 export default function AIChatWidget() {
   const [mounted, setMounted] = useState(false);
@@ -286,6 +622,41 @@ export default function AIChatWidget() {
     };
   }, [isOpen]);
 
+  const handleFormSubmit = useCallback(async (data: any, formType: string) => {
+    setIsLoading(true);
+    let messageText = "";
+    if (formType === "service_booking") {
+      messageText = `[Đăng ký lịch dịch vụ] Xe: ${data.vehicle}, Biển số: ${data.license_plate}, Hẹn lúc: ${data.time} ngày ${data.date}, SĐT: ${data.phone}`;
+    } else {
+      const typeLabel = {
+        test_drive: "Đăng ký lái thử",
+        quote: "Yêu cầu báo giá",
+        callback: "Yêu cầu gọi lại",
+      }[data.type] || "Đăng ký thông tin";
+      messageText = `[${typeLabel}] Họ tên: ${data.name}, SĐT: ${data.phone}${data.email ? `, Email: ${data.email}` : ""}${data.vehicle ? `, Xe: ${data.vehicle}` : ""}`;
+    }
+    const userMsg = { id: `user_form_${Date.now()}`, role: "user" as const, content: messageText, timestamp: new Date() };
+    setMessages((prev) => [...prev, userMsg]);
+    try {
+      const res = await fetch(`${API_BASE_URL}/ai/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({ message: messageText, session_id: sessionId, form_data: data })
+      });
+      const resData = await res.json();
+      const reply = resData?.data?.reply || resData?.reply;
+      const newSessionId = resData?.data?.session_id || resData?.session_id;
+      if (newSessionId && !sessionId) setSessionId(newSessionId);
+      if (reply) {
+        setMessages((prev) => [...prev, { id: `bot_${Date.now()}`, role: "assistant", content: reply, timestamp: new Date() }]);
+      }
+    } catch (e) {
+      setMessages((prev) => [...prev, { id: `bot_err_${Date.now()}`, role: "assistant", content: "Cảm ơn thông tin của bạn. Lịch hẹn của bạn đã được ghi nhận. Cố vấn dịch vụ sẽ gọi xác nhận ngay nhé!", timestamp: new Date() }]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [sessionId]);
+
   const sendMessage = useCallback(async () => {
     const trimmed = input.trim();
     if (!trimmed || isLoading) return;
@@ -467,30 +838,53 @@ export default function AIChatWidget() {
 
           {/* Messages */}
           <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6 bg-white select-text">
-            {messages.map((msg) => (
-              <div
-                key={msg.id}
-                className={`flex gap-3.5 ${
-                  msg.role === "user" ? "justify-end" : "justify-start"
-                }`}
-              >
-                {msg.role === "assistant" && (
-                  <div className="w-9 h-9 rounded-full bg-[#0562d2] flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm">
-                    <Bot className="w-5 h-5 text-white" />
-                  </div>
-                )}
+            {messages.map((msg) => {
+              const parsed = msg.role === "assistant" ? parseMessageContent(msg.content) : null;
+              return (
                 <div
-                  className={`max-w-[80%] text-[15px] leading-relaxed ${
-                    msg.role === "user"
-                      ? "bg-[#edf6ff] text-[#0562d2] px-4 py-2.5 rounded-[18px] rounded-br-[4px] shadow-sm font-medium"
-                      : "text-gray-800 px-1 py-1"
+                  key={msg.id}
+                  className={`flex gap-3.5 ${
+                    msg.role === "user" ? "justify-end" : "justify-start"
                   }`}
-                  dangerouslySetInnerHTML={{
-                    __html: formatContent(msg.content),
-                  }}
-                />
-              </div>
-            ))}
+                >
+                  {msg.role === "assistant" && (
+                    <div className="w-9 h-9 rounded-full bg-[#0562d2] flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm">
+                      <Bot className="w-5 h-5 text-white" />
+                    </div>
+                  )}
+                  <div className="max-w-[80%] flex flex-col gap-2">
+                    <div
+                      className={`text-[15px] leading-relaxed ${
+                        msg.role === "user"
+                          ? "bg-[#edf6ff] text-[#0562d2] px-4 py-2.5 rounded-[18px] rounded-br-[4px] shadow-sm font-medium"
+                          : "text-gray-800 px-1 py-1"
+                      }`}
+                      dangerouslySetInnerHTML={{
+                        __html: formatContent(parsed ? parsed.text : msg.content),
+                      }}
+                    />
+                    {parsed?.recommendation && (
+                      <RecommendationCarousel
+                        slugs={parsed.recommendation.slugs}
+                        reason={parsed.recommendation.reason}
+                      />
+                    )}
+                    {parsed?.leadForm && (
+                      <InChatLeadForm
+                        type={parsed.leadForm.type}
+                        vehicle={parsed.leadForm.vehicle}
+                        onSubmit={(data) => handleFormSubmit(data, parsed.leadForm!.type)}
+                      />
+                    )}
+                    {parsed?.serviceForm && (
+                      <InChatServiceForm
+                        onSubmit={(data) => handleFormSubmit(data, "service_booking")}
+                      />
+                    )}
+                  </div>
+                </div>
+              );
+            })}
 
             {/* Typing indicator */}
             {isLoading && (

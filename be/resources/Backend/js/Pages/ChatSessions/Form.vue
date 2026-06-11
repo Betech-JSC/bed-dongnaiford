@@ -40,6 +40,59 @@
                 </div>
             </div>
 
+            <!-- Interactive Form Submission Details -->
+            <div v-if="formData.contact_info?.type" class="card mb-6 border-blue-200">
+                <div class="card-header bg-blue-50 text-blue-900 flex items-center justify-between py-2 px-4">
+                    <span class="font-bold flex items-center text-sm">
+                        <svg class="w-4 h-4 mr-1.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Thông tin đăng ký qua Form Tương tác
+                    </span>
+                    <span class="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded uppercase">
+                        {{ getFormTypeLabel(formData.contact_info.type) }}
+                    </span>
+                </div>
+                <div class="card-body grid grid-cols-2 gap-4">
+                    <div v-if="formData.contact_info.type === 'service_booking'">
+                        <div class="text-xs text-gray-500 font-semibold mb-1">Biển số xe</div>
+                        <div class="text-sm font-medium text-gray-900 bg-gray-50 p-2.5 rounded border border-gray-100">
+                            {{ formData.contact_info.license_plate || '—' }}
+                        </div>
+                    </div>
+                    <div v-if="formData.contact_info.type === 'service_booking'">
+                        <div class="text-xs text-gray-500 font-semibold mb-1">Dòng xe bảo dưỡng</div>
+                        <div class="text-sm font-medium text-gray-900 bg-gray-50 p-2.5 rounded border border-gray-100">
+                            {{ formData.contact_info.vehicle || '—' }}
+                        </div>
+                    </div>
+                    <div v-if="formData.contact_info.type === 'service_booking'">
+                        <div class="text-xs text-gray-500 font-semibold mb-1">Ngày hẹn</div>
+                        <div class="text-sm font-medium text-gray-900 bg-gray-50 p-2.5 rounded border border-gray-100">
+                            {{ formData.contact_info.date ? formatDate(formData.contact_info.date) : '—' }}
+                        </div>
+                    </div>
+                    <div v-if="formData.contact_info.type === 'service_booking'">
+                        <div class="text-xs text-gray-500 font-semibold mb-1">Giờ hẹn</div>
+                        <div class="text-sm font-medium text-gray-900 bg-gray-50 p-2.5 rounded border border-gray-100">
+                            {{ formData.contact_info.time || '—' }}
+                        </div>
+                    </div>
+                    
+                    <!-- For lead drive / quote / callback -->
+                    <div v-if="formData.contact_info.type !== 'service_booking' && formData.contact_info.vehicle">
+                        <div class="text-xs text-gray-500 font-semibold mb-1">Dòng xe đăng ký</div>
+                        <div class="text-sm font-medium text-gray-900 bg-gray-50 p-2.5 rounded border border-gray-100">
+                            {{ formData.contact_info.vehicle }}
+                        </div>
+                    </div>
+                    <div v-if="formData.contact_info.type !== 'service_booking'">
+                        <div class="text-xs text-gray-500 font-semibold mb-1">Hình thức đăng ký</div>
+                        <div class="text-sm font-medium text-blue-900 bg-blue-50/50 p-2.5 rounded border border-blue-100/30">
+                            {{ getFormTypeLabel(formData.contact_info.type) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Chat History Thread -->
             <div class="card">
                 <div class="card-header">Lịch sử hội thoại</div>
@@ -143,6 +196,19 @@ export default {
             return content
                 .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
                 .replace(/• (.*?)(?=\n|$)/g, '<span class="inline-flex gap-1 items-start"><span class="text-blue-500">•</span><span>$1</span></span>');
+        },
+        getFormTypeLabel(type) {
+            const labels = {
+                test_drive: 'Đăng ký lái thử',
+                quote: 'Yêu cầu báo giá',
+                callback: 'Yêu cầu gọi lại',
+                service_booking: 'Đặt lịch bảo dưỡng/Sửa chữa'
+            };
+            return labels[type] || type;
+        },
+        formatDate(date) {
+            if (!date) return '';
+            return dayjs(date).format('DD/MM/YYYY');
         }
     }
 }

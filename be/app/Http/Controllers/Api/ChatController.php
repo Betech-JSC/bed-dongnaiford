@@ -90,8 +90,30 @@ class ChatController extends Controller
         // Save bot response
         $session->addMessage('assistant', $reply);
 
-        // Process lead data if detected
-        if ($leadData) {
+        // Process form data if submitted by client
+        $formData = $request->input('form_data');
+        if ($formData && is_array($formData)) {
+            $score = 'hot';
+            $session->updateLeadInfo(
+                $score,
+                array_filter([
+                    'name' => $formData['name'] ?? null,
+                    'phone' => $formData['phone'] ?? null,
+                    'email' => $formData['email'] ?? null,
+                    'type' => $formData['type'] ?? null,
+                    'date' => $formData['date'] ?? null,
+                    'time' => $formData['time'] ?? null,
+                    'license_plate' => $formData['license_plate'] ?? null,
+                ]),
+                $formData['vehicle'] ?? null
+            );
+
+            // Send Telegram alert immediately for explicit form submits
+            $alertData = array_merge($leadData ?? [], $formData, ['score' => $score]);
+            $this->telegram->sendHotLeadAlert($alertData, $sessionId);
+            $session->notified = true;
+            $session->save();
+        } else if ($leadData) {
             $score = $leadData['score'] ?? 'cold';
             $session->updateLeadInfo(
                 $score,
