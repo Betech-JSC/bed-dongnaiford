@@ -20,6 +20,7 @@ export interface Version {
   name: string;
   price: number;
   specs: Specs;
+  image_url?: string;
 }
 
 export interface Vehicle {
@@ -34,6 +35,9 @@ export interface Vehicle {
   images: string[];
   colors: ColorOption[];
   versions: Version[];
+  images_360_external?: string[];
+  images_360_internal?: string[];
+  image_360_internal_url?: string;
 }
 
 export const vehicles: Vehicle[] = [

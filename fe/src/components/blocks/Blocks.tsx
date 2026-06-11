@@ -912,9 +912,15 @@ function ThreeSixtyViewerBlock({ data, vehicle, isEditMode, onChangeData, threeS
     failedImages, setFailedImages,
     selectedWheel, setSelectedWheel,
     renderCarPicture,
+    renderInteriorCarPicture,
     handleMouseDown, handleMouseMove, handleMouseUpOrLeave, handleTouchStart, handleTouchMove,
+    threeRef,
     media
   } = threeSixtyProps;
+
+  const currentColor = vehicle?.colors?.[selectedColorIndex];
+  const hasInteriorSequence = (currentColor && currentColor.images_360_internal && currentColor.images_360_internal.length > 0)
+    || (vehicle && (vehicle as any).images_360_internal && (vehicle as any).images_360_internal.length > 0);
 
   return (
     <section id={anchorId || undefined} className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full py-16 border-t border-[#e5e5e5]">
@@ -1054,13 +1060,13 @@ function ThreeSixtyViewerBlock({ data, vehicle, isEditMode, onChangeData, threeS
 
               <div 
                 className="car-image-container select-none cursor-grab active:cursor-grabbing w-full h-[400px] md:h-[580px] relative overflow-hidden"
-                onMouseDown={is360Active && viewType === "exterior" ? handleMouseDown : undefined}
-                onMouseMove={is360Active && viewType === "exterior" ? handleMouseMove : undefined}
-                onMouseUp={is360Active && viewType === "exterior" ? handleMouseUpOrLeave : undefined}
-                onMouseLeave={is360Active && viewType === "exterior" ? handleMouseUpOrLeave : undefined}
-                onTouchStart={is360Active && viewType === "exterior" ? handleTouchStart : undefined}
-                onTouchMove={is360Active && viewType === "exterior" ? handleTouchMove : undefined}
-                onTouchEnd={is360Active && viewType === "exterior" ? handleMouseUpOrLeave : undefined}
+                onMouseDown={is360Active && (viewType === "exterior" || (viewType === "interior" && hasInteriorSequence)) ? handleMouseDown : undefined}
+                onMouseMove={is360Active && (viewType === "exterior" || (viewType === "interior" && hasInteriorSequence)) ? handleMouseMove : undefined}
+                onMouseUp={is360Active && (viewType === "exterior" || (viewType === "interior" && hasInteriorSequence)) ? handleMouseUpOrLeave : undefined}
+                onMouseLeave={is360Active && (viewType === "exterior" || (viewType === "interior" && hasInteriorSequence)) ? handleMouseUpOrLeave : undefined}
+                onTouchStart={is360Active && (viewType === "exterior" || (viewType === "interior" && hasInteriorSequence)) ? handleTouchStart : undefined}
+                onTouchMove={is360Active && (viewType === "exterior" || (viewType === "interior" && hasInteriorSequence)) ? handleTouchMove : undefined}
+                onTouchEnd={is360Active && (viewType === "exterior" || (viewType === "interior" && hasInteriorSequence)) ? handleMouseUpOrLeave : undefined}
               >
                 {is360Active ? (
                   viewType === "exterior" ? (
@@ -1074,23 +1080,23 @@ function ThreeSixtyViewerBlock({ data, vehicle, isEditMode, onChangeData, threeS
                       {renderCarPicture()}
                     </div>
                   ) : (
-                    vehicle.image_360_internal_url ? (
-                      <div className="w-full h-full relative overflow-hidden bg-black">
-                        <iframe 
-                          src={vehicle.image_360_internal_url}
-                          className="w-full h-full border-0 absolute inset-0"
-                          allowFullScreen
-                          allow="gyroscope; accelerometer"
-                        />
+                    hasInteriorSequence ? (
+                      <div className="relative w-full h-full flex flex-col items-center justify-center bg-gray-50/50">
+                        {renderInteriorCarPicture()}
                       </div>
                     ) : (
-                      <div className="relative w-full h-full bg-slate-900 flex items-center justify-center overflow-hidden">
-                        <img 
-                          src={media?.bannerLarge || (vehicle.images && vehicle.images.length > 1 ? vehicle.images[1] : null) || "/assets/territory-interior.png"}
-                          alt="Interior panorama fallback"
-                          className="w-full h-full object-cover select-none pointer-events-none"
-                        />
-                      </div>
+                      (vehicle.image_360_internal_url && !vehicle.image_360_internal_url.match(/\.(jpg|jpeg|png|webp|gif)/i)) ? (
+                        <div className="w-full h-full relative overflow-hidden bg-black">
+                          <iframe 
+                            src={vehicle.image_360_internal_url}
+                            className="w-full h-full border-0 absolute inset-0"
+                            allowFullScreen
+                            allow="gyroscope; accelerometer"
+                          />
+                        </div>
+                      ) : (
+                        <div ref={threeRef} className="w-full h-full relative overflow-hidden bg-black" />
+                      )
                     )
                   )
                 ) : (
@@ -1441,8 +1447,8 @@ function VersionsGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId, 
 
               const desc = descriptions[idx] || defaultDesc;
               
-              // Quyết định ảnh: Lấy ảnh trong images array theo index, nếu không có lấy ảnh chính của xe
-              const versionImage = vehicle?.images?.[idx] || vehicle?.images?.[0] || vehicle?.image;
+              // Quyết định ảnh: Lấy ảnh đặc trưng của phiên bản nếu có, nếu không lấy ảnh trong images array theo index, nếu không lấy ảnh chính của xe
+              const versionImage = ver.image_url || vehicle?.images?.[idx] || vehicle?.images?.[0] || vehicle?.image;
               const imgUrl = mounted ? getFullImageUrl(versionImage) : "/assets/img-gradient-1.png";
 
               return (

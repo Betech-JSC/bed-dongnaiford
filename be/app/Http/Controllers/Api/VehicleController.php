@@ -136,15 +136,24 @@ class VehicleController extends Controller
                     $image360Internal = $this->resolveFileUrl($color['image_360_internal']);
                 }
 
+                $images360Internal = [];
+                if (isset($color['images_360_internal']) && is_array($color['images_360_internal'])) {
+                    $images360Internal = collect($color['images_360_internal'])->map(function($img) {
+                        return $this->resolveFileUrl($img);
+                    })->filter()->values()->toArray();
+                }
+
                 return [
-                    'name'               => $color['name'] ?? ($color['color_name'] ?? ''),
-                    'hex'                => $color['hex'] ?? ($color['color_code'] ?? ''),
-                    'image_path'         => $imagePath,
-                    'images_360'         => $images360,
-                    'image_360_internal' => $image360Internal,
+                    'name'                => $color['name'] ?? ($color['color_name'] ?? ''),
+                    'hex'                 => $color['hex'] ?? ($color['color_code'] ?? ''),
+                    'image_path'          => $imagePath,
+                    'images_360'          => $images360,
+                    'image_360_internal'  => $image360Internal,
+                    'images_360_internal' => $images360Internal,
                 ];
             })->toArray(),
-            'images_360_external'    => collect($vehicle->images_360_external)->map(fn($img) => isset($img['path']) ? static_url($img['path']) : $img),
+            'images_360_external'    => collect($vehicle->images_360_external ?? [])->map(fn($img) => $this->resolveFileUrl($img))->filter()->values()->toArray(),
+            'images_360_internal'    => collect($vehicle->images_360_internal ?? [])->map(fn($img) => $this->resolveFileUrl($img))->filter()->values()->toArray(),
             'image_360_internal_url' => $vehicle->image_360_internal_url,
             'type'                   => $vehicle->type,
             'base_price'             => $vehicle->base_price,
@@ -152,6 +161,7 @@ class VehicleController extends Controller
                 'id'         => $v->id,
                 'name'       => $v->name,
                 'price'      => $v->price,
+                'image_url'  => $v->image_url,
                 'specs'      => $v->specs ?? [],
                 'sort_order' => $v->sort_order,
             ]),

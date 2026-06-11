@@ -20,10 +20,13 @@ class VehicleVersion extends BaseModel
         'name',
     ];
 
+    protected $appends = ['image_url'];
+
     protected $fillable = [
         'vehicle_id',
         'price',
         'specs',
+        'image',
         'status',
         'sort_order',
     ];
@@ -42,9 +45,28 @@ class VehicleVersion extends BaseModel
             'vi.name'     => 'required|string|max:255',
             'price'       => 'required|numeric|min:0',
             'specs'       => 'nullable|array',
+            'image'       => 'nullable|array',
             'status'      => 'required|string|in:ACTIVE,INACTIVE',
             'sort_order'  => 'nullable|integer',
         ];
+    }
+
+    public function setImageAttribute($value): void
+    {
+        $this->attributes['image'] = is_array($value) ? json_encode($value) : $value;
+    }
+
+    public function getImageAttribute($value): ?array
+    {
+        if (is_string($value) && !empty($value)) {
+            return json_decode($value, true);
+        }
+        return is_array($value) ? $value : null;
+    }
+
+    public function getImageUrlAttribute(): ?string
+    {
+        return isset($this->image['path']) ? static_url($this->image['path']) : null;
     }
 
     public function setSpecsAttribute($value): void

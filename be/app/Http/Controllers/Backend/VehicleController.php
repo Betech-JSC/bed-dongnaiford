@@ -108,6 +108,7 @@ class VehicleController extends Controller
                     'status'     => $data['status'] ?? 'ACTIVE',
                     'sort_order' => $data['sort_order'] ?? ($index + 1),
                     'specs'      => $data['specs'] ?? null,
+                    'image'      => $data['image'] ?? null,
                 ];
 
                 // Map translations for locales 'vi' and 'en'

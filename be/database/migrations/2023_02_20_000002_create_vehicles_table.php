@@ -20,6 +20,7 @@ return new class extends Migration
             $table->json('images')->nullable()->comment('Gallery images');
             $table->json('colors')->nullable()->comment('Array of color options: {name, hex, image}');
             $table->json('images_360_external')->nullable()->comment('360 degree external images');
+            $table->json('images_360_internal')->nullable()->comment('360 degree internal images');
             $table->string('image_360_internal_url', 500)->nullable()->comment('URL to internal panorama 360');
 
             $table->enum('status', ['ACTIVE', 'INACTIVE'])->default('ACTIVE');

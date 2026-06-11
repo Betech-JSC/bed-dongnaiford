@@ -43,6 +43,7 @@ class Vehicle extends BaseModel
         'images',
         'colors',
         'images_360_external',
+        'images_360_internal',
         'image_360_internal_url',
         'status',
         'sort_order',
@@ -69,6 +70,7 @@ class Vehicle extends BaseModel
             'images'         => 'nullable|array',
             'colors'         => 'nullable|array',
             'images_360_external' => 'nullable|array',
+            'images_360_internal' => 'nullable|array',
             'image_360_internal_url' => 'nullable|string',
             'status'         => 'required|string|in:ACTIVE,INACTIVE',
             'sort_order'     => 'nullable|integer',
@@ -180,6 +182,16 @@ class Vehicle extends BaseModel
     }
 
     public function getImages360ExternalAttribute($value): ?array
+    {
+        return $this->decodeJsonField($value);
+    }
+
+    public function setImages360InternalAttribute($value): void
+    {
+        $this->attributes['images_360_internal'] = $this->encodeJsonField($value);
+    }
+
+    public function getImages360InternalAttribute($value): ?array
     {
         return $this->decodeJsonField($value);
     }

@@ -13,6 +13,7 @@ return new class extends Migration
             $table->unsignedBigInteger('vehicle_id');
             $table->decimal('price', 15, 2)->default(0);
             $table->json('specs')->nullable()->comment('Detailed specifications (engine, power, transmission, etc.)');
+            $table->json('image')->nullable()->comment('Version featured image');
             $table->enum('status', ['ACTIVE', 'INACTIVE'])->default('ACTIVE');
             $table->integer('sort_order')->default(0);
             $table->timestamps();

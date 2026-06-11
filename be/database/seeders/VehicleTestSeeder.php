@@ -225,10 +225,25 @@ class VehicleTestSeeder extends Seeder
                 'image_thumbnail' => 'everest_thumbnail.png',
                 'image_featured' => 'everest_featured.png',
                 'images' => ['everest_hero.png', 'everest_hero.png', 'everest_platinum.png', 'everest_platinum.png', 'everest_platinum.png'],
+                'images_360_external' => array_map(fn($i) => "uploads/vehicles/everest/360/trang/Everest-trang-$i.JPG", range(1, 19)),
+                'images_360_internal' => array_map(fn($i) => "uploads/vehicles/everest/360/noi-that/Everest-xanh-noi-that-$i.JPG", range(1, 19)),
                 'colors' => [
+                    [
+                        'name' => 'Trắng Tuyết',
+                        'hex' => '#fafafa',
+                        'image_path' => 'everest_hero.png',
+                        'image_360_internal' => 'uploads/vehicles/everest/360/interior.jpg',
+                        'images_360' => array_map(fn($i) => "uploads/vehicles/everest/360/trang/Everest-trang-$i.JPG", range(1, 19))
+                    ],
+                    [
+                        'name' => 'Xanh Dương',
+                        'hex' => '#1e3a8a',
+                        'image_path' => 'everest_hero.png',
+                        'images_360' => array_map(fn($i) => "uploads/vehicles/everest/360/xanh/Everest-xanh-$i.JPG", range(1, 13)),
+                        'images_360_internal' => array_map(fn($i) => "uploads/vehicles/everest/360/noi-that/Everest-xanh-noi-that-$i.JPG", range(1, 19))
+                    ],
                     ['name' => 'Đỏ Cam', 'hex' => '#c2410c', 'image_path' => 'everest_hero.png'],
                     ['name' => 'Xám Falcon', 'hex' => '#4b5563', 'image_path' => 'everest_hero.png'],
-                    ['name' => 'Trắng Tuyết', 'hex' => '#fafafa', 'image_path' => 'everest_hero.png'],
                     ['name' => 'Đen Bóng', 'hex' => '#000000', 'image_path' => 'everest_hero.png'],
                 ],
                 'vi' => [
@@ -240,6 +255,7 @@ class VehicleTestSeeder extends Seeder
                 'versions' => [
                     [
                         'price' => 1099000000,
+                        'image' => 'everest_hero.png',
                         'specs' => [
                             'engine' => 'Single-Turbo Diesel 2.0L i4',
                             'power' => '170 Hp @ 3500 rpm',
@@ -254,6 +270,7 @@ class VehicleTestSeeder extends Seeder
                     ],
                     [
                         'price' => 1178000000,
+                        'image' => 'everest_hero.png',
                         'specs' => [
                             'engine' => 'Single-Turbo Diesel 2.0L i4',
                             'power' => '170 Hp @ 3500 rpm',
@@ -268,6 +285,7 @@ class VehicleTestSeeder extends Seeder
                     ],
                     [
                         'price' => 1399000000,
+                        'image' => 'everest_platinum.png',
                         'specs' => [
                             'engine' => 'Bi-Turbo Diesel 2.0L i4',
                             'power' => '210 Hp @ 3750 rpm',
@@ -282,6 +300,7 @@ class VehicleTestSeeder extends Seeder
                     ],
                     [
                         'price' => 1468000000,
+                        'image' => 'everest_platinum.png',
                         'specs' => [
                             'engine' => 'Bi-Turbo Diesel 2.0L i4',
                             'power' => '210 Hp @ 3750 rpm',
@@ -296,6 +315,7 @@ class VehicleTestSeeder extends Seeder
                     ],
                     [
                         'price' => 1540000000,
+                        'image' => 'everest_platinum.png',
                         'specs' => [
                             'engine' => '2.3L EcoBoost Xăng tăng áp',
                             'power' => '270 Hp @ 5500 rpm',
@@ -1019,6 +1039,9 @@ class VehicleTestSeeder extends Seeder
                 'image_featured'  => isset($vData['image_featured'])  ? ['path' => $vData['image_featured']]  : null,
                 'images'          => array_map(fn($p) => ['path' => $p], $vData['images']),
                 'colors'          => $vData['colors'],
+                'images_360_external' => isset($vData['images_360_external']) ? array_map(fn($p) => ['path' => $p], $vData['images_360_external']) : null,
+                'images_360_internal' => isset($vData['images_360_internal']) ? array_map(fn($p) => ['path' => $p], $vData['images_360_internal']) : null,
+                'image_360_internal_url' => $vData['image_360_internal_url'] ?? null,
                 'layout_blocks'   => $vData['layout_blocks'],
                 'status'          => 'ACTIVE',
                 'sort_order'      => $index + 1
@@ -1032,6 +1055,7 @@ class VehicleTestSeeder extends Seeder
                     'vehicle_id' => $v->id,
                     'price' => $vVerData['price'],
                     'specs' => $vVerData['specs'],
+                    'image' => isset($vVerData['image']) ? ['path' => $vVerData['image']] : null,
                     'status' => 'ACTIVE',
                     'sort_order' => 0
                 ]);

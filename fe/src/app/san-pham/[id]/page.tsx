@@ -209,13 +209,15 @@ export default function ProductDetailPage() {
         hex: c.hex,
         image: c.image_path || c.image,
         images_360: c.images_360 || [],
-        image_360_internal: c.image_360_internal || null
+        image_360_internal: c.image_360_internal || null,
+        images_360_internal: c.images_360_internal || []
       })) : [],
       images: (apiVehicle.images && apiVehicle.images.length > 0) ? apiVehicle.images : [apiVehicle.image_url].filter(Boolean),
       versions: apiVehicle.versions ? apiVehicle.versions.map((v: any) => ({
         id: v.id,
         name: v.name,
         price: typeof v.price === 'string' ? parseFloat(v.price) : v.price,
+        image_url: v.image_url || null,
         specs: {
           engine: v.specs?.engine || '',
           power: v.specs?.power || '',
@@ -227,7 +229,10 @@ export default function ProductDetailPage() {
           fuelEconomy: v.specs?.fuelEconomy || v.specs?.fuel_guide || v.specs?.fuel_economy || '',
         }
       })) : [],
-      layout_blocks: apiVehicle.layout_blocks || []
+      layout_blocks: apiVehicle.layout_blocks || [],
+      images_360_external: apiVehicle.images_360_external || [],
+      images_360_internal: apiVehicle.images_360_internal || [],
+      image_360_internal_url: apiVehicle.image_360_internal_url || ''
     }
     : staticVehicle;
 
@@ -242,7 +247,13 @@ export default function ProductDetailPage() {
   const [selectedColorIndex, setSelectedColorIndex] = useState(0);
   const [activeVersionIndex, setActiveVersionIndex] = useState(0);
   const [viewType, setViewType] = useState<"exterior" | "interior">("exterior");
-  const isImageSequence = viewType === "exterior" || (vehicle?.id === "mustang-fastback" && viewType === "interior");
+  const currentColorObj = vehicle?.colors?.[selectedColorIndex];
+  const hasInteriorSeq = (currentColorObj && (currentColorObj as any).images_360_internal && (currentColorObj as any).images_360_internal.length > 0)
+    || (vehicle && (vehicle as any).images_360_internal && (vehicle as any).images_360_internal.length > 0);
+  const hasExteriorSeq = (currentColorObj && (currentColorObj as any).images_360 && (currentColorObj as any).images_360.length > 0)
+    || (vehicle && (vehicle as any).images_360_external && (vehicle as any).images_360_external.length > 0);
+  const isImageSequence = (viewType === "exterior" && (hasExteriorSeq || vehicle?.id === "mustang-fastback"))
+    || (viewType === "interior" && (hasInteriorSeq || vehicle?.id === "mustang-fastback"));
 
   // 360 Interactive Viewer States
   const [is360Active, setIs360Active] = useState(false);
@@ -850,6 +861,15 @@ export default function ProductDetailPage() {
   useEffect(() => {
     if (!threeLoaded || !is360Active || viewType !== "interior" || !threeRef.current) return;
     const currentColor = vehicle?.colors?.[selectedColorIndex];
+    
+    // Skip Three.js initialization if we have a sequence of interior images
+    if (
+      (currentColor && (currentColor as any).images_360_internal && (currentColor as any).images_360_internal.length > 0)
+      || (vehicle && (vehicle as any).images_360_internal && (vehicle as any).images_360_internal.length > 0)
+    ) {
+      return;
+    }
+
     const interiorImg = (currentColor as any)?.image_360_internal
       || vehicle?.image_360_internal_url
       || (vehicle?.id === "new-territory"
@@ -867,9 +887,14 @@ export default function ProductDetailPage() {
 
     const currentColor = vehicle.colors[selectedColorIndex];
 
-    // 1. Dynamic 360 External Image Sequence uploaded from CMS
-    if (currentColor && (currentColor as any).images_360 && (currentColor as any).images_360.length > 0) {
-      const images360 = (currentColor as any).images_360;
+    // 1. Dynamic 360 External Image Sequence uploaded from CMS (Color level or Vehicle level fallback)
+    const images360 = (currentColor && (currentColor as any).images_360 && (currentColor as any).images_360.length > 0)
+      ? (currentColor as any).images_360
+      : ((vehicle as any).images_360_external && (vehicle as any).images_360_external.length > 0)
+        ? (vehicle as any).images_360_external
+        : null;
+
+    if (images360 && images360.length > 0) {
       const imagesCount = images360.length;
       const frameIdx = Math.floor(((rotation % 360 + 360) % 360) / (360 / imagesCount)) % imagesCount;
 
@@ -889,7 +914,7 @@ export default function ProductDetailPage() {
               >
                 <img
                   src={imgUrl}
-                  alt={`${currentColor.name} - 360 Frame ${idx}`}
+                  alt={`${currentColor?.name || vehicle.name} - 360 Frame ${idx}`}
                   className="max-h-[420px] md:max-h-[480px] w-auto object-contain select-none pointer-events-none"
                   loading="eager"
                 />
@@ -986,6 +1011,50 @@ export default function ProductDetailPage() {
         />
       </div>
     );
+  };
+
+  const renderInteriorCarPicture = () => {
+    if (!vehicle) return null;
+
+    const currentColor = vehicle.colors[selectedColorIndex];
+
+    const images360 = (currentColor && (currentColor as any).images_360_internal && (currentColor as any).images_360_internal.length > 0)
+      ? (currentColor as any).images_360_internal
+      : ((vehicle as any).images_360_internal && (vehicle as any).images_360_internal.length > 0)
+        ? (vehicle as any).images_360_internal
+        : null;
+
+    if (images360 && images360.length > 0) {
+      const imagesCount = images360.length;
+      const frameIdx = Math.floor(((rotation % 360 + 360) % 360) / (360 / imagesCount)) % imagesCount;
+
+      return (
+        <div className="cmp-360-image-container w-full h-full relative" tabIndex={0}>
+          {images360.map((imgUrl: string, idx: number) => {
+            const isActive = idx === frameIdx;
+            return (
+              <picture
+                key={idx}
+                className="cmp-360-image absolute inset-0 w-full h-full flex items-center justify-center"
+                style={{
+                  opacity: isActive ? 1 : 0,
+                  pointerEvents: isActive ? 'auto' : 'none',
+                  zIndex: isActive ? 10 : 0
+                }}
+              >
+                <img
+                  src={imgUrl}
+                  alt={`${currentColor?.name || vehicle.name} - 360 Interior Frame ${idx}`}
+                  className="max-h-[420px] md:max-h-[480px] w-auto object-contain select-none pointer-events-none"
+                  loading="eager"
+                />
+              </picture>
+            );
+          })}
+        </div>
+      );
+    }
+    return null;
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -1463,6 +1532,7 @@ export default function ProductDetailPage() {
     failedImages, setFailedImages,
     selectedWheel, setSelectedWheel,
     renderCarPicture,
+    renderInteriorCarPicture,
     handleMouseDown, handleMouseMove, handleMouseUpOrLeave, handleTouchStart, handleTouchMove,
     media, versionGradients
   };

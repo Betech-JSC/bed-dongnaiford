@@ -59,6 +59,35 @@
 
             <!-- Tab 2: Màu sắc & 360° -->
             <div v-show="activeFormTab === 'colors'">
+                <!-- Cấu hình 360° mặc định (Vehicle-level) -->
+                <div class="card mt-4 mb-4">
+                    <div class="card-header font-bold text-gray-700">Cấu hình 360° mặc định của dòng xe (Dùng làm Fallback)</div>
+                    <div class="card-body">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-xl border border-gray-200">
+                            <Field v-model="form.images_360_external" :field="{
+                                type: 'file_upload',
+                                name: 'images_360_external',
+                                label: 'Bộ ảnh xoay 360° Ngoại thất mặc định (Chọn nhiều ảnh theo thứ tự xoay)',
+                                multiple: true,
+                            }" />
+                            <Field v-model="form.images_360_internal" :field="{
+                                type: 'file_upload',
+                                name: 'images_360_internal',
+                                label: 'Bộ ảnh xoay 360° Nội thất mặc định (Chọn nhiều ảnh theo thứ tự xoay)',
+                                multiple: true,
+                            }" />
+                        </div>
+                        <div class="mt-3 bg-gray-50 p-4 rounded-xl border border-gray-200">
+                            <Field v-model="form.image_360_internal_url" :field="{
+                                type: 'text',
+                                name: 'image_360_internal_url',
+                                label: 'Đường dẫn ảnh Panorama 360° hoặc Iframe tour Nội thất mặc định',
+                                placeholder: 'vd: /storage/uploads/vehicles/panorama.jpg hoặc https://my.matterport.com/show/?m=...',
+                            }" />
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Bảng màu xe (KHÔNG dịch) -->
                 <div class="card mt-4">
                     <div class="card-header font-bold text-gray-700">Bảng màu xe (Color Swatches) & Trải nghiệm 360°</div>
@@ -147,6 +176,14 @@
                                             multiple: true,
                                         }" />
                                     </div>
+                                    <div class="mt-3 bg-gray-50 p-4 rounded-xl border border-gray-200">
+                                        <Field v-model="form.colors[index].images_360_internal" :field="{
+                                            type: 'file_upload',
+                                            name: 'color_images_360_internal_' + index,
+                                            label: 'Bộ ảnh xoay 360° Nội thất cho màu này (Chọn nhiều ảnh theo thứ tự xoay)',
+                                            multiple: true,
+                                        }" />
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -185,6 +222,15 @@
                                     type: 'money',
                                     name: 'version_price_' + index,
                                     label: 'Giá bán (VNĐ)',
+                                }" />
+                            </div>
+
+                            <div class="mb-4 bg-white p-4 rounded-xl border border-gray-200">
+                                <!-- Ảnh đặc trưng phiên bản -->
+                                <Field v-model="form.versions[index].image" :field="{
+                                    type: 'file_upload',
+                                    name: 'version_image_' + index,
+                                    label: 'Ảnh đặc trưng của phiên bản (Hiển thị ở trang chi tiết xe)',
                                 }" />
                             </div>
 
@@ -479,11 +525,14 @@ export default {
                 images: [],
                 colors: [],
                 images_360_external: [],
+                images_360_internal: [],
                 image_360_internal_url: '',
                 versions: [],
                 layout_blocks: [],
                 ...item,
             }
+            data.images_360_external = data.images_360_external || []
+            data.images_360_internal = data.images_360_internal || []
             data.layout_blocks = data.layout_blocks || []
             
             // Convert boolean is_best_seller to integer for radio_list
@@ -531,6 +580,7 @@ export default {
                     image: col.image ?? (col.image_path ? { path: col.image_path } : null),
                     images_360: col.images_360 ?? [],
                     image_360_internal: col.image_360_internal ?? null,
+                    images_360_internal: col.images_360_internal ?? [],
                     showDetails: false,
                 };
             })
@@ -609,6 +659,7 @@ export default {
                     price: ver.price ?? 0,
                     status: ver.status ?? 'ACTIVE',
                     sort_order: ver.sort_order ?? 0,
+                    image: ver.image ?? null,
                     showSpecs: false,
                     customSpecs: customSpecs,
                     specs: initialSpecs
@@ -637,6 +688,7 @@ export default {
                 image: null,
                 images_360: [],
                 image_360_internal: null,
+                images_360_internal: [],
                 showDetails: true
             })
         },
@@ -665,6 +717,7 @@ export default {
                 price: 0,
                 status: 'ACTIVE',
                 sort_order: this.formData.versions.length + 1,
+                image: null,
                 showSpecs: true,
                 customSpecs: defaultSpecs,
                 specs: {
