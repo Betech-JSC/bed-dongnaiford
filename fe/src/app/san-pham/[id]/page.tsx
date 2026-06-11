@@ -3318,7 +3318,7 @@ export default function ProductDetailPage() {
         </div>
       )}
 
-      {!isEditMode && !isEmbedded && (
+      {/* {!isEditMode && !isEmbedded && (
         <button
           type="button"
           onClick={() => {
@@ -3334,7 +3334,7 @@ export default function ProductDetailPage() {
         >
           ⚙️ Dựng trang trực quan
         </button>
-      )}
+      )} */}
 
     </div>
   );
