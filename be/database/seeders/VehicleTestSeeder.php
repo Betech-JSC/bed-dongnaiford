@@ -743,8 +743,11 @@ class VehicleTestSeeder extends Seeder
                 'image_featured' => 'mustang_hero.png',
                 'images' => ['mustang_hero.png', 'mustang_hero.png', 'mustang_hero.png', 'mustang_hero.png', 'mustang_dark_horse.png'],
                 'images_360_external' => array_map(fn($i) => "uploads/vehicles/mustang/360/exterior/adriatic-blue-green/00{$i}-adriatic-blue-green-64f.jpeg", range(1, 28)),
-                'images_360_internal' => ["uploads/vehicles/mustang/360/interior/interior.png"],
-                'image_360_internal_url' => "uploads/vehicles/mustang/360/interior/interior.png",
+                'images_360_internal' => [
+                    "uploads/vehicles/mustang/360/interior/001-black-onyx.jpeg",
+                    "uploads/vehicles/mustang/360/interior/001-space-gray.jpeg"
+                ],
+                'image_360_internal_url' => "uploads/vehicles/mustang/360/interior/001-black-onyx.jpeg",
                 'colors' => array_map(function($c) {
                     $colorId = $c['color_id'];
                     $images360 = [];
@@ -756,7 +759,7 @@ class VehicleTestSeeder extends Seeder
                         'hex' => $c['hex'],
                         'image_path' => 'mustang_hero.png',
                         'images_360' => $images360,
-                        'image_360_internal' => 'uploads/vehicles/mustang/360/interior/interior.png'
+                        'image_360_internal' => 'uploads/vehicles/mustang/360/interior/001-black-onyx.jpeg'
                     ];
                 }, [
                     ['color_id' => 'adriatic-blue-green', 'name' => 'Adriatic Blue Metallic', 'hex' => '#15444c'],

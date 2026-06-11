@@ -917,17 +917,21 @@ export default function ProductDetailPage() {
       return;
     }
 
-    const interiorImg = (currentColor as any)?.image_360_internal
-      || vehicle?.image_360_internal_url
-      || (vehicle?.id === "new-territory"
-        ? "/assets/territory-interior.png"
-        : (media.bannerLarge || "/assets/territory-interior.png"));
+    const interiorImg = (vehicle?.id === "mustang-fastback" || vehicle?.id === "ford-mustang")
+      ? (selectedInteriorColorIndex === 1
+        ? (vehicle?.images_360_internal?.[1] || "/storage/vehicles/mustang/360/interior/001-space-gray.jpeg")
+        : (vehicle?.images_360_internal?.[0] || "/storage/vehicles/mustang/360/interior/001-black-onyx.jpeg"))
+      : ((currentColor as any)?.image_360_internal
+        || vehicle?.image_360_internal_url
+        || (vehicle?.id === "new-territory"
+          ? "/assets/territory-interior.png"
+          : (media.bannerLarge || "/assets/territory-interior.png")));
 
     const cleanUpThree = initThreeInterior(threeRef.current, interiorImg);
     return () => {
       if (cleanUpThree) cleanUpThree();
     };
-  }, [threeLoaded, is360Active, viewType, vehicle, media, selectedColorIndex]);
+  }, [threeLoaded, is360Active, viewType, vehicle, media, selectedColorIndex, selectedInteriorColorIndex]);
 
   const renderCarPicture = () => {
     if (!vehicle) return null;
