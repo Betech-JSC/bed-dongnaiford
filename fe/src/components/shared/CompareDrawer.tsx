@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { X, GitCompare, Trash2, ArrowRight } from "lucide-react";
-import { vehicles, type Vehicle } from "@/data/vehicles";
+import { type Vehicle } from "@/data/vehicles";
 import { getPopularVehicleImage, handleImageError } from "@/lib/site-assets";
 import { formatPriceShort } from "@/lib/rolling-cost";
 import { vehiclesAPI } from "@/lib/api";
@@ -53,27 +53,26 @@ export default function CompareDrawer() {
   useEffect(() => {
     const fetchAll = async () => {
       try {
-        const res = await vehiclesAPI.getAll().catch(() => null);
+        const res = await vehiclesAPI.getAll({ with_versions: true }).catch(() => null);
         const items = res?.data || res;
         if (Array.isArray(items) && items.length > 0) {
           const mapped: Vehicle[] = items.map((v: ApiVehicleData) => {
-            const staticV = vehicles.find((sv) => sv.id === v.slug || sv.id === String(v.id));
             const id = v.slug || String(v.id);
             const name = v.title || v.name || "";
-            const image = (v as any).image_thumbnail_url || v.image_url || v.images?.[0] || getPopularVehicleImage(id, "");
+            const image = (v as any).image_thumbnail_url || v.image_url || v.images?.[0] || "";
             const price = typeof v.base_price === 'string' ? parseFloat(v.base_price) : (v.base_price || v.basePrice || 0);
             return {
               id,
               name,
               type: (v.type === 'suv' || v.type === 'pickup' || v.type === 'commercial' ? v.type : 'suv') as "suv" | "pickup" | "commercial",
-              typeName: v.type_name || v.typeName || (staticV?.typeName) || (v.type === 'suv' ? 'SUV' : v.type === 'pickup' ? 'Bán tải' : 'Thương mại'),
+              typeName: v.type_name || v.typeName || (v.type === 'suv' ? 'SUV' : v.type === 'pickup' ? 'Bán tải' : 'Thương mại'),
               basePrice: price,
-              tagline: staticV?.tagline || "",
-              description: staticV?.description || "",
+              tagline: (v as any).tagline || "",
+              description: (v as any).description || "",
               images: [image],
-              colors: staticV?.colors || [],
-              versions: staticV?.versions || []
-            };
+              colors: (v as any).colors || [],
+              versions: (v as any).versions || []
+            } as any;
           });
           setAllVehicles(mapped);
         }
@@ -123,9 +122,7 @@ export default function CompareDrawer() {
   // Resolve vehicles details
   const compareVehicles = selectedIds
     .map((id) => {
-      const found = allVehicles.find((v) => v.id === id);
-      if (found) return found;
-      return vehicles.find((v) => v.id === id);
+      return allVehicles.find((v) => v.id === id);
     })
     .filter((v): v is Vehicle => !!v);
 
