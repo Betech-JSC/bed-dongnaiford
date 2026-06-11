@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             PostNewsSeeder::class,
             ServiceAgencyJobSeeder::class,
             AccessoryAndBrandSeeder::class,
+            MaintenanceScheduleSeeder::class,
         ]);
     }
 }

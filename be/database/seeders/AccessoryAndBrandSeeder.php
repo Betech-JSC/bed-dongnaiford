@@ -76,7 +76,7 @@ class AccessoryAndBrandSeeder extends Seeder
                 'brand' => 'Ford',
                 'description' => 'Thiết kế khí động học giúp giảm tiếng ồn và tiết kiệm nhiên liệu tối đa, tăng không gian chứa hành lý cho các chuyến đi xa.',
                 'images' => [
-                    ['path' => '/uploads/accessories/focus_rack_1.jpg', 'alt' => 'Thanh Giá/Giá Ngang Mái Xe Ford Focus']
+                    ['path' => '/uploads/accessories/focus_rack_1.png', 'alt' => 'Thanh Giá/Giá Ngang Mái Xe Ford Focus']
                 ],
                 'fit_vehicles' => ['Ford Focus Estate', 'Ford Ranger', 'Ford Territory', 'Ford Escape'],
                 'features' => [
@@ -97,7 +97,7 @@ class AccessoryAndBrandSeeder extends Seeder
                 'brand' => '3M',
                 'description' => 'Thảm sàn cao cấp thiết kế ôm khít sàn xe, chất liệu TPE không mùi, chống nước, chống trượt hoàn hảo.',
                 'images' => [
-                    ['path' => '/uploads/accessories/floor_mat_1.jpg', 'alt' => 'Thảm Sàn Cao Cấp']
+                    ['path' => '/uploads/accessories/floor_mat_1.png', 'alt' => 'Thảm Sàn Cao Cấp']
                 ],
                 'fit_vehicles' => ['Ford Everest', 'Ford Ranger', 'Ford Territory', 'Ford Escape'],
                 'features' => [
@@ -118,7 +118,7 @@ class AccessoryAndBrandSeeder extends Seeder
                 'brand' => 'Nappa',
                 'description' => 'Nâng cấp không gian nội thất sang trọng với chất liệu da Nappa cao cấp, êm ái và thoáng khí tối đa.',
                 'images' => [
-                    ['path' => '/uploads/accessories/leather_seat_1.jpg', 'alt' => 'Bọc Ghế Da Nappa']
+                    ['path' => '/uploads/accessories/leather_seat_1.png', 'alt' => 'Bọc Ghế Da Nappa']
                 ],
                 'fit_vehicles' => ['Ford Ranger XLS/XLT', 'Ford Territory Trend', 'Ford Transit'],
                 'features' => [
@@ -139,7 +139,7 @@ class AccessoryAndBrandSeeder extends Seeder
                 'brand' => 'Vietmap',
                 'description' => 'Camera hành trình ghi hình độ nét cao Ultra HD 4K, hỗ trợ cảnh báo giao thông bằng giọng nói và giám sát đỗ xe.',
                 'images' => [
-                    ['path' => '/uploads/accessories/dashcam_1.jpg', 'alt' => 'Camera Hành Trình Pro']
+                    ['path' => '/uploads/accessories/dashcam_1.png', 'alt' => 'Camera Hành Trình Pro']
                 ],
                 'fit_vehicles' => ['Ford Everest', 'Ford Ranger', 'Ford Territory', 'Ford Escape'],
                 'features' => [
@@ -160,7 +160,7 @@ class AccessoryAndBrandSeeder extends Seeder
                 'brand' => 'Michelin',
                 'description' => 'Bộ mâm hợp kim thể thao đa chấu thể hiện cá tính mạnh mẽ, tối ưu hóa trọng lượng và tăng cường độ cứng cáp.',
                 'images' => [
-                    ['path' => '/uploads/accessories/alloy_wheel_1.jpg', 'alt' => 'Bộ Mâm Hợp Kim']
+                    ['path' => '/uploads/accessories/alloy_wheel_1.png', 'alt' => 'Bộ Mâm Hợp Kim']
                 ],
                 'fit_vehicles' => ['Ford Ranger', 'Ford Everest', 'Ranger Raptor'],
                 'features' => [
@@ -181,7 +181,7 @@ class AccessoryAndBrandSeeder extends Seeder
                 'brand' => 'K&N',
                 'description' => 'Lọc gió hiệu suất cao cho phép lưu lượng gió nạp nhiều hơn, tăng công suất động cơ và tiết kiệm nhiên liệu.',
                 'images' => [
-                    ['path' => '/uploads/accessories/air_filter_1.jpg', 'alt' => 'Lọc Gió Hiệu Suất K&N']
+                    ['path' => '/uploads/accessories/air_filter_1.png', 'alt' => 'Lọc Gió Hiệu Suất K&N']
                 ],
                 'fit_vehicles' => ['Ford Ranger Wildtrak', 'Ford Everest Bi-Turbo', 'Ranger Raptor'],
                 'features' => [
@@ -202,7 +202,7 @@ class AccessoryAndBrandSeeder extends Seeder
                 'brand' => 'Ford',
                 'description' => 'Hộp sắp xếp hành lý cốp xe đa năng, nhiều ngăn chứa tiện dụng và có thể gập gọn khi không sử dụng.',
                 'images' => [
-                    ['path' => '/uploads/accessories/trunk_organizer_1.jpg', 'alt' => 'Bộ Sắp Xếp Hành Lý Cốp Sau']
+                    ['path' => '/uploads/accessories/trunk_organizer_1.png', 'alt' => 'Bộ Sắp Xếp Hành Lý Cốp Sau']
                 ],
                 'fit_vehicles' => ['Ford Everest', 'Ford Territory', 'Ford Escape'],
                 'features' => [
@@ -223,7 +223,7 @@ class AccessoryAndBrandSeeder extends Seeder
                 'brand' => '3M',
                 'description' => 'Bộ tấm chắn nắng nam châm thiết kế riêng theo form kính xe, cản nắng cản nhiệt hiệu quả bảo vệ nội thất.',
                 'images' => [
-                    ['path' => '/uploads/accessories/sunshade_1.jpg', 'alt' => 'Tấm Chắn Nắng']
+                    ['path' => '/uploads/accessories/sunshade_1.png', 'alt' => 'Tấm Chắn Nắng']
                 ],
                 'fit_vehicles' => ['Ford Everest', 'Ford Ranger', 'Ford Territory'],
                 'features' => [
@@ -244,7 +244,7 @@ class AccessoryAndBrandSeeder extends Seeder
                 'brand' => 'Steelmate',
                 'description' => 'Khay sạc điện thoại không dây chuẩn Qi tích hợp gọn gàng tại khu vực bệ trung tâm điều khiển tiện lợi.',
                 'images' => [
-                    ['path' => '/uploads/accessories/wireless_charger_1.jpg', 'alt' => 'Sạc Không Dây 15W']
+                    ['path' => '/uploads/accessories/wireless_charger_1.png', 'alt' => 'Sạc Không Dây 15W']
                 ],
                 'fit_vehicles' => ['Ford Ranger XLS/XLT', 'Ford Territory Trend'],
                 'features' => [
@@ -265,7 +265,7 @@ class AccessoryAndBrandSeeder extends Seeder
                 'brand' => 'Ford',
                 'description' => 'Bộ 4 tấm chắn bùn bánh xe chất liệu nhựa dẻo PP đàn hồi cao, chống va đập sỏi đá làm xước sơn xe.',
                 'images' => [
-                    ['path' => '/uploads/accessories/mud_guard_1.jpg', 'alt' => 'Tấm Chắn Bùn Bánh Xe']
+                    ['path' => '/uploads/accessories/mud_guard_1.png', 'alt' => 'Tấm Chắn Bùn Bánh Xe']
                 ],
                 'fit_vehicles' => ['Ford Ranger', 'Ford Everest', 'Ford Territory'],
                 'features' => [
@@ -286,7 +286,7 @@ class AccessoryAndBrandSeeder extends Seeder
                 'brand' => 'Ford',
                 'description' => 'Khay giá nóc baga thép nguyên khối chịu tải trọng nặng, mở rộng tối đa khả năng chở đồ dã ngoại cắm trại.',
                 'images' => [
-                    ['path' => '/uploads/accessories/roof_basket_1.jpg', 'alt' => 'Giá Nóc Baga Cao Cấp']
+                    ['path' => '/uploads/accessories/roof_basket_1.png', 'alt' => 'Giá Nóc Baga Cao Cấp']
                 ],
                 'fit_vehicles' => ['Ford Everest'],
                 'features' => [
@@ -307,7 +307,7 @@ class AccessoryAndBrandSeeder extends Seeder
                 'brand' => 'Ford',
                 'description' => 'Bậc bước chân lên xuống hợp kim đúc thể thao cứng cáp, bảo vệ sườn xe và giúp lên xuống xe dễ dàng.',
                 'images' => [
-                    ['path' => '/uploads/accessories/side_step_1.jpg', 'alt' => 'Bậc Lên Xuống']
+                    ['path' => '/uploads/accessories/side_step_1.png', 'alt' => 'Bậc Lên Xuống']
                 ],
                 'fit_vehicles' => ['Ford Ranger Wildtrak/XLS/XLT', 'Ford Everest'],
                 'features' => [
@@ -328,7 +328,7 @@ class AccessoryAndBrandSeeder extends Seeder
                 'brand' => 'Akrapovic',
                 'description' => 'Hệ thống pô ống xả thể thao bằng thép không gỉ, tinh chỉnh âm thanh pô uy lực và gia tăng công suất động cơ.',
                 'images' => [
-                    ['path' => '/uploads/accessories/exhaust_1.jpg', 'alt' => 'Hệ Thống Ống Xả Akrapovic']
+                    ['path' => '/uploads/accessories/exhaust_1.png', 'alt' => 'Hệ Thống Ống Xả Akrapovic']
                 ],
                 'fit_vehicles' => ['Ford Ranger Wildtrak 2.0 Bi-Turbo', 'Ranger Raptor'],
                 'features' => [

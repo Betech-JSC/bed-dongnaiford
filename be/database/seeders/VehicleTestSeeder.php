@@ -1008,6 +1008,7 @@ class VehicleTestSeeder extends Seeder
 
         // Seed vehicles
         foreach ($vehiclesData as $index => $vData) {
+            $vData = $this->transformPaths($vData);
             $v = new Vehicle([
                 'category_id'     => $vData['category_id'],
                 'type'            => $vData['type'],
@@ -1042,7 +1043,7 @@ class VehicleTestSeeder extends Seeder
         $this->command->info('✅ Successfully seeded ' . count($vehiclesData) . ' Ford DNF vehicles & versions with dynamic blocks');
 
         // 3. CẤU HÌNH PHÍ LĂN BÁNH (Registration Fees)
-        $regions = Region::where('level', 1)->take(5)->get();
+        $regions = Region::where('level', 1)->get();
         if ($regions->isEmpty()) {
             $rDongNai = Region::firstOrCreate(['code' => '48'], [
                 'country_id' => 1,
@@ -1104,6 +1105,7 @@ class VehicleTestSeeder extends Seeder
         ];
 
         foreach ($banners as $b) {
+            $b = $this->transformPaths($b);
             Banner::create([
                 'title' => $b['title'],
                 'subtitle' => $b['subtitle'],
@@ -1303,5 +1305,23 @@ class VehicleTestSeeder extends Seeder
 
         $this->command->info('✅ Partners created');
         $this->command->info('🎉 All Ford DNF database seeders completed successfully!');
+    }
+
+    private function transformPaths($data)
+    {
+        if (is_string($data)) {
+            if (str_ends_with($data, '.png') || str_ends_with($data, '.jpg') || str_ends_with($data, '.jpeg')) {
+                if (!str_starts_with($data, 'uploads/') && !str_starts_with($data, '/uploads/') && !str_starts_with($data, 'assets/')) {
+                    return 'uploads/vehicles/' . $data;
+                }
+            }
+            return $data;
+        }
+        if (is_array($data)) {
+            foreach ($data as $key => $value) {
+                $data[$key] = $this->transformPaths($value);
+            }
+        }
+        return $data;
     }
 }

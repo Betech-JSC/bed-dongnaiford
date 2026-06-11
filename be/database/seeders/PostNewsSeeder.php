@@ -55,7 +55,7 @@ class PostNewsSeeder extends Seeder
         // 3. TẠO POSTS/NEWS
         $posts = [
             [
-                'image' => ['path' => '/assets/car-everest.png'],
+                'image' => ['path' => 'uploads/vehicles/everest_hero.png'],
                 'published_at' => now()->subDays(10),
                 'is_featured' => true,
                 'type' => 'POST',
@@ -65,11 +65,11 @@ class PostNewsSeeder extends Seeder
                     'title' => 'Ford Everest Máy Xăng: Sự Thật Ít Ai Biết & Tư Vấn Mua Xe Tại Đồng Nai Ford',
                     'slug' => 'ford-everest-may-xang-su-that-it-ai-biet',
                     'description' => 'Ford Everest luôn là cái tên hot trong phân khúc SUV 7 chỗ tại Việt Nam. Bài viết này sẽ phân tích chi tiết phiên bản máy xăng của Ford Everest thế hệ mới.',
-                    'content' => '<h2>Ưu điểm nổi bật của Ford Everest Động cơ Xăng</h2><p>Khác với động cơ dầu có tiếng nổ đặc trưng và độ rung nhẹ, động cơ xăng Ecoboost mang lại trải nghiệm vận hành êm ái đến kinh ngạc. Cabin xe hoàn toàn yên tĩnh, giúp các chuyến đi dài cùng gia đình trở nên thư thái hơn rất nhiều.</p><h3>Mức tiêu hao nhiên liệu thực tế tại Đồng Nai</h3><p>Qua các thử nghiệm thực tế của đội ngũ kỹ thuật Đồng Nai Ford trên cung đường từ TP. Biên Hòa đi Long Khánh, mức tiêu hao nhiên liệu trung bình của Ford Everest máy xăng rơi vào khoảng 8.5L/100km đường trường và khoảng 11L - 12L/100km trong điều kiện đô thị đông đúc.</p>'
+                    'content' => '<h2>Ưu điểm nổi bật của Ford Everest Động cơ Xăng</h2><p>Khác với động cơ dầu có tiếng nổ đặc trưng và độ rung nhẹ, động cơ xăng Ecoboost mang lại trải nghiệm vận hành êm ái đến kinh ngạc. Cabin xe hoàn toàn yên tĩnh, giúp các chuyến đi dài cùng gia dịch trở nên thư thái hơn rất nhiều.</p><h3>Mức tiêu hao nhiên liệu thực tế tại Đồng Nai</h3><p>Qua các thử nghiệm thực tế của đội ngũ kỹ thuật Đồng Nai Ford trên cung đường từ TP. Biên Hòa đi Long Khánh, mức tiêu hao nhiên liệu trung bình của Ford Everest máy xăng rơi vào khoảng 8.5L/100km đường trường và khoảng 11L - 12L/100km trong điều kiện đô thị đông đúc.</p>'
                 ]
             ],
             [
-                'image' => ['path' => '/images-dynamic/image-hero-2.jpg'],
+                'image' => ['path' => 'uploads/blog/blog_promotion.png'],
                 'published_at' => now()->subDays(5),
                 'is_featured' => true,
                 'is_home' => true,
@@ -84,7 +84,7 @@ class PostNewsSeeder extends Seeder
                 ]
             ],
             [
-                'image' => ['path' => '/assets/car-ranger.png'],
+                'image' => ['path' => 'uploads/vehicles/ranger_raptor.png'],
                 'published_at' => now()->subDays(15),
                 'is_featured' => false,
                 'type' => 'POST',
@@ -98,7 +98,7 @@ class PostNewsSeeder extends Seeder
                 ]
             ],
             [
-                'image' => ['path' => '/assets/territory-hero.png'],
+                'image' => ['path' => 'uploads/vehicles/territory_hero.png'],
                 'published_at' => now()->subDays(20),
                 'is_featured' => false,
                 'type' => 'POST',
@@ -112,7 +112,7 @@ class PostNewsSeeder extends Seeder
                 ]
             ],
             [
-                'image' => ['path' => '/assets/car-transit.png'],
+                'image' => ['path' => 'uploads/vehicles/transit_hero.png'],
                 'published_at' => now()->subDays(25),
                 'is_featured' => false,
                 'type' => 'POST',
@@ -120,13 +120,13 @@ class PostNewsSeeder extends Seeder
                 'tag_ids' => [],
                 'vi' => [
                     'title' => 'Giải pháp vận chuyển hành khách tối ưu cùng Ford Transit 2026',
-                    'slug' => 'giai-phap-van-chuyen-hanh-khach-ford-transit',
+                    'slug' => 'giai-phap-van-chuyen-hành-khach-ford-transit',
                     'description' => 'Ford Transit Thế hệ Mới được thiết kế tối ưu với không gian rộng rãi hơn, tiện nghi vượt trội cùng độ bền bỉ cao.',
                     'content' => '<h2>Nâng cấp toàn diện thiết kế và trang bị nội thất</h2><p>Ford Transit thế hệ mới mang lại diện mạo chuyên nghiệp hơn với lưới tản nhiệt lớn mạ chrome sang trọng.</p><h3>Động cơ Turbo Diesel 2.2L mạnh mẽ và tiết kiệm</h3><p>Transit thế hệ mới sử dụng động cơ dầu 2.2L TDCi kết hợp hộp số sàn 6 cấp cho khả năng kéo tải cực tốt.</p>'
                 ]
             ],
             [
-                'image' => ['path' => '/service-fixed-car.jpg'],
+                'image' => ['path' => 'uploads/blog/blog_safe_driving.png'],
                 'published_at' => now()->subDays(30),
                 'is_featured' => false,
                 'is_home' => true,

@@ -15,11 +15,11 @@ class ServiceAgencyJobSeeder extends Seeder
         $services = [
             [
                 'email' => 'service@dongnaiford.com.vn',
-                'image' => ['path' => '/service-support-customer.jpg'],
-                'benefit_image' => ['path' => '/service-support-customer.jpg'],
+                'image' => ['path' => 'uploads/services/service_support_customer.png'],
+                'benefit_image' => ['path' => 'uploads/services/service_support_customer.png'],
                 'sliders' => [
-                    ['path' => '/service-support-customer.jpg'],
-                    ['path' => '/service-delivery.jpg']
+                    ['path' => 'uploads/services/service_support_customer.png'],
+                    ['path' => 'uploads/services/service_delivery.png']
                 ],
                 'position' => 1,
                 'vi' => [
@@ -35,9 +35,9 @@ class ServiceAgencyJobSeeder extends Seeder
             ],
             [
                 'email' => 'express@dongnaiford.com.vn',
-                'image' => ['path' => '/service-fixed-car.jpg'],
-                'benefit_image' => ['path' => '/service-fixed-car.jpg'],
-                'sliders' => [['path' => '/service-fixed-car.jpg']],
+                'image' => ['path' => 'uploads/services/service_fixed_car.png'],
+                'benefit_image' => ['path' => 'uploads/services/service_fixed_car.png'],
+                'sliders' => [['path' => 'uploads/services/service_fixed_car.png']],
                 'position' => 2,
                 'vi' => [
                     'title' => 'Bảo dưỡng nhanh',
@@ -48,9 +48,9 @@ class ServiceAgencyJobSeeder extends Seeder
             ],
             [
                 'email' => 'periodic@dongnaiford.com.vn',
-                'image' => ['path' => '/service-delivery.jpg'],
-                'benefit_image' => ['path' => '/service-delivery.jpg'],
-                'sliders' => [['path' => '/service-delivery.jpg']],
+                'image' => ['path' => 'uploads/services/service_delivery.png'],
+                'benefit_image' => ['path' => 'uploads/services/service_delivery.png'],
+                'sliders' => [['path' => 'uploads/services/service_delivery.png']],
                 'position' => 3,
                 'vi' => [
                     'title' => 'Bảo dưỡng định kỳ',
@@ -61,9 +61,9 @@ class ServiceAgencyJobSeeder extends Seeder
             ],
             [
                 'email' => 'pickup@dongnaiford.com.vn',
-                'image' => ['path' => '/showroom_bg.png'],
-                'benefit_image' => ['path' => '/showroom_bg.png'],
-                'sliders' => [['path' => '/showroom_bg.png']],
+                'image' => ['path' => 'uploads/showroom/showroom_bg.png'],
+                'benefit_image' => ['path' => 'uploads/showroom/showroom_bg.png'],
+                'sliders' => [['path' => 'uploads/showroom/showroom_bg.png']],
                 'position' => 4,
                 'vi' => [
                     'title' => 'Nhận và giao xe tận nơi',
@@ -100,10 +100,10 @@ class ServiceAgencyJobSeeder extends Seeder
                 'longitude' => 106.8419,
                 'latitude' => 10.9638,
                 'link_google_map' => 'https://maps.google.com/?q=10.9638,106.8419',
-                'image' => ['path' => '/showroom_bg.png'],
+                'image' => ['path' => 'uploads/showroom/showroom_bg.png'],
                 'images' => [
-                    ['path' => '/showroom_bg.png'],
-                    ['path' => '/showroom_map.png']
+                    ['path' => 'uploads/showroom/showroom_bg.png'],
+                    ['path' => 'uploads/showroom/showroom_map.png']
                 ],
                 'vi' => [
                     'title' => 'Showroom Đồng Nai Ford - Biên Hòa',
@@ -126,7 +126,7 @@ class ServiceAgencyJobSeeder extends Seeder
                 'longitude' => 106.9524,
                 'latitude' => 10.9804,
                 'link_google_map' => 'https://maps.google.com/?q=10.9804,106.9524',
-                'image' => ['path' => '/showroom_bg.png'],
+                'image' => ['path' => 'uploads/showroom/showroom_bg.png'],
                 'vi' => [
                     'title' => 'Xưởng Dịch Vụ Đồng Nai Ford - Long Thành',
                     'slug' => 'xuong-dich-vu-long-thanh',

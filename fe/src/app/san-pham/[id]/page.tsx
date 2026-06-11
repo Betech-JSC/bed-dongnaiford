@@ -3,7 +3,7 @@
 import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import { contactsAPI, vehiclesAPI, mediaAPI } from "@/lib/api";
+import { contactsAPI, vehiclesAPI, mediaAPI, regionsAPI } from "@/lib/api";
 import {
   ArrowLeft,
   Check,
@@ -1078,7 +1078,27 @@ export default function ProductDetailPage() {
   const [selectedVehicleId, setSelectedVehicleId] = useState(vehicle?.id || "");
   const [selectedVersionId, setSelectedVersionId] = useState(vehicle?.versions?.[0]?.id || "");
   const [selectedProvince, setSelectedProvince] = useState("Đồng Nai");
+  const [provinces, setProvinces] = useState<{ id: string; name: string }[]>([]);
   const [drawerStep, setDrawerStep] = useState<"calculate" | "contact">("calculate");
+
+  // Fetch provinces from API
+  useEffect(() => {
+    regionsAPI.getProvinces()
+      .then((res) => {
+        if (res && res.success && Array.isArray(res.data)) {
+          setProvinces(res.data);
+          const hasDongNai = res.data.some(p => p.name.includes("Đồng Nai"));
+          if (hasDongNai) {
+            setSelectedProvince("Đồng Nai");
+          } else if (res.data.length > 0) {
+            setSelectedProvince(res.data[0].name);
+          }
+        }
+      })
+      .catch((err) => {
+        console.error("Error loading provinces:", err);
+      });
+  }, []);
 
   // Keep calculator states synced if active version changes on the page
   useEffect(() => {
@@ -1155,7 +1175,11 @@ export default function ProductDetailPage() {
     const basePrice = selVer.price;
     const registrationTaxRate = selVeh.type === "pickup" ? 0.06 : 0.10;
     const registrationTax = basePrice * registrationTaxRate;
-    const plateFee = selectedProvince === "TP. Hồ Chí Minh" ? 20000000 : 1000000;
+    
+    const bigCities = ["Hà Nội", "Hồ Chí Minh", "Hải Phòng", "Đà Nẵng", "Cần Thơ", "Huế"];
+    const isBigCity = bigCities.some(city => selectedProvince.toLowerCase().includes(city.toLowerCase()));
+    const plateFee = isBigCity ? 20000000 : 1000000;
+    
     const registryFee = 340000;
     const roadFee = 1560000;
     const isSevenSeats =
@@ -2736,11 +2760,21 @@ export default function ProductDetailPage() {
                       onChange={handleInputChange}
                       className="w-full px-4 py-2.5 rounded-[4px] border border-gray-200 text-xs bg-white focus:outline-none focus:border-[#0562d2] cursor-pointer text-black"
                     >
-                      <option value="Đồng Nai">Đồng Nai</option>
-                      <option value="TP. Hồ Chí Minh">TP. Hồ Chí Minh</option>
-                      <option value="Bình Dương">Bình Dương</option>
-                      <option value="Vũng Tàu">Bà Rịa - Vũng Tàu</option>
-                      <option value="Khác">Khu vực khác</option>
+                      {provinces.length > 0 ? (
+                        provinces.map((p) => (
+                          <option key={p.id} value={p.name}>
+                            {p.name}
+                          </option>
+                        ))
+                      ) : (
+                        <>
+                          <option value="Đồng Nai">Đồng Nai</option>
+                          <option value="TP. Hồ Chí Minh">TP. Hồ Chí Minh</option>
+                          <option value="Bình Dương">Bình Dương</option>
+                          <option value="Vũng Tàu">Bà Rịa - Vũng Tàu</option>
+                          <option value="Khác">Khu vực khác</option>
+                        </>
+                      )}
                     </select>
                   </div>
 
@@ -2868,11 +2902,21 @@ export default function ProductDetailPage() {
                         onChange={(e) => setSelectedProvince(e.target.value)}
                         className="w-full bg-white border border-[#d6d6d6] border-solid px-[14px] py-[10px] pr-[40px] rounded-[8px] shadow-[0px_1px_2px_0px_rgba(16,24,40,0.05)] text-black text-[16px] leading-[1.5] appearance-none cursor-pointer focus:outline-none focus:border-[#0562d2]"
                       >
-                        <option value="Đồng Nai">Đồng Nai</option>
-                        <option value="TP. Hồ Chí Minh">TP. Hồ Chí Minh</option>
-                        <option value="Bình Dương">Bình Dương</option>
-                        <option value="Vũng Tàu">Bà Rịa - Vũng Tàu</option>
-                        <option value="Khác">Khu vực khác</option>
+                        {provinces.length > 0 ? (
+                          provinces.map((p) => (
+                            <option key={p.id} value={p.name}>
+                              {p.name}
+                            </option>
+                          ))
+                        ) : (
+                          <>
+                            <option value="Đồng Nai">Đồng Nai</option>
+                            <option value="TP. Hồ Chí Minh">TP. Hồ Chí Minh</option>
+                            <option value="Bình Dương">Bình Dương</option>
+                            <option value="Vũng Tàu">Bà Rịa - Vũng Tàu</option>
+                            <option value="Khác">Khu vực khác</option>
+                          </>
+                        )}
                       </select>
                       <div className="absolute top-1/2 right-[14px] transform -translate-y-1/2 pointer-events-none text-gray-500">
                         <ChevronDown className="w-5 h-5" />
@@ -3034,11 +3078,21 @@ export default function ProductDetailPage() {
                       onChange={handleInputChange}
                       className="w-full px-4 py-2.5 rounded-[4px] border border-gray-200 text-xs bg-white focus:outline-none focus:border-[#0562d2] cursor-pointer text-black"
                     >
-                      <option value="Đồng Nai">Đồng Nai</option>
-                      <option value="TP. Hồ Chí Minh">TP. Hồ Chí Minh</option>
-                      <option value="Bình Dương">Bình Dương</option>
-                      <option value="Vũng Tàu">Bà Rịa - Vũng Tàu</option>
-                      <option value="Khác">Khu vực khác</option>
+                      {provinces.length > 0 ? (
+                        provinces.map((p) => (
+                          <option key={p.id} value={p.name}>
+                            {p.name}
+                          </option>
+                        ))
+                      ) : (
+                        <>
+                          <option value="Đồng Nai">Đồng Nai</option>
+                          <option value="TP. Hồ Chí Minh">TP. Hồ Chí Minh</option>
+                          <option value="Bình Dương">Bình Dương</option>
+                          <option value="Vũng Tàu">Bà Rịa - Vũng Tàu</option>
+                          <option value="Khác">Khu vực khác</option>
+                        </>
+                      )}
                     </select>
                   </div>
 
