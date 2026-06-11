@@ -338,7 +338,12 @@ export default function ComparePage() {
                 </div>
                 {selectedIds.map((id, index) => {
                   const v = selectedVehicles[index];
-                  const specValue = v?.versions?.[0]?.specs?.[spec.key] || "—";
+                  // Find the first version that has any non-empty specs, fallback to the first version
+                  const representativeVersion = v?.versions?.find((ver: any) => 
+                    Object.values(ver.specs || {}).some(val => typeof val === 'string' && val.trim() !== '')
+                  ) || v?.versions?.[0];
+
+                  const specValue = representativeVersion?.specs?.[spec.key] || "—";
                   return (
                     <div
                       key={index}
