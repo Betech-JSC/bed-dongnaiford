@@ -838,7 +838,7 @@ export default function Home() {
                         router.push(`/san-pham/${vSlug}`);
                       }
                     }}
-                    className="relative overflow-hidden rounded-xl h-[595px] group cursor-pointer bg-[#121824] flex-shrink-0 transition-all duration-300 block"
+                    className="relative overflow-hidden rounded-xl h-[420px] sm:h-[595px] group cursor-pointer bg-[#121824] flex-shrink-0 transition-all duration-300 block"
                     style={{
                       width: 'var(--card-width-popular)',
                     }}
@@ -853,18 +853,18 @@ export default function Home() {
                     {/* Gradient overlay — Figma: top rgba(0,0,0,0) → bottom heavy */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
                     {/* Content — Figma: p-8 bottom */}
-                    <div className="absolute bottom-0 left-0 right-0 p-8 z-10 flex flex-col gap-4">
-                      <h3 className="text-2xl md:text-3xl font-semibold text-white leading-[1.2]">{vName}</h3>
-                      <div className="flex gap-3 mt-1">
+                    <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-8 z-10 flex flex-col gap-3 sm:gap-4">
+                      <h3 className="text-xl sm:text-2xl md:text-3xl font-semibold text-white leading-[1.2]">{vName}</h3>
+                      <div className="flex flex-row gap-2 sm:gap-3 mt-1">
                         <Link
                           href={`/san-pham/${vSlug}`}
-                          className="bg-[#0562D2] text-white text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-[#044ea7] transition-all duration-200"
+                          className="bg-[#0562D2] text-white text-xs sm:text-sm font-semibold px-4 sm:px-5 py-2 sm:py-2.5 rounded-full hover:bg-[#044ea7] transition-all duration-200 whitespace-nowrap text-center flex-1 sm:flex-none"
                         >
                           Xem chi tiết
                         </Link>
                         <Link
                           href={`/lien-he?vehicle=${vSlug}&reason=Báo giá`}
-                          className="bg-transparent border border-white text-white text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-white/10 transition-all duration-200"
+                          className="bg-transparent border border-white text-white text-xs sm:text-sm font-semibold px-4 sm:px-5 py-2 sm:py-2.5 rounded-full hover:bg-white/10 transition-all duration-200 whitespace-nowrap text-center flex-1 sm:flex-none"
                         >
                           Báo giá
                         </Link>
