@@ -27,5 +27,11 @@ return [
         'IS_SPAM' => [
             'label' => 'Spam'
         ],
+        'privacy' => [
+            'label' => 'Privacy Policy'
+        ],
+        'terms' => [
+            'label' => 'Terms of Use'
+        ],
     ]
 ];

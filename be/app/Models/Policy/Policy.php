@@ -21,12 +21,21 @@ class Policy extends BaseModel
         self::STATUS_INACTIVE => 'Tắt',
     ];
 
+    public const TYPE_PRIVACY = 'privacy';
+    public const TYPE_TERMS = 'terms';
+
+    public const TYPE_LIST = [
+        self::TYPE_PRIVACY => 'Chính sách bảo mật',
+        self::TYPE_TERMS => 'Điều khoản sử dụng',
+    ];
+
     public $with = ['translations'];
 
     public $fillable = [
         'position',
         'icon',
         'status',
+        'type',
     ];
 
     public $translatedAttributes = [
@@ -101,6 +110,7 @@ class Policy extends BaseModel
             'content' => transform_richtext($this->content),
             'formatted_updated_at' => $this->formatted_updated_at,
             'icon' => $this->icon,
+            'type' => $this->type,
             'url' => $this->current_url
         ];
     }

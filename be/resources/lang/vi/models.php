@@ -60,7 +60,6 @@ return [
         'orders' => 'Đơn hàng',
         'Orders' => 'Đơn hàng',
         'policies' => 'Chính sách',
-        'policies' => 'Chính sách',
         'customers' => 'Khách hàng',
         'Customers' => 'Khách hàng',
         'Dashboard' => 'Thống kê',
@@ -251,5 +250,8 @@ return [
         'notified' => 'Đã báo Sales',
         'created_at' => 'Ngày bắt đầu',
         'updated_at' => 'Cập nhật cuối',
+    ],
+    'policies' => [
+        'type' => 'Loại chính sách',
     ]
 ];

@@ -128,6 +128,20 @@ export const postsAPI = {
 };
 
 /**
+ * Policies API
+ */
+export const policiesAPI = {
+  getAll: (params?: Record<string, any>) => {
+    const query = params ? '?' + new URLSearchParams(params as any).toString() : '';
+    return fetchAPI<any>(`/policies${query}`);
+  },
+  getBySlug: (slug: string, params?: Record<string, any>) => {
+    const query = params ? '?' + new URLSearchParams(params as any).toString() : '';
+    return fetchAPI<any>(`/policies/${slug}${query}`);
+  },
+};
+
+/**
  * Services API (assuming there's a services endpoint)
  */
 export const servicesAPI = {

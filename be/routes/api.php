@@ -49,6 +49,8 @@ Route::localized(function () {
     Route::post('contacts', [App\Http\Controllers\Frontend\ContactController::class, 'store'])->name('api.contacts.store');
     Route::get('posts', [\App\Http\Controllers\Frontend\PostController::class, 'index'])->name('api.posts');
     Route::get('posts/{slug}', [\App\Http\Controllers\Frontend\PostController::class, 'show'])->name('api.posts.show');
+    Route::get('policies', [\App\Http\Controllers\Frontend\PolicyController::class, 'index'])->name('api.policies');
+    Route::get('policies/{slug}', [\App\Http\Controllers\Frontend\PolicyController::class, 'show'])->name('api.policies.show');
     Route::get('jobs', [\App\Http\Controllers\Frontend\JobController::class, 'index'])->name('api.jobs');
     Route::get('jobs/{slug}', [\App\Http\Controllers\Frontend\JobController::class, 'show'])->name('api.jobs.show');
     Route::get('agencies', [\App\Http\Controllers\Frontend\AgencyController::class, 'index'])->name('api.agencies');

@@ -23,8 +23,13 @@ class PolicyController extends Controller
     public function renderDataPage($slug = null)
     {
         $policiesQuery = Policy::query()
-            ->active()
-            ->orderBy('position', 'ASC');
+            ->active();
+
+        if (request()->has('type')) {
+            $policiesQuery->where('type', request()->input('type'));
+        }
+
+        $policiesQuery->orderBy('position', 'ASC');
 
         $rawPolicies = $policiesQuery->get();
 
@@ -35,6 +40,9 @@ class PolicyController extends Controller
                 $itemSlug = $item->seo_slug ?? $item->slug;
                 return $itemSlug === $slug;
             });
+            if (!$contentModel && request()->has('type')) {
+                $contentModel = $rawPolicies->first();
+            }
         } else {
             $contentModel = $rawPolicies->first();
         }

@@ -27,5 +27,11 @@ return [
         'IS_SPAM' => [
             'label' => 'Spam'
         ],
+        'privacy' => [
+            'label' => 'Chính sách bảo mật'
+        ],
+        'terms' => [
+            'label' => 'Điều khoản sử dụng'
+        ],
     ]
 ];

@@ -58,6 +58,15 @@
             <div class="card">
                 <div class="card-body">
                     <Field
+                        v-model="form.type"
+                        :field="{
+                            type: 'radio_list',
+                            name: 'type',
+                            label: 'Loại chính sách',
+                            options: schema.columns.type.list,
+                        }"
+                    />
+                    <Field
                         v-model="form.status"
                         :field="{
                             type: 'radio_list',
