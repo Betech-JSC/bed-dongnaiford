@@ -295,11 +295,19 @@ trait HasCrudActions
 
         try {
             DB::beginTransaction();
-            $resource = $this->model::findOrFail($id);
-            $resource->delete();
+            $ids = explode(',', $id);
+            if (count($ids) > 1) {
+                $resources = $this->model::whereIn('id', $ids)->get();
+                foreach ($resources as $resource) {
+                    $resource->delete();
+                }
+            } else {
+                $resource = $this->model::findOrFail($id);
+                $resource->delete();
+            }
             DB::commit();
 
-            if (!is_null($resource->getMacro('withTrashed'))) {
+            if (!is_null($this->model()->getMacro('withTrashed'))) {
                 return $this->redirectBack(__('models.has_crud_action.destroy', [], current_locale()));
             } else {
                 return $this->redirectToIndex();

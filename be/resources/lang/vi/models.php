@@ -200,6 +200,8 @@ return [
         'on_total' => 'trên tổng',
         'to' => 'đến',
         'from' => 'Từ',
+        'delete_selected' => 'Xóa đã chọn',
+        'confirm_destroy_multiple' => 'Bạn có chắc chắn muốn xóa các mục đã chọn?',
     ],
     'roles' => [
         'object' => 'Đối tượng',

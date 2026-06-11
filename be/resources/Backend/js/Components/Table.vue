@@ -66,6 +66,15 @@
                                 )
                             "
                         />
+                        <button
+                            v-if="selectedItems && selectedItems.length > 0 && canDestroy"
+                            type="button"
+                            class="p-button btn-danger ml-2 flex items-center gap-1 cursor-pointer"
+                            @click="deleteSelected"
+                        >
+                            <heroicons-outline:trash class="w-4 h-4" />
+                            <span>{{ tt('models.table.delete_selected') }} ({{ selectedItems.length }})</span>
+                        </button>
                     </div>
                     <span v-if="sortByDate" class="w-1/2">
                         <div class="field-row">
@@ -147,6 +156,29 @@
                 </template>
             </Column>
         </template>
+        <Column header="Thao tác" headerStyle="width: 8rem; text-align: center" bodyStyle="text-align: center" v-if="canCreate || canDestroy">
+            <template #body="{ data }">
+                <div class="flex items-center justify-center space-x-3">
+                    <Link
+                        v-if="canCreate"
+                        :href="route(`admin.${currentResource}.form`, { id: data.id })"
+                        class="text-blue-500 hover:text-blue-750 transition inline-flex items-center"
+                        title="Sửa"
+                    >
+                        <heroicons-outline:pencil class="w-5 h-5" />
+                    </Link>
+                    <button
+                        v-if="canDestroy"
+                        type="button"
+                        class="text-red-500 hover:text-red-750 transition bg-transparent border-0 cursor-pointer p-0 inline-flex items-center"
+                        @click="deleteSingle(data.id)"
+                        title="Xóa"
+                    >
+                        <heroicons-outline:trash class="w-5 h-5" />
+                    </button>
+                </div>
+            </template>
+        </Column>
     </DataTable>
 </template>
 
@@ -204,10 +236,13 @@ export default {
             return this.config.hideHeader === true || false
         },
         showCheckbox() {
-            return this.config.showCheckbox ?? false
+            return this.config.showCheckbox ?? true
         },
         showFilter() {
             return this.config.showFilter ?? false
+        },
+        canDestroy() {
+            return this.config.canDestroy ?? this.can('admin.' + this.currentResource + '.destroy')
         },
         formUrl() {
             return this.config.formUrl ?? this.route(`admin.${this.currentResource}.form`)
@@ -258,6 +293,38 @@ export default {
         this.loadLazyData()
     },
     methods: {
+        deleteSingle(id) {
+            if (confirm(this.tt("models.form.confirm_destroy") || "Bạn chắc chắn muốn xoá đối tượng này?")) {
+                this.$inertia.post(
+                    this.route(`admin.${this.currentResource}.destroy`, { id: id }),
+                    {},
+                    {
+                        preserveScroll: true,
+                        onSuccess: () => {
+                            this.selectedItems = [];
+                            this.selectedIds = '';
+                            this.loadLazyData();
+                        }
+                    }
+                );
+            }
+        },
+        deleteSelected() {
+            if (confirm(this.tt("models.table.confirm_destroy_multiple") || "Bạn có chắc chắn muốn xóa các mục đã chọn?")) {
+                this.$inertia.post(
+                    this.route(`admin.${this.currentResource}.destroy`, { id: this.selectedIds }),
+                    {},
+                    {
+                        preserveScroll: true,
+                        onSuccess: () => {
+                            this.selectedItems = [];
+                            this.selectedIds = '';
+                            this.loadLazyData();
+                        }
+                    }
+                );
+            }
+        },
         pushToUrl() {
             if (this.timer) {
                 clearTimeout(this.timer)
