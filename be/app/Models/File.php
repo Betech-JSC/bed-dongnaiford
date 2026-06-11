@@ -158,16 +158,51 @@ class File
         $failureFiles = [];
 
         foreach ($files as $file) {
-            $fileName = $file->getClientOriginalName();
+            if (is_string($file) && preg_match('/^data:([^;]+);base64,(.*)$/', $file, $matches)) {
+                $mimeType = $matches[1];
+                $data = base64_decode($matches[2]);
+                
+                // Get extension from mime type
+                $extension = 'bin';
+                $extensions = [
+                    'application/pdf' => 'pdf',
+                    'application/msword' => 'doc',
+                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => 'docx',
+                    'image/jpeg' => 'jpg',
+                    'image/png' => 'png',
+                    'image/gif' => 'gif',
+                    'image/webp' => 'webp',
+                ];
+                if (isset($extensions[$mimeType])) {
+                    $extension = $extensions[$mimeType];
+                } else {
+                    $parts = explode('/', $mimeType);
+                    if (count($parts) === 2) {
+                        $extension = $parts[1];
+                    }
+                }
 
-            if ($this->fileValidation($file)) {
-                $mimeType = $file->getMimeType();
+                $fileName = 'cv_' . uniqid() . '.' . $extension;
+                $targetPath = ($this->path == '/' ? '' : rtrim($this->path, '/') . '/') . $fileName;
+
+                // Validate size
+                $fileSize = strlen($data);
+                $maxSize = self::MAX_SIZE_LIST['others'];
+                foreach (self::MAX_SIZE_LIST as $key => $size) {
+                    if (str_contains($mimeType, $key)) {
+                        $maxSize = $size;
+                    }
+                }
+
+                if ($fileSize / 1024 / 1024 > $maxSize) {
+                    $failureFiles[] = $fileName;
+                    continue;
+                }
+
                 $isImage = str_contains($mimeType, 'image/') && !str_contains($mimeType, 'svg') && !str_contains($mimeType, 'gif');
-
                 if ($isImage) {
                     try {
-                        $image = Image::make($file->path());
-
+                        $image = Image::make($data);
                         if ($image->width() > 2000) {
                             $image->resize(2000, null, function ($constraint) {
                                 $constraint->aspectRatio();
@@ -189,31 +224,79 @@ class File
                         $filePath = $this->storage->put($targetPath, $encoded) ? $targetPath : false;
                     } catch (\Exception $e) {
                         logger()->error('Image processing failed: ' . $e->getMessage());
-                        $filePath = $this->storage->putFileAs(
-                            $this->path,
-                            $file,
-                            $fileName
-                        );
+                        $filePath = $this->storage->put($targetPath, $data) ? $targetPath : false;
                     }
                 } else {
-                    $filePath = $this->storage->putFileAs(
-                        $this->path,
-                        $file,
-                        $fileName
-                    );
+                    $filePath = $this->storage->put($targetPath, $data) ? $targetPath : false;
                 }
-                $successFiles[] = static_url($filePath, [], false);
 
-                if (!$filePath) {
-                    logger('Store file');
-                    logger($file);
-                    logger("Disk: $this->disk");
-                    logger("Folder: $this->path");
-                    logger("File name: $fileName");
-                    logger('End store file');
+                if ($filePath) {
+                    $successFiles[] = static_url($filePath, [], false);
+                } else {
+                    $failureFiles[] = $fileName;
                 }
             } else {
-                $failureFiles[] = $fileName;
+                if (is_object($file) && method_exists($file, 'getClientOriginalName')) {
+                    $fileName = $file->getClientOriginalName();
+
+                    if ($this->fileValidation($file)) {
+                        $mimeType = $file->getMimeType();
+                        $isImage = str_contains($mimeType, 'image/') && !str_contains($mimeType, 'svg') && !str_contains($mimeType, 'gif');
+
+                        if ($isImage) {
+                            try {
+                                $image = Image::make($file->path());
+
+                                if ($image->width() > 2000) {
+                                    $image->resize(2000, null, function ($constraint) {
+                                        $constraint->aspectRatio();
+                                        $constraint->upsize();
+                                    });
+                                }
+
+                                $quality = 80;
+                                $encoded = (string) $image->encode('webp', $quality);
+
+                                while (strlen($encoded) > 300 * 1024 && $quality > 10) {
+                                    $quality -= 10;
+                                    $encoded = (string) $image->encode('webp', $quality);
+                                }
+
+                                $fileName = pathinfo($fileName, PATHINFO_FILENAME) . '.webp';
+                                $targetPath = ($this->path == '/' ? '' : rtrim($this->path, '/') . '/') . $fileName;
+
+                                $filePath = $this->storage->put($targetPath, $encoded) ? $targetPath : false;
+                            } catch (\Exception $e) {
+                                logger()->error('Image processing failed: ' . $e->getMessage());
+                                $filePath = $this->storage->putFileAs(
+                                    $this->path,
+                                    $file,
+                                    $fileName
+                                );
+                            }
+                        } else {
+                            $filePath = $this->storage->putFileAs(
+                                $this->path,
+                                $file,
+                                $fileName
+                            );
+                        }
+                        $successFiles[] = static_url($filePath, [], false);
+
+                        if (!$filePath) {
+                            logger('Store file');
+                            logger($file);
+                            logger("Disk: $this->disk");
+                            logger("Folder: $this->path");
+                            logger("File name: $fileName");
+                            logger('End store file');
+                        }
+                    } else {
+                        $failureFiles[] = $fileName;
+                    }
+                } else {
+                    $failureFiles[] = 'unknown_file';
+                }
             }
         }
         return [
