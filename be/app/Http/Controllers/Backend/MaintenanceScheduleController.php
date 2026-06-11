@@ -20,8 +20,20 @@ class MaintenanceScheduleController extends Controller
                 $val = $request->input($key);
                 if (is_string($val)) {
                     $decoded = json_decode($val, true);
-                    if (json_last_error() === JSON_ERROR_NONE) {
+                    if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
                         $request->merge([$key => $decoded]);
+                    } else {
+                        if ($key === 'image') {
+                            $request->merge([$key => empty($val) ? null : ['path' => $val]]);
+                        } else {
+                            $request->merge([$key => []]);
+                        }
+                    }
+                } elseif (is_null($val)) {
+                    if ($key === 'image') {
+                        $request->merge([$key => null]);
+                    } else {
+                        $request->merge([$key => []]);
                     }
                 }
             }
