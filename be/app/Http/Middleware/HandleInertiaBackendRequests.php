@@ -52,6 +52,35 @@ class HandleInertiaBackendRequests extends Middleware
         $totalVehicles = Vehicle::count();
         $totalPosts = Post::count();
 
+        // Weekly stats for the last 7 days (efficient query with collection filter)
+        $weeklyStats = [];
+        $sevenDaysAgo = Carbon::today()->subDays(6);
+        $recentContacts = Contact::where('created_at', '>=', $sevenDaysAgo)->get();
+
+        for ($i = 6; $i >= 0; $i--) {
+            $date = Carbon::today()->subDays($i);
+            $dateStr = $date->format('Y-m-d');
+            
+            $contactsForDay = $recentContacts->filter(function ($c) use ($dateStr) {
+                return Carbon::parse($c->created_at)->format('Y-m-d') === $dateStr;
+            });
+            
+            $weeklyStats[] = [
+                'date' => $date->format('d/m'),
+                'contact' => $contactsForDay->where('type', 'CONTACT_FORM')->count(),
+                'apply' => $contactsForDay->where('type', 'APPLY_FORM')->count(),
+                'advise' => $contactsForDay->where('type', 'ADVISE_FORM')->count(),
+            ];
+        }
+
+        // Type distribution for all time
+        $allContacts = Contact::select('type')->get();
+        $typeDistribution = [
+            'contact' => $allContacts->where('type', 'CONTACT_FORM')->count(),
+            'apply' => $allContacts->where('type', 'APPLY_FORM')->count(),
+            'advise' => $allContacts->where('type', 'ADVISE_FORM')->count(),
+        ];
+
         $data = [
             'flash' => function () use ($request) {
                 return [
@@ -85,6 +114,8 @@ class HandleInertiaBackendRequests extends Middleware
                 'today_order_total_price' => 0,
                 'total_vehicles_count' => $totalVehicles,
                 'total_posts_count' => $totalPosts,
+                'weekly_stats' => $weeklyStats,
+                'type_distribution' => $typeDistribution,
             ]
         ];
 

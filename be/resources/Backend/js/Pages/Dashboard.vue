@@ -87,6 +87,42 @@
             </div>
         </div>
 
+        <!-- Charts Section -->
+        <div class="charts-grid">
+            <div class="chart-card">
+                <div class="chart-card__header">
+                    <h3 class="chart-card__title">
+                        <svg viewBox="0 0 24 24" fill="none" class="chart-icon chart-icon--indigo" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M4 5a1 1 0 011-1h2a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM10 11a1 1 0 011-1h2a1 1 0 011 1v8a1 1 0 01-1 1h-2a1 1 0 01-1-1v-8zM16 15a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2a1 1 0 01-1-1v-4z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        Thống Kê Yêu Cầu Gửi Đến Tuần Qua
+                    </h3>
+                </div>
+                <div class="chart-card__body">
+                    <div class="chart-wrapper">
+                        <canvas ref="weeklyChartCanvas"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-card__header">
+                    <h3 class="chart-card__title">
+                        <svg viewBox="0 0 24 24" fill="none" class="chart-icon chart-icon--emerald" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M11 3.055A9.003 9.003 0 1020.945 13H11V3.055z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Cơ Cấu Phân Loại Yêu Cầu
+                    </h3>
+                </div>
+                <div class="chart-card__body">
+                    <div class="chart-wrapper">
+                        <canvas ref="distributionChartCanvas"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Summary Row -->
         <div class="summary-grid">
             <!-- Tổng kết liên hệ & Tuyển dụng -->
@@ -187,6 +223,8 @@
 
 <script>
 import { Head } from '@inertiajs/inertia-vue3'
+import { Chart, registerables } from 'chart.js'
+Chart.register(...registerables)
 
 export default {
     components: {
@@ -243,6 +281,137 @@ export default {
             }).format(this.todayOrderTotalPrice)
         },
     },
+    data() {
+        return {
+            weeklyChart: null,
+            distributionChart: null,
+        }
+    },
+    mounted() {
+        this.initWeeklyChart()
+        this.initDistributionChart()
+    },
+    beforeUnmount() {
+        if (this.weeklyChart) this.weeklyChart.destroy()
+        if (this.distributionChart) this.distributionChart.destroy()
+    },
+    methods: {
+        initWeeklyChart() {
+            const ctx = this.$refs.weeklyChartCanvas
+            if (!ctx) return
+
+            const stats = this.$page.props.data.weekly_stats || []
+            const labels = stats.map(item => item.date)
+            const adviseData = stats.map(item => item.advise)
+            const contactData = stats.map(item => item.contact)
+            const applyData = stats.map(item => item.apply)
+
+            this.weeklyChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Tư vấn xe',
+                            data: adviseData,
+                            backgroundColor: '#fbbf24', // Amber
+                            borderRadius: 6,
+                        },
+                        {
+                            label: 'Liên hệ',
+                            data: contactData,
+                            backgroundColor: '#f43f5e', // Rose
+                            borderRadius: 6,
+                        },
+                        {
+                            label: 'Tuyển dụng',
+                            data: applyData,
+                            backgroundColor: '#10b981', // Emerald
+                            borderRadius: 6,
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                boxWidth: 12,
+                                font: {
+                                    family: 'Inter, sans-serif',
+                                    size: 12,
+                                }
+                            }
+                        },
+                        tooltip: {
+                            padding: 12,
+                            cornerRadius: 8,
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0,
+                                stepSize: 1,
+                            }
+                        }
+                    }
+                }
+            })
+        },
+        initDistributionChart() {
+            const ctx = this.$refs.distributionChartCanvas
+            if (!ctx) return
+
+            const dist = this.$page.props.data.type_distribution || { contact: 0, apply: 0, advise: 0 }
+            
+            this.distributionChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Tư vấn xe', 'Liên hệ', 'Tuyển dụng'],
+                    datasets: [{
+                        data: [dist.advise, dist.contact, dist.apply],
+                        backgroundColor: [
+                            '#fbbf24', // Amber
+                            '#f43f5e', // Rose
+                            '#10b981', // Emerald
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#ffffff',
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '65%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                boxWidth: 12,
+                                font: {
+                                    family: 'Inter, sans-serif',
+                                    size: 12,
+                                }
+                            }
+                        },
+                        tooltip: {
+                            padding: 12,
+                            cornerRadius: 8,
+                        }
+                    }
+                }
+            })
+        }
+    }
 }
 </script>
 
@@ -513,4 +682,61 @@ export default {
 
 .summary-link--rose { color: #e11d48; }
 .summary-link--indigo { color: #4f46e5; }
+
+/* Charts Grid */
+.charts-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+@media (max-width: 992px) {
+    .charts-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.chart-card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.07), 0 4px 16px rgba(0,0,0,0.05);
+    border: 1px solid #f3f4f6;
+    overflow: hidden;
+}
+
+.chart-card__header {
+    padding: 16px 20px;
+    border-bottom: 1px solid #f3f4f6;
+    background: #fafafa;
+}
+
+.chart-card__title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #374151;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.chart-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+.chart-icon--indigo { color: #4f46e5; }
+.chart-icon--emerald { color: #059669; }
+
+.chart-card__body {
+    padding: 24px;
+}
+
+.chart-wrapper {
+    position: relative;
+    height: 320px;
+    width: 100%;
+}
 </style>
