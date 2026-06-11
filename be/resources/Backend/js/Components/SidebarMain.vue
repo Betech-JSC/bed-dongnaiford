@@ -33,13 +33,13 @@
     <Link v-if="can('admin.brands.index')" :href="route('admin.brands.index')"
         :class="{ active: isUrl('admin.brands.*') }" class="item">
         <ph:tag-light />
-        <span>{{ tt('models.table_list.brands') }}</span>
+        <span>Hãng xe</span>
     </Link>
 
     <Link v-if="can('admin.maintenance-schedules.index')" :href="route('admin.maintenance-schedules.index')"
         :class="{ active: isUrl('admin.maintenance-schedules.*') }" class="item">
         <ph:calendar-blank-light />
-        <span>{{ tt('models.table_list.maintenance-schedules') }}</span>
+        <span>Lịch bảo dưỡng</span>
     </Link>
 
     <!-- ===== QUẢN LÝ NỘI DUNG ===== -->
@@ -48,19 +48,19 @@
     <Link v-if="can('admin.post-categories.index')" :href="route('admin.post-categories.index')"
         :class="{ active: isUrl('admin.post-categories.*') }" class="item">
         <bx:category />
-        <span>{{ tt('models.table_list.post-categories') }}</span>
+        <span>Danh mục bài viết</span>
     </Link>
     
     <Link v-if="can('admin.posts.index')" :href="route('admin.posts.index')" :class="{ active: isUrl('admin.posts.*') }"
         class="item">
         <ph-newspaper-clipping-light />
-        <span>{{ tt('models.table_list.posts') }}</span>
+        <span>Bài viết</span>
     </Link>
     
     <Link v-if="can('admin.policies.index')" :href="route('admin.policies.index')"
         :class="{ active: isUrl('admin.policies.*') }" class="item">
         <ph:shield-check-light />
-        <span>{{ tt('models.table_list.policies') }}</span>
+        <span>Chính sách điều khoản</span>
     </Link>
     
     <Link v-if="can('admin.dealer-activities.index')" :href="route('admin.dealer-activities.index')"
@@ -81,7 +81,7 @@
     <Link v-if="can('admin.contacts.index')" :href="route('admin.contacts.index')"
         :class="{ active: isUrl('admin.contacts.*') }" class="item">
         <material-symbols:connect-without-contact />
-        <span>{{ tt('models.table_list.contacts') }}</span>
+        <span>Yêu cầu liên hệ</span>
     </Link>
     
     <Link v-if="can('admin.chat-sessions.index')" :href="route('admin.chat-sessions.index')"
@@ -108,7 +108,7 @@
     <Link v-if="can('admin.banners.index')" :href="route('admin.banners.index')"
         :class="{ active: isUrl('admin.banners.*') }" class="item">
         <bi:collection-play />
-        <span>Banners</span>
+        <span>Banner quảng cáo</span>
     </Link>
 
     <Link v-if="can('admin.partners.index')" :href="route('admin.partners.index')"
