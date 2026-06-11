@@ -41,11 +41,16 @@ class AccessoryCategory extends BaseModel
 
     public function rules(): array
     {
-        return [
+        $base = [
             'vi.title' => 'required|string|max:255',
             'image' => 'nullable|array',
             'status' => 'required|string|in:ACTIVE,INACTIVE',
             'sort_order' => 'nullable|integer',
+        ];
+
+        return [
+            'store' => $base,
+            'storeDraft' => $base,
         ];
     }
 
