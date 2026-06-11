@@ -91,6 +91,36 @@ class VehicleController extends Controller
                 'image' => $request->input('image_thumbnail')
             ]);
         }
+
+        // List of all keys that must be validated as arrays
+        $arrayKeys = [
+            'images',
+            'colors',
+            'images_360_external',
+            'images_360_internal',
+            'image',
+            'image_thumbnail',
+            'image_featured',
+            'versions',
+            'layout_blocks',
+        ];
+
+        foreach ($arrayKeys as $key) {
+            if ($request->has($key)) {
+                $val = $request->input($key);
+                if (is_string($val)) {
+                    $decoded = json_decode($val, true);
+                    if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                        $request->merge([$key => $decoded]);
+                    } else {
+                        $request->merge([$key => empty($val) ? [] : [$val]]);
+                    }
+                } elseif (is_null($val)) {
+                    $request->merge([$key => []]);
+                }
+            }
+        }
+
         return $rules;
     }
 
