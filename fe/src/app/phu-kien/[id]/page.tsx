@@ -245,15 +245,10 @@ export default function AccessoryDetailPage() {
     });
   }
 
-  // Generate 5 thumbnails to match Figma vertical layout (repeating if necessary)
-  const thumbnails = Array.isArray(accessory.images) && accessory.images.length > 0 ? [...accessory.images] : [];
-  if (thumbnails.length === 0) {
-    thumbnails.push("");
-  }
-  while (thumbnails.length < 5) {
-    thumbnails.push(thumbnails[0]);
-  }
-  const displayThumbnails = thumbnails.slice(0, 5);
+  // Get unique thumbnails from accessory images (up to 5 items)
+  const displayThumbnails = Array.isArray(accessory.images) 
+    ? accessory.images.filter(Boolean).slice(0, 5) 
+    : [];
 
   return (
     <div className="bg-[#fafafa] min-h-screen text-[#1a1a1a] font-sans pb-0">
@@ -281,26 +276,28 @@ export default function AccessoryDetailPage() {
           
           {/* Left Column: Image Showcase with Vertical Thumbnails */}
           <div className="lg:col-span-6 flex gap-[8px] w-full">
-            {/* Vertical Thumbnails */}
-            <div className="flex flex-col gap-[8px] shrink-0 w-[80px]">
-              {displayThumbnails.map((thumb, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setActiveImage(thumb)}
-                  className={`aspect-square w-full relative overflow-hidden rounded-[4px] border transition-all duration-200 cursor-pointer bg-white
-                    ${(activeImage || accessory.images[0]) === thumb ? "border-2 border-[#0562D2] shadow-sm" : "border-gray-200 hover:border-gray-300"}`}
-                >
-                  <Image
-                    src={thumb}
-                    alt={`Thumbnail ${idx + 1}`}
-                    fill
-                    sizes="80px"
-                    className="object-cover"
-                    onError={handleImageError}
-                  />
-                </button>
-              ))}
-            </div>
+            {/* Vertical Thumbnails (Only show if there are multiple unique images) */}
+            {displayThumbnails.length > 1 && (
+              <div className="flex flex-col gap-[8px] shrink-0 w-[80px]">
+                {displayThumbnails.map((thumb, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setActiveImage(thumb)}
+                    className={`aspect-square w-full relative overflow-hidden rounded-[4px] border transition-all duration-200 cursor-pointer bg-white
+                      ${(activeImage || accessory.images[0]) === thumb ? "border-2 border-[#0562D2] shadow-sm" : "border-gray-200 hover:border-gray-300"}`}
+                  >
+                    <Image
+                      src={thumb}
+                      alt={`Thumbnail ${idx + 1}`}
+                      fill
+                      sizes="80px"
+                      className="object-cover"
+                      onError={handleImageError}
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
 
             {/* Main Big Image Preview */}
             <div className="flex-1 aspect-square relative overflow-hidden rounded-[8px] border border-gray-100 bg-white">
