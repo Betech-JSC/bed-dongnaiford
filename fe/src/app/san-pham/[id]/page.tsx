@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import Image from "next/image";
 import { contactsAPI, vehiclesAPI, mediaAPI, regionsAPI } from "@/lib/api";
 import {
@@ -235,53 +235,55 @@ export default function ProductDetailPage() {
   }, [id]);
 
   // Dynamically map API vehicle structure to frontend mock structure to keep all bindings intact
-  const vehicle = apiVehicle
-    ? {
-      ...apiVehicle,
-      id: apiVehicle.slug,
-      name: apiVehicle.title,
-      typeName: apiVehicle.type_name || apiVehicle.typeName || (
-        apiVehicle.type === 'suv'
-          ? (apiVehicle.title?.toLowerCase().includes('everest') ? 'SUV 7 Chỗ' : apiVehicle.title?.toLowerCase().includes('territory') ? 'SUV 5 Chỗ' : 'SUV')
-          : apiVehicle.type === 'pickup'
-            ? 'Bán tải'
-            : (apiVehicle.title?.toLowerCase().includes('transit') ? 'Xe Thương Mại 16 Chỗ' : apiVehicle.title?.toLowerCase().includes('tourneo') ? 'Thương Mại 7 Chỗ' : 'Thương mại')
-      ),
-      basePrice: typeof apiVehicle.base_price === 'string' ? parseFloat(apiVehicle.base_price) : apiVehicle.base_price,
-      image_url: apiVehicle.image_url || resolveFileUrl(apiVehicle.image),
-      colors: apiVehicle.colors ? safeArray(apiVehicle.colors).map((c: any) => ({
-        name: c.name || c.color_name || '',
-        hex: c.hex || c.color_code || '',
-        image: resolveFileUrl(c.image_path || c.image),
-        images_360: safeArray(c.images_360).map((img: any) => resolveFileUrl(img)).filter(Boolean),
-        image_360_internal: resolveFileUrl(c.image_360_internal) || null,
-        images_360_internal: safeArray(c.images_360_internal).map((img: any) => resolveFileUrl(img)).filter(Boolean)
-      })) : [],
-      images: (apiVehicle.images && Array.isArray(apiVehicle.images) && apiVehicle.images.length > 0)
-        ? apiVehicle.images.map((img: any) => resolveFileUrl(img)).filter(Boolean)
-        : [apiVehicle.image_url || resolveFileUrl(apiVehicle.image)].filter(Boolean),
-      versions: apiVehicle.versions ? safeArray(apiVehicle.versions).map((v: any) => ({
-        id: v.id,
-        name: v.name,
-        price: typeof v.price === 'string' ? parseFloat(v.price) : v.price,
-        image_url: v.image_url || resolveFileUrl(v.image) || null,
-        specs: {
-          engine: v.specs?.engine || '',
-          power: v.specs?.power || '',
-          torque: v.specs?.torque || '',
-          transmission: v.specs?.transmission || '',
-          drivetrain: v.specs?.drivetrain || '',
-          dimensions: v.specs?.dimensions || '',
-          clearance: v.specs?.clearance || '',
-          fuelEconomy: v.specs?.fuelEconomy || v.specs?.fuel_guide || v.specs?.fuel_economy || '',
-        }
-      })) : [],
-      layout_blocks: apiVehicle.layout_blocks || [],
-      images_360_external: safeArray(apiVehicle.images_360_external).map((img: any) => resolveFileUrl(img)).filter(Boolean),
-      images_360_internal: safeArray(apiVehicle.images_360_internal).map((img: any) => resolveFileUrl(img)).filter(Boolean),
-      image_360_internal_url: apiVehicle.image_360_internal_url || ''
-    }
-    : staticVehicle;
+  const vehicle = useMemo(() => {
+    return apiVehicle
+      ? {
+        ...apiVehicle,
+        id: apiVehicle.slug,
+        name: apiVehicle.title,
+        typeName: apiVehicle.type_name || apiVehicle.typeName || (
+          apiVehicle.type === 'suv'
+            ? (apiVehicle.title?.toLowerCase().includes('everest') ? 'SUV 7 Chỗ' : apiVehicle.title?.toLowerCase().includes('territory') ? 'SUV 5 Chỗ' : 'SUV')
+            : apiVehicle.type === 'pickup'
+              ? 'Bán tải'
+              : (apiVehicle.title?.toLowerCase().includes('transit') ? 'Xe Thương Mại 16 Chỗ' : apiVehicle.title?.toLowerCase().includes('tourneo') ? 'Thương Mại 7 Chỗ' : 'Thương mại')
+        ),
+        basePrice: typeof apiVehicle.base_price === 'string' ? parseFloat(apiVehicle.base_price) : apiVehicle.base_price,
+        image_url: apiVehicle.image_url || resolveFileUrl(apiVehicle.image),
+        colors: apiVehicle.colors ? safeArray(apiVehicle.colors).map((c: any) => ({
+          name: c.name || c.color_name || '',
+          hex: c.hex || c.color_code || '',
+          image: resolveFileUrl(c.image_path || c.image),
+          images_360: safeArray(c.images_360).map((img: any) => resolveFileUrl(img)).filter(Boolean),
+          image_360_internal: resolveFileUrl(c.image_360_internal) || null,
+          images_360_internal: safeArray(c.images_360_internal).map((img: any) => resolveFileUrl(img)).filter(Boolean)
+        })) : [],
+        images: (apiVehicle.images && Array.isArray(apiVehicle.images) && apiVehicle.images.length > 0)
+          ? apiVehicle.images.map((img: any) => resolveFileUrl(img)).filter(Boolean)
+          : [apiVehicle.image_url || resolveFileUrl(apiVehicle.image)].filter(Boolean),
+        versions: apiVehicle.versions ? safeArray(apiVehicle.versions).map((v: any) => ({
+          id: v.id,
+          name: v.name,
+          price: typeof v.price === 'string' ? parseFloat(v.price) : v.price,
+          image_url: v.image_url || resolveFileUrl(v.image) || null,
+          specs: {
+            engine: v.specs?.engine || '',
+            power: v.specs?.power || '',
+            torque: v.specs?.torque || '',
+            transmission: v.specs?.transmission || '',
+            drivetrain: v.specs?.drivetrain || '',
+            dimensions: v.specs?.dimensions || '',
+            clearance: v.specs?.clearance || '',
+            fuelEconomy: v.specs?.fuelEconomy || v.specs?.fuel_guide || v.specs?.fuel_economy || '',
+          }
+        })) : [],
+        layout_blocks: apiVehicle.layout_blocks || [],
+        images_360_external: safeArray(apiVehicle.images_360_external).map((img: any) => resolveFileUrl(img)).filter(Boolean),
+        images_360_internal: safeArray(apiVehicle.images_360_internal).map((img: any) => resolveFileUrl(img)).filter(Boolean),
+        image_360_internal_url: apiVehicle.image_360_internal_url || ''
+      }
+      : staticVehicle;
+  }, [apiVehicle, staticVehicle]);
 
   const media = vehicle ? getVehicleMediaAssets(vehicle.id) : getVehicleMediaAssets("new-territory");
 
@@ -1069,14 +1071,19 @@ export default function ProductDetailPage() {
 
     const currentColor = vehicle.colors[selectedColorIndex];
 
-    const images360 = (currentColor && (currentColor as any).images_360_internal && (currentColor as any).images_360_internal.length > 0)
+    let images360 = (currentColor && (currentColor as any).images_360_internal && (currentColor as any).images_360_internal.length > 0)
       ? (currentColor as any).images_360_internal
       : ((vehicle as any).images_360_internal && (vehicle as any).images_360_internal.length > 0)
         ? (vehicle as any).images_360_internal
         : null;
 
     if (images360 && images360.length > 0) {
+      if (vehicle.id === "mustang-fastback" || vehicle.id === "ford-mustang") {
+        const colorKey = selectedInteriorColorIndex === 1 ? "space-gray" : "black-onyx";
+        images360 = images360.filter((img: string) => img.includes(colorKey));
+      }
       const imagesCount = images360.length;
+      if (imagesCount === 0) return null;
       const frameIdx = Math.floor(((rotation % 360 + 360) % 360) / (360 / imagesCount)) % imagesCount;
 
       return (
