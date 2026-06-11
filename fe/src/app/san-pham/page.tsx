@@ -3,12 +3,12 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { 
-  Search, 
-  SlidersHorizontal, 
-  X, 
-  ChevronDown, 
-  RotateCcw, 
+import {
+  Search,
+  SlidersHorizontal,
+  X,
+  ChevronDown,
+  RotateCcw,
   ChevronRight,
   Filter,
   Check,
@@ -42,7 +42,7 @@ export default function ProductsPage() {
   const [selectedFuels, setSelectedFuels] = useState<string[]>([]);
   const [selectedTransmissions, setSelectedTransmissions] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<string>("featured");
-  
+
   // Mobile drawer filter visibility
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
@@ -140,12 +140,12 @@ export default function ProductsPage() {
   // Helper to extend vehicle data with specs and properties for filtering
   const getExtendedVehicleData = (v: any) => {
     const staticV = vehicles.find((sv) => sv.id === v.slug || sv.id === v.id);
-    
+
     const price = typeof v.base_price === 'string' ? parseFloat(v.base_price) : (v.base_price || v.basePrice || 0);
     const id = v.slug || v.id;
     const name = v.title || v.name;
     const image = v.image_thumbnail_url || v.image_url || v.images?.[0] || getPopularVehicleImage(id, "");
-    
+
     let categorySlug = "all";
     if (v.category_id) {
       const cat = apiCategories.find((c: any) => c.id === v.category_id);
@@ -157,14 +157,14 @@ export default function ProductsPage() {
     } else if (staticV) {
       categorySlug = staticV.type;
     }
-    
+
     // Normalize category slug for comparison
     if (categorySlug === "pickup") categorySlug = "ban-tai";
     if (categorySlug === "commercial") categorySlug = "thuong-mai";
-    
+
     const seats = staticV?.typeName || (name.toLowerCase().includes("transit") ? "16 Chỗ" : "5 Chỗ");
     const seatsCount = seats.toLowerCase().includes("16") ? "16" : seats.toLowerCase().includes("7") ? "7" : "5";
-    
+
     let fuel = "Xăng";
     if (staticV?.versions?.[0]?.specs?.engine) {
       const eng = staticV.versions[0].specs.engine.toLowerCase();
@@ -174,7 +174,7 @@ export default function ProductsPage() {
     } else if (name.toLowerCase().includes("raptor") || name.toLowerCase().includes("everest") || name.toLowerCase().includes("transit")) {
       fuel = "Diesel";
     }
-    
+
     let transmission = "Số tự động";
     if (staticV?.versions?.[0]?.specs?.transmission) {
       const trans = staticV.versions[0].specs.transmission.toLowerCase();
@@ -182,7 +182,7 @@ export default function ProductsPage() {
         transmission = "Số sàn";
       }
     }
-    
+
     return {
       ...v,
       id,
@@ -211,36 +211,36 @@ export default function ProductsPage() {
         return false;
       }
     }
-    
+
     // Category filter
     if (selectedCategories.length > 0) {
       if (!selectedCategories.includes(v.categorySlug)) {
         return false;
       }
     }
-    
+
     // Price filter
     if (priceRange) {
       if (priceRange === "under-800" && v.price >= 800000000) return false;
       if (priceRange === "800-1200" && (v.price < 800000000 || v.price > 1200000000)) return false;
       if (priceRange === "over-1200" && v.price <= 1200000000) return false;
     }
-    
+
     // Seats filter
     if (selectedSeats.length > 0) {
       if (!selectedSeats.includes(v.seatsCount)) return false;
     }
-    
+
     // Fuel filter
     if (selectedFuels.length > 0) {
       if (!selectedFuels.includes(v.fuel)) return false;
     }
-    
+
     // Transmission filter
     if (selectedTransmissions.length > 0) {
       if (!selectedTransmissions.includes(v.transmission)) return false;
     }
-    
+
     return true;
   });
 
@@ -301,25 +301,25 @@ export default function ProductsPage() {
 
   // Helper toggle functions
   const toggleCategory = (slug: string) => {
-    setSelectedCategories(prev => 
+    setSelectedCategories(prev =>
       prev.includes(slug) ? prev.filter(c => c !== slug) : [...prev, slug]
     );
   };
 
   const toggleSeats = (seats: string) => {
-    setSelectedSeats(prev => 
+    setSelectedSeats(prev =>
       prev.includes(seats) ? prev.filter(s => s !== seats) : [...prev, seats]
     );
   };
 
   const toggleFuel = (fuel: string) => {
-    setSelectedFuels(prev => 
+    setSelectedFuels(prev =>
       prev.includes(fuel) ? prev.filter(f => f !== fuel) : [...prev, fuel]
     );
   };
 
   const toggleTransmission = (trans: string) => {
-    setSelectedTransmissions(prev => 
+    setSelectedTransmissions(prev =>
       prev.includes(trans) ? prev.filter(t => t !== trans) : [...prev, trans]
     );
   };
@@ -333,12 +333,12 @@ export default function ProductsPage() {
     setSelectedTransmissions([]);
   };
 
-  const hasActiveFilters = 
-    searchTerm !== "" || 
-    selectedCategories.length > 0 || 
-    priceRange !== null || 
-    selectedSeats.length > 0 || 
-    selectedFuels.length > 0 || 
+  const hasActiveFilters =
+    searchTerm !== "" ||
+    selectedCategories.length > 0 ||
+    priceRange !== null ||
+    selectedSeats.length > 0 ||
+    selectedFuels.length > 0 ||
     selectedTransmissions.length > 0;
 
   // Render Category Name
@@ -348,7 +348,7 @@ export default function ProductsPage() {
   };
 
   return (
-    <div className="bg-[#fafafa] min-h-screen font-sans pb-16">
+    <div className="bg-[#fafafa] min-h-screen font-sans">
       {/* Breadcrumb */}
       <div className="bg-white border-b border-[#e5e5e5] py-4">
         <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px]">
@@ -378,12 +378,12 @@ export default function ProductsPage() {
       {/* Main Layout Area */}
       <section className="py-12">
         <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px]">
-          
+
           <div className="lg:grid lg:grid-cols-4 lg:gap-8 items-start">
-            
+
             {/* 1. FILTER SIDEBAR (Desktop only) */}
             <div className="hidden lg:block lg:col-span-1 bg-white border border-gray-200/80 rounded-2xl p-6 shadow-[0px_4px_12px_rgba(16,24,40,0.03)] space-y-6 sticky top-[100px]">
-              
+
               {/* Header Title with Reset */}
               <div className="flex items-center justify-between border-b border-gray-100 pb-4">
                 <span className="text-[15px] font-bold font-['Ford_Antenna',sans-serif] text-gray-900 flex items-center gap-2">
@@ -391,7 +391,7 @@ export default function ProductsPage() {
                   Bộ lọc xe
                 </span>
                 {hasActiveFilters && (
-                  <button 
+                  <button
                     onClick={clearAllFilters}
                     className="text-xs font-bold text-red-600 hover:text-red-700 flex items-center gap-1 transition-colors cursor-pointer border-0 bg-transparent"
                   >
@@ -405,7 +405,7 @@ export default function ProductsPage() {
               <div className="space-y-2">
                 <label className="text-xs font-bold text-gray-800 uppercase tracking-wider block">Tìm kiếm</label>
                 <div className="relative">
-                  <input 
+                  <input
                     type="text"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
@@ -414,7 +414,7 @@ export default function ProductsPage() {
                   />
                   <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
                   {searchTerm && (
-                    <button 
+                    <button
                       onClick={() => setSearchTerm("")}
                       className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black cursor-pointer border-0 bg-transparent p-0"
                     >
@@ -432,16 +432,15 @@ export default function ProductsPage() {
                     const isChecked = selectedCategories.includes(cat.slug);
                     const count = counts.categories[cat.slug as keyof typeof counts.categories] || 0;
                     return (
-                      <label 
-                        key={cat.slug} 
-                        className={`flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium cursor-pointer transition-colors border ${
-                          isChecked 
-                            ? "bg-blue-50/40 border-blue-100 text-[#0562d2]" 
-                            : "bg-transparent border-transparent text-gray-700 hover:bg-gray-50"
-                        }`}
+                      <label
+                        key={cat.slug}
+                        className={`flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium cursor-pointer transition-colors border ${isChecked
+                          ? "bg-blue-50/40 border-blue-100 text-[#0562d2]"
+                          : "bg-transparent border-transparent text-gray-700 hover:bg-gray-50"
+                          }`}
                       >
                         <div className="flex items-center gap-2.5">
-                          <input 
+                          <input
                             type="checkbox"
                             checked={isChecked}
                             onChange={() => toggleCategory(cat.slug)}
@@ -449,9 +448,8 @@ export default function ProductsPage() {
                           />
                           <span>{cat.title}</span>
                         </div>
-                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
-                          isChecked ? "bg-blue-100 text-[#0562d2]" : "bg-gray-100 text-gray-500"
-                        }`}>
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${isChecked ? "bg-blue-100 text-[#0562d2]" : "bg-gray-100 text-gray-500"
+                          }`}>
                           {count}
                         </span>
                       </label>
@@ -472,16 +470,15 @@ export default function ProductsPage() {
                   ].map((range) => {
                     const isSelected = priceRange === range.slug;
                     return (
-                      <label 
-                        key={range.label} 
-                        className={`flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium cursor-pointer transition-colors border ${
-                          isSelected 
-                            ? "bg-blue-50/40 border-blue-100 text-[#0562d2]" 
-                            : "bg-transparent border-transparent text-gray-700 hover:bg-gray-50"
-                        }`}
+                      <label
+                        key={range.label}
+                        className={`flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium cursor-pointer transition-colors border ${isSelected
+                          ? "bg-blue-50/40 border-blue-100 text-[#0562d2]"
+                          : "bg-transparent border-transparent text-gray-700 hover:bg-gray-50"
+                          }`}
                       >
                         <div className="flex items-center gap-2.5">
-                          <input 
+                          <input
                             type="radio"
                             name="priceRangeRadio"
                             checked={isSelected}
@@ -490,9 +487,8 @@ export default function ProductsPage() {
                           />
                           <span>{range.label}</span>
                         </div>
-                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
-                          isSelected ? "bg-blue-100 text-[#0562d2]" : "bg-gray-100 text-gray-500"
-                        }`}>
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${isSelected ? "bg-blue-100 text-[#0562d2]" : "bg-gray-100 text-gray-500"
+                          }`}>
                           {range.count}
                         </span>
                       </label>
@@ -512,16 +508,15 @@ export default function ProductsPage() {
                   ].map((seat) => {
                     const isChecked = selectedSeats.includes(seat.slug);
                     return (
-                      <label 
-                        key={seat.slug} 
-                        className={`flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium cursor-pointer transition-colors border ${
-                          isChecked 
-                            ? "bg-blue-50/40 border-blue-100 text-[#0562d2]" 
-                            : "bg-transparent border-transparent text-gray-700 hover:bg-gray-50"
-                        }`}
+                      <label
+                        key={seat.slug}
+                        className={`flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium cursor-pointer transition-colors border ${isChecked
+                          ? "bg-blue-50/40 border-blue-100 text-[#0562d2]"
+                          : "bg-transparent border-transparent text-gray-700 hover:bg-gray-50"
+                          }`}
                       >
                         <div className="flex items-center gap-2.5">
-                          <input 
+                          <input
                             type="checkbox"
                             checked={isChecked}
                             onChange={() => toggleSeats(seat.slug)}
@@ -529,9 +524,8 @@ export default function ProductsPage() {
                           />
                           <span>{seat.label}</span>
                         </div>
-                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
-                          isChecked ? "bg-blue-100 text-[#0562d2]" : "bg-gray-100 text-gray-500"
-                        }`}>
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${isChecked ? "bg-blue-100 text-[#0562d2]" : "bg-gray-100 text-gray-500"
+                          }`}>
                           {seat.count}
                         </span>
                       </label>
@@ -550,16 +544,15 @@ export default function ProductsPage() {
                   ].map((fuel) => {
                     const isChecked = selectedFuels.includes(fuel.name);
                     return (
-                      <label 
-                        key={fuel.name} 
-                        className={`flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium cursor-pointer transition-colors border ${
-                          isChecked 
-                            ? "bg-blue-50/40 border-blue-100 text-[#0562d2]" 
-                            : "bg-transparent border-transparent text-gray-700 hover:bg-gray-50"
-                        }`}
+                      <label
+                        key={fuel.name}
+                        className={`flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium cursor-pointer transition-colors border ${isChecked
+                          ? "bg-blue-50/40 border-blue-100 text-[#0562d2]"
+                          : "bg-transparent border-transparent text-gray-700 hover:bg-gray-50"
+                          }`}
                       >
                         <div className="flex items-center gap-2.5">
-                          <input 
+                          <input
                             type="checkbox"
                             checked={isChecked}
                             onChange={() => toggleFuel(fuel.name)}
@@ -567,9 +560,8 @@ export default function ProductsPage() {
                           />
                           <span>Động cơ {fuel.name}</span>
                         </div>
-                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
-                          isChecked ? "bg-blue-100 text-[#0562d2]" : "bg-gray-100 text-gray-500"
-                        }`}>
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${isChecked ? "bg-blue-100 text-[#0562d2]" : "bg-gray-100 text-gray-500"
+                          }`}>
                           {fuel.count}
                         </span>
                       </label>
@@ -588,16 +580,15 @@ export default function ProductsPage() {
                   ].map((trans) => {
                     const isChecked = selectedTransmissions.includes(trans.name);
                     return (
-                      <label 
-                        key={trans.name} 
-                        className={`flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium cursor-pointer transition-colors border ${
-                          isChecked 
-                            ? "bg-blue-50/40 border-blue-100 text-[#0562d2]" 
-                            : "bg-transparent border-transparent text-gray-700 hover:bg-gray-50"
-                        }`}
+                      <label
+                        key={trans.name}
+                        className={`flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium cursor-pointer transition-colors border ${isChecked
+                          ? "bg-blue-50/40 border-blue-100 text-[#0562d2]"
+                          : "bg-transparent border-transparent text-gray-700 hover:bg-gray-50"
+                          }`}
                       >
                         <div className="flex items-center gap-2.5">
-                          <input 
+                          <input
                             type="checkbox"
                             checked={isChecked}
                             onChange={() => toggleTransmission(trans.name)}
@@ -605,9 +596,8 @@ export default function ProductsPage() {
                           />
                           <span>{trans.name}</span>
                         </div>
-                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
-                          isChecked ? "bg-blue-100 text-[#0562d2]" : "bg-gray-100 text-gray-500"
-                        }`}>
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${isChecked ? "bg-blue-100 text-[#0562d2]" : "bg-gray-100 text-gray-500"
+                          }`}>
                           {trans.count}
                         </span>
                       </label>
@@ -620,7 +610,7 @@ export default function ProductsPage() {
 
             {/* 2. PRODUCT LIST & TOOLBAR (Right side on Desktop, full width on Mobile) */}
             <div className="lg:col-span-3 space-y-6">
-              
+
               {/* Product Header Toolbar */}
               <div className="bg-white border border-gray-200/80 rounded-2xl px-6 py-4 flex items-center justify-between shadow-[0px_4px_12px_rgba(16,24,40,0.03)] flex-wrap gap-4">
                 <div className="text-left">
@@ -631,11 +621,11 @@ export default function ProductsPage() {
                     Tìm thấy <span className="text-[#0562d2] font-bold">{sortedVehicles.length}</span> mẫu xe phù hợp
                   </p>
                 </div>
-                
+
                 <div className="flex items-center gap-3">
-                  
+
                   {/* Mobile filter button trigger */}
-                  <button 
+                  <button
                     onClick={() => setIsMobileFilterOpen(true)}
                     className="lg:hidden flex items-center gap-2 bg-white hover:bg-gray-50 text-gray-700 text-xs font-semibold px-4 py-2 rounded-full border border-gray-200 cursor-pointer shadow-xs"
                   >
@@ -669,7 +659,7 @@ export default function ProductsPage() {
               {hasActiveFilters && (
                 <div className="flex items-center gap-2 flex-wrap bg-gray-50/50 p-4 border border-gray-200/60 rounded-xl">
                   <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mr-1">Đang lọc theo:</span>
-                  
+
                   {/* Category Tags */}
                   {selectedCategories.map((cat) => (
                     <span key={cat} className="inline-flex items-center gap-1 bg-white text-[#0562d2] border border-blue-100 rounded-full px-3 py-1 text-xs font-semibold">
@@ -720,7 +710,7 @@ export default function ProductsPage() {
                     </span>
                   ))}
 
-                  <button 
+                  <button
                     onClick={clearAllFilters}
                     className="text-xs font-bold text-red-600 hover:text-red-700 underline cursor-pointer border-0 bg-transparent p-0 ml-auto"
                   >
@@ -750,11 +740,10 @@ export default function ProductsPage() {
                           e.stopPropagation();
                           toggleCompare(vehicleId);
                         }}
-                        className={`absolute top-3 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-all active:scale-95 border cursor-pointer ${
-                          compareIds.includes(vehicleId)
-                            ? "bg-[#0562D2] text-white border-[#0562D2] shadow-md"
-                            : "bg-white/95 text-gray-500 hover:text-[#0562D2] border-gray-200/80 hover:shadow-md"
-                        }`}
+                        className={`absolute top-3 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-all active:scale-95 border cursor-pointer ${compareIds.includes(vehicleId)
+                          ? "bg-[#0562D2] text-white border-[#0562D2] shadow-md"
+                          : "bg-white/95 text-gray-500 hover:text-[#0562D2] border-gray-200/80 hover:shadow-md"
+                          }`}
                         title={compareIds.includes(vehicleId) ? "Xóa khỏi so sánh" : "Thêm vào so sánh"}
                       >
                         <GitCompare className={`w-4 h-4 ${compareIds.includes(vehicleId) ? "animate-pulse" : ""}`} />
@@ -843,7 +832,7 @@ export default function ProductsPage() {
                   <p className="text-xs text-gray-500 max-w-sm mx-auto mb-6">
                     Không có dòng xe nào khớp với tất cả các tùy chọn lọc hiện tại của bạn.
                   </p>
-                  <button 
+                  <button
                     onClick={clearAllFilters}
                     className="bg-[#0562d2] hover:bg-[#044ea7] text-white text-xs font-bold px-6 py-2.5 rounded-full transition-colors cursor-pointer border-0"
                   >
@@ -907,11 +896,11 @@ export default function ProductsPage() {
       {isMobileFilterOpen && (
         <div className="fixed inset-0 z-50 lg:hidden flex justify-end">
           {/* Backdrop */}
-          <div 
+          <div
             onClick={() => setIsMobileFilterOpen(false)}
             className="absolute inset-0 bg-black/60 transition-opacity duration-300"
           />
-          
+
           {/* Drawer Body Panel */}
           <div className="relative bg-white w-full max-w-[420px] h-full flex flex-col shadow-2xl z-10 animate-in slide-in-from-right duration-300">
             {/* Header */}
@@ -920,7 +909,7 @@ export default function ProductsPage() {
                 <SlidersHorizontal className="w-4 h-4 text-blue-400" />
                 Bộ lọc xe
               </span>
-              <button 
+              <button
                 onClick={() => setIsMobileFilterOpen(false)}
                 className="text-white/80 hover:text-white p-1 hover:bg-white/10 rounded-full cursor-pointer bg-transparent border-0"
               >
@@ -932,7 +921,7 @@ export default function ProductsPage() {
             <div className="flex-1 overflow-y-auto p-5 space-y-6 text-left">
               {/* Reset button inside content */}
               {hasActiveFilters && (
-                <button 
+                <button
                   onClick={clearAllFilters}
                   className="w-full bg-red-50 hover:bg-red-100 text-red-600 text-xs font-bold py-2.5 rounded-lg border border-red-100 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                 >
@@ -945,7 +934,7 @@ export default function ProductsPage() {
               <div className="space-y-2">
                 <label className="text-xs font-bold text-gray-800 uppercase tracking-wider block">Tìm kiếm xe</label>
                 <div className="relative">
-                  <input 
+                  <input
                     type="text"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
@@ -954,7 +943,7 @@ export default function ProductsPage() {
                   />
                   <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
                   {searchTerm && (
-                    <button 
+                    <button
                       onClick={() => setSearchTerm("")}
                       className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black cursor-pointer border-0 bg-transparent p-0"
                     >
@@ -972,16 +961,15 @@ export default function ProductsPage() {
                     const isChecked = selectedCategories.includes(cat.slug);
                     const count = counts.categories[cat.slug as keyof typeof counts.categories] || 0;
                     return (
-                      <label 
-                        key={cat.slug} 
-                        className={`flex items-center justify-between px-3.5 py-3 rounded-lg text-xs font-semibold cursor-pointer transition-colors border ${
-                          isChecked 
-                            ? "bg-blue-50 border-blue-200 text-[#0562d2]" 
-                            : "bg-transparent border-gray-200 text-gray-700"
-                        }`}
+                      <label
+                        key={cat.slug}
+                        className={`flex items-center justify-between px-3.5 py-3 rounded-lg text-xs font-semibold cursor-pointer transition-colors border ${isChecked
+                          ? "bg-blue-50 border-blue-200 text-[#0562d2]"
+                          : "bg-transparent border-gray-200 text-gray-700"
+                          }`}
                       >
                         <div className="flex items-center gap-3">
-                          <input 
+                          <input
                             type="checkbox"
                             checked={isChecked}
                             onChange={() => toggleCategory(cat.slug)}
@@ -989,9 +977,8 @@ export default function ProductsPage() {
                           />
                           <span>{cat.title}</span>
                         </div>
-                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
-                          isChecked ? "bg-blue-100 text-[#0562d2]" : "bg-gray-100 text-gray-500"
-                        }`}>
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${isChecked ? "bg-blue-100 text-[#0562d2]" : "bg-gray-100 text-gray-500"
+                          }`}>
                           {count}
                         </span>
                       </label>
@@ -1012,16 +999,15 @@ export default function ProductsPage() {
                   ].map((range) => {
                     const isSelected = priceRange === range.slug;
                     return (
-                      <label 
-                        key={range.label} 
-                        className={`flex items-center justify-between px-3.5 py-3 rounded-lg text-xs font-semibold cursor-pointer transition-colors border ${
-                          isSelected 
-                            ? "bg-blue-50 border-blue-200 text-[#0562d2]" 
-                            : "bg-transparent border-gray-200 text-gray-700"
-                        }`}
+                      <label
+                        key={range.label}
+                        className={`flex items-center justify-between px-3.5 py-3 rounded-lg text-xs font-semibold cursor-pointer transition-colors border ${isSelected
+                          ? "bg-blue-50 border-blue-200 text-[#0562d2]"
+                          : "bg-transparent border-gray-200 text-gray-700"
+                          }`}
                       >
                         <div className="flex items-center gap-3">
-                          <input 
+                          <input
                             type="radio"
                             name="mobilePriceRangeRadio"
                             checked={isSelected}
@@ -1030,9 +1016,8 @@ export default function ProductsPage() {
                           />
                           <span>{range.label}</span>
                         </div>
-                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
-                          isSelected ? "bg-blue-100 text-[#0562d2]" : "bg-gray-100 text-gray-500"
-                        }`}>
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${isSelected ? "bg-blue-100 text-[#0562d2]" : "bg-gray-100 text-gray-500"
+                          }`}>
                           {range.count}
                         </span>
                       </label>
@@ -1052,16 +1037,15 @@ export default function ProductsPage() {
                   ].map((seat) => {
                     const isChecked = selectedSeats.includes(seat.slug);
                     return (
-                      <label 
-                        key={seat.slug} 
-                        className={`flex items-center justify-between px-3.5 py-3 rounded-lg text-xs font-semibold cursor-pointer transition-colors border ${
-                          isChecked 
-                            ? "bg-blue-50 border-blue-200 text-[#0562d2]" 
-                            : "bg-transparent border-gray-200 text-gray-700"
-                        }`}
+                      <label
+                        key={seat.slug}
+                        className={`flex items-center justify-between px-3.5 py-3 rounded-lg text-xs font-semibold cursor-pointer transition-colors border ${isChecked
+                          ? "bg-blue-50 border-blue-200 text-[#0562d2]"
+                          : "bg-transparent border-gray-200 text-gray-700"
+                          }`}
                       >
                         <div className="flex items-center gap-3">
-                          <input 
+                          <input
                             type="checkbox"
                             checked={isChecked}
                             onChange={() => toggleSeats(seat.slug)}
@@ -1069,9 +1053,8 @@ export default function ProductsPage() {
                           />
                           <span>{seat.label}</span>
                         </div>
-                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
-                          isChecked ? "bg-blue-100 text-[#0562d2]" : "bg-gray-100 text-gray-500"
-                        }`}>
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${isChecked ? "bg-blue-100 text-[#0562d2]" : "bg-gray-100 text-gray-500"
+                          }`}>
                           {seat.count}
                         </span>
                       </label>
@@ -1090,16 +1073,15 @@ export default function ProductsPage() {
                   ].map((fuel) => {
                     const isChecked = selectedFuels.includes(fuel.name);
                     return (
-                      <label 
-                        key={fuel.name} 
-                        className={`flex items-center justify-between px-3.5 py-3 rounded-lg text-xs font-semibold cursor-pointer transition-colors border ${
-                          isChecked 
-                            ? "bg-blue-50 border-blue-200 text-[#0562d2]" 
-                            : "bg-transparent border-gray-200 text-gray-700"
-                        }`}
+                      <label
+                        key={fuel.name}
+                        className={`flex items-center justify-between px-3.5 py-3 rounded-lg text-xs font-semibold cursor-pointer transition-colors border ${isChecked
+                          ? "bg-blue-50 border-blue-200 text-[#0562d2]"
+                          : "bg-transparent border-gray-200 text-gray-700"
+                          }`}
                       >
                         <div className="flex items-center gap-3">
-                          <input 
+                          <input
                             type="checkbox"
                             checked={isChecked}
                             onChange={() => toggleFuel(fuel.name)}
@@ -1107,9 +1089,8 @@ export default function ProductsPage() {
                           />
                           <span>Máy {fuel.name}</span>
                         </div>
-                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
-                          isChecked ? "bg-blue-100 text-[#0562d2]" : "bg-gray-100 text-gray-500"
-                        }`}>
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${isChecked ? "bg-blue-100 text-[#0562d2]" : "bg-gray-100 text-gray-500"
+                          }`}>
                           {fuel.count}
                         </span>
                       </label>
@@ -1128,16 +1109,15 @@ export default function ProductsPage() {
                   ].map((trans) => {
                     const isChecked = selectedTransmissions.includes(trans.name);
                     return (
-                      <label 
-                        key={trans.name} 
-                        className={`flex items-center justify-between px-3.5 py-3 rounded-lg text-xs font-semibold cursor-pointer transition-colors border ${
-                          isChecked 
-                            ? "bg-blue-50 border-blue-200 text-[#0562d2]" 
-                            : "bg-transparent border-gray-200 text-gray-700"
-                        }`}
+                      <label
+                        key={trans.name}
+                        className={`flex items-center justify-between px-3.5 py-3 rounded-lg text-xs font-semibold cursor-pointer transition-colors border ${isChecked
+                          ? "bg-blue-50 border-blue-200 text-[#0562d2]"
+                          : "bg-transparent border-gray-200 text-gray-700"
+                          }`}
                       >
                         <div className="flex items-center gap-3">
-                          <input 
+                          <input
                             type="checkbox"
                             checked={isChecked}
                             onChange={() => toggleTransmission(trans.name)}
@@ -1145,9 +1125,8 @@ export default function ProductsPage() {
                           />
                           <span>{trans.name}</span>
                         </div>
-                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
-                          isChecked ? "bg-blue-100 text-[#0562d2]" : "bg-gray-100 text-gray-500"
-                        }`}>
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${isChecked ? "bg-blue-100 text-[#0562d2]" : "bg-gray-100 text-gray-500"
+                          }`}>
                           {trans.count}
                         </span>
                       </label>
@@ -1159,13 +1138,13 @@ export default function ProductsPage() {
 
             {/* Footer buttons */}
             <div className="p-4 border-t border-gray-150 flex gap-3 shrink-0 bg-gray-50">
-              <button 
+              <button
                 onClick={clearAllFilters}
                 className="flex-1 text-center bg-white hover:bg-gray-100 text-gray-700 text-xs font-bold py-3.5 rounded-full border border-gray-200 cursor-pointer shadow-xs"
               >
                 Đặt lại
               </button>
-              <button 
+              <button
                 onClick={() => setIsMobileFilterOpen(false)}
                 className="flex-1 text-center bg-[#0562d2] hover:bg-[#044ea7] text-white text-xs font-bold py-3.5 rounded-full cursor-pointer shadow-xs border-0"
               >

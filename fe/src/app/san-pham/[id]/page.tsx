@@ -295,12 +295,12 @@ export default function ProductDetailPage() {
   const [activeVersionIndex, setActiveVersionIndex] = useState(0);
   const [viewType, setViewType] = useState<"exterior" | "interior">("exterior");
   const currentColorObj = vehicle?.colors?.[selectedColorIndex];
-  const hasInteriorSeq = (currentColorObj && (currentColorObj as any).images_360_internal && (currentColorObj as any).images_360_internal.length > 0)
-    || (vehicle && (vehicle as any).images_360_internal && (vehicle as any).images_360_internal.length > 0);
+  const hasInteriorSeq = (currentColorObj && (currentColorObj as any).images_360_internal && (currentColorObj as any).images_360_internal.length > 2)
+    || (vehicle && (vehicle as any).images_360_internal && (vehicle as any).images_360_internal.length > 2);
   const hasExteriorSeq = (currentColorObj && (currentColorObj as any).images_360 && (currentColorObj as any).images_360.length > 0)
     || (vehicle && (vehicle as any).images_360_external && (vehicle as any).images_360_external.length > 0);
   const isImageSequence = (viewType === "exterior" && (hasExteriorSeq || vehicle?.id === "mustang-fastback"))
-    || (viewType === "interior" && (hasInteriorSeq || vehicle?.id === "mustang-fastback"));
+    || (viewType === "interior" && hasInteriorSeq);
 
   // 360 Interactive Viewer States
   const [is360Active, setIs360Active] = useState(false);
@@ -911,16 +911,16 @@ export default function ProductDetailPage() {
 
     // Skip Three.js initialization if we have a sequence of interior images
     if (
-      (currentColor && (currentColor as any).images_360_internal && (currentColor as any).images_360_internal.length > 0)
-      || (vehicle && (vehicle as any).images_360_internal && (vehicle as any).images_360_internal.length > 0)
+      (currentColor && (currentColor as any).images_360_internal && (currentColor as any).images_360_internal.length > 2)
+      || (vehicle && (vehicle as any).images_360_internal && (vehicle as any).images_360_internal.length > 2)
     ) {
       return;
     }
 
     const interiorImg = (vehicle?.id === "mustang-fastback" || vehicle?.id === "ford-mustang")
       ? (selectedInteriorColorIndex === 1
-        ? (vehicle?.images_360_internal?.[1] || "/storage/vehicles/mustang/360/interior/001-space-gray.jpeg")
-        : (vehicle?.images_360_internal?.[0] || "/storage/vehicles/mustang/360/interior/001-black-onyx.jpeg"))
+        ? (vehicle?.images_360_internal?.[1] || "/storage/uploads/vehicles/mustang/360/interior/001-space-gray.jpeg")
+        : (vehicle?.images_360_internal?.[0] || "/storage/uploads/vehicles/mustang/360/interior/001-black-onyx.jpeg"))
       : ((currentColor as any)?.image_360_internal
         || vehicle?.image_360_internal_url
         || (vehicle?.id === "new-territory"

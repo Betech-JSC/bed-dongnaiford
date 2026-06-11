@@ -956,8 +956,8 @@ function ThreeSixtyViewerBlock({ data, vehicle, isEditMode, onChangeData, threeS
   } = threeSixtyProps;
 
   const currentColor = vehicle?.colors?.[selectedColorIndex];
-  const hasInteriorSequence = (currentColor && currentColor.images_360_internal && currentColor.images_360_internal.length > 0)
-    || (vehicle && (vehicle as any).images_360_internal && (vehicle as any).images_360_internal.length > 0);
+  const hasInteriorSequence = (currentColor && currentColor.images_360_internal && currentColor.images_360_internal.length > 2)
+    || (vehicle && (vehicle as any).images_360_internal && (vehicle as any).images_360_internal.length > 2);
 
   return (
     <section id={anchorId || undefined} className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full py-16 border-t border-[#e5e5e5]">
