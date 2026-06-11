@@ -1080,7 +1080,7 @@ export default function Home() {
                       if (testimonialWasDragged.current) return;
                       setActiveTestimonialIndex(idx);
                     }}
-                    className={`h-[320px] bg-white px-6 py-8 rounded-[8px] flex-shrink-0 flex flex-col justify-between cursor-pointer transition-all ${isActive
+                    className={`h-auto min-h-[320px] sm:h-[320px] bg-white px-5 py-6 sm:px-6 sm:py-8 rounded-[8px] flex-shrink-0 flex flex-col justify-between cursor-pointer transition-all ${isActive
                       ? "border-b-4 border-[#0562d2] shadow-md scale-100 opacity-100"
                       : "border-b border-[#d6d6d6] scale-95 opacity-50"
                       }`}
@@ -1089,20 +1089,20 @@ export default function Home() {
                     }}
                   >
                     {/* Comment text */}
-                    <p className="text-[18px] text-[#424242] font-normal leading-[1.5]">
+                    <p className="text-[15px] sm:text-[18px] text-[#424242] font-normal leading-[1.5]">
                       &ldquo;{item.comment}&rdquo;
                     </p>
 
                     {/* Author Info */}
-                    <div className="flex items-center gap-4 pt-4">
-                      <div className="size-[64px] rounded-full border-[3px] border-[#0562d2] bg-[#003478] flex items-center justify-center font-bold text-white text-lg flex-shrink-0">
+                    <div className="flex items-center gap-3 sm:gap-4 pt-3 sm:pt-4">
+                      <div className="size-[48px] sm:size-[64px] rounded-full border-[2px] sm:border-[3px] border-[#0562d2] bg-[#003478] flex items-center justify-center font-bold text-white text-base sm:text-lg flex-shrink-0">
                         {item.avatarText}
                       </div>
                       <div>
-                        <h4 className="text-[18px] font-semibold text-[#1a1a1a] tracking-[0.18px] leading-tight">
+                        <h4 className="text-[15px] sm:text-[18px] font-semibold text-[#1a1a1a] tracking-[0.18px] leading-tight">
                           {item.name}
                         </h4>
-                        <p className="text-[16px] text-[#333333] mt-1">
+                        <p className="text-[14px] sm:text-[16px] text-[#333333] mt-0.5 sm:mt-1">
                           {item.role}
                         </p>
                       </div>
