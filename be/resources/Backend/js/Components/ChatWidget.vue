@@ -49,8 +49,8 @@
             <div class="bg-gradient-to-r from-[#003478] to-[#0562D2] p-4 text-white flex items-center justify-between shadow-md">
                 <div class="flex items-center space-x-3">
                     <!-- Ford Logo Avatar -->
-                    <div class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center p-1">
-                        <img src="/ford_logo.svg" alt="Ford Logo" class="w-8 object-contain" />
+                    <div class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center p-1 overflow-hidden">
+                        <img src="/ford_logo.svg" alt="Ford Logo" class="w-8 h-8 object-contain" />
                     </div>
                     <div>
                         <h4 class="font-bold text-sm leading-tight tracking-wide">Trợ Lý AI Đồng Nai Ford</h4>
@@ -78,8 +78,8 @@
             >
                 <!-- Welcome Message -->
                 <div class="flex items-start space-x-2.5">
-                    <div class="w-8 h-8 rounded-full bg-[#003478] flex items-center justify-center flex-shrink-0 p-0.5">
-                        <img src="/ford_logo.svg" alt="Ford Logo" class="w-6 object-contain" />
+                    <div class="w-8 h-8 rounded-full bg-[#003478] flex items-center justify-center flex-shrink-0 p-0.5 overflow-hidden">
+                        <img src="/ford_logo.svg" alt="Ford Logo" class="w-6 h-6 object-contain" />
                     </div>
                     <div class="max-w-[75%] bg-white border border-gray-100 rounded-2xl rounded-tl-none p-3 shadow-xs">
                         <p class="text-xs text-gray-800 leading-relaxed font-medium">
@@ -98,9 +98,9 @@
                     <!-- Avatar for Bot -->
                     <div
                         v-if="msg.role !== 'user'"
-                        class="w-8 h-8 rounded-full bg-[#003478] flex items-center justify-center flex-shrink-0 p-0.5"
+                        class="w-8 h-8 rounded-full bg-[#003478] flex items-center justify-center flex-shrink-0 p-0.5 overflow-hidden"
                     >
-                        <img src="/ford_logo.svg" alt="Ford Logo" class="w-6 object-contain" />
+                        <img src="/ford_logo.svg" alt="Ford Logo" class="w-6 h-6 object-contain" />
                     </div>
 
                     <!-- Message Bubble -->
@@ -118,8 +118,8 @@
 
                 <!-- Typing Indicator -->
                 <div v-if="isTyping" class="flex items-start space-x-2.5">
-                    <div class="w-8 h-8 rounded-full bg-[#003478] flex items-center justify-center flex-shrink-0 p-0.5">
-                        <img src="/ford_logo.svg" alt="Ford Logo" class="w-6 object-contain" />
+                    <div class="w-8 h-8 rounded-full bg-[#003478] flex items-center justify-center flex-shrink-0 p-0.5 overflow-hidden">
+                        <img src="/ford_logo.svg" alt="Ford Logo" class="w-6 h-6 object-contain" />
                     </div>
                     <div class="bg-white border border-gray-100 rounded-2xl rounded-tl-none p-3 shadow-xs flex items-center space-x-1.5 h-[34px]">
                         <span class="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce" style="animation-delay: 0ms"></span>
