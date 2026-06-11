@@ -133,7 +133,10 @@ export default function Blocks({
           case "SpecsGrid":
             blockComponent = (
               <SpecsGridBlock
+                data={block.data}
                 vehicle={vehicle}
+                isEditMode={isEditMode}
+                onChangeData={(updatedData: any) => onChangeBlock(index, updatedData)}
                 openQuoteDrawer={openQuoteDrawer}
                 anchorId={block.anchorId}
               />
@@ -395,7 +398,7 @@ function HeroBannerBlock({ data, vehicle, openQuoteDrawer, openDriveModal, isEdi
 /* ==========================================================================
    2. SPECS COMPARISON BLOCK
    ========================================================================== */
-function SpecsGridBlock({ vehicle, openQuoteDrawer, anchorId }: any) {
+function SpecsGridBlock({ data, vehicle, isEditMode, onChangeData, openQuoteDrawer, anchorId }: any) {
   const versions = vehicle.versions || [];
   
   if (versions.length === 0) return null;
@@ -413,10 +416,15 @@ function SpecsGridBlock({ vehicle, openQuoteDrawer, anchorId }: any) {
     isExternal: false
   }));
 
+  const align = data.align || 'center';
+  const alignClass = align === 'left' ? 'text-left mr-auto ml-0' 
+                   : align === 'right' ? 'text-right ml-auto mr-0' 
+                   : 'text-center mx-auto';
+
   return (
     <section id={anchorId || undefined} className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full pt-16 pb-12">
       <div className="space-y-12">
-        <div className="text-center max-w-xl mx-auto space-y-2">
+        <div className={`max-w-xl space-y-2 ${alignClass}`}>
           <span className="text-xs font-bold uppercase tracking-wider text-[#0562d2] block">So sánh trực quan</span>
           <h2 className="font-['Ford_Antenna',sans-serif] font-semibold text-[#00095b] text-[32px] sm:text-[40px] uppercase tracking-[-0.96px] leading-[1.2]">
             So sánh các phiên bản {vehicle.name.replace("NEW ", "")}
@@ -555,10 +563,15 @@ function FeaturesListBlock({ data, vehicle, isEditMode, onChangeData, anchorId }
     onChangeData({ ...data, features: newFeatures });
   };
 
+  const align = data.align || 'center';
+  const alignClass = align === 'left' ? 'text-left mr-auto ml-0' 
+                   : align === 'right' ? 'text-right ml-auto mr-0' 
+                   : 'text-center mx-auto';
+
   return (
     <section id={anchorId || undefined} className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full py-16">
       <div className="space-y-12">
-        <div className="text-center max-w-xl mx-auto space-y-2">
+        <div className={`max-w-xl space-y-2 ${alignClass}`}>
           <span className="text-xs font-bold uppercase tracking-wider text-[#0562d2] block">Tính năng vượt trội</span>
           <h2 className="font-['Ford_Antenna',sans-serif] font-semibold text-[#00095b] text-[32px] sm:text-[40px] uppercase tracking-[-0.96px] leading-[1.2]">
             Trang Bị & Tiện Nghi
@@ -673,11 +686,16 @@ function AccordionFAQsBlock({ data, vehicle, isEditMode, onChangeData, anchorId 
     onChangeData({ ...data, faqs: newFaqs });
   };
 
+  const align = data.align || 'left';
+  const alignClass = align === 'right' ? 'text-right' 
+                   : align === 'center' ? 'text-center' 
+                   : 'text-left';
+
   return (
     <section id={anchorId || undefined} className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full py-16 border-t border-[#e5e5e5]">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-[40px] lg:gap-[80px] items-start justify-center">
         
-        <div className="lg:col-span-4 space-y-3">
+        <div className={`lg:col-span-4 space-y-3 ${alignClass}`}>
           <span className="text-xs font-bold uppercase tracking-wider text-[#0562d2] block">Giải đáp thắc mắc</span>
           <h2 className="font-['Ford_Antenna',sans-serif] font-semibold text-[#1a1a1a] text-[36px] sm:text-[48px] tracking-[-0.96px] leading-[1.2] uppercase">
             Hỏi đáp thường gặp
@@ -1201,11 +1219,16 @@ function FeaturesGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId }
     onChangeData({ ...data, split_features: newFeatures });
   };
 
+  const align = data.align || 'center';
+  const alignClass = align === 'left' ? 'items-start text-left' 
+                   : align === 'right' ? 'items-end text-right' 
+                   : 'items-center text-center';
+
   return (
     <section id={anchorId || undefined} className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full py-16 border-t border-[#e5e5e5]">
       <div className="flex flex-col gap-[48px] items-center">
         
-        <div className="flex flex-col items-center pt-[32px] px-[48px] w-full max-w-[1152px] text-center text-black">
+        <div className={`flex flex-col pt-[32px] px-[48px] w-full max-w-[1152px] text-black ${alignClass}`}>
           <h2 className={`font-['Ford_Antenna',sans-serif] font-semibold text-[#00095b] text-[36px] sm:text-[48px] tracking-[-0.96px] leading-[1.2] w-full
             ${isEditMode ? 'outline-[1px] outline-dashed outline-[#008060]/70 hover:outline-[#008060] outline-offset-2 cursor-pointer transition-all' : ''}`}>
             {title_1}
@@ -1244,7 +1267,7 @@ function FeaturesGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId }
           </div>
         </div>
 
-        <div className="flex flex-col items-center pt-[32px] px-[48px] w-full max-w-[1152px] text-center mt-8 text-black">
+        <div className={`flex flex-col pt-[32px] px-[48px] w-full max-w-[1152px] mt-8 text-black ${alignClass}`}>
           <h2 className={`font-['Ford_Antenna',sans-serif] font-semibold text-[#00095b] text-[36px] sm:text-[48px] tracking-[-0.96px] leading-[1.2] w-full
             ${isEditMode ? 'outline-[1px] outline-dashed outline-[#008060]/70 hover:outline-[#008060] outline-offset-2 cursor-pointer transition-all' : ''}`}>
             {title_2}
@@ -1285,7 +1308,7 @@ function FeaturesGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId }
           </div>
         </div>
 
-        <div className="flex flex-col items-center pt-[32px] px-[48px] w-full max-w-[1152px] text-center mt-8 text-black">
+        <div className={`flex flex-col pt-[32px] px-[48px] w-full max-w-[1152px] mt-8 text-black ${alignClass}`}>
           <h2 className={`font-['Ford_Antenna',sans-serif] font-semibold text-[#00095b] text-[36px] sm:text-[48px] tracking-[-0.96px] leading-[1.2] w-full
             ${isEditMode ? 'outline-[1px] outline-dashed outline-[#008060]/70 hover:outline-[#008060] outline-offset-2 cursor-pointer transition-all' : ''}`}>
             {title_3}
@@ -1405,39 +1428,41 @@ function VersionsGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId, 
     return `${baseDomain}/static/${cleanPath}`;
   };
 
+  const align = data.align || 'center';
+  const alignClass = align === 'left' ? 'text-left' 
+                   : align === 'right' ? 'text-right' 
+                   : 'text-center';
+
   return (
     <section id={anchorId || undefined} className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full py-16 border-t border-[#e5e5e5]">
       <div className="flex flex-col gap-[32px] items-center w-full">
         
-        <div className="flex items-center justify-between w-full max-w-[1152px]">
-          <div className="flex-1"></div>
-          <div className="flex-grow text-center text-black">
+        <div className="flex items-center justify-between w-full max-w-[1152px] gap-4">
+          <div className={`flex-grow text-black ${alignClass}`}>
             <h2 className={`font-['Ford_Antenna',sans-serif] font-semibold text-[#1a1a1a] text-[32px] sm:text-[42px] tracking-[-0.96px] leading-[1.2] uppercase w-full
               ${isEditMode ? 'outline-[1px] outline-dashed outline-[#008060]/70 hover:outline-[#008060] outline-offset-2 cursor-pointer transition-all' : ''}`}>
               {title}
             </h2>
           </div>
           {/* Slider Buttons */}
-          <div className="flex-1 flex justify-end gap-2">
-            {!isEditMode && versions.length > 3 && (
-              <>
-                <button 
-                  onClick={() => scroll('left')} 
-                  className="p-2 border border-gray-200 rounded-full bg-white hover:bg-gray-100 transition shadow-xs cursor-pointer focus:outline-none"
-                  aria-label="Scroll left"
-                >
-                  <ChevronLeft className="w-5 h-5 text-gray-600" />
-                </button>
-                <button 
-                  onClick={() => scroll('right')} 
-                  className="p-2 border border-gray-200 rounded-full bg-white hover:bg-gray-100 transition shadow-xs cursor-pointer focus:outline-none"
-                  aria-label="Scroll right"
-                >
-                  <ChevronRight className="w-5 h-5 text-gray-600" />
-                </button>
-              </>
-            )}
-          </div>
+          {!isEditMode && versions.length > 3 && (
+            <div className="flex justify-end gap-2 shrink-0">
+              <button 
+                onClick={() => scroll('left')} 
+                className="p-2 border border-gray-200 rounded-full bg-white hover:bg-gray-100 transition shadow-xs cursor-pointer focus:outline-none"
+                aria-label="Scroll left"
+              >
+                <ChevronLeft className="w-5 h-5 text-gray-600" />
+              </button>
+              <button 
+                onClick={() => scroll('right')} 
+                className="p-2 border border-gray-200 rounded-full bg-white hover:bg-gray-100 transition shadow-xs cursor-pointer focus:outline-none"
+                aria-label="Scroll right"
+              >
+                <ChevronRight className="w-5 h-5 text-gray-600" />
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Outer container */}
@@ -1542,13 +1567,22 @@ function BookingBannerBlock({ data, vehicle, isEditMode, onChangeData, anchorId 
   // Styles for colors
   const titleStyle = data.title_color ? { color: data.title_color } : {};
 
+  const align = data.align || 'left';
+  const alignClass = align === 'center' ? 'items-center text-center mx-auto' 
+                   : align === 'right' ? 'items-end text-right ml-auto' 
+                   : 'items-start text-left';
+  
+  const btnAlignClass = align === 'center' ? 'justify-center'
+                      : align === 'right' ? 'justify-end'
+                      : 'justify-start';
+
   return (
     <section id={anchorId || undefined} className="w-full bg-[#00095b] py-[32px] px-4 md:px-[144px] flex justify-center overflow-visible">
       <div className="max-w-[1152px] w-full relative flex flex-col lg:flex-row items-center overflow-visible">
         {/* Inner Rounded Banner */}
         <div className="w-full lg:w-[913px] bg-gradient-to-r from-[#00095B] via-[#02337A] to-[#0562D2] rounded-[12px] p-8 lg:p-[32px] h-auto lg:h-[320px] flex items-center relative overflow-hidden lg:overflow-visible shadow-xl">
           {/* Content */}
-          <div className="flex flex-col gap-6 max-w-full lg:max-w-[505px] relative z-10 text-white w-full">
+          <div className={`flex flex-col gap-6 max-w-full lg:max-w-[505px] relative z-10 text-white w-full ${alignClass}`}>
               <>
                 <h3 
                   className={`font-bold font-display leading-[1.32] ${titleSizeClass} w-full
@@ -1557,10 +1591,10 @@ function BookingBannerBlock({ data, vehicle, isEditMode, onChangeData, anchorId 
                 >
                   {title}
                 </h3>
-                <div className="flex flex-col sm:flex-row gap-4">
+                <div className={`flex flex-col sm:flex-row gap-4 w-full ${btnAlignClass}`}>
                   <a
                     href={`tel:${phone.replace(/\s+/g, "")}`}
-                    className={`flex items-center justify-center gap-2 bg-[#0562d2] hover:bg-[#044ea7] border border-[#0562d2] transition-colors text-white font-bold px-6 py-3 rounded-full text-base
+                    className={`flex items-center justify-center gap-2 bg-[#0562d2] hover:bg-[#044ea7] border border-[#0562d2] transition-colors text-white font-bold px-6 py-3 rounded-full text-base shrink-0
                       ${isEditMode ? 'outline-[1px] outline-dashed outline-white/50 hover:outline-white outline-offset-2 cursor-pointer transition-all' : ''}`}
                   >
                     <Phone className="w-5 h-5" />
@@ -1568,7 +1602,7 @@ function BookingBannerBlock({ data, vehicle, isEditMode, onChangeData, anchorId 
                   </a>
                   <a
                     href={btnLink}
-                    className="flex items-center justify-center gap-2 bg-transparent hover:bg-white/10 border border-white transition-colors text-white font-bold px-6 py-3 rounded-full text-base"
+                    className="flex items-center justify-center gap-2 bg-transparent hover:bg-white/10 border border-white transition-colors text-white font-bold px-6 py-3 rounded-full text-base shrink-0"
                   >
                     <Bookmark className="w-5 h-5" />
                     <span>{btnText}</span>

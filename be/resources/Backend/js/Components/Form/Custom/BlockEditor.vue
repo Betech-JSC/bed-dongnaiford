@@ -361,22 +361,22 @@
                     </div>
 
                     <!-- Styling & Layout Panel -->
-                    <div v-if="['HeroBanner', 'Promotions', 'ThreeSixtyViewer', 'BookingBanner'].includes(blocks[activeIndex].type)" class="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-4">
+                    <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-4">
                         <div class="text-xs font-bold text-[#008060] flex items-center gap-1.5 border-b border-gray-200 pb-2">
                             <span>🎨</span>
                             <span>Cấu hình kiểu dáng</span>
                         </div>
                         
                         <!-- Alignment Option -->
-                        <div v-if="['HeroBanner', 'Promotions', 'ThreeSixtyViewer'].includes(blocks[activeIndex].type)">
-                            <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Căn lề chữ (Alignment)</label>
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Căn lề chữ / Phần tử (Alignment)</label>
                             <div class="grid grid-cols-3 gap-2">
                                 <button 
                                     v-for="opt in [{value: 'left', label: 'Trái'}, {value: 'center', label: 'Giữa'}, {value: 'right', label: 'Phải'}]"
                                     :key="opt.value"
                                     type="button" 
                                     class="py-1.5 px-2 text-xs rounded-lg font-medium border transition-all text-center cursor-pointer"
-                                    :class="(blocks[activeIndex].data.align || 'left') === opt.value ? 'bg-[#008060] text-white border-[#008060] shadow-xs' : 'bg-white text-gray-750 border-gray-300 hover:bg-gray-50'"
+                                    :class="getAlignValue(blocks[activeIndex]) === opt.value ? 'bg-[#008060] text-white border-[#008060] shadow-xs' : 'bg-white text-gray-750 border-gray-300 hover:bg-gray-50'"
                                     @click="blocks[activeIndex].data.align = opt.value"
                                 >
                                     {{ opt.label }}
@@ -486,16 +486,48 @@
                                 :class="{'ring-2 ring-[#008060] border-transparent bg-emerald-50/5': activeIndex === index}"
                                 @click="activeIndex = index"
                             >
-                                <div class="flex items-center space-x-3">
+                                <div class="flex items-center space-x-2">
                                     <!-- Drag Handle -->
-                                    <div class="list-handle cursor-move p-1 text-gray-400 hover:text-gray-600 transition">
+                                    <div class="list-handle cursor-move p-1 text-gray-400 hover:text-gray-655 transition">
                                         <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20">
                                             <path d="M7 2a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm7 0a2 2 0 1 1-4 0 2 2 0 0 1 4 0zM7 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm7 0a2 2 0 1 1-4 0 2 2 0 0 1 4 0zM7 14a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm7 0a2 2 0 1 1-4 0 2 2 0 0 1 4 0z"/>
                                         </svg>
                                     </div>
+                                    <!-- Manual arrows Up/Down -->
+                                    <div class="flex flex-col items-center justify-center -space-y-1 mr-1 select-none">
+                                        <button 
+                                            type="button" 
+                                            :disabled="index === 0"
+                                            @click.stop="moveUp(index)"
+                                            class="p-0.5 text-[10px] text-gray-400 hover:text-gray-700 disabled:opacity-20 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                                            title="Di chuyển lên"
+                                        >
+                                            ▲
+                                        </button>
+                                        <button 
+                                            type="button" 
+                                            :disabled="index === blocks.length - 1"
+                                            @click.stop="moveDown(index)"
+                                            class="p-0.5 text-[10px] text-gray-400 hover:text-gray-700 disabled:opacity-20 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                                            title="Di chuyển xuống"
+                                        >
+                                            ▼
+                                        </button>
+                                    </div>
                                     <div class="flex flex-col">
-                                        <span class="text-gray-400 text-[9px] font-bold uppercase tracking-wider">Khối số {{ index + 1 }}</span>
-                                        <span class="text-xs font-bold text-gray-800 flex items-center gap-1.5 mt-0.5">
+                                        <!-- Interactive position select dropdown -->
+                                        <div class="flex items-center" @click.stop>
+                                            <select 
+                                                :value="index" 
+                                                @change="moveBlockToPosition(index, Number($event.target.value))"
+                                                class="pos-select bg-gray-100 hover:bg-gray-250 text-gray-750 text-[9px] font-bold uppercase tracking-wider rounded border border-gray-300 focus:outline-none cursor-pointer"
+                                            >
+                                                <option v-for="(n, i) in blocks.length" :key="i" :value="i">
+                                                    Khối {{ i + 1 }}
+                                                </option>
+                                            </select>
+                                        </div>
+                                        <span class="text-xs font-bold text-gray-800 flex items-center gap-1.5 mt-1">
                                             <span>{{ getBlockIcon(element.type) }}</span>
                                             <span>{{ getBlockLabel(element.type) }}</span>
                                         </span>
@@ -637,9 +669,19 @@ export default {
             }
         },
         iframeUrl() {
-            const host = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-                ? 'http://localhost:3000'
-                : window.location.origin;
+            let host = 'http://localhost:3000';
+            const hostname = window.location.hostname;
+            if (hostname === 'localhost' || hostname === '127.0.0.1') {
+                host = 'http://localhost:3000';
+            } else if (hostname === 'cms.dnf.betech-digital.com') {
+                host = 'https://client.dnf.betech-digital.com';
+            } else {
+                if (hostname.startsWith('cms.')) {
+                    host = window.location.origin.replace('//cms.', '//client.');
+                } else {
+                    host = window.location.origin;
+                }
+            }
             const slug = this.vehicleSlug || 'preview';
             return `${host}/san-pham/${slug}?edit=true&embed=true`;
         }
@@ -864,6 +906,7 @@ export default {
                 }
             } else if (type === 'FeaturesGrid') {
                 newBlock.data = {
+                    align: 'center',
                     title_1: '',
                     image_1: null,
                     image_2: null,
@@ -882,25 +925,31 @@ export default {
                 }
             } else if (type === 'VersionsGrid') {
                 newBlock.data = {
+                    align: 'center',
                     title: '',
                     descriptions: ['', '', '']
                 }
             } else if (type === 'SpecsGrid') {
-                newBlock.data = {}
+                newBlock.data = {
+                    align: 'center'
+                }
             } else if (type === 'FeaturesList') {
                 newBlock.data = {
+                    align: 'center',
                     features: [
                         { title: 'Hệ thống phanh khẩn cấp', description: 'Tự động phát hiện chướng ngại vật phía trước và phanh giảm thiểu tai nạn.', image: null }
                     ]
                 }
             } else if (type === 'AccordionFAQs') {
                 newBlock.data = {
+                    align: 'left',
                     faqs: [
                         { q: 'Chi phí bảo dưỡng xe định kỳ là bao nhiêu?', a: 'Tùy thuộc vào các cấp bảo dưỡng nhỏ hay lớn, trung bình giao động từ 1.5 - 4.5 triệu đồng.', is_open: true }
                     ]
                 }
             } else if (type === 'BookingBanner') {
                 newBlock.data = {
+                    align: 'left',
                     title: 'Kết nối ngay với chuyên viên Đồng Nai Ford',
                     phone: '1800 55 68 58',
                     btn_text: 'Đặt lịch hẹn',
@@ -932,6 +981,60 @@ export default {
             this.blocks.splice(index + 1, 0, blockCopy)
             this.$emit('update:modelValue', this.blocks)
             this.activeIndex = index + 1
+        },
+        moveUp(index) {
+            if (index <= 0) return
+            this.swapBlocks(index, index - 1)
+        },
+        moveDown(index) {
+            if (index >= this.blocks.length - 1) return
+            this.swapBlocks(index, index + 1)
+        },
+        swapBlocks(i, j) {
+            const list = [...this.blocks]
+            const temp = list[i]
+            list[i] = list[j]
+            list[j] = temp
+            
+            // Adjust activeIndex to follow the block
+            if (this.activeIndex === i) {
+                this.activeIndex = j
+            } else if (this.activeIndex === j) {
+                this.activeIndex = i
+            }
+            
+            this.blocks = list
+            this.$emit('update:modelValue', this.blocks)
+        },
+        moveBlockToPosition(currentIndex, targetIndex) {
+            if (currentIndex === targetIndex) return
+            if (targetIndex < 0 || targetIndex >= this.blocks.length) return
+            
+            const list = [...this.blocks]
+            const [movedBlock] = list.splice(currentIndex, 1)
+            list.splice(targetIndex, 0, movedBlock)
+            
+            // Adjust activeIndex
+            if (this.activeIndex === currentIndex) {
+                this.activeIndex = targetIndex
+            } else {
+                if (currentIndex < this.activeIndex && this.activeIndex <= targetIndex) {
+                    this.activeIndex--
+                } else if (targetIndex <= this.activeIndex && this.activeIndex < currentIndex) {
+                    this.activeIndex++
+                }
+            }
+            
+            this.blocks = list
+            this.$emit('update:modelValue', this.blocks)
+        },
+        getAlignValue(block) {
+            if (!block || !block.data) return 'center'
+            if (block.data.align) return block.data.align
+            if (['Promotions', 'ThreeSixtyViewer', 'AccordionFAQs', 'BookingBanner'].includes(block.type)) {
+                return 'left'
+            }
+            return 'center'
         },
 
         // Helper methods for FeaturesGrid
@@ -1055,6 +1158,16 @@ export default {
     background-size: 1rem !important;
     padding-right: 2rem !important;
     cursor: pointer;
+}
+
+.page-builder-container :deep(select.pos-select) {
+    height: 20px !important;
+    padding: 0px 1.25rem 0px 0.375rem !important;
+    font-size: 9px !important;
+    background-position: right 0.25rem center !important;
+    background-size: 0.6rem !important;
+    box-shadow: none !important;
+    border-radius: 4px !important;
 }
 
 /* Hover and Focus States */
