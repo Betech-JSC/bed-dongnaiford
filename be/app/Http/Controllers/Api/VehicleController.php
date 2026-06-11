@@ -154,7 +154,7 @@ class VehicleController extends Controller
             })->toArray(),
             'images_360_external'    => collect($vehicle->images_360_external ?? [])->map(fn($img) => $this->resolveFileUrl($img))->filter()->values()->toArray(),
             'images_360_internal'    => collect($vehicle->images_360_internal ?? [])->map(fn($img) => $this->resolveFileUrl($img))->filter()->values()->toArray(),
-            'image_360_internal_url' => $vehicle->image_360_internal_url,
+            'image_360_internal_url' => $this->resolveFileUrl($vehicle->image_360_internal_url),
             'type'                   => $vehicle->type,
             'base_price'             => $vehicle->base_price,
             'versions'               => $vehicle->versions->map(fn($v) => [
