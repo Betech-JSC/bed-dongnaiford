@@ -697,43 +697,59 @@ export default {
             const iframe = this.$refs.previewIframe;
             if (iframe && iframe.contentWindow && this.iframeLoaded) {
                 const resolvedBlocks = this.resolveBlockImages(this.blocks);
-                iframe.contentWindow.postMessage({
-                    type: 'INIT_PREVIEW',
-                    vehicle: this.vehicleData,
-                    blocks: resolvedBlocks,
-                    activeIndex: this.activeIndex
-                }, '*');
+                try {
+                    iframe.contentWindow.postMessage({
+                        type: 'INIT_PREVIEW',
+                        vehicle: JSON.parse(JSON.stringify(this.vehicleData || {})),
+                        blocks: JSON.parse(JSON.stringify(resolvedBlocks || [])),
+                        activeIndex: this.activeIndex
+                    }, '*');
+                } catch (e) {
+                    console.error('Failed to postMessage INIT_PREVIEW:', e);
+                }
             }
         },
         syncToIframe() {
             if (!this.iframeLoaded) return;
             const iframe = this.$refs.previewIframe;
             if (iframe && iframe.contentWindow) {
-                iframe.contentWindow.postMessage({
-                    type: 'UPDATE_BLOCKS',
-                    blocks: this.resolveBlockImages(this.blocks),
-                    activeIndex: this.activeIndex
-                }, '*');
+                try {
+                    iframe.contentWindow.postMessage({
+                        type: 'UPDATE_BLOCKS',
+                        blocks: JSON.parse(JSON.stringify(this.resolveBlockImages(this.blocks) || [])),
+                        activeIndex: this.activeIndex
+                    }, '*');
+                } catch (e) {
+                    console.error('Failed to postMessage UPDATE_BLOCKS:', e);
+                }
             }
         },
         syncActiveIndex() {
             if (!this.iframeLoaded) return;
             const iframe = this.$refs.previewIframe;
             if (iframe && iframe.contentWindow) {
-                iframe.contentWindow.postMessage({
-                    type: 'UPDATE_ACTIVE_INDEX',
-                    activeIndex: this.activeIndex
-                }, '*');
+                try {
+                    iframe.contentWindow.postMessage({
+                        type: 'UPDATE_ACTIVE_INDEX',
+                        activeIndex: this.activeIndex
+                    }, '*');
+                } catch (e) {
+                    console.error('Failed to postMessage UPDATE_ACTIVE_INDEX:', e);
+                }
             }
         },
         syncVehicleData() {
             if (!this.iframeLoaded) return;
             const iframe = this.$refs.previewIframe;
             if (iframe && iframe.contentWindow) {
-                iframe.contentWindow.postMessage({
-                    type: 'UPDATE_VEHICLE',
-                    vehicle: this.vehicleData
-                }, '*');
+                try {
+                    iframe.contentWindow.postMessage({
+                        type: 'UPDATE_VEHICLE',
+                        vehicle: JSON.parse(JSON.stringify(this.vehicleData || {}))
+                    }, '*');
+                } catch (e) {
+                    console.error('Failed to postMessage UPDATE_VEHICLE:', e);
+                }
             }
         },
         handleIframeMessage(event) {
