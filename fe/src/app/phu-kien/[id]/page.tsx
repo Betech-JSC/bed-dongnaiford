@@ -16,6 +16,8 @@ import {
 import { accessoriesData, AccessoryItem } from "@/data/accessories";
 import { handleImageError } from "@/lib/site-assets";
 
+import { resolveImageUrl } from "@/components/blocks/Blocks";
+
 const mapAPIAccessoryToItem = (apiAcc: any): AccessoryItem => {
   const catMap: Record<number, string> = {
     1: "interior",
@@ -36,8 +38,8 @@ const mapAPIAccessoryToItem = (apiAcc: any): AccessoryItem => {
     price: Number(apiAcc.price) || 0,
     description: apiAcc.description || "",
     images: Array.isArray(apiAcc.images) && apiAcc.images.length > 0 
-      ? apiAcc.images.map((img: any) => img.url).filter(Boolean)
-      : [apiAcc.image?.url].filter(Boolean),
+      ? apiAcc.images.map((img: any) => img?.url ? resolveImageUrl(img.url) : "").filter(Boolean)
+      : (apiAcc.image?.url ? [resolveImageUrl(apiAcc.image.url)] : []),
     fitVehicles: apiAcc.fit_vehicles || [],
     features: apiAcc.features || [],
     compatibilityText: apiAcc.compatibility_text,

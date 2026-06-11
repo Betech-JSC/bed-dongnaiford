@@ -17,6 +17,25 @@ const formatUploadError = (err: any): string => {
   return "Đã xảy ra lỗi không xác định";
 };
 
+export const resolveImageUrl = (img: any): string => {
+  if (!img) return "/assets/img-gradient-1.png";
+  let path = "";
+  if (typeof img === "string") {
+    path = img;
+  } else if (typeof img === "object") {
+    path = img.url || img.path || "";
+  }
+  if (!path) return "/assets/img-gradient-1.png";
+  if (path.startsWith("http://") || path.startsWith("https://") || path.startsWith("/")) {
+    return path;
+  }
+  const cleanPath = path.startsWith("uploads/") ? path.replace("uploads/", "") : path;
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
+  const baseDomain = apiUrl.replace(/\/api$/, "");
+  return `${baseDomain}/static/${cleanPath}`;
+};
+
+
 interface BlocksProps {
   layout?: any[];
   vehicle: any;
@@ -282,7 +301,7 @@ function HeroBannerBlock({ data, vehicle, openQuoteDrawer, openDriveModal, isEdi
   const tagline = data.tagline || vehicle.tagline;
   const btnText = data.button_text || "Book Lái thử";
   const btnLink = data.button_link || "#drive";
-  const bgImg = data.background_image || vehicle.images?.[0] || "/assets/territory-hero.png";
+  const bgImg = resolveImageUrl(data.background_image || vehicle.images?.[0] || "/assets/territory-hero.png");
 
   // Alignment classes
   const alignClass = data.align === 'left' ? 'items-start text-left' 
@@ -407,11 +426,11 @@ function SpecsGridBlock({ data, vehicle, isEditMode, onChangeData, openQuoteDraw
     id: ver.id,
     name: ver.name,
     price: ver.price,
-    image: vehicle.images?.[idx] || vehicle.images?.[0] || (idx === 0 
+    image: resolveImageUrl(vehicle.images?.[idx] || vehicle.images?.[0] || (idx === 0 
       ? "/assets/territory-hero.png" 
       : idx === 1 
         ? "/assets/territory-tech-split.png" 
-        : "/assets/territory-promo.png"), 
+        : "/assets/territory-promo.png")), 
     specs: ver.specs || {},
     isExternal: false
   }));
@@ -583,7 +602,7 @@ function FeaturesListBlock({ data, vehicle, isEditMode, onChangeData, anchorId }
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.map((feat: any, idx: number) => {
-            const featImg = feat.image || vehicle?.images?.[0] || "/assets/territory-hero.png";
+            const featImg = resolveImageUrl(feat.image || vehicle?.images?.[0] || "/assets/territory-hero.png");
             return (
               <div 
                 key={idx}
@@ -778,7 +797,7 @@ function AccordionFAQsBlock({ data, vehicle, isEditMode, onChangeData, anchorId 
 function PromotionsBlock({ data, isEditMode, onChangeData, openQuoteDrawer, vehicle, anchorId }: any) {
   const title = data.title || "Ưu Đãi Đặc Biệt";
   const desc = data.description || "Nhập chương trình khuyến mãi tháng...";
-  const bgImg = data.image || "/assets/img-gradient-2.png";
+  const bgImg = resolveImageUrl(data.image || "/assets/img-gradient-2.png");
   const btnText = data.button_text || "Báo giá";
 
   const handleUploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1120,19 +1139,19 @@ function ThreeSixtyViewerBlock({ data, vehicle, isEditMode, onChangeData, threeS
                 ) : (
                   <>
                     <img 
-                      src={vehicle.id === "mustang-fastback"
+                      src={resolveImageUrl(vehicle.id === "mustang-fastback"
                         ? `/images/360/mustang/ecoboostfastback/exterior/desktop/adriatic-blue-green/64f/001-adriatic-blue-green-64f.jpeg`
                         : vehicle.id === "new-territory"
                           ? (viewType === "exterior" ? "/assets/territory-3d.png" : "/assets/territory-interior.png")
                           : (viewType === "exterior"
                               ? (() => {
                                   const colorImg = (vehicle.colors?.[selectedColorIndex] || vehicle.colors?.[0])?.image;
-                                  if (colorImg && typeof colorImg === 'string' && (colorImg.startsWith('/') || colorImg.startsWith('http'))) {
+                                  if (colorImg) {
                                     return colorImg;
                                   }
                                   return vehicle.images?.[0] || vehicle.image_url || "/assets/car-everest.png";
                                 })()
-                              : media.splitLeft)}
+                              : media.splitLeft))}
                       alt="3D vehicle preview"
                       className="w-full h-full object-cover pointer-events-none"
                     />
@@ -1176,17 +1195,17 @@ function ThreeSixtyViewerBlock({ data, vehicle, isEditMode, onChangeData, threeS
    ========================================================================== */
 function FeaturesGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId }: any) {
   const title_1 = data.title_1 || "Thiết kế hiện đại, sắc sảo, đầy cuốn hút";
-  const image_1 = data.image_1 || vehicle?.images?.[2] || vehicle?.images?.[0] || "/assets/territory-hero.png";
-  const image_2 = data.image_2 || vehicle?.images?.[3] || vehicle?.images?.[1] || "/assets/territory-tech-split.png";
-  const image_3 = data.image_3 || vehicle?.images?.[4] || vehicle?.images?.[2] || "/assets/territory-promo.png";
+  const image_1 = resolveImageUrl(data.image_1 || vehicle?.images?.[2] || vehicle?.images?.[0] || "/assets/territory-hero.png");
+  const image_2 = resolveImageUrl(data.image_2 || vehicle?.images?.[3] || vehicle?.images?.[1] || "/assets/territory-tech-split.png");
+  const image_3 = resolveImageUrl(data.image_3 || vehicle?.images?.[4] || vehicle?.images?.[2] || "/assets/territory-promo.png");
   
   const title_2 = data.title_2 || "Không gian nội thất rộng rãi, tiện nghi";
-  const image_large = data.image_large || vehicle?.images?.[5] || vehicle?.images?.[1] || "/assets/territory-interior.png";
-  const image_large_2 = data.image_large_2 || vehicle?.images?.[6] || vehicle?.images?.[2] || "/assets/territory-interior.png";
-  const image_large_3 = data.image_large_3 || vehicle?.images?.[7] || vehicle?.images?.[3] || "/assets/territory-interior.png";
+  const image_large = resolveImageUrl(data.image_large || vehicle?.images?.[5] || vehicle?.images?.[1] || "/assets/territory-interior.png");
+  const image_large_2 = resolveImageUrl(data.image_large_2 || vehicle?.images?.[6] || vehicle?.images?.[2] || "/assets/territory-interior.png");
+  const image_large_3 = resolveImageUrl(data.image_large_3 || vehicle?.images?.[7] || vehicle?.images?.[3] || "/assets/territory-interior.png");
   
   const title_3 = data.title_3 || "Nâng tầm công nghệ và tiện nghi Tận hưởng trên mọi hành trình";
-  const split_image = data.split_image || vehicle?.images?.[6] || vehicle?.images?.[0] || "/assets/territory-tech-split.png";
+  const split_image = resolveImageUrl(data.split_image || vehicle?.images?.[6] || vehicle?.images?.[0] || "/assets/territory-tech-split.png");
   const split_title = data.split_title || "Tiện nghi thông minh";
   const split_features = data.split_features || [];
 
@@ -1410,23 +1429,7 @@ function VersionsGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId, 
     }
   };
 
-  const getFullImageUrl = (img: any) => {
-    if (!img) return "/assets/img-gradient-1.png";
-    let path = "";
-    if (typeof img === "string") {
-      path = img;
-    } else if (typeof img === "object") {
-      path = img.url || img.path || "";
-    }
-    if (!path) return "/assets/img-gradient-1.png";
-    if (path.startsWith("/") || path.startsWith("http")) return path;
-    
-    // Resolve full URL via API base domain
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
-    const baseDomain = apiUrl.replace(/\/api$/, "");
-    const cleanPath = path.startsWith("uploads/") ? path.replace("uploads/", "") : path;
-    return `${baseDomain}/static/${cleanPath}`;
-  };
+
 
   const align = data.align || 'center';
   const alignClass = align === 'left' ? 'text-left' 
@@ -1482,7 +1485,7 @@ function VersionsGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId, 
               
               // Quyết định ảnh: Lấy ảnh đặc trưng của phiên bản nếu có, nếu không lấy ảnh trong images array theo index, nếu không lấy ảnh chính của xe
               const versionImage = ver.image_url || vehicle?.images?.[idx] || vehicle?.images?.[0] || vehicle?.image;
-              const imgUrl = mounted ? getFullImageUrl(versionImage) : "/assets/img-gradient-1.png";
+              const imgUrl = mounted ? resolveImageUrl(versionImage) : "/assets/img-gradient-1.png";
 
               return (
                 <div
@@ -1541,7 +1544,7 @@ function BookingBannerBlock({ data, vehicle, isEditMode, onChangeData, anchorId 
   const phone = data.phone || "1800 55 68 58";
   const btnText = data.btn_text || "Đặt lịch hẹn";
   const btnLink = data.btn_link || "/lien-he?reason=Đặt hẹn dịch vụ";
-  const carImage = data.car_image || vehicle.image_url || "/assets/booking-car.png";
+  const carImage = resolveImageUrl(data.car_image || vehicle.image_url || "/assets/booking-car.png");
 
   const handleUploadCarImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

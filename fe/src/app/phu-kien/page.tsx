@@ -8,6 +8,8 @@ import { accessoriesData, AccessoryItem } from "@/data/accessories";
 import { handleImageError } from "@/lib/site-assets";
 import { accessoriesAPI } from "@/lib/api";
 
+import { resolveImageUrl } from "@/components/blocks/Blocks";
+
 const getCategorySlugUnified = (slugOrId: string | number): string => {
   const str = String(slugOrId).toLowerCase();
   if (str === "1" || str.includes("noi-that") || str.includes("interior")) return "interior";
@@ -40,8 +42,8 @@ const mapAPIAccessoryToItem = (apiAcc: any): AccessoryItem => {
     price: Number(apiAcc.price) || 0,
     description: apiAcc.description || "",
     images: Array.isArray(apiAcc.images) && apiAcc.images.length > 0
-      ? apiAcc.images.map((img: any) => img.url).filter(Boolean)
-      : [apiAcc.image?.url].filter(Boolean),
+      ? apiAcc.images.map((img: any) => img?.url ? resolveImageUrl(img.url) : "").filter(Boolean)
+      : (apiAcc.image?.url ? [resolveImageUrl(apiAcc.image.url)] : []),
     fitVehicles: apiAcc.fit_vehicles || [],
     features: apiAcc.features || [],
     compatibilityText: apiAcc.compatibility_text,
@@ -98,7 +100,7 @@ export default function AccessoriesPage() {
             const mappedCats = catRes.data.map((cat: any) => ({
               id: getCategorySlugUnified(cat.slug || cat.id),
               name: cat.title,
-              image: cat.image_url || getCategoryFallbackImage(cat.slug || "")
+              image: resolveImageUrl(cat.image_url || getCategoryFallbackImage(cat.slug || ""))
             }));
             setCategories(mappedCats);
           }

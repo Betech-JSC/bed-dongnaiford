@@ -143,6 +143,21 @@ const resolveFileUrl = (file: any): string => {
   return "";
 };
 
+const safeArray = (val: any): any[] => {
+  if (!val) return [];
+  if (Array.isArray(val)) return val;
+  if (typeof val === 'string') {
+    try {
+      const parsed = JSON.parse(val);
+      if (Array.isArray(parsed)) return parsed;
+    } catch (e) {}
+    if (val.trim()) {
+      return val.split(',').map((s: string) => s.trim()).filter(Boolean);
+    }
+  }
+  return [];
+};
+
 export default function ProductDetailPage() {
   const params = useParams();
   const router = useRouter();
@@ -234,18 +249,18 @@ export default function ProductDetailPage() {
       ),
       basePrice: typeof apiVehicle.base_price === 'string' ? parseFloat(apiVehicle.base_price) : apiVehicle.base_price,
       image_url: apiVehicle.image_url || resolveFileUrl(apiVehicle.image),
-      colors: apiVehicle.colors ? apiVehicle.colors.map((c: any) => ({
+      colors: apiVehicle.colors ? safeArray(apiVehicle.colors).map((c: any) => ({
         name: c.name || c.color_name || '',
         hex: c.hex || c.color_code || '',
         image: resolveFileUrl(c.image_path || c.image),
-        images_360: (c.images_360 || []).map((img: any) => resolveFileUrl(img)).filter(Boolean),
+        images_360: safeArray(c.images_360).map((img: any) => resolveFileUrl(img)).filter(Boolean),
         image_360_internal: resolveFileUrl(c.image_360_internal) || null,
-        images_360_internal: (c.images_360_internal || []).map((img: any) => resolveFileUrl(img)).filter(Boolean)
+        images_360_internal: safeArray(c.images_360_internal).map((img: any) => resolveFileUrl(img)).filter(Boolean)
       })) : [],
-      images: (apiVehicle.images && apiVehicle.images.length > 0)
+      images: (apiVehicle.images && Array.isArray(apiVehicle.images) && apiVehicle.images.length > 0)
         ? apiVehicle.images.map((img: any) => resolveFileUrl(img)).filter(Boolean)
         : [apiVehicle.image_url || resolveFileUrl(apiVehicle.image)].filter(Boolean),
-      versions: apiVehicle.versions ? apiVehicle.versions.map((v: any) => ({
+      versions: apiVehicle.versions ? safeArray(apiVehicle.versions).map((v: any) => ({
         id: v.id,
         name: v.name,
         price: typeof v.price === 'string' ? parseFloat(v.price) : v.price,
@@ -262,8 +277,8 @@ export default function ProductDetailPage() {
         }
       })) : [],
       layout_blocks: apiVehicle.layout_blocks || [],
-      images_360_external: (apiVehicle.images_360_external || []).map((img: any) => resolveFileUrl(img)).filter(Boolean),
-      images_360_internal: (apiVehicle.images_360_internal || []).map((img: any) => resolveFileUrl(img)).filter(Boolean),
+      images_360_external: safeArray(apiVehicle.images_360_external).map((img: any) => resolveFileUrl(img)).filter(Boolean),
+      images_360_internal: safeArray(apiVehicle.images_360_internal).map((img: any) => resolveFileUrl(img)).filter(Boolean),
       image_360_internal_url: apiVehicle.image_360_internal_url || ''
     }
     : staticVehicle;
@@ -1578,7 +1593,23 @@ export default function ProductDetailPage() {
     compare: false
   };
 
-  const blocksWithAnchors = currentBlocks.map((block) => {
+  const has360Content = vehicle ? (
+    vehicle.id === "mustang-fastback" || 
+    (vehicle.images_360_external && vehicle.images_360_external.length > 0) ||
+    (vehicle.images_360_internal && vehicle.images_360_internal.length > 0) ||
+    (vehicle.image_360_internal_url && vehicle.image_360_internal_url.trim() !== "") ||
+    (vehicle.colors && vehicle.colors.some((color: any) => 
+      (color.images_360 && color.images_360.length > 0) ||
+      (color.images_360_internal && color.images_360_internal.length > 0) ||
+      (color.image_360_internal && color.image_360_internal.trim() !== "")
+    ))
+  ) : false;
+
+  const filteredBlocks = isEditMode 
+    ? currentBlocks 
+    : currentBlocks.filter((b: any) => b.type !== "ThreeSixtyViewer" || has360Content);
+
+  const blocksWithAnchors = filteredBlocks.map((block) => {
     let anchorId: string | undefined = undefined;
 
     if (block.type === "HeroBanner" || block.type === "Promotions") {
@@ -1619,16 +1650,16 @@ export default function ProductDetailPage() {
     { id: "overview", label: "Tổng quan" }
   ];
 
-  if (currentBlocks.some(b => b.type === "ThreeSixtyViewer")) {
+  if (blocksWithAnchors.some(b => b.type === "ThreeSixtyViewer")) {
     navigationTabs.push({ id: "360", label: "360 Viewer" });
   }
-  if (currentBlocks.some(b => b.type === "VersionsGrid")) {
+  if (blocksWithAnchors.some(b => b.type === "VersionsGrid")) {
     navigationTabs.push({ id: "versions", label: "Phiên bản" });
   }
-  if (currentBlocks.some(b => b.type === "FeaturesGrid" || b.type === "FeaturesList")) {
+  if (blocksWithAnchors.some(b => b.type === "FeaturesGrid" || b.type === "FeaturesList")) {
     navigationTabs.push({ id: "features", label: "Tính năng" });
   }
-  if (currentBlocks.some(b => b.type === "SpecsGrid")) {
+  if (blocksWithAnchors.some(b => b.type === "SpecsGrid")) {
     navigationTabs.push({ id: "compare", label: "So sánh" });
   }
   navigationTabs.push({ id: "accessories", label: "Phụ kiện" });
