@@ -43,6 +43,7 @@ class AccessoryCategory extends BaseModel
     {
         return [
             'vi.title' => 'required|string|max:255',
+            'image' => 'nullable|array',
             'status' => 'required|string|in:ACTIVE,INACTIVE',
             'sort_order' => 'nullable|integer',
         ];
@@ -72,6 +73,42 @@ class AccessoryCategory extends BaseModel
             }
         }
         return $urls;
+    }
+
+    // ── JSON field accessors for image ──
+
+    private function encodeJsonField($value): ?string
+    {
+        if (is_null($value)) return null;
+        return is_array($value) ? json_encode($value) : $value;
+    }
+
+    private function decodeJsonField($value): ?array
+    {
+        if (is_string($value) && !empty($value)) {
+            return json_decode($value, true);
+        }
+        return is_array($value) ? $value : null;
+    }
+
+    public function setImageAttribute($value): void
+    {
+        $this->attributes['image'] = $this->encodeJsonField($value);
+    }
+
+    public function getImageAttribute($value): ?array
+    {
+        if (is_null($value) || $value === '') return null;
+        $decoded = $this->decodeJsonField($value);
+        if (is_null($decoded) && is_string($value)) {
+            return ['path' => $value];
+        }
+        return $decoded;
+    }
+
+    public function getImageUrlAttribute(): ?string
+    {
+        return isset($this->image['path']) ? static_url($this->image['path']) : null;
     }
 
     public function transformSeo()
