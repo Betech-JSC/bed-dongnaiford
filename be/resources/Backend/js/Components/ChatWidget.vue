@@ -49,8 +49,8 @@
             <div class="bg-gradient-to-r from-[#003478] to-[#0562D2] p-4 text-white flex items-center justify-between shadow-md">
                 <div class="flex items-center space-x-3">
                     <!-- Ford Logo Avatar -->
-                    <div class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center p-1 overflow-hidden">
-                        <img src="/ford_logo.svg" alt="Ford Logo" class="w-8 h-8 object-contain" />
+                    <div class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center p-1 overflow-hidden" style="width: 40px; height: 40px; min-width: 40px; min-height: 40px; flex-shrink: 0;">
+                        <img src="/ford_logo.svg" alt="Ford Logo" class="w-8 h-8 object-contain" style="width: 32px; height: 32px; min-width: 32px; min-height: 32px; object-fit: contain;" />
                     </div>
                     <div>
                         <h4 class="font-bold text-sm leading-tight tracking-wide">Trợ Lý AI Đồng Nai Ford</h4>
@@ -78,8 +78,8 @@
             >
                 <!-- Welcome Message -->
                 <div class="flex items-start space-x-2.5">
-                    <div class="w-8 h-8 rounded-full bg-[#003478] flex items-center justify-center flex-shrink-0 p-0.5 overflow-hidden">
-                        <img src="/ford_logo.svg" alt="Ford Logo" class="w-6 h-6 object-contain" />
+                    <div class="w-8 h-8 rounded-full bg-[#003478] flex items-center justify-center flex-shrink-0 p-0.5 overflow-hidden" style="width: 32px; height: 32px; min-width: 32px; min-height: 32px; flex-shrink: 0;">
+                        <img src="/ford_logo.svg" alt="Ford Logo" class="w-6 h-6 object-contain" style="width: 24px; height: 24px; min-width: 24px; min-height: 24px; object-fit: contain;" />
                     </div>
                     <div class="max-w-[75%] bg-white border border-gray-100 rounded-2xl rounded-tl-none p-3 shadow-xs">
                         <p class="text-xs text-gray-800 leading-relaxed font-medium">
@@ -99,8 +99,9 @@
                     <div
                         v-if="msg.role !== 'user'"
                         class="w-8 h-8 rounded-full bg-[#003478] flex items-center justify-center flex-shrink-0 p-0.5 overflow-hidden"
+                        style="width: 32px; height: 32px; min-width: 32px; min-height: 32px; flex-shrink: 0;"
                     >
-                        <img src="/ford_logo.svg" alt="Ford Logo" class="w-6 h-6 object-contain" />
+                        <img src="/ford_logo.svg" alt="Ford Logo" class="w-6 h-6 object-contain" style="width: 24px; height: 24px; min-width: 24px; min-height: 24px; object-fit: contain;" />
                     </div>
 
                     <!-- Message Bubble -->
@@ -118,8 +119,8 @@
 
                 <!-- Typing Indicator -->
                 <div v-if="isTyping" class="flex items-start space-x-2.5">
-                    <div class="w-8 h-8 rounded-full bg-[#003478] flex items-center justify-center flex-shrink-0 p-0.5 overflow-hidden">
-                        <img src="/ford_logo.svg" alt="Ford Logo" class="w-6 h-6 object-contain" />
+                    <div class="w-8 h-8 rounded-full bg-[#003478] flex items-center justify-center flex-shrink-0 p-0.5 overflow-hidden" style="width: 32px; height: 32px; min-width: 32px; min-height: 32px; flex-shrink: 0;">
+                        <img src="/ford_logo.svg" alt="Ford Logo" class="w-6 h-6 object-contain" style="width: 24px; height: 24px; min-width: 24px; min-height: 24px; object-fit: contain;" />
                     </div>
                     <div class="bg-white border border-gray-100 rounded-2xl rounded-tl-none p-3 shadow-xs flex items-center space-x-1.5 h-[34px]">
                         <span class="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce" style="animation-delay: 0ms"></span>
