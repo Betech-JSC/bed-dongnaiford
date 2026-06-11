@@ -114,6 +114,35 @@ const initThreeInterior = (container: HTMLDivElement, imageSrc: string) => {
   };
 };
 
+const resolveFileUrl = (file: any): string => {
+  if (!file) return "";
+  if (typeof file === "string") {
+    if (file.startsWith("http://") || file.startsWith("https://") || file.startsWith("/")) {
+      return file;
+    }
+    const cleanPath = file.startsWith("uploads/") ? file.replace("uploads/", "") : file;
+    const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
+    let apiHost = "http://localhost:8000";
+    try {
+      apiHost = new URL(apiBase).origin;
+    } catch (e) {}
+    return `${apiHost}/static/${cleanPath}`;
+  }
+  if (typeof file === "object") {
+    if (file.url) return file.url;
+    if (file.path) {
+      const cleanPath = file.path.startsWith("uploads/") ? file.path.replace("uploads/", "") : file.path;
+      const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
+      let apiHost = "http://localhost:8000";
+      try {
+        apiHost = new URL(apiBase).origin;
+      } catch (e) {}
+      return `${apiHost}/static/${cleanPath}`;
+    }
+  }
+  return "";
+};
+
 export default function ProductDetailPage() {
   const params = useParams();
   const router = useRouter();
@@ -204,20 +233,23 @@ export default function ProductDetailPage() {
             : (apiVehicle.title?.toLowerCase().includes('transit') ? 'Xe Thương Mại 16 Chỗ' : apiVehicle.title?.toLowerCase().includes('tourneo') ? 'Thương Mại 7 Chỗ' : 'Thương mại')
       ),
       basePrice: typeof apiVehicle.base_price === 'string' ? parseFloat(apiVehicle.base_price) : apiVehicle.base_price,
+      image_url: apiVehicle.image_url || resolveFileUrl(apiVehicle.image),
       colors: apiVehicle.colors ? apiVehicle.colors.map((c: any) => ({
-        name: c.name,
-        hex: c.hex,
-        image: c.image_path || c.image,
-        images_360: c.images_360 || [],
-        image_360_internal: c.image_360_internal || null,
-        images_360_internal: c.images_360_internal || []
+        name: c.name || c.color_name || '',
+        hex: c.hex || c.color_code || '',
+        image: resolveFileUrl(c.image_path || c.image),
+        images_360: (c.images_360 || []).map((img: any) => resolveFileUrl(img)).filter(Boolean),
+        image_360_internal: resolveFileUrl(c.image_360_internal) || null,
+        images_360_internal: (c.images_360_internal || []).map((img: any) => resolveFileUrl(img)).filter(Boolean)
       })) : [],
-      images: (apiVehicle.images && apiVehicle.images.length > 0) ? apiVehicle.images : [apiVehicle.image_url].filter(Boolean),
+      images: (apiVehicle.images && apiVehicle.images.length > 0)
+        ? apiVehicle.images.map((img: any) => resolveFileUrl(img)).filter(Boolean)
+        : [apiVehicle.image_url || resolveFileUrl(apiVehicle.image)].filter(Boolean),
       versions: apiVehicle.versions ? apiVehicle.versions.map((v: any) => ({
         id: v.id,
         name: v.name,
         price: typeof v.price === 'string' ? parseFloat(v.price) : v.price,
-        image_url: v.image_url || null,
+        image_url: v.image_url || resolveFileUrl(v.image) || null,
         specs: {
           engine: v.specs?.engine || '',
           power: v.specs?.power || '',
@@ -230,8 +262,8 @@ export default function ProductDetailPage() {
         }
       })) : [],
       layout_blocks: apiVehicle.layout_blocks || [],
-      images_360_external: apiVehicle.images_360_external || [],
-      images_360_internal: apiVehicle.images_360_internal || [],
+      images_360_external: (apiVehicle.images_360_external || []).map((img: any) => resolveFileUrl(img)).filter(Boolean),
+      images_360_internal: (apiVehicle.images_360_internal || []).map((img: any) => resolveFileUrl(img)).filter(Boolean),
       image_360_internal_url: apiVehicle.image_360_internal_url || ''
     }
     : staticVehicle;

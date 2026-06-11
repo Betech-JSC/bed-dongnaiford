@@ -2,7 +2,7 @@ export interface AccessoryItem {
   id: string;
   name: string;
   code: string;
-  category: "interior" | "exterior" | "tech" | "wheels" | "performance";
+  category: string;
   categoryName: string;
   price: number;
   description: string;

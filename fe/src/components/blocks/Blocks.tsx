@@ -1109,7 +1109,7 @@ function ThreeSixtyViewerBlock({ data, vehicle, isEditMode, onChangeData, threeS
                           : (viewType === "exterior"
                               ? (() => {
                                   const colorImg = (vehicle.colors?.[selectedColorIndex] || vehicle.colors?.[0])?.image;
-                                  if (colorImg && (colorImg.startsWith('/') || colorImg.startsWith('http'))) {
+                                  if (colorImg && typeof colorImg === 'string' && (colorImg.startsWith('/') || colorImg.startsWith('http'))) {
                                     return colorImg;
                                   }
                                   return vehicle.images?.[0] || vehicle.image_url || "/assets/car-everest.png";
@@ -1387,14 +1387,22 @@ function VersionsGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId, 
     }
   };
 
-  const getFullImageUrl = (img: string) => {
+  const getFullImageUrl = (img: any) => {
     if (!img) return "/assets/img-gradient-1.png";
-    if (img.startsWith("/") || img.startsWith("http")) return img;
+    let path = "";
+    if (typeof img === "string") {
+      path = img;
+    } else if (typeof img === "object") {
+      path = img.url || img.path || "";
+    }
+    if (!path) return "/assets/img-gradient-1.png";
+    if (path.startsWith("/") || path.startsWith("http")) return path;
     
     // Resolve full URL via API base domain
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
     const baseDomain = apiUrl.replace(/\/api$/, "");
-    return `${baseDomain}/static/${img}`;
+    const cleanPath = path.startsWith("uploads/") ? path.replace("uploads/", "") : path;
+    return `${baseDomain}/static/${cleanPath}`;
   };
 
   return (

@@ -14,6 +14,27 @@ class AccessoryController extends Controller
     use ApiResponse;
 
     /**
+     * GET /api/accessories/categories
+     */
+    public function categories(Request $request): JsonResponse
+    {
+        $categories = AccessoryCategory::query()
+            ->where('status', 'ACTIVE')
+            ->sortByPosition()
+            ->get()
+            ->map(function ($cat) {
+                return [
+                    'id' => $cat->id,
+                    'title' => $cat->title,
+                    'slug' => $cat->slug,
+                    'image_url' => $cat->image_url,
+                ];
+            });
+
+        return $this->success($categories);
+    }
+
+    /**
      * GET /api/accessories
      */
     public function index(Request $request): JsonResponse

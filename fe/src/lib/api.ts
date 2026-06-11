@@ -113,6 +113,7 @@ export const accessoriesAPI = {
     return fetchAPI<any>(`/accessories${query}`);
   },
   getBySlug: (slug: string) => fetchAPI<any>(`/accessories/${slug}`),
+  getCategories: () => fetchAPI<any>('/accessories/categories'),
 };
 
 /**

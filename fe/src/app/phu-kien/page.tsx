@@ -8,22 +8,34 @@ import { accessoriesData, AccessoryItem } from "@/data/accessories";
 import { handleImageError } from "@/lib/site-assets";
 import { accessoriesAPI } from "@/lib/api";
 
+const getCategorySlugUnified = (slugOrId: string | number): string => {
+  const str = String(slugOrId).toLowerCase();
+  if (str === "1" || str.includes("noi-that") || str.includes("interior")) return "interior";
+  if (str === "2" || str.includes("ngoai-that") || str.includes("exterior")) return "exterior";
+  if (str === "3" || str.includes("cong-nghe") || str.includes("tech")) return "tech";
+  if (str === "4" || str.includes("mam-lop") || str.includes("wheel") || str.includes("tire")) return "wheels";
+  if (str === "5" || str.includes("hieu-suat") || str.includes("performance")) return "performance";
+  return str;
+};
+
+const getCategoryFallbackImage = (slug: string): string => {
+  if (slug.includes("noi-that") || slug.includes("interior")) return "/images/categories/cat_interior.png";
+  if (slug.includes("ngoai-that") || slug.includes("exterior")) return "/images/categories/cat_exterior.png";
+  if (slug.includes("cong-nghe") || slug.includes("tech")) return "/images/categories/cat_tech.png";
+  if (slug.includes("mam-lop") || slug.includes("wheel")) return "/images/categories/cat_wheels.png";
+  if (slug.includes("hieu-suat") || slug.includes("performance")) return "/images/categories/cat_performance.png";
+  return "/images/categories/cat_exterior.png";
+};
+
 const mapAPIAccessoryToItem = (apiAcc: any): AccessoryItem => {
-  const catMap: Record<number, string> = {
-    1: "interior",
-    2: "exterior",
-    3: "tech",
-    4: "wheels",
-    5: "performance",
-  };
-  const categoryId = apiAcc.categories?.[0]?.id || 2;
-  const categoryKey = catMap[categoryId] || "exterior";
+  const categoryIdOrSlug = apiAcc.categories?.[0]?.slug || apiAcc.categories?.[0]?.id || "";
+  const categoryKey = getCategorySlugUnified(categoryIdOrSlug) || "exterior";
 
   return {
     id: apiAcc.slug || String(apiAcc.id),
     name: apiAcc.title,
     code: apiAcc.code || "",
-    category: categoryKey as any,
+    category: categoryKey,
     categoryName: apiAcc.category_name || apiAcc.categories?.[0]?.title || "Phụ Kiện Ngoại Thất",
     price: Number(apiAcc.price) || 0,
     description: apiAcc.description || "",
@@ -43,7 +55,7 @@ const mapAPIAccessoryToItem = (apiAcc: any): AccessoryItem => {
   };
 };
 
-const categories = [
+const staticCategories = [
   { id: "interior", name: "Phụ Kiện Nội Thất", image: "/images/categories/cat_interior.png" },
   { id: "exterior", name: "Phụ Kiện Ngoại Thất", image: "/images/categories/cat_exterior.png" },
   { id: "tech", name: "Công Nghệ & Điện Tử", image: "/images/categories/cat_tech.png" },
@@ -68,6 +80,7 @@ const sidebarModels = [
 
 export default function AccessoriesPage() {
   const [accessories, setAccessories] = useState<AccessoryItem[]>(accessoriesData);
+  const [categories, setCategories] = useState<any[]>(staticCategories);
   const [isLoading, setIsLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -78,6 +91,22 @@ export default function AccessoriesPage() {
   useEffect(() => {
     async function loadData() {
       try {
+        // Load Categories from API
+        try {
+          const catRes = await accessoriesAPI.getCategories();
+          if (catRes && catRes.success && Array.isArray(catRes.data)) {
+            const mappedCats = catRes.data.map((cat: any) => ({
+              id: getCategorySlugUnified(cat.slug || cat.id),
+              name: cat.title,
+              image: cat.image_url || getCategoryFallbackImage(cat.slug || "")
+            }));
+            setCategories(mappedCats);
+          }
+        } catch (catErr) {
+          console.error("Failed to load accessory categories from API:", catErr);
+        }
+
+        // Load Accessories from API
         const response = await accessoriesAPI.getAll();
         if (response && response.success && Array.isArray(response.data)) {
           const mapped = response.data.map(mapAPIAccessoryToItem);

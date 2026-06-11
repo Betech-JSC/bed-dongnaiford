@@ -41,6 +41,7 @@ Route::localized(function () {
     });
 
     Route::prefix('accessories')->name('api.accessories.')->group(function () {
+        Route::get('categories', [AccessoryController::class, 'categories'])->name('categories');
         Route::get('/', [AccessoryController::class, 'index'])->name('index');
         Route::get('{slug}', [AccessoryController::class, 'show'])->name('show');
     });
