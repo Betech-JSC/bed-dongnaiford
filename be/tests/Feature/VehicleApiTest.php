@@ -115,4 +115,82 @@ class VehicleApiTest extends TestCase
             unlink(public_path($path));
         }
     }
+
+    public function test_vehicle_360_images_are_sorted_naturally()
+    {
+        $controller = new \App\Http\Controllers\Backend\VehicleController();
+        $reflector = new \ReflectionClass(\App\Http\Controllers\Backend\VehicleController::class);
+        $method = $reflector->getMethod('sort360Images');
+        $method->setAccessible(true);
+
+        // Test with array format containing paths
+        $inputArray = [
+            ['path' => '02.jpg'],
+            ['path' => '10.jpg'],
+            ['path' => '01.jpg'],
+            ['path' => '2.jpg'],
+        ];
+        $expectedArray = [
+            ['path' => '01.jpg'],
+            ['path' => '02.jpg'],
+            ['path' => '2.jpg'],
+            ['path' => '10.jpg'],
+        ];
+
+        $sortedArray = $method->invokeArgs($controller, [$inputArray]);
+        $this->assertEquals($expectedArray, array_values($sortedArray));
+
+        // Test with simple string paths
+        $inputStrings = [
+            '/uploads/02.jpg',
+            '/uploads/10.jpg',
+            '/uploads/01.jpg',
+            '/uploads/2.jpg',
+        ];
+        $expectedStrings = [
+            '/uploads/01.jpg',
+            '/uploads/02.jpg',
+            '/uploads/2.jpg',
+            '/uploads/10.jpg',
+        ];
+
+        $sortedStrings = $method->invokeArgs($controller, [$inputStrings]);
+        $this->assertEquals($expectedStrings, array_values($sortedStrings));
+    }
+
+    public function test_file_manager_tree_preserves_numeric_keys()
+    {
+        // Set up dummy directory structure on local disk
+        $disk = \Illuminate\Support\Facades\Storage::fake('uploads');
+        
+        $disk->makeDirectory('vehicles/mustang/360/exterior');
+        $disk->makeDirectory('vehicles/mustang/360/interior');
+
+        $file = new \App\Models\File('/', 'uploads');
+        $tree = $file->tree();
+
+        $this->assertCount(1, $tree);
+        $this->assertEquals('File Manager', $tree[0]['name']);
+        
+        // Traverse down the tree to check "360"
+        $children = $tree[0]['children'];
+        $this->assertCount(1, $children);
+        $this->assertEquals('vehicles', $children[0]['name']);
+
+        $vehiclesChildren = $children[0]['children'];
+        $this->assertCount(1, $vehiclesChildren);
+        $this->assertEquals('mustang', $vehiclesChildren[0]['name']);
+
+        $mustangChildren = $vehiclesChildren[0]['children'];
+        // Ensure "360" is the ONLY folder under mustang and is not duplicated or re-keyed to 361/362...
+        $this->assertCount(1, $mustangChildren);
+        $this->assertEquals('360', $mustangChildren[0]['name']);
+        
+        $threeSixtyChildren = $mustangChildren[0]['children'];
+        $this->assertCount(2, $threeSixtyChildren);
+        
+        $childNames = collect($threeSixtyChildren)->pluck('name')->toArray();
+        sort($childNames);
+        $this->assertEquals(['exterior', 'interior'], $childNames);
+    }
 }

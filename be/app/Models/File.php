@@ -45,25 +45,29 @@ class File
 
     public function tree()
     {
-        $rootPath = $this->storage->path('/');
-        $flatItems = new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator($rootPath),
-            RecursiveIteratorIterator::CHILD_FIRST
-        );
+        $directories = $this->storage->allDirectories();
 
         $tree = [];
-        foreach ($flatItems as $item) {
-            if (
-                !$item->isDir() ||
-                $this->firstCharIs($item->getFilename(), '.')
-            ) continue;
-
-            $path = [$item->getFilename() => []];
-
-            for ($depth = $flatItems->getDepth() - 1; $depth >= 0; $depth--) {
-                $path = [$flatItems->getSubIterator($depth)->current()->getFilename() => $path];
+        foreach ($directories as $dir) {
+            $parts = explode('/', $dir);
+            $hasHidden = false;
+            foreach ($parts as $part) {
+                if ($this->firstCharIs($part, '.')) {
+                    $hasHidden = true;
+                    break;
+                }
             }
-            $tree = array_merge_recursive($tree, $path);
+            if ($hasHidden) {
+                continue;
+            }
+
+            $current = &$tree;
+            foreach ($parts as $part) {
+                if (!isset($current[$part])) {
+                    $current[$part] = [];
+                }
+                $current = &$current[$part];
+            }
         }
 
         return $this->transformTree($tree);

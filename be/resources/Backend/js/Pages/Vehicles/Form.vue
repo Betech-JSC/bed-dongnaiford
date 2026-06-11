@@ -64,19 +64,22 @@
                     <div class="card-header font-bold text-gray-700">Cấu hình 360° mặc định của dòng xe (Dùng làm Fallback)</div>
                     <div class="card-body">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-xl border border-gray-200">
-                            <Field v-model="form.images_360_external" :field="{
-                                type: 'file_upload',
-                                name: 'images_360_external',
-                                label: 'Bộ ảnh xoay 360° Ngoại thất mặc định (Chọn nhiều ảnh theo thứ tự xoay)',
-                                multiple: true,
-                            }" />
-                            <Field v-model="form.images_360_internal" :field="{
-                                type: 'file_upload',
-                                name: 'images_360_internal',
-                                label: 'Bộ ảnh xoay 360° Nội thất mặc định (Chọn nhiều ảnh theo thứ tự xoay)',
-                                multiple: true,
-                            }" />
-                        </div>
+                             <Field v-model="form.images_360_external" :field="{
+                                 type: 'file_upload',
+                                 name: 'images_360_external',
+                                 label: 'Bộ ảnh xoay 360° Ngoại thất mặc định (Chọn nhiều ảnh theo thứ tự xoay)',
+                                 multiple: true,
+                             }" />
+                             <Field v-model="form.images_360_internal" :field="{
+                                 type: 'file_upload',
+                                 name: 'images_360_internal',
+                                 label: 'Bộ ảnh xoay 360° Nội thất mặc định (Chọn nhiều ảnh theo thứ tự xoay)',
+                                 multiple: true,
+                             }" />
+                             <div class="col-span-1 md:col-span-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 p-3 rounded-lg mt-2">
+                                 💡 <b>Lưu ý khi tải lên ảnh 360°:</b> Để góc xoay hiển thị mượt mà, vui lòng đặt tên các tệp ảnh trên máy tính theo số thứ tự tăng dần (ví dụ: <code>01.jpg</code>, <code>02.jpg</code>, ..., <code>28.jpg</code>) trước khi tải lên. Hệ thống sẽ tự động sắp xếp đúng thứ tự xoay cho bạn.
+                             </div>
+                         </div>
                         <div class="mt-3 bg-gray-50 p-4 rounded-xl border border-gray-200">
                             <Field v-model="form.image_360_internal_url" :field="{
                                 type: 'text',
@@ -175,6 +178,9 @@
                                             label: 'Bộ ảnh xoay 360° Ngoại thất cho màu này (Chọn nhiều ảnh theo thứ tự xoay)',
                                             multiple: true,
                                         }" />
+                                        <div class="text-xs text-amber-700 mt-2">
+                                            💡 <b>Mẹo:</b> Đặt tên tệp theo số thứ tự (ví dụ: <code>01.jpg</code>, <code>02.jpg</code>,...) để hệ thống tự động sắp xếp vị trí xoay chính xác.
+                                        </div>
                                     </div>
                                     <div class="mt-3 bg-gray-50 p-4 rounded-xl border border-gray-200">
                                         <Field v-model="form.colors[index].images_360_internal" :field="{
@@ -183,6 +189,9 @@
                                             label: 'Bộ ảnh xoay 360° Nội thất cho màu này (Chọn nhiều ảnh theo thứ tự xoay)',
                                             multiple: true,
                                         }" />
+                                        <div class="text-xs text-amber-700 mt-2">
+                                            💡 <b>Mẹo:</b> Đặt tên tệp theo số thứ tự để hệ thống tự động sắp xếp vị trí xoay chính xác.
+                                        </div>
                                     </div>
                                 </div>
                             </div>

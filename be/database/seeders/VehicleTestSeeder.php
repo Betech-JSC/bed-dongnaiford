@@ -742,12 +742,36 @@ class VehicleTestSeeder extends Seeder
                 'image_thumbnail' => 'mustang_hero.png',
                 'image_featured' => 'mustang_hero.png',
                 'images' => ['mustang_hero.png', 'mustang_hero.png', 'mustang_hero.png', 'mustang_hero.png', 'mustang_dark_horse.png'],
-                'colors' => [
-                    ['name' => 'Adriatic Blue Metallic', 'hex' => '#15444c', 'image_path' => 'mustang_hero.png'],
-                    ['name' => 'Orange Fury Metallic', 'hex' => '#ff7e00', 'image_path' => 'mustang_hero.png'],
-                    ['name' => 'Race Red', 'hex' => '#d50f00', 'image_path' => 'mustang_hero.png'],
-                    ['name' => 'Oxford White', 'hex' => '#e4e2e5', 'image_path' => 'mustang_hero.png'],
+                'images_360_external' => array_map(fn($i) => "uploads/vehicles/mustang/360/exterior/adriatic-blue-green/00{$i}-adriatic-blue-green-64f.jpeg", range(1, 28)),
+                'images_360_internal' => [
+                    "uploads/vehicles/mustang/360/interior/001-black-onyx.jpeg",
+                    "uploads/vehicles/mustang/360/interior/001-space-gray.jpeg"
                 ],
+                'image_360_internal_url' => "uploads/vehicles/mustang/360/interior/001-black-onyx.jpeg",
+                'colors' => array_map(function($c) {
+                    $colorId = $c['color_id'];
+                    $images360 = [];
+                    for ($i = 1; $i <= 28; $i++) {
+                        $images360[] = "uploads/vehicles/mustang/360/exterior/{$colorId}/00{$i}-{$colorId}-64f.jpeg";
+                    }
+                    return [
+                        'name' => $c['name'],
+                        'hex' => $c['hex'],
+                        'image_path' => 'mustang_hero.png',
+                        'images_360' => $images360,
+                        'image_360_internal' => 'uploads/vehicles/mustang/360/interior/001-black-onyx.jpeg'
+                    ];
+                }, [
+                    ['color_id' => 'adriatic-blue-green', 'name' => 'Adriatic Blue Metallic', 'hex' => '#15444c'],
+                    ['color_id' => 'orange-fury', 'name' => 'Orange Fury Metallic', 'hex' => '#ff7e00'],
+                    ['color_id' => 'avalanche-gray', 'name' => 'Avalanche Gray', 'hex' => '#dadbce'],
+                    ['color_id' => 'shadow-black', 'name' => 'Shadow Black', 'hex' => '#10101d'],
+                    ['color_id' => 'carbonized-gray', 'name' => 'Carbonized Gray', 'hex' => '#8c8989'],
+                    ['color_id' => 'vapor-blue', 'name' => 'Vapor Blue Metallic', 'hex' => '#424e5a'],
+                    ['color_id' => 'molten-magenta', 'name' => 'Molten Magenta Metallic', 'hex' => '#850034'],
+                    ['color_id' => 'race-red', 'name' => 'Race Red', 'hex' => '#d50f00'],
+                    ['color_id' => 'oxford-white', 'name' => 'Oxford White', 'hex' => '#e4e2e5'],
+                ]),
                 'vi' => [
                     'title' => 'FORD MUSTANG',
                     'slug' => 'mustang-fastback',
