@@ -121,6 +121,32 @@ class VehicleController extends Controller
             }
         }
 
+        // Sort 360 images by filename in natural ascending order
+        if ($request->has('images_360_external')) {
+            $request->merge([
+                'images_360_external' => $this->sort360Images($request->input('images_360_external', []))
+            ]);
+        }
+        if ($request->has('images_360_internal')) {
+            $request->merge([
+                'images_360_internal' => $this->sort360Images($request->input('images_360_internal', []))
+            ]);
+        }
+        if ($request->has('colors')) {
+            $colors = $request->input('colors', []);
+            if (is_array($colors)) {
+                foreach ($colors as $index => $color) {
+                    if (isset($color['images_360']) && is_array($color['images_360'])) {
+                        $colors[$index]['images_360'] = $this->sort360Images($color['images_360']);
+                    }
+                    if (isset($color['images_360_internal']) && is_array($color['images_360_internal'])) {
+                        $colors[$index]['images_360_internal'] = $this->sort360Images($color['images_360_internal']);
+                    }
+                }
+                $request->merge(['colors' => $colors]);
+            }
+        }
+
         return $rules;
     }
 
@@ -171,5 +197,19 @@ class VehicleController extends Controller
 
             $resource->versions()->whereNotIn('id', $keepIds)->delete();
         });
+    }
+
+    private function sort360Images(array $images): array
+    {
+        usort($images, function ($a, $b) {
+            $pathA = is_array($a) ? ($a['path'] ?? '') : (string) $a;
+            $pathB = is_array($b) ? ($b['path'] ?? '') : (string) $b;
+
+            $fileA = basename($pathA);
+            $fileB = basename($pathB);
+
+            return strnatcasecmp($fileA, $fileB);
+        });
+        return $images;
     }
 }
