@@ -1,7 +1,7 @@
 <template>
     <div class="flex items-center justify-center flex-shrink-0 p-5 border-b border-gray-800">
         <Link href="/" class="flex items-center justify-center w-full p-2">
-            <img src="/assets/images/logo.png" style="max-height: 40px;" class="w-auto object-contain" alt="Ford Logo" />
+            <span class="text-white text-2xl font-extrabold tracking-widest">DNF</span>
         </Link>
     </div>
     <nav class="flex-1 px-2 pb-4 space-y-1 navs">
