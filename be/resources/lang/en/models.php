@@ -25,6 +25,7 @@ return [
         'users' => 'Khách hàng',
         'settings' => 'Cấu hình',
         'posts' => 'Bài viết',
+        'media' => 'Media',
         'files' => 'Quản lý Tệp',
         'banners' => 'Banners',
         'vehicle-categories' => 'Vehicle Categories',

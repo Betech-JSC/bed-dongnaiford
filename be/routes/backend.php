@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Backend\PostController;
+use App\Http\Controllers\Backend\MediaController;
 use App\Http\Controllers\Backend\PostCategoryController;
 use App\Http\Controllers\Backend\TagController;
 use App\Http\Controllers\Backend\AgencyController;
@@ -34,6 +35,7 @@ use App\Http\Controllers\Backend\MaintenanceScheduleController;
 Route::localized(function () {
     Route::middleware(['auth:admin'])->name('admin.')->group(function () {
         Route::module(PostController::class);
+        Route::module(MediaController::class);
         Route::module(CertificateController::class);
         Route::module(FeedbackController::class);
         Route::module(PostCategoryController::class);

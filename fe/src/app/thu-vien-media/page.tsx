@@ -12,50 +12,16 @@ interface VideoItem {
   thumbnail: string;
 }
 
-const dsflVideos: VideoItem[] = [
-  {
-    id: "dsfl-sitting",
-    youtubeId: "NnUj3yK3Bic",
-    title: "Tư thế ngồi lái & Cách chỉnh gương chiếu hậu đúng chuẩn",
-    description: "Chuyên gia Ford hướng dẫn cách căn chỉnh vị trí ngồi, độ cao ghế và góc gương chiếu hậu để có tầm quan sát tối đa, tránh điểm mù và giảm mệt mỏi.",
-    thumbnail: "https://images.unsplash.com/photo-1506015391300-4802dc74de2e?auto=format&fit=crop&q=80&w=800"
-  },
-  {
-    id: "dsfl-steering",
-    youtubeId: "nJsnHwV3nsw",
-    title: "Kỹ thuật cầm vô lăng và kiểm soát hướng lái an toàn",
-    description: "Hướng dẫn tư thế cầm vô lăng chuẩn 9:15, kỹ thuật quay vô lăng chéo tay (hand-over-hand) và trả lái mượt mà khi di chuyển qua các góc cua hẹp.",
-    thumbnail: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&q=80&w=800"
-  },
-  {
-    id: "dsfl-precheck",
-    youtubeId: "Vd_Q4lR8rAw",
-    title: "Kiểm tra kỹ thuật xe toàn diện trước khi khởi hành",
-    description: "Các bước kiểm tra nhanh lốp xe, nước làm mát, dầu động cơ và hệ thống đèn tín hiệu để đảm bảo an toàn tuyệt đối trước mỗi chuyến đi xa.",
-    thumbnail: "https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&q=80&w=800"
-  },
-  {
-    id: "dsfl-automatic",
-    youtubeId: "Zp9kK8K71lE",
-    title: "Kỹ năng lái xe số tự động an toàn & tiết kiệm nhiên liệu",
-    description: "Tìm hiểu nguyên lý hoạt động của hộp số tự động và kỹ thuật sử dụng chân phanh/ga đúng cách giúp xe vận hành trơn tru và tối ưu hóa mức tiêu hao.",
-    thumbnail: "https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&q=80&w=800"
-  },
-  {
-    id: "dsfl-braking",
-    youtubeId: "Y-i03cpx8L4",
-    title: "Kỹ thuật phanh khẩn cấp & Sự hỗ trợ từ hệ thống ABS",
-    description: "Cách xử lý phanh khẩn cấp trong các tình huống bất ngờ, hiểu rõ cơ chế hoạt động của hệ thống phanh chống bó cứng ABS để duy trì kiểm soát lái.",
-    thumbnail: "https://images.unsplash.com/photo-1502877338535-766e1452684a?auto=format&fit=crop&q=80&w=800"
-  },
-  {
-    id: "dsfl-night",
-    youtubeId: "aFzI25q-P10",
-    title: "Kinh nghiệm lái xe ban đêm & Xử lý đèn pha/cốt",
-    description: "Các nguyên tắc an toàn khi di chuyển trong bóng tối, cách sử dụng đèn chiếu xa/gần đúng luật để không gây chói mắt xe ngược chiều mà vẫn đảm bảo tầm nhìn.",
-    thumbnail: "https://images.unsplash.com/photo-1511919884226-fd3cad34687c?auto=format&fit=crop&q=80&w=800"
+function getYouTubeId(urlOrId: string): string {
+  if (!urlOrId) return "";
+  const trimmed = urlOrId.trim();
+  if (trimmed.length === 11 && !trimmed.includes("/") && !trimmed.includes("?")) {
+    return trimmed;
   }
-];
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+  const match = trimmed.match(regExp);
+  return (match && match[2].length === 11) ? match[2] : trimmed;
+}
 
 export default function MediaPage() {
   const [videos, setVideos] = useState<VideoItem[]>([]);
@@ -67,25 +33,22 @@ export default function MediaPage() {
       try {
         const res: any = await postsAPI.getAll({ type: "MEDIA" });
         const items = res?.posts?.data || res?.posts || res?.data || res;
-        
+
         if (Array.isArray(items) && items.length > 0) {
-          // Map CMS posts into VideoItem structure
           const mappedVideos: VideoItem[] = items.map((post: any) => ({
             id: post.slug || String(post.id),
-            youtubeId: post.author || "", // Youtube ID is saved in author
+            youtubeId: getYouTubeId(post.author || ""),
             title: post.title,
             description: post.description || "",
-            thumbnail: post.image?.url || "https://images.unsplash.com/photo-1506015391300-4802dc74de2e?auto=format&fit=crop&q=80&w=800"
+            thumbnail: post.image?.url || ""
           }));
           setVideos(mappedVideos.filter(v => v.youtubeId));
         } else {
-          // Fallback to static videos
-          setVideos(dsflVideos);
+          setVideos([]);
         }
       } catch (err) {
         console.error("Error fetching media library videos:", err);
-        // Fallback on error
-        setVideos(dsflVideos);
+        setVideos([]);
       } finally {
         setLoading(false);
       }
@@ -96,7 +59,7 @@ export default function MediaPage() {
   return (
     <div className="bg-[#fafafa] min-h-screen py-16">
       <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full flex flex-col gap-12 items-center">
-        
+
         {/* Header Title Section */}
         <div className="flex flex-col gap-4 text-center max-w-3xl w-full">
           <span className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0562d2] uppercase tracking-widest justify-center">
@@ -123,12 +86,12 @@ export default function MediaPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-6xl mx-auto">
             {videos.map((video) => (
-              <div 
-                key={video.id} 
+              <div
+                key={video.id}
                 className="flex flex-col gap-4 bg-white p-4 rounded-2xl border border-gray-200/60 shadow-xs hover:shadow-lg transition-all duration-300 group"
               >
                 {/* Thumbnail with hover play overlay */}
-                <div 
+                <div
                   onClick={() => setActiveVideo(video)}
                   className="aspect-[16/10] relative rounded-xl overflow-hidden w-full cursor-pointer bg-gray-100"
                 >
@@ -138,7 +101,7 @@ export default function MediaPage() {
                     className="absolute inset-0 object-cover w-full h-full group-hover:scale-[1.03] transition-transform duration-500"
                   />
                   <div className="absolute inset-0 bg-black/20 group-hover:bg-black/35 transition-colors duration-300" />
-                  
+
                   {/* Play Button Overlay */}
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="w-12 h-12 bg-white/95 text-[#00095b] group-hover:bg-[#0562d2] group-hover:text-white rounded-full flex items-center justify-center shadow-md transform group-hover:scale-110 transition-all duration-300">
@@ -149,7 +112,7 @@ export default function MediaPage() {
 
                 {/* Title & Description */}
                 <div className="flex flex-col gap-2 px-1 py-1 text-left">
-                  <h3 
+                  <h3
                     onClick={() => setActiveVideo(video)}
                     className="font-['Ford_Antenna',sans-serif] font-bold text-base text-[#00095b] group-hover:text-[#0562d2] cursor-pointer transition-colors duration-200 line-clamp-2 min-h-[48px]"
                   >
@@ -178,7 +141,7 @@ export default function MediaPage() {
             >
               <X className="w-5 h-5" />
             </button>
-            
+
             {/* Embedded YouTube Iframe */}
             <iframe
               src={`https://www.youtube.com/embed/${activeVideo.youtubeId}?autoplay=1&rel=0`}

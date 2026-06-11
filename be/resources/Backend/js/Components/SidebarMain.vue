@@ -69,6 +69,12 @@
         <span>Hoạt động đại lý</span>
     </Link>
 
+    <Link v-if="can('admin.media.index')" :href="route('admin.media.index')"
+        :class="{ active: isUrl('admin.media.*') }" class="item">
+        <ph-video-camera-light />
+        <span>Quản lý Media</span>
+    </Link>
+
     <!-- ===== KHÁCH HÀNG & CRM ===== -->
     <div class="item-group-label">Khách hàng & CRM</div>
 
