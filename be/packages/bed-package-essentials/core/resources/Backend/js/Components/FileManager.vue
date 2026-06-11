@@ -4,6 +4,7 @@
         <input type="file" class="hidden"
             accept="image/png, image/gif, image/jpeg, image/svg+xml, application/pdf, image/webp, video/mp4, video/x-m4v, video/*" multiple="true"
             ref="file" @change="fileChange" />
+        <input type="file" class="hidden" webkitdirectory directory multiple ref="folderInput" @change="folderInputChange" />
         <div class="topbar" v-if="!embed">
             <h1 class="flex items-center font-semibold text-gray-700">
                 <div class="p-4 -ml-4 cursor-pointer hover:text-gray-900" @click="$emit('update:show', false)"
@@ -27,6 +28,10 @@
                 <Button @click="deleteFolder" class="space-x-2 btn-outline-primary">
                     <carbon:subtract-alt />
                     <span> {{ tt('models.files.delete_folder') }} </span>
+                </Button>
+                <Button @click.prevent="browseFolder" class="space-x-2 btn-outline-primary">
+                    <ph-folder-open-light />
+                    <span> {{ tt('models.files.select_folder') || 'Chọn thư mục' }} </span>
                 </Button>
                 <Button @click.prevent="browse" class="space-x-2 btn-primary">
                     <ph:upload-simple />
@@ -424,11 +429,137 @@ export default {
         browse() {
             this.$refs.file.click()
         },
-        drop(event) {
-            this.uploadFiles(event.dataTransfer.files)
+        browseFolder() {
+            this.$refs.folderInput.click()
+        },
+        async drop(event) {
+            this.isDragging = false
+            this.dragCounter = 0
+            
+            const items = event.dataTransfer.items
+            if (!items) {
+                this.uploadFiles(event.dataTransfer.files)
+                return
+            }
+
+            this.loading = true
+            const filesToUpload = []
+            
+            const traverseFileTree = async (entry, path = '') => {
+                if (entry.isFile) {
+                    const file = await new Promise((resolve) => entry.file(resolve))
+                    const relativePath = path ? `${path}/${file.name}` : file.name
+                    filesToUpload.push({ file, relativePath })
+                } else if (entry.isDirectory) {
+                    const dirReader = entry.createReader()
+                    const entries = await new Promise((resolve) => {
+                        let result = []
+                        const readAll = () => {
+                            dirReader.readEntries((results) => {
+                                if (results.length) {
+                                    result = result.concat(results)
+                                    readAll()
+                                } else {
+                                    resolve(result)
+                                }
+                            }, () => resolve([]))
+                        }
+                        readAll()
+                    })
+                    const newPath = path ? `${path}/${entry.name}` : entry.name
+                    for (const childEntry of entries) {
+                        await traverseFileTree(childEntry, newPath)
+                    }
+                }
+            }
+
+            const promises = []
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i]
+                if (item.kind === 'file') {
+                    const entry = item.webkitGetAsEntry()
+                    if (entry) {
+                        promises.push(traverseFileTree(entry))
+                    }
+                }
+            }
+
+            await Promise.all(promises)
+            
+            if (filesToUpload.length > 0) {
+                this.uploadFilesWithPaths(filesToUpload)
+            } else {
+                this.loading = false
+            }
         },
         fileChange() {
             this.uploadFiles(this.$refs.file.files)
+        },
+        folderInputChange() {
+            const files = this.$refs.folderInput.files
+            const filesToUpload = []
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i]
+                filesToUpload.push({
+                    file: file,
+                    relativePath: file.webkitRelativePath || file.name
+                })
+            }
+            if (filesToUpload.length > 0) {
+                this.loading = true
+                this.uploadFilesWithPaths(filesToUpload)
+            }
+            this.$refs.folderInput.value = ''
+        },
+        uploadFilesWithPaths(filesToUpload) {
+            if (filesToUpload.length === 0) {
+                this.loading = false
+                return
+            }
+
+            for (const item of filesToUpload) {
+                const fileCheck = this.fileCheck(item.file)
+                if (!fileCheck.valid) {
+                    alert(
+                        item.relativePath + ': ' +
+                        this.tt('models.files.maximum_size') +
+                        ' ' +
+                        fileCheck.maxSize +
+                        this.tt('models.files.try_again')
+                    )
+                    this.loading = false
+                    return false
+                }
+            }
+
+            var formData = new FormData()
+            for (let index = 0; index < filesToUpload.length; index++) {
+                const item = filesToUpload[index]
+                const file = item.file
+                const relativePath = item.relativePath
+
+                if (this.isImage(file.name)) {
+                    const reader = new FileReader()
+                    reader.onload = (e) => {
+                        this.uploadingFiles.push({
+                            filename: relativePath,
+                            base64_code: e.target.result,
+                        })
+                    }
+                    reader.readAsDataURL(file)
+                } else {
+                    this.uploadingFiles.push({
+                        filename: relativePath,
+                        base64_code: null,
+                        size: file.size,
+                    })
+                }
+                formData.append('files[' + index + ']', file)
+                formData.append('relative_paths[' + index + ']', relativePath)
+            }
+            
+            formData.append('path', this.currentPath)
+            this.postFiles(formData)
         },
         uploadFiles(images) {
             if (images.length === 0 || this.loading) return

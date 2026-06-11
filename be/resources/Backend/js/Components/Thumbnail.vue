@@ -11,13 +11,14 @@
             class="absolute top-0 right-0 invisible space-x-1 text-white uppercase bg-black group-hover:visible w-[20px] h-[20px] flex items-center justify-center rounded-sm"
             :href="resolvedUrl"
             target="_blank"
+            @click.stop
         >
             <ph:arrow-square-up-right />
         </a>
         <Button
             class="absolute invisible right-1 bottom-1 group-hover:visible btn-white btn-sm"
             :label="tt('models.files.delete')"
-            @click="$emit('remove', file)"
+            @click.stop.prevent="$emit('remove', file)"
         />
     </div>
 </template>

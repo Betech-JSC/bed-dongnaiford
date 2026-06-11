@@ -125,7 +125,7 @@ const resolveFileUrl = (file: any): string => {
     let apiHost = "http://localhost:8000";
     try {
       apiHost = new URL(apiBase).origin;
-    } catch (e) {}
+    } catch (e) { }
     return `${apiHost}/static/${cleanPath}`;
   }
   if (typeof file === "object") {
@@ -136,7 +136,7 @@ const resolveFileUrl = (file: any): string => {
       let apiHost = "http://localhost:8000";
       try {
         apiHost = new URL(apiBase).origin;
-      } catch (e) {}
+      } catch (e) { }
       return `${apiHost}/static/${cleanPath}`;
     }
   }
@@ -150,7 +150,7 @@ const safeArray = (val: any): any[] => {
     try {
       const parsed = JSON.parse(val);
       if (Array.isArray(parsed)) return parsed;
-    } catch (e) {}
+    } catch (e) { }
     if (val.trim()) {
       return val.split(',').map((s: string) => s.trim()).filter(Boolean);
     }
@@ -908,7 +908,7 @@ export default function ProductDetailPage() {
   useEffect(() => {
     if (!threeLoaded || !is360Active || viewType !== "interior" || !threeRef.current) return;
     const currentColor = vehicle?.colors?.[selectedColorIndex];
-    
+
     // Skip Three.js initialization if we have a sequence of interior images
     if (
       (currentColor && (currentColor as any).images_360_internal && (currentColor as any).images_360_internal.length > 0)
@@ -1295,11 +1295,11 @@ export default function ProductDetailPage() {
     const basePrice = selVer.price;
     const registrationTaxRate = selVeh.type === "pickup" ? 0.06 : 0.10;
     const registrationTax = basePrice * registrationTaxRate;
-    
+
     const bigCities = ["Hà Nội", "Hồ Chí Minh", "Hải Phòng", "Đà Nẵng", "Cần Thơ", "Huế"];
     const isBigCity = bigCities.some(city => selectedProvince.toLowerCase().includes(city.toLowerCase()));
     const plateFee = isBigCity ? 20000000 : 1000000;
-    
+
     const registryFee = 340000;
     const roadFee = 1560000;
     const isSevenSeats =
@@ -1598,19 +1598,19 @@ export default function ProductDetailPage() {
   };
 
   const has360Content = vehicle ? (
-    vehicle.id === "mustang-fastback" || 
+    vehicle.id === "mustang-fastback" ||
     (vehicle.images_360_external && vehicle.images_360_external.length > 0) ||
     (vehicle.images_360_internal && vehicle.images_360_internal.length > 0) ||
     (vehicle.image_360_internal_url && vehicle.image_360_internal_url.trim() !== "") ||
-    (vehicle.colors && vehicle.colors.some((color: any) => 
+    (vehicle.colors && vehicle.colors.some((color: any) =>
       (color.images_360 && color.images_360.length > 0) ||
       (color.images_360_internal && color.images_360_internal.length > 0) ||
       (color.image_360_internal && color.image_360_internal.trim() !== "")
     ))
   ) : false;
 
-  const filteredBlocks = isEditMode 
-    ? currentBlocks 
+  const filteredBlocks = isEditMode
+    ? currentBlocks
     : currentBlocks.filter((b: any) => b.type !== "ThreeSixtyViewer" || has360Content);
 
   const blocksWithAnchors = filteredBlocks.map((block) => {
@@ -2693,7 +2693,7 @@ export default function ProductDetailPage() {
   }
 
   return (
-    <div className="bg-[#fafafa] min-h-screen text-[#1a1a1a] font-sans pb-16">
+    <div className="bg-[#fafafa] min-h-screen text-[#1a1a1a] font-sans">
 
       {/* 1. Breadcrumbs Header Navigation */}
       <div className="bg-[#fafafa] border-b border-[#e5e5e5] py-4">
@@ -2774,8 +2774,8 @@ export default function ProductDetailPage() {
             <button
               onClick={() => toggleCompare(vehicle.id)}
               className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition-all active:scale-95 border cursor-pointer select-none shrink-0 ${compareIds.includes(vehicle.id)
-                  ? "bg-[#0562D2] text-white border-[#0562D2] shadow-sm animate-pulse"
-                  : "bg-white text-gray-700 hover:text-[#0562D2] border-gray-250 hover:bg-gray-50"
+                ? "bg-[#0562D2] text-white border-[#0562D2] shadow-sm animate-pulse"
+                : "bg-white text-gray-700 hover:text-[#0562D2] border-gray-250 hover:bg-gray-50"
                 }`}
             >
               <GitCompare className="w-3.5 h-3.5" />

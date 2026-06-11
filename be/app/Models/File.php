@@ -156,12 +156,12 @@ class File
         }
     }
 
-    public function store($files)
+    public function store($files, $relativePaths = [])
     {
         $successFiles = [];
         $failureFiles = [];
 
-        foreach ($files as $file) {
+        foreach ($files as $index => $file) {
             if (is_string($file) && preg_match('/^data:([^;]+);base64,(.*)$/', $file, $matches)) {
                 $mimeType = $matches[1];
                 $data = base64_decode($matches[2]);
@@ -233,7 +233,6 @@ class File
                 } else {
                     $filePath = $this->storage->put($targetPath, $data) ? $targetPath : false;
                 }
-
                 if ($filePath) {
                     $successFiles[] = static_url($filePath, [], false);
                 } else {
@@ -241,7 +240,21 @@ class File
                 }
             } else {
                 if (is_object($file) && method_exists($file, 'getClientOriginalName')) {
-                    $fileName = $file->getClientOriginalName();
+                    $originalName = $file->getClientOriginalName();
+                    
+                    $relativePath = $relativePaths[$index] ?? null;
+                    if ($relativePath) {
+                        $subDir = dirname($relativePath);
+                        $fileName = basename($relativePath);
+                        if ($subDir && $subDir !== '.') {
+                            $targetDir = $this->path == '/' ? $subDir : rtrim($this->path, '/') . '/' . $subDir;
+                        } else {
+                            $targetDir = $this->path;
+                        }
+                    } else {
+                        $fileName = $originalName;
+                        $targetDir = $this->path;
+                    }
 
                     if ($this->fileValidation($file)) {
                         $mimeType = $file->getMimeType();
@@ -267,20 +280,20 @@ class File
                                 }
 
                                 $fileName = pathinfo($fileName, PATHINFO_FILENAME) . '.webp';
-                                $targetPath = ($this->path == '/' ? '' : rtrim($this->path, '/') . '/') . $fileName;
+                                $targetPath = ($targetDir == '/' ? '' : rtrim($targetDir, '/') . '/') . $fileName;
 
                                 $filePath = $this->storage->put($targetPath, $encoded) ? $targetPath : false;
                             } catch (\Exception $e) {
                                 logger()->error('Image processing failed: ' . $e->getMessage());
                                 $filePath = $this->storage->putFileAs(
-                                    $this->path,
+                                    $targetDir,
                                     $file,
                                     $fileName
                                 );
                             }
                         } else {
                             $filePath = $this->storage->putFileAs(
-                                $this->path,
+                                $targetDir,
                                 $file,
                                 $fileName
                             );

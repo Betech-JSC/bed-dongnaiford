@@ -33,9 +33,10 @@ class FileController extends Controller
     public function store(Request $request)
     {
         $files = $request->file('files');
+        $relativePaths = $request->input('relative_paths', []);
 
         $file = new File($request->input('path', '/'));
-        return $file->store($files);
+        return $file->store($files, $relativePaths);
     }
 
     public function destroy(Request $request)

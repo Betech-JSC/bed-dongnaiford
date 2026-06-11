@@ -57,6 +57,7 @@ export default function AIChatWidget() {
   const [hasDragged, setHasDragged] = useState(false);
   const dragOffset = useRef<Position>({ x: 0, y: 0 });
   const bubbleRef = useRef<HTMLButtonElement>(null);
+  const windowRef = useRef<HTMLDivElement>(null);
 
   // Set mounted
   useEffect(() => {
@@ -258,6 +259,29 @@ export default function AIChatWidget() {
     }
   }, [isOpen]);
 
+  // Close chat when clicking outside
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+      if (
+        bubbleRef.current &&
+        !bubbleRef.current.contains(event.target as Node) &&
+        windowRef.current &&
+        !windowRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+    };
+  }, [isOpen]);
+
   const sendMessage = useCallback(async () => {
     const trimmed = input.trim();
     if (!trimmed || isLoading) return;
@@ -391,6 +415,7 @@ export default function AIChatWidget() {
 
       {/* Chat Window — positioned relative to bubble */}
       <div
+        ref={windowRef}
         style={{
           ...getChatPosition(),
           width: `${CHAT_WIDTH}px`,

@@ -2,8 +2,9 @@
     <div class="fixed top-0 bottom-0 right-0 z-50 overflow-hidden bg-white" v-show="show"
         :class="embed ? 'left-0 overflow-auto' : 'left-from-sidebar'">
         <input type="file" class="hidden"
-            accept="image/png, image/gif, image/jpeg, image/svg+xml, application/pdf ,image/webp" multiple="true"
+            accept="image/png, image/gif, image/jpeg, image/svg+xml, application/pdf, image/webp, video/mp4, video/x-m4v, video/*" multiple="true"
             ref="file" @change="fileChange" />
+        <input type="file" class="hidden" webkitdirectory directory multiple ref="folderInput" @change="folderInputChange" />
         <div class="topbar" v-if="!embed">
             <h1 class="flex items-center font-semibold text-gray-700">
                 <div class="p-4 -ml-4 cursor-pointer hover:text-gray-900" @click="$emit('update:show', false)"
@@ -16,21 +17,22 @@
                 <input type="text" :placeholder="tt('models.files.input_file')"
                     class="flex-inline w-[400px] py-[0.5rem] px-[1rem] border border-gray-300 focus:border-solid focus:outline-none focus:ring-0 rounded hover:border-gray-400 focus:border-gray-500"
                     @input="onChange" />
-
-                <Button @click.prevent="showFolderModal = true" class="space-x-2 btn-outline-primary">
+                <Button v-if="currentPath !== '/'" @click.prevent="openFolderModal('rename')" class="space-x-2 btn-outline-primary">
+                    <ph-pencil-simple-line-light />
+                    <span> {{ tt('models.files.rename_folder') || 'Đổi tên' }} </span>
+                </Button>
+                <Button @click.prevent="openFolderModal('create')" class="space-x-2 btn-outline-primary">
                     <ph-plus-circle-light />
                     <span> {{ tt('models.files.add_folder') }} </span>
                 </Button>
-
                 <Button @click="deleteFolder" class="space-x-2 btn-outline-primary">
                     <carbon:subtract-alt />
                     <span> {{ tt('models.files.delete_folder') }} </span>
                 </Button>
-                <!-- <Button :disabled="currentPath === '/'" @click.prevent="deleteFolder"
-                    class="space-x-2 btn-outline-primary">
-                    <carbon:trash-can />
-                    <span> {{ tt('models.files.delete_folder') }} </span>
-                </Button> -->
+                <Button @click.prevent="browseFolder" class="space-x-2 btn-outline-primary">
+                    <ph-folder-open-light />
+                    <span> {{ tt('models.files.select_folder') || 'Chọn thư mục' }} </span>
+                </Button>
                 <Button @click.prevent="browse" class="space-x-2 btn-primary">
                     <ph:upload-simple />
                     <span> {{ tt('models.files.select_file') }} </span>
@@ -40,13 +42,13 @@
         <div class="flex items-stretch flex-1 h-full overflow-hidden" @dragover.prevent="isDragging = true">
             <div class="fixed inset-0 overflow-hidden border-4 border-dashed before:absolute before:bg-green-300 before:bg-opacity-25 before:inset-0 before:z-10 left-from-sidebar"
                 :class="isDragging
-                    ? 'z-10 border-green-300 before:visible visible'
-                    : 'z-0 border-transparent before:invisible invisible'
+                        ? 'z-10 border-green-300 before:visible visible'
+                        : 'z-0 border-transparent before:invisible invisible'
                     " @dragleave.prevent="isDragging = false"
                 @drop.prevent="; (isDragging = false), (dragCounter = 0), drop($event)"></div>
 
             <!-- Details sidebar -->
-            <aside class="hidden p-8 pb-16 overflow-y-auto bg-white border-l border-r border-gray-200 w-80 lg:block">
+            <aside class="hidden p-8 pb-16 overflow-y-auto bg-white border-l border-r border-gray-200 w-80 md:block">
                 <template v-if="embed">
                     <Button @click.prevent="browse" class="w-full space-x-2 btn-primary">
                         <ph:upload-simple />
@@ -54,7 +56,7 @@
                     </Button>
                     <hr class="my-2" />
                 </template>
-                <Field v-if="tree && tree.length" :field="{
+                <Field v-if="tree && Object.keys(tree).length > 0" :field="{
                     key: 'FileManager',
                     label: false,
                     type: 'tree',
@@ -68,20 +70,39 @@
                 }" />
             </aside>
             <main class="overflow-y-auto grow group-image-admin"
-                :class="canDeleteFolder ? 'flex items-center flex-col justify-center' : 'flex-1'">
-                <div v-if="canDeleteFolder">
-                    <h1 v-if="canDeleteFolder" class="text-xl">
-                        {{ tt('models.files.drop') }}
-                        <a @click="browse" class="link">{{ tt('models.files.click_here').toLowerCase() }}</a>
-                        {{ tt('models.files.select_files').toLowerCase() }}
-                    </h1>
+                :class="!Object.keys(searchFiles).length ? 'flex items-center flex-col justify-center' : 'flex-1'">
+                
+                <!-- Trạng thái trống (No Data) -->
+                <div v-if="!Object.keys(searchFiles).length && !loading" class="flex flex-col items-center justify-center p-12 text-center">
+                    <div class="p-6 mb-4 bg-gray-50 rounded-full">
+                        <ph:folder-open-light class="w-16 h-16 text-gray-300" />
+                    </div>
+                    <h3 class="text-xl font-medium text-gray-900">
+                        {{ tt('models.files.no_data') || 'Thư mục này hiện không có dữ liệu' }}
+                    </h3>
+                    <p class="mt-2 text-sm text-gray-500 max-w-xs">
+                        {{ tt('models.files.empty_hint') || 'Hãy kéo thả file vào trình duyệt hoặc bấm nút "Chọn file" để bắt đầu tải dữ liệu lên.' }}
+                    </p>
+                    
+                    <div class="mt-8 flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
+                        <Button @click.prevent="browse" class="space-x-2 btn-primary">
+                            <ph:upload-simple />
+                            <span> {{ tt('models.files.select_file') }} </span>
+                        </Button>
+
+                        <Button v-if="canDeleteFolder" @click.prevent="openFolderModal('rename')" class="space-x-2 btn-outline-primary">
+                            <ph-pencil-simple-line-light />
+                            <span> {{ tt('models.files.rename_folder') || 'Đổi tên' }} </span>
+                        </Button>
+                        
+                        <Button v-if="canDeleteFolder" @click="deleteFolder" class="space-x-2 btn-outline-danger">
+                            <carbon:subtract-alt />
+                            <span> {{ tt('models.files.delete_folder') }} </span>
+                        </Button>
+                    </div>
                 </div>
-                <div v-if="canDeleteFolder" class="mt-6">
-                    <Button @click="deleteFolder" class="space-x-2 btn-outline-primary">
-                        <carbon:subtract-alt />
-                        <span> {{ tt('models.files.delete_folder') }} </span>
-                    </Button>
-                </div>
+
+                <!-- Danh sách file -->
                 <div v-if="Object.keys(searchFiles).length"
                     class="px-4 pt-8 pb-16 mx-auto space-y-4 max-w-7xl sm:px-6 lg:px-8">
                     <ul role="list" class="grid grid-cols-3 gap-4 lg:grid-cols-4 2xl:grid-cols-6">
@@ -110,27 +131,45 @@
                 </div>
             </main>
         </div>
-        <div v-if="canSelectMultiple && selectedFiles.length > 0"
-            class="absolute bottom-0 left-0 right-0 flex items-center justify-center w-full h-16 space-x-2 bg-white border-t">
-            <Button @click="selectedFiles = []"> {{ tt('models.files.unchecked') }} </Button>
-            <Button class="btn-primary" @click="submitFileSelect()"> {{ tt('models.files.select') }} ({{
-                selectedFiles.length
-                }}) </Button>
+        <div
+            v-if="selectedFiles.length > 0"
+            class="absolute bottom-0 left-0 right-0 flex items-center justify-center w-full h-16 space-x-2 bg-white border-t border-gray-200 shadow-lg"
+        >
+            <span class="mr-4 text-sm font-medium text-gray-700">
+                {{ selectedFiles.length }} {{ tt('models.table_list.files').toLowerCase() }} Đã chọn
+            </span>
+            <Button @click="selectedFiles = []" class="btn-outline-secondary"> {{ tt('models.files.unchecked') }} </Button>
+            <Button class="btn-danger" @click="deleteSelected()">
+                <ph:trash-light class="mr-1" />
+                {{ tt('models.files.delete') }}
+            </Button>
+            <Button v-if="selectable || selectMultiple" class="btn-primary" @click="submitFileSelect()"> {{ tt('models.files.select') }} ({{ selectedFiles.length }}) </Button>
         </div>
-        <Dialog header="Folder" v-model:visible="showFolderModal" :breakpoints="{
+        <Dialog :header="folderModalMode === 'create' ? tt('models.files.add_folder') : tt('models.files.rename_folder')" v-model:visible="showFolderModal" :breakpoints="{
             '960px': '75vw',
             '640px': '90vw',
         }" :style="{ width: '50vw' }" :draggable="false">
             <Field v-model="folderForm.name" :field="{
                 rules: 'required',
                 name: 'name',
+                label: tt('models.files.folder_name')
             }" />
             <template #footer>
                 <Button variant="white" @click="showFolderModal = false" :label="tt('models.files.cancel')" />
-                <Button type="button" class="ml-2" @click="createFolder(folderForm.name), (showFolderModal = false)"
+                <Button type="button" class="ml-2" @click="submitFolderForm"
                     :label="tt('models.files.save')" />
             </template>
         </Dialog>
+
+        <div v-show="loading" class="fixed inset-0 z-[9999] flex items-center justify-center bg-white bg-opacity-70" :class="embed ? '' : 'left-from-sidebar'">
+            <div class="flex flex-col items-center">
+                <svg class="w-12 h-12 text-blue-600 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span class="mt-4 font-medium text-gray-700">{{ tt('models.table.loading') }}</span>
+            </div>
+        </div>
     </div>
 </template>
 <script>
@@ -138,8 +177,8 @@ import Pagination from '@Core/Components/Pagination.vue'
 import Thumbnail from '@Core/Components/Thumbnail.vue'
 import { onMounted, onUnmounted } from 'vue'
 
-const MAX_SIZE_OF_IMAGE = 5
-const MAX_SIZE_OF_VIDEO = 50
+const MAX_SIZE_OF_IMAGE = 20
+const MAX_SIZE_OF_VIDEO = 200
 
 export default {
     components: { Thumbnail, Pagination },
@@ -184,13 +223,14 @@ export default {
             timer: null,
             timerScoll: null,
             data: {
-                tree: null,
+                tree: [],
                 directories: [],
                 files: [],
             },
-            tree: null,
+            tree: [],
             currentPath: '/',
-            showFolderModal: null,
+            showFolderModal: false,
+            folderModalMode: 'create', // create or rename
             folderForm: {
                 name: null,
             },
@@ -200,6 +240,7 @@ export default {
             limit: 50,
             page: 1,
             fetchData: true,
+            loading: false,
         }
     },
 
@@ -240,7 +281,7 @@ export default {
 
     watch: {
         show(value) {
-            if (value && this.data === null) {
+            if (value && (!this.tree || !this.tree.length)) {
                 this.getFiles()
             }
         },
@@ -248,25 +289,15 @@ export default {
 
     computed: {
         searchFiles() {
-            if (!this.data || !this.data.files) {
-                if (!this.search) {
-                    this.getFiles()
-                    return this.data.files
-                }
-                return []
-            }
-            if (!this.search) return this.data.files
-
-            this.getFiles({ keyword: this.search })
-
-            this.fetchData = false
-
+            if (!this.data || !this.data.files) return []
             return this.data.files
         },
         canDeleteFolder() {
             if (!this.data) return false
+            const fileCount = Array.isArray(this.data.files) ? this.data.files.length : Object.keys(this.data.files || {}).length
+            const dirCount = Array.isArray(this.data.directories) ? this.data.directories.length : Object.keys(this.data.directories || {}).length
 
-            return this.data.files.length === 0 && this.data.directories.length === 0
+            return fileCount === 0 && dirCount === 0 && this.currentPath !== '/'
         },
         canSelectMultiple() {
             return this.multiple || this.selectMultiple
@@ -287,37 +318,44 @@ export default {
             this.getFiles()
         },
         getFiles(params = {}, loadTree = false) {
+            const isFirstPage = !params.page || params.page === 1
+            if (isFirstPage) {
+                this.page = 1
+                this.fetchData = true
+            }
+
             if (this.fetchData) {
+                const requestParams = {
+                    page: this.page,
+                    limit: this.limit,
+                    search: this.search,
+                    path: this.currentPath,
+                    ...params,
+                }
+
                 this.$axios
-                    .get(
-                        this.route('admin.files.index', {
-                            page: 1,
-                            limit: this.limit,
-                            search: null,
-                            path: this.currentPath,
-                            ...params,
-                        })
-                    )
+                    .get(this.route('admin.files.index', requestParams))
                     .then((res) => {
-                        let files = this.data.files
-                        let new_files = res.data.files ? res.data.files : null
+                        this.data.tree = res.data.tree || []
+                        this.data.directories = res.data.directories || []
 
-                        if (Array.isArray(new_files) && new_files.length == 0) {
-                            this.fetchData = false
+                        if (!this.tree || this.tree.length === 0 || loadTree) {
+                            this.tree = res.data.tree || []
+                        }
+
+                        let new_files = res.data.files || []
+                        if (isFirstPage) {
+                            this.data.files = new_files
                         } else {
-                            if (this.page == 1) {
-                                files = new_files
+                            if (new_files.length === 0) {
+                                this.fetchData = false
                             } else {
-                                files = { ...files, ...new_files }
-                            }
-                            this.data = {
-                                tree: res.data.tree,
-                                directories: res.data.directories,
-                                files: files,
-                            }
-
-                            if (!this.tree || loadTree) {
-                                this.tree = res.data.tree
+                                // If it's an object or array, handle merge
+                                if (Array.isArray(new_files)) {
+                                    this.data.files = [...this.data.files, ...new_files]
+                                } else {
+                                    this.data.files = { ...this.data.files, ...new_files }
+                                }
                             }
                         }
                     })
@@ -357,7 +395,10 @@ export default {
                 return
             }
 
-            if (!this.selectable) return
+            if (!this.selectable) {
+                this.toggleFileSelect(file)
+                return
+            }
 
             if (!this.canSelectMultiple) {
                 this.selectedFiles[0] = file
@@ -388,14 +429,141 @@ export default {
         browse() {
             this.$refs.file.click()
         },
-        drop(event) {
-            this.uploadFiles(event.dataTransfer.files)
+        browseFolder() {
+            this.$refs.folderInput.click()
+        },
+        async drop(event) {
+            this.isDragging = false
+            this.dragCounter = 0
+            
+            const items = event.dataTransfer.items
+            if (!items) {
+                this.uploadFiles(event.dataTransfer.files)
+                return
+            }
+
+            this.loading = true
+            const filesToUpload = []
+            
+            const traverseFileTree = async (entry, path = '') => {
+                if (entry.isFile) {
+                    const file = await new Promise((resolve) => entry.file(resolve))
+                    const relativePath = path ? `${path}/${file.name}` : file.name
+                    filesToUpload.push({ file, relativePath })
+                } else if (entry.isDirectory) {
+                    const dirReader = entry.createReader()
+                    const entries = await new Promise((resolve) => {
+                        let result = []
+                        const readAll = () => {
+                            dirReader.readEntries((results) => {
+                                if (results.length) {
+                                    result = result.concat(results)
+                                    readAll()
+                                } else {
+                                    resolve(result)
+                                }
+                            }, () => resolve([]))
+                        }
+                        readAll()
+                    })
+                    const newPath = path ? `${path}/${entry.name}` : entry.name
+                    for (const childEntry of entries) {
+                        await traverseFileTree(childEntry, newPath)
+                    }
+                }
+            }
+
+            const promises = []
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i]
+                if (item.kind === 'file') {
+                    const entry = item.webkitGetAsEntry()
+                    if (entry) {
+                        promises.push(traverseFileTree(entry))
+                    }
+                }
+            }
+
+            await Promise.all(promises)
+            
+            if (filesToUpload.length > 0) {
+                this.uploadFilesWithPaths(filesToUpload)
+            } else {
+                this.loading = false
+            }
         },
         fileChange() {
             this.uploadFiles(this.$refs.file.files)
         },
+        folderInputChange() {
+            const files = this.$refs.folderInput.files
+            const filesToUpload = []
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i]
+                filesToUpload.push({
+                    file: file,
+                    relativePath: file.webkitRelativePath || file.name
+                })
+            }
+            if (filesToUpload.length > 0) {
+                this.loading = true
+                this.uploadFilesWithPaths(filesToUpload)
+            }
+            this.$refs.folderInput.value = ''
+        },
+        uploadFilesWithPaths(filesToUpload) {
+            if (filesToUpload.length === 0) {
+                this.loading = false
+                return
+            }
+
+            for (const item of filesToUpload) {
+                const fileCheck = this.fileCheck(item.file)
+                if (!fileCheck.valid) {
+                    alert(
+                        item.relativePath + ': ' +
+                        this.tt('models.files.maximum_size') +
+                        ' ' +
+                        fileCheck.maxSize +
+                        this.tt('models.files.try_again')
+                    )
+                    this.loading = false
+                    return false
+                }
+            }
+
+            var formData = new FormData()
+            for (let index = 0; index < filesToUpload.length; index++) {
+                const item = filesToUpload[index]
+                const file = item.file
+                const relativePath = item.relativePath
+
+                if (this.isImage(file.name)) {
+                    const reader = new FileReader()
+                    reader.onload = (e) => {
+                        this.uploadingFiles.push({
+                            filename: relativePath,
+                            base64_code: e.target.result,
+                        })
+                    }
+                    reader.readAsDataURL(file)
+                } else {
+                    this.uploadingFiles.push({
+                        filename: relativePath,
+                        base64_code: null,
+                        size: file.size,
+                    })
+                }
+                formData.append('files[' + index + ']', file)
+                formData.append('relative_paths[' + index + ']', relativePath)
+            }
+            
+            formData.append('path', this.currentPath)
+            this.postFiles(formData)
+        },
         uploadFiles(images) {
-            if (images.length === 0) return
+            if (images.length === 0 || this.loading) return
+            this.loading = true
 
             for (const image of images) {
                 const fileCheck = this.fileCheck(image)
@@ -407,6 +575,7 @@ export default {
                         this.tt('models.files.try_again')
                     )
                     this.$refs.file.value = ''
+                    this.loading = false
                     return false
                 }
             }
@@ -438,26 +607,69 @@ export default {
             this.postFiles(formData)
         },
         postFiles(formData) {
-            this.$axios.post(this.route('admin.files.store'), formData).then((response) => {
-                if (response.status === 200) {
-                    this.page = 1
-                    this.fetchData = true
-                    this.getFiles()
-                }
-            })
+            this.loading = true
+            this.$axios
+                .post(this.route('admin.files.store'), formData)
+                .then((response) => {
+                    if (response.status === 200) {
+                        this.uploadingFiles = []
+                        this.getFiles({ page: 1 })
+                        this.$toast.add({
+                            severity: 'success',
+                            summary: this.tt('models.admins.success'),
+                            detail: this.tt('models.has_crud_action.store'),
+                            life: 3000,
+                        })
+                    }
+                })
+                .finally(() => {
+                    this.loading = false
+                })
         },
         onRemove(file) {
+            this.loading = true
             this.$axios
                 .post(this.route('admin.files.destroy', { id: 0 }), {
                     files: [file],
                 })
                 .then((response) => {
                     if (response.status === 200) {
-                        this.page = 1
-                        this.fetchData = true
-                        this.getFiles()
+                        this.getFiles({ page: 1 })
+                        this.$toast.add({
+                            severity: 'success',
+                            summary: this.tt('models.admins.success'),
+                            detail: this.tt('models.has_crud_action.destroy'),
+                            life: 3000,
+                        })
                     }
                 })
+                .finally(() => {
+                    this.loading = false
+                })
+        },
+        deleteSelected() {
+            if (confirm(this.tt('models.files.confirm_delete') || 'Bạn thực sự muốn xoá?')) {
+                this.loading = true
+                this.$axios
+                    .post(this.route('admin.files.destroy', { id: 0 }), {
+                        files: this.selectedFiles,
+                    })
+                    .then((response) => {
+                        if (response.status === 200) {
+                            this.selectedFiles = []
+                            this.getFiles({ page: 1 })
+                            this.$toast.add({
+                                severity: 'success',
+                                summary: this.tt('models.admins.success'),
+                                detail: this.tt('models.has_crud_action.destroy'),
+                                life: 3000,
+                            })
+                        }
+                    })
+                    .finally(() => {
+                        this.loading = false
+                    })
+            }
         },
         fileCheck(file) {
             const maxSize = this.isImage(file.name) ? MAX_SIZE_OF_IMAGE : MAX_SIZE_OF_VIDEO
@@ -473,9 +685,25 @@ export default {
 
             this.timer = setTimeout(() => {
                 this.search = event.target.value
-                this.page = 1
-                this.fetchData = true
+                this.getFiles({ page: 1 })
             }, 500)
+        },
+        openFolderModal(mode) {
+            this.folderModalMode = mode
+            if (mode === 'rename') {
+                this.folderForm.name = this.currentPath.split('/').pop()
+            } else {
+                this.folderForm.name = ''
+            }
+            this.showFolderModal = true
+        },
+        submitFolderForm() {
+            if (this.folderModalMode === 'create') {
+                this.createFolder(this.folderForm.name)
+            } else {
+                this.renameFolder(this.folderForm.name)
+            }
+            this.showFolderModal = false
         },
         createFolder(name) {
             this.$axios
@@ -486,6 +714,37 @@ export default {
                 .then((res) => {
                     this.getFiles({}, true)
                     this.folderForm.name = null
+                    this.$toast.add({
+                        severity: 'success',
+                        summary: this.tt('models.admins.success'),
+                        detail: this.tt('models.has_crud_action.store'),
+                        life: 3000,
+                    })
+                })
+        },
+        renameFolder(name) {
+            if (!name) return
+            this.loading = true
+            this.$axios
+                .post(this.route('admin.files.folders.rename'), {
+                    name: name,
+                    path: this.currentPath,
+                })
+                .then((res) => {
+                    if (res.data) {
+                        const parentPath = this.currentPath.split('/').slice(0, -1).join('/') || '/'
+                        this.currentPath = (parentPath === '/' ? '' : parentPath) + '/' + name
+                        this.getFiles({}, true)
+                        this.$toast.add({
+                            severity: 'success',
+                            summary: this.tt('models.admins.success'),
+                            detail: this.tt('models.has_crud_action.update'),
+                            life: 3000,
+                        })
+                    }
+                })
+                .finally(() => {
+                    this.loading = false
                 })
         },
         deleteFolder() {
@@ -498,9 +757,13 @@ export default {
                     )
                     .then((res) => {
                         this.currentPath = '/'
-                        this.page = 1
-                        this.fetchData = true
                         this.getFiles({}, true)
+                        this.$toast.add({
+                            severity: 'success',
+                            summary: this.tt('models.admins.success'),
+                            detail: this.tt('models.has_crud_action.destroy'),
+                            life: 3000,
+                        })
                     })
             }
         },

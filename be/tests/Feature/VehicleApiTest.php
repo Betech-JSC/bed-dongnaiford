@@ -193,4 +193,28 @@ class VehicleApiTest extends TestCase
         sort($childNames);
         $this->assertEquals(['exterior', 'interior'], $childNames);
     }
+
+    public function test_file_store_preserves_relative_directories()
+    {
+        $disk = \Illuminate\Support\Facades\Storage::fake('uploads');
+        
+        $file1 = UploadedFile::fake()->image('01.jpg');
+        $file2 = UploadedFile::fake()->image('02.jpg');
+        
+        $files = [$file1, $file2];
+        $relativePaths = [
+            'exterior/molten-magenta/01.jpg',
+            'interior/02.jpg',
+        ];
+
+        $fileModel = new \App\Models\File('/', 'uploads');
+        $result = $fileModel->store($files, $relativePaths);
+
+        $this->assertCount(2, $result['successFiles']);
+        
+        // Assert that directories were created and files placed correctly
+        $disk->assertExists('exterior/molten-magenta/01.webp'); // Since it is converted to webp
+        $disk->assertExists('interior/02.webp'); // Since it is converted to webp
+    }
 }
+

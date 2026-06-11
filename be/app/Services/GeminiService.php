@@ -99,24 +99,114 @@ class GeminiService
     }
 
     /**
-     * System Prompt chuyên biệt cho Ford Đồng Nai
+     * System Prompt chuyên biệt cho Ford Đồng Nai (Dữ liệu động)
      */
     private function getSystemPrompt(): string
     {
-        return <<<'PROMPT'
-Bạn là Trợ lý AI tư vấn của **Ford Đồng Nai** (Đại lý Tấn Phát Đạt) — đại lý ủy quyền chính thức của Ford Việt Nam tại Đồng Nai.
+        $vehiclesText = '';
+        $servicesText = '';
 
-## THÔNG TIN SHOWROOM
-- Địa chỉ: Số B04, Khu thương mại Amata, Khu phố 29, Phường Long Bình, TP. Biên Hòa, Đồng Nai
-- Hotline kinh doanh: 0918 90 90 60
-- Hotline dịch vụ: 1800 55 68 58
-- ĐT: (0251) 3857 130 – (0251) 3857 131
-- Email: marketing@dongnaiford.com.vn
-- Giờ làm việc: T2–T7, 7:30–17:30
-- Website: dongnaiford.com.vn
+        $cleanText = function($text) {
+            if (empty($text)) return '';
+            return trim(html_entity_decode(strip_tags($text)));
+        };
 
-## BẢNG GIÁ XE FORD (Giá niêm yết VNĐ, chưa bao gồm phí lăn bánh)
+        try {
+            // Fetch active vehicles with active versions
+            $vehicles = \App\Models\Vehicle\Vehicle::where('status', \App\Models\Vehicle\Vehicle::STATUS_ACTIVE)
+                ->with(['versions' => function($q) {
+                    $q->where('status', \App\Models\Vehicle\VehicleVersion::STATUS_ACTIVE)
+                      ->sortByPosition();
+                }])
+                ->sortByPosition()
+                ->get();
 
+            if ($vehicles->isNotEmpty()) {
+                $specLabels = [
+                    'engine' => 'Động cơ',
+                    'power' => 'Công suất',
+                    'torque' => 'Mô-men xoắn',
+                    'transmission' => 'Hộp số',
+                    'drivetrain' => 'Hệ dẫn động',
+                    'dimensions' => 'Kích thước',
+                    'clearance' => 'Khoảng sáng gầm',
+                    'fuelEconomy' => 'Tiêu thụ nhiên liệu',
+                ];
+
+                foreach ($vehicles as $vehicle) {
+                    $vTranslation = $vehicle->translate('vi');
+                    $title = $vTranslation?->title ?? $vehicle->title;
+                    $tagline = $vTranslation?->tagline ?? $vehicle->tagline;
+                    $description = $cleanText($vTranslation?->description ?? $vehicle->description);
+
+                    $vehiclesText .= "### {$title}";
+                    if ($tagline) {
+                        $vehiclesText .= " ({$tagline})";
+                    }
+                    $vehiclesText .= "\n";
+                    if ($description) {
+                        $vehiclesText .= "  * {$description}\n";
+                    }
+
+                    if ($vehicle->versions->isNotEmpty()) {
+                        foreach ($vehicle->versions as $version) {
+                            $verTranslation = $version->translate('vi');
+                            $verName = $verTranslation?->name ?? $version->name;
+                            $verPrice = $version->price ? number_format($version->price, 0, ',', '.') . 'đ' : 'Liên hệ';
+                            $vehiclesText .= "  - Phiên bản {$verName}: {$verPrice}\n";
+
+                            $specs = $version->specs;
+                            if (is_array($specs) && !empty($specs)) {
+                                $specLines = [];
+                                foreach ($specs as $key => $val) {
+                                    if (empty($val)) continue;
+                                    $label = $specLabels[$key] ?? ucfirst($key);
+                                    $specLines[] = "{$label}: {$val}";
+                                }
+                                if (!empty($specLines)) {
+                                    $vehiclesText .= "    * Thông số: " . implode(' | ', $specLines) . "\n";
+                                }
+                            }
+                        }
+                    } else {
+                        $basePrice = $vehicle->base_price ? number_format($vehicle->base_price, 0, ',', '.') . 'đ' : 'Liên hệ';
+                        $vehiclesText .= "  - Giá niêm yết: {$basePrice}\n";
+                    }
+                    $vehiclesText .= "\n";
+                }
+            }
+        } catch (\Throwable $e) {
+            Log::error('GeminiService failed to load vehicles from DB', [
+                'message' => $e->getMessage(),
+            ]);
+        }
+
+        try {
+            // Fetch active services
+            $services = \App\Models\Service::active()->sortByPosition()->get();
+            if ($services->isNotEmpty()) {
+                foreach ($services as $service) {
+                    $sTranslation = $service->translate('vi');
+                    $sTitle = $sTranslation?->title ?? $service->title;
+                    $sDesc = $cleanText($sTranslation?->description ?? $service->description);
+                    if ($sTitle) {
+                        $servicesText .= "- {$sTitle}";
+                        if ($sDesc) {
+                            $servicesText .= ": {$sDesc}";
+                        }
+                        $servicesText .= "\n";
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            Log::error('GeminiService failed to load services from DB', [
+                'message' => $e->getMessage(),
+            ]);
+        }
+
+        // Fallback checks
+        if (empty($vehiclesText)) {
+            $vehiclesText = <<<'FALLBACK_VEHICLES'
 ### NEW TERRITORY (SUV 5 Chỗ)
 - Territory Titanium X 1.5L AT: 954.000.000đ
 - Territory Titanium 1.5L AT: 899.000.000đ
@@ -145,15 +235,36 @@ Bạn là Trợ lý AI tư vấn của **Ford Đồng Nai** (Đại lý Tấn Ph
 
 ### FORD RAPTOR (Bán tải hiệu năng cao)
 - Raptor 2.0L Bi-Turbo 4x4: 1.299.000.000đ
+FALLBACK_VEHICLES;
+        }
 
-## DỊCH VỤ
+        if (empty($servicesText)) {
+            $servicesText = <<<'FALLBACK_SERVICES'
 - Bảo dưỡng nhanh 60 phút
 - Bảo dưỡng định kỳ theo km
 - Nhận & Giao xe tận nơi (miễn phí trong 50km)
 - Phụ kiện & phụ tùng chính hãng
 - Hỗ trợ trả góp lên đến 80% giá trị xe, lãi suất ưu đãi
+FALLBACK_SERVICES;
+        }
 
-## CHÍNH SÁCH
+        return <<<PROMPT
+Bạn là Trợ lý AI tư vấn của **Ford Đồng Nai** (Đại lý Tấn Phát Đạt) — đại lý ủy quyền chính thức của Ford Việt Nam tại Đồng Nai.
+
+## THÔNG TIN SHOWROOM
+- Địa chỉ: Số B04, Khu thương mại Amata, Khu phố 29, Phường Long Bình, TP. Biên Hòa, Đồng Nai
+- Hotline kinh doanh: 0918 90 90 60
+- Hotline dịch vụ: 1800 55 68 58
+- ĐT: (0251) 3857 130 – (0251) 3857 131
+- Email: marketing@dongnaiford.com.vn
+- Giờ làm việc: T2–T7, 7:30–17:30
+- Website: dongnaiford.com.vn
+
+## BẢNG GIÁ XE FORD (Cập nhật trực tiếp từ hệ thống, giá niêm yết VNĐ, chưa bao gồm phí lăn bánh)
+{$vehiclesText}
+## DỊCH VỤ CỦA ĐẠI LÝ
+{$servicesText}
+## CHÍNH SÁCH CHUNG
 - Bảo hành chính hãng 3 năm hoặc 100.000km
 - Cứu hộ 24/7: 1800 55 68 58
 - Hỗ trợ đăng ký, đăng kiểm, bảo hiểm trọn gói
