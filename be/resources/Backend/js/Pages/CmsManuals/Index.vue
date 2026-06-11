@@ -3,37 +3,12 @@
         <!-- Header area -->
         <div class="manual-header">
             <h1 class="manual-title">
-                <span v-if="!isEditMode">📚 Hướng dẫn sử dụng hệ thống</span>
-                <span v-else>⚙️ Quản lý tài liệu hướng dẫn</span>
+                <span>📚 Hướng dẫn vận hành hệ thống CMS</span>
             </h1>
-            
-            <button 
-                v-if="can('admin.cms-manuals.store')" 
-                @click="isEditMode = !isEditMode" 
-                class="btn-toggle-mode"
-                :class="isEditMode ? 'btn-read' : 'btn-edit'"
-            >
-                <span v-if="isEditMode">📖 Đọc hướng dẫn</span>
-                <span v-else>🛠️ Quản lý tài liệu</span>
-            </button>
         </div>
 
-        <!-- Mode 1: Edit/CRUD mode (standard table) -->
-        <div v-if="isEditMode" class="crud-view">
-            <Table
-                :schema="schema"
-                :columns="[
-                    'id',
-                    'title',
-                    'sort_order',
-                    'status',
-                    'created_at',
-                ]"
-            />
-        </div>
-
-        <!-- Mode 2: Reading Mode (GitBook style docs) -->
-        <div v-else class="reader-view">
+        <!-- Reading Mode (GitBook style docs) -->
+        <div class="reader-view">
             <!-- Sidebar for topics -->
             <div class="reader-sidebar">
                 <div class="search-box">
@@ -69,8 +44,6 @@
                         <div v-if="activeManual" class="doc-pane">
                             <h2 class="doc-title">{{ activeManual.title }}</h2>
                             <div class="doc-meta">
-                                <span>📅 Đăng ngày: {{ activeManual.created_at }}</span>
-                                <span class="meta-separator">|</span>
                                 <span>🔄 Cập nhật: {{ activeManual.updated_at }}</span>
                             </div>
                             
@@ -78,20 +51,13 @@
                             
                             <div 
                                 class="doc-body html-content" 
-                                v-html="activeManual.content || '<p class=text-gray-400>Tài liệu này chưa có nội dung.</p>'"
+                                v-html="activeManual.content"
                             ></div>
                         </div>
                         <div v-else class="empty-state">
                             <div class="empty-icon">📖</div>
                             <h3>Chào mừng bạn đến với Hướng dẫn sử dụng</h3>
                             <p>Chọn một chủ đề ở danh mục bên trái để bắt đầu đọc hướng dẫn quản trị các tính năng trên website.</p>
-                            <button 
-                                v-if="can('admin.cms-manuals.store')" 
-                                @click="isEditMode = true" 
-                                class="btn-create-first"
-                            >
-                                Tạo tài liệu hướng dẫn đầu tiên
-                            </button>
                         </div>
                     </div>
                 </transition>
@@ -105,25 +71,135 @@ export default {
     props: ['schema', 'manuals'],
     data() {
         return {
-            isEditMode: false,
             searchQuery: '',
-            activeManual: null
+            activeManual: null,
+            localManuals: [
+                {
+                    id: "products-builder",
+                    title: "🚘 Quản lý Xe & Trình dựng trang (Page Builder)",
+                    updated_at: "11/06/2026",
+                    content: `
+                        <h2>1. Quản lý Sản phẩm xe</h2>
+                        <p>Module <strong>Sản phẩm xe</strong> cho phép bạn thêm mới, sửa đổi thông tin các dòng xe Ford (Everest, Ranger, Territory, Mustang...).</p>
+                        
+                        <h2>2. Trình dựng trang (Page Builder)</h2>
+                        <p>Trình dựng trang cho phép bạn tự do thiết kế bố cục trang chi tiết của từng dòng xe bằng cách thêm/bớt và sắp xếp các khối (blocks) nội dung:</p>
+                        <ul>
+                            <li><strong>HeroBanner</strong>: Khối banner lớn ở đầu trang kèm tiêu đề, nút lái thử/báo giá và hình nền xe.</li>
+                            <li><strong>SpecsGrid (Thông số nổi bật)</strong>: Hiển thị danh sách các thông số động cơ, hộp số dạng lưới.</li>
+                            <li><strong>FeaturesList (Tính năng)</strong>: Hiển thị các tính năng chi tiết của xe.</li>
+                            <li><strong>VersionsGrid (Danh sách phiên bản & Giá)</strong>: Hiển thị bảng giá các phiên bản của xe.</li>
+                            <li><strong>BookingBanner (Đăng ký nhanh)</strong>: Banner kêu gọi hành động kèm Hotline và nút đặt lịch.</li>
+                        </ul>
+
+                        <h2>3. Thay đổi vị trí & Căn lề blocks</h2>
+                        <ul>
+                            <li><strong>Di chuyển khối</strong>: Bạn có thể thay đổi thứ tự hiển thị của bất kỳ block nào bằng cách nhấn nút mũi tên lên <code>▲</code> hoặc xuống <code>▼</code>, hoặc chọn trực tiếp vị trí mong muốn từ dropdown <em>"Khối số X"</em>.</li>
+                            <li><strong>Căn lề (Alignment)</strong>: Trong panel <em>Kiểu dáng & Bố cục</em> của mỗi block, bạn có thể chọn căn lề <strong>Trái (Left)</strong>, <strong>Giữa (Center)</strong>, hoặc <strong>Phải (Right)</strong>. Văn bản, hình ảnh và các nút hành động trên trang khách hàng sẽ tự động được căn lề tương ứng.</li>
+                        </ul>
+                    `
+                },
+                {
+                    id: "media-360",
+                    title: "🔄 Tải ảnh 360 độ ngoại thất & nội thất",
+                    updated_at: "11/06/2026",
+                    content: `
+                        <h2>1. Ảnh 360 độ Ngoại thất (External 360)</h2>
+                        <p>Hệ thống hỗ trợ xoay xe 360 độ mượt mà dựa trên một chuỗi ảnh liên tục chụp xe từ các góc quay khác nhau (thường là 28 ảnh).</p>
+                        <p><strong>Quy tắc đặt tên file cực kỳ quan trọng:</strong></p>
+                        <ul>
+                            <li>Các tệp ảnh phải được đặt tên theo số thứ tự tăng dần để xoay xe đúng chiều (ví dụ: <code>01.jpg</code>, <code>02.jpg</code>, ..., <code>10.jpg</code>, ..., <code>28.jpg</code>).</li>
+                            <li><strong>Sắp xếp tự nhiên (Natural Sorting):</strong> Hệ thống tự động sắp xếp tên file một cách thông minh (nhận diện <code>2.jpg</code> nhỏ hơn <code>10.jpg</code>) khi bạn lưu xe, tránh hiện tượng xe bị giật/đổi hướng đột ngột khi xoay.</li>
+                        </ul>
+
+                        <h2>2. Ảnh 360 độ Nội thất (Internal 360 - Panorama)</h2>
+                        <p>Để hiển thị khoang lái 360 độ, bạn cần tải lên một ảnh toàn cảnh <strong>Panorama 3D</strong> (ảnh dạng phẳng bao quát toàn bộ nội thất).</p>
+                        <ul>
+                            <li>Tải ảnh lên phần cấu hình nội thất 360° của xe.</li>
+                            <li>Hệ thống sử dụng thư viện Three.js để dựng mô hình không gian 3D, cho phép người dùng kéo thả chuột để khám phá xung quanh bên trong xe.</li>
+                        </ul>
+                    `
+                },
+                {
+                    id: "file-manager",
+                    title: "📁 Quản lý Tệp (File Manager) & Tải thư mục",
+                    updated_at: "11/06/2026",
+                    content: `
+                        <h2>1. Kéo thả cả Thư mục (Drag & Drop Folder Upload)</h2>
+                        <p>Bạn không cần phải tải lên từng file đơn lẻ rồi tự tay tạo từng thư mục. CMS hỗ trợ tải lên toàn bộ cây thư mục từ máy tính của bạn:</p>
+                        <ul>
+                            <li>Kéo thư mục từ máy tính của bạn và thả trực tiếp vào giao diện File Manager.</li>
+                            <li>Hệ thống sẽ tự động duyệt đệ quy qua các thư mục con và tải các tệp tin lên đúng vị trí trên server mà không làm thay đổi cấu trúc của bạn.</li>
+                        </ul>
+
+                        <h2>2. Nút Chọn Thư mục (Select Folder)</h2>
+                        <p>Bên cạnh nút "Chọn file", bạn có thể click nút <strong>"Chọn thư mục"</strong> trên thanh công cụ để chọn tải lên cả folder qua hộp thoại hệ điều hành.</p>
+
+                        <h2>3. Cây thư mục thông minh</h2>
+                        <p>Cây thư mục bên trái của File Manager tự động nhóm các thư mục lồng nhau một cách tối ưu. Tên các thư mục dạng số (ví dụ: thư mục ảnh <code>360</code>) sẽ được bảo toàn chính xác, không bị nhân bản hoặc đổi tên lỗi.</p>
+                    `
+                },
+                {
+                    id: "accessories-schedules",
+                    title: "🔧 Phụ kiện & Lịch bảo dưỡng",
+                    updated_at: "11/06/2026",
+                    content: `
+                        <h2>1. Quản lý Phụ kiện</h2>
+                        <p>Cho phép thêm các mặt hàng phụ tùng, phụ kiện chính hãng kèm giá bán và hình ảnh thực tế. Bạn có thể gán phụ kiện vào các danh mục tương ứng.</p>
+
+                        <h2>2. Dự toán chi phí lăn bánh</h2>
+                        <p>Công cụ ước tính chi phí lăn bánh tự động tính toán các loại phí bắt buộc:</p>
+                        <ul>
+                            <li>Thuế trước bạ (10% cho xe du lịch, 6% cho xe bán tải).</li>
+                            <li>Phí biển số (Hà Nội & TP. HCM là 20.000.000đ, các tỉnh khác là 1.000.000đ).</li>
+                            <li>Phí đăng kiểm (340.000đ), phí bảo trì đường bộ (1.560.000đ), bảo hiểm dân sự bắt buộc.</li>
+                        </ul>
+
+                        <h2>3. Lịch bảo dưỡng định kỳ</h2>
+                        <p>Quản lý các mốc Km bảo dưỡng định kỳ (1.000 km, 5.000 km, 10.000 km...) và liệt kê chi tiết các hạng mục cần thay thế/kiểm tra để khách hàng tiện tra cứu trên website.</p>
+                    `
+                },
+                {
+                    id: "ai-chat-crm",
+                    title: "🤖 Quản lý Trợ lý AI Chatbot & Lead CRM",
+                    updated_at: "11/06/2026",
+                    content: `
+                        <h2>1. Trợ lý AI học tự động từ Database</h2>
+                        <p>Trợ lý AI trên website được kết nối trực tiếp với cơ sở dữ liệu của CMS:</p>
+                        <ul>
+                            <li>Khi bạn thay đổi giá xe, thêm phiên bản mới, hoặc sửa mô tả dịch vụ, AI sẽ tự động cập nhật thông tin này vào cuộc hội thoại với khách hàng ngay lập tức.</li>
+                            <li>Hệ thống được bọc an toàn: Nếu database trống, AI sẽ tự động chuyển sang dữ liệu mặc định để tránh gián đoạn tư vấn.</li>
+                        </ul>
+
+                        <h2>2. Nhận diện và Phân loại Khách hàng tiềm năng (Lead Scoring)</h2>
+                        <p>AI tự động phân loại mức độ quan tâm của khách hàng dựa trên nội dung trò chuyện:</p>
+                        <ul>
+                            <li><span class="badge badge-hot">HOT</span>: Khách hàng cung cấp Họ tên, Số điện thoại và bày tỏ nhu cầu mua xe, lái thử hoặc trả góp rõ ràng.</li>
+                            <li><span class="badge badge-warm">WARM</span>: Khách hàng hỏi chi tiết về giá lăn bánh, so sánh các phiên bản nhiều lần nhưng chưa để lại thông tin liên lạc.</li>
+                            <li><span class="badge badge-cold">COLD</span>: Khách hàng chỉ hỏi han chung chung.</li>
+                        </ul>
+
+                        <h2>3. Cảnh báo qua Telegram</h2>
+                        <p>Khi phát hiện khách hàng <span class="badge badge-hot">HOT</span> để lại Họ tên & Số điện thoại, hệ thống sẽ lập tức gửi tin nhắn cảnh báo tới nhóm Telegram của đội ngũ Sales để liên hệ hỗ trợ kịp thời.</p>
+                    `
+                }
+            ]
         }
     },
     computed: {
         filteredManuals() {
-            if (!this.manuals) return [];
-            if (!this.searchQuery) return this.manuals;
+            if (!this.localManuals) return [];
+            if (!this.searchQuery) return this.localManuals;
             const query = this.searchQuery.toLowerCase();
-            return this.manuals.filter(m => 
+            return this.localManuals.filter(m => 
                 m.title.toLowerCase().includes(query) || 
                 (m.content && m.content.toLowerCase().includes(query))
             );
         }
     },
     created() {
-        if (this.manuals && this.manuals.length > 0) {
-            this.activeManual = this.manuals[0];
+        if (this.localManuals && this.localManuals.length > 0) {
+            this.activeManual = this.localManuals[0];
         }
     },
     methods: {
@@ -158,41 +234,9 @@ export default {
     color: #111827;
 }
 
-.btn-toggle-mode {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    border-radius: 6px;
-    font-size: 0.875rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border: 1px solid transparent;
-}
-
-.btn-edit {
-    background-color: #f3f4f6;
-    color: #374151;
-    border-color: #d1d5db;
-}
-
-.btn-edit:hover {
-    background-color: #e5e7eb;
-}
-
-.btn-read {
-    background-color: #4f46e5;
-    color: white;
-}
-
-.btn-read:hover {
-    background-color: #4338ca;
-}
-
 .reader-view {
     display: grid;
-    grid-template-columns: 280px 1fr;
+    grid-template-columns: 320px 1fr;
     gap: 1.5rem;
     background-color: white;
     border-radius: 12px;
@@ -214,7 +258,7 @@ export default {
     display: flex;
     flex-direction: column;
     height: 70vh;
-    min-height: 500px;
+    min-height: 550px;
 }
 
 .search-box {
@@ -295,13 +339,13 @@ export default {
 .reader-content {
     padding: 2rem;
     height: 70vh;
-    min-height: 500px;
+    min-height: 550px;
     overflow-y: auto;
     background-color: white;
 }
 
 .content-wrapper {
-    max-width: 800px;
+    max-width: 850px;
     margin: 0 auto;
 }
 
@@ -325,10 +369,6 @@ export default {
     margin-bottom: 1.25rem;
 }
 
-.meta-separator {
-    color: #e5e7eb;
-}
-
 .doc-divider {
     height: 1px;
     background-color: #e5e7eb;
@@ -336,35 +376,35 @@ export default {
 }
 
 .html-content {
-    line-height: 1.625;
+    line-height: 1.7;
     font-size: 0.9375rem;
     color: #374151;
 }
 
 .html-content :deep(p) {
-    margin-bottom: 1rem;
+    margin-bottom: 1.25rem;
 }
 
 .html-content :deep(h2) {
     font-size: 1.375rem;
     font-weight: 700;
     color: #111827;
-    margin-top: 1.5rem;
-    margin-bottom: 0.75rem;
+    margin-top: 2rem;
+    margin-bottom: 0.875rem;
     border-bottom: 1px solid #f3f4f6;
-    padding-bottom: 0.25rem;
+    padding-bottom: 0.375rem;
 }
 
 .html-content :deep(h3) {
     font-size: 1.125rem;
     font-weight: 600;
     color: #1f2937;
-    margin-top: 1.25rem;
-    margin-bottom: 0.5rem;
+    margin-top: 1.5rem;
+    margin-bottom: 0.625rem;
 }
 
 .html-content :deep(ul), .html-content :deep(ol) {
-    margin-bottom: 1rem;
+    margin-bottom: 1.25rem;
     padding-left: 1.5rem;
 }
 
@@ -377,7 +417,7 @@ export default {
 }
 
 .html-content :deep(li) {
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.5rem;
 }
 
 .html-content :deep(strong) {
@@ -385,43 +425,39 @@ export default {
     color: #111827;
 }
 
-.html-content :deep(blockquote) {
-    border-left: 4px solid #e5e7eb;
-    padding-left: 1rem;
-    font-style: italic;
-    color: #6b7280;
-    margin: 1rem 0;
-    background-color: #f9fafb;
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
-    border-radius: 0 4px 4px 0;
-}
-
-.html-content :deep(img) {
-    max-width: 100%;
-    height: auto;
-    border-radius: 8px;
-    margin: 1.5rem 0;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    border: 1px solid #e5e7eb;
-}
-
-.html-content :deep(table) {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 1rem 0;
+.html-content :deep(code) {
+    background-color: #f3f4f6;
+    padding: 0.125rem 0.25rem;
+    border-radius: 4px;
     font-size: 0.875rem;
+    font-family: monospace;
 }
 
-.html-content :deep(th), .html-content :deep(td) {
-    border: 1px solid #e5e7eb;
-    padding: 0.75rem;
-    text-align: left;
+.badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 0.25rem;
 }
 
-.html-content :deep(th) {
-    background-color: #f9fafb;
-    font-weight: 600;
+.badge-hot {
+    background-color: #fee2e2;
+    color: #ef4444;
+}
+
+.badge-warm {
+    background-color: #fef3c7;
+    color: #d97706;
+}
+
+.badge-cold {
+    background-color: #f3f4f6;
+    color: #6b7280;
 }
 
 .empty-state {
@@ -458,22 +494,6 @@ export default {
     color: #6b7280;
     max-width: 400px;
     margin-bottom: 1.5rem;
-}
-
-.btn-create-first {
-    background-color: #4f46e5;
-    color: white;
-    padding: 0.625rem 1.25rem;
-    border-radius: 6px;
-    font-size: 0.875rem;
-    font-weight: 600;
-    border: none;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-}
-
-.btn-create-first:hover {
-    background-color: #4338ca;
 }
 
 .fade-slide-enter-active,
