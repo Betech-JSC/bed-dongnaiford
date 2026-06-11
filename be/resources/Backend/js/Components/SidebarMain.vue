@@ -36,6 +36,12 @@
         <span>{{ tt('models.table_list.brands') }}</span>
     </Link>
 
+    <Link v-if="can('admin.maintenance-schedules.index')" :href="route('admin.maintenance-schedules.index')"
+        :class="{ active: isUrl('admin.maintenance-schedules.*') }" class="item">
+        <ph:calendar-blank-light />
+        <span>{{ tt('models.table_list.maintenance-schedules') }}</span>
+    </Link>
+
     <!-- ===== QUẢN LÝ NỘI DUNG ===== -->
     <div class="item-group-label">Quản lý Nội dung</div>
 

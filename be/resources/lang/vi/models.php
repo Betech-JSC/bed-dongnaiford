@@ -72,6 +72,8 @@ return [
         'chat-sessions' => 'Lịch sử Chat AI',
         'ChatSessions' => 'Lịch sử Chat AI',
         'cms-manuals' => 'Hướng dẫn sử dụng',
+        'maintenance-schedules' => 'Lịch bảo dưỡng xe',
+        'maintenance_schedules' => 'Lịch bảo dưỡng xe',
     ],
     'common' => [
         'id' => 'ID',

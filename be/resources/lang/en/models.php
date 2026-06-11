@@ -37,6 +37,8 @@ return [
         'chat-sessions' => 'AI Chat History',
         'ChatSessions' => 'AI Chat History',
         'cms-manuals' => 'CMS Manuals',
+        'maintenance-schedules' => 'Maintenance Schedules',
+        'maintenance_schedules' => 'Maintenance Schedules',
     ],
     'chat-sessions' => [
         'id' => 'ID',
