@@ -19,6 +19,22 @@ class Setting extends Model
                 'general_site_name' => 'nullable',
                 'general_email' => 'nullable',
 
+                'general_logo' => 'nullable',
+                'general_logo_footer' => 'nullable',
+                'general_favicon' => 'nullable',
+
+                'general_company_address' => 'nullable',
+                'general_company_phone' => 'nullable',
+                'general_company_hotline' => 'nullable',
+                'general_company_map_iframe' => 'nullable',
+                'general_company_tax_code' => 'nullable',
+                'general_company_working_hours' => 'nullable',
+                'general_company_copyright' => 'nullable',
+
+                'social_facebook' => 'nullable',
+                'social_youtube' => 'nullable',
+                'social_zalo' => 'nullable',
+
                 'homepage_introduce_title' => 'nullable',
                 'homepage_introduce_description' => 'nullable',
                 'homepage_introduce_image' => 'nullable',
