@@ -123,7 +123,7 @@
                 <template #body="{ data }">
                     <Image
                         v-if="isImageCell(data, column)"
-                        :src="staticUrl(data[column.field]?.path)"
+                        :src="staticUrl(data[column.field]?.path || (typeof data[column.field] === 'string' ? data[column.field] : null))"
                         imageClass="h-[80px] w-[80px] object-contain"
                         preview
                     />
@@ -506,7 +506,10 @@ export default {
             return value
         },
         isImageCell(data, column) {
-            return this.isImage(data[column.field]?.path)
+            const val = data[column.field];
+            if (!val) return false;
+            if (column.field === 'image' || column.field?.endsWith('_image') || column.field === 'avatar') return true;
+            return this.isImage(val?.path || (typeof val === 'string' ? val : ''))
         },
         capitalize(string) {
             return string?.charAt(0).toUpperCase() + string.slice(1)
