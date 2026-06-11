@@ -16,85 +16,11 @@ type VehicleSchedule = {
   links: { label: string; url: string }[];
 };
 
-const schedules: VehicleSchedule[] = [
-  {
-    name: "Fiesta",
-    image: "/assets/car-fiesta.png",
-    links: [
-      { label: "Fiesta 2011 - 2013", url: "https://www.ford.com.vn/content/dam/Ford/website-assets/ap/vn/Owner-Dashboard/Service%20%26%20Maintainance/maintenance-schedule-plan/Fiesta-2011-2013.pdf" },
-      { label: "Fiesta 2013 - 2018", url: "https://www.ford.com.vn/content/dam/Ford/website-assets/ap/vn/Owner-Dashboard/Service%20&%20Maintainance/maintenance-schedule-plan/Fiesta-2013-nay.pdf" },
-    ]
-  },
-  {
-    name: "Focus",
-    image: "/assets/car-focus.png",
-    links: [
-      { label: "Focus 2005 - 2012", url: "https://www.ford.com.vn/content/dam/Ford/website-assets/ap/vn/Owner-Dashboard/Service%20&%20Maintainance/maintenance-schedule-plan/Focus-2005-2012.pdf" },
-      { label: "Focus 2012 - 2015", url: "https://www.ford.com.vn/content/dam/Ford/website-assets/ap/vn/Owner-Dashboard/Service%20&%20Maintainance/maintenance-schedule-plan/Focus%202012-2015.pdf" },
-      { label: "Focus 2015 - 2019", url: "https://www.ford.com.vn/content/dam/Ford/website-assets/ap/vn/Owner-Dashboard/Service%20&%20Maintainance/maintenance-schedule-plan/Focus-2015.pdf" },
-    ]
-  },
-  {
-    name: "Ecosport",
-    image: "/assets/car-ecosport.png",
-    links: [
-      { label: "EcoSport 2014 - 2018", url: "https://www.ford.com.vn/content/dam/Ford/website-assets/ap/vn/Owner-Dashboard/Service%20&%20Maintainance/maintenance-schedule-plan/EcoSport-2014-2018.pdf" },
-      { label: "EcoSport 2018 - nay", url: "https://www.ford.com.vn/content/dam/Ford/website-assets/ap/vn/Owner-Dashboard/Service%20&%20Maintainance/maintenance-schedule-plan/EcoSport-2018.pdf" },
-    ]
-  },
-  {
-    name: "Everest",
-    image: "/assets/car-everest.png",
-    links: [
-      { label: "Everest 2009 - 2015", url: "https://www.ford.com.vn/content/dam/Ford/website-assets/ap/vn/Owner-Dashboard/Service%20&%20Maintainance/maintenance-schedule-plan/Everest-2009-2015.pdf" },
-      { label: "Everest 2016", url: "https://www.ford.com.vn/content/dam/Ford/website-assets/ap/vn/Owner-Dashboard/Service%20&%20Maintainance/maintenance-schedule-plan/Everest-2016.pdf" },
-      { label: "Everest 2018", url: "https://www.ford.com.vn/content/dam/Ford/website-assets/ap/vn/Owner-Dashboard/Service%20&%20Maintainance/maintenance-schedule-plan/everest-2018.pdf" },
-    ]
-  },
-  {
-    name: "Ranger",
-    image: "/assets/car-ranger.png",
-    links: [
-      { label: "Ranger 2012 - 2015", url: "https://www.ford.com.vn/content/dam/Ford/website-assets/ap/vn/Owner-Dashboard/Service%20&%20Maintainance/maintenance-schedule-plan/Ranger-2012-2015.pdf" },
-      { label: "Ranger 2016", url: "https://www.ford.com.vn/content/dam/Ford/website-assets/ap/vn/Owner-Dashboard/Service%20&%20Maintainance/maintenance-schedule-plan/Ranger-2016.pdf" },
-    ]
-  },
-  {
-    name: "Transit",
-    image: "/assets/car-transit.png",
-    links: [
-      { label: "Transit 2007 - 2012", url: "https://www.ford.com.vn/content/dam/Ford/website-assets/ap/vn/Owner-Dashboard/Service%20&%20Maintainance/maintenance-schedule-plan/Transit-2007-2012.pdf" },
-      { label: "Transit 2012 - 2018", url: "https://www.ford.com.vn/content/dam/Ford/website-assets/ap/vn/Owner-Dashboard/Service%20&%20Maintainance/maintenance-schedule-plan/Transit-2012-nay.pdf" },
-    ]
-  },
-  {
-    name: "Escape",
-    image: "/assets/car-escape.png",
-    links: [
-      { label: "Escape 2001 - 2013", url: "https://www.ford.com.vn/content/dam/Ford/website-assets/ap/vn/Owner-Dashboard/Service%20&%20Maintainance/maintenance-schedule-plan/Escape-2001-2013.pdf" },
-    ]
-  },
-  {
-    name: "Mondeo",
-    image: "/assets/car-mondeo.png",
-    links: [
-      { label: "Mondeo 2009 - 2013", url: "https://www.ford.com.vn/content/dam/Ford/website-assets/ap/vn/Owner-Dashboard/Service%20&%20Maintainance/maintenance-schedule-plan/Mondeo-2009-2013.pdf" },
-    ]
-  },
-  {
-    name: "Tourneo",
-    image: "/assets/car-tourneo.png",
-    links: [
-      { label: "Tourneo 2020", url: "https://www.ford.com.vn/content/dam/Ford/website-assets/ap/vn/Owner-Dashboard/Service%20&%20Maintainance/maintenance-schedule-plan/Tourneo-2020.pdf" },
-    ]
-  }
-];
-
 export default async function PeriodicMaintenancePage() {
-  let displaySchedules = schedules;
+  let displaySchedules: VehicleSchedule[] = [];
   try {
     const response = await maintenanceAPI.getSchedules();
-    if (response && response.success && Array.isArray(response.data) && response.data.length > 0) {
+    if (response && response.success && Array.isArray(response.data)) {
       displaySchedules = response.data.map((item: any) => ({
         name: item.name || "",
         image: item.image || "/assets/car-placeholder.png",
@@ -102,7 +28,7 @@ export default async function PeriodicMaintenancePage() {
       }));
     }
   } catch (error) {
-    console.error("Failed to load maintenance schedules from CMS API, using static fallback:", error);
+    console.error("Failed to load maintenance schedules from CMS API:", error);
   }
 
   return (
