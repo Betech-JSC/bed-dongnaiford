@@ -142,6 +142,11 @@ export default function Home() {
     }
   ]);
   const [homeArticles, setHomeArticles] = useState<any[]>([]);
+  const [activeNewsTab, setActiveNewsTab] = useState<number>(3); // Default: 3 (Tin Khuyến Mãi)
+  const [activeNewsIndex, setActiveNewsIndex] = useState(0);
+  const [isNewsTransitioning, setIsNewsTransitioning] = useState(true);
+  const [isNewsHovered, setIsNewsHovered] = useState(false);
+  const [isNewsInteracted, setIsNewsInteracted] = useState(false);
   const [categories, setCategories] = useState<any[]>([]);
   const [vehiclesList, setVehiclesList] = useState<any[]>([]);
   const [servicesList, setServicesList] = useState<any[]>([]);
@@ -150,9 +155,8 @@ export default function Home() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [bannersData, postsData, categoriesData, vehiclesData, servicesData, handoversData] = await Promise.all([
+        const [bannersData, categoriesData, vehiclesData, servicesData, handoversData] = await Promise.all([
           bannersAPI.getAll().catch(() => null),
-          postsAPI.getAll().catch(() => null),
           vehiclesAPI.getCategories().catch(() => null),
           vehiclesAPI.getAll().catch(() => null),
           servicesAPI.getAll().catch(() => null),
@@ -167,15 +171,6 @@ export default function Home() {
             tagline: "",
             image: item.image_url || siteAssets.heroSlides[0],
             linkVehicleId: item.button_link || ""
-          })));
-        }
-
-        const postsItems = (postsData as any)?.posts?.data || (postsData as any)?.data || postsData;
-        if (Array.isArray(postsItems) && postsItems.length > 0) {
-          setHomeArticles(postsItems.slice(0, 3).map((item: any) => ({
-            id: item.slug || item.id || String(Math.random()),
-            title: item.title || "",
-            image: item.image?.url || "/placeholder-news.jpg",
           })));
         }
 
@@ -205,6 +200,34 @@ export default function Home() {
 
     fetchData();
   }, []);
+
+  // Load posts dynamically when activeNewsTab changes
+  useEffect(() => {
+    const fetchTabPosts = async () => {
+      try {
+        const postsData = await postsAPI.getAll({ categories: activeNewsTab });
+        const postsItems = (postsData as any)?.posts?.data || (postsData as any)?.data || postsData;
+        if (Array.isArray(postsItems)) {
+          const formatted = postsItems.map((item: any) => ({
+            id: item.slug || item.id || String(Math.random()),
+            title: item.title || "",
+            image: item.image?.url || "/placeholder-news.jpg",
+          }));
+          setHomeArticles(formatted);
+          setIsNewsTransitioning(false);
+          setActiveNewsIndex(formatted.length);
+        } else {
+          setHomeArticles([]);
+          setActiveNewsIndex(0);
+        }
+      } catch (error) {
+        console.error("Error fetching tab posts:", error);
+        setHomeArticles([]);
+        setActiveNewsIndex(0);
+      }
+    };
+    fetchTabPosts();
+  }, [activeNewsTab]);
 
   // Hero Banner Active Slide
   const [activeHeroIndex, setActiveHeroIndex] = useState(0);
@@ -252,10 +275,6 @@ export default function Home() {
       setActiveHandoverIndex(customerHandovers.length);
     }
   }, [customerHandovers.length]);
-
-  // News & Offers Carousel State
-  const [activeNewsIndex, setActiveNewsIndex] = useState(0);
-  const [isNewsHovered, setIsNewsHovered] = useState(false);
 
   // Customer Handovers Carousel State
   const [activeHandoverIndex, setActiveHandoverIndex] = useState(0);
@@ -355,7 +374,7 @@ export default function Home() {
     setPopularDragOffset(0);
   };
 
-  // Drag handlers for News & Offers (Mobile)
+  // Drag handlers for News & Offers
   const handleNewsStart = (clientX: number) => {
     newsDragStartX.current = clientX;
     isNewsDragging.current = true;
@@ -383,9 +402,11 @@ export default function Home() {
     }
 
     if (newsDragOffset > 50) {
-      setActiveNewsIndex((prev) => (prev - 1 + homeArticles.length) % homeArticles.length);
+      setIsNewsTransitioning(true);
+      setActiveNewsIndex((prev) => prev - 1);
     } else if (newsDragOffset < -50) {
-      setActiveNewsIndex((prev) => (prev + 1) % homeArticles.length);
+      setIsNewsTransitioning(true);
+      setActiveNewsIndex((prev) => prev + 1);
     }
     
     setNewsDragOffset(0);
@@ -518,14 +539,25 @@ export default function Home() {
     }
   }, [isPopularInteracted]);
 
-  // Auto-play news/offers every 2.5 seconds, pause on hover
+  // Auto-play news/offers every 3 seconds, pause on hover/interaction (autoplay scrolls from right to left, i.e., index increases)
   useEffect(() => {
-    if (isNewsHovered || homeArticles.length === 0) return;
+    if (isNewsHovered || isNewsInteracted || homeArticles.length <= 1) return;
     const timer = setInterval(() => {
-      setActiveNewsIndex((prev) => (prev + 1) % homeArticles.length);
-    }, 2500);
+      setIsNewsTransitioning(true);
+      setActiveNewsIndex((prev) => prev + 1);
+    }, 3000);
     return () => clearInterval(timer);
-  }, [isNewsHovered, homeArticles.length]);
+  }, [isNewsHovered, isNewsInteracted, homeArticles.length]);
+
+  // Reset news interacted flag after 5 seconds of inactivity to resume auto-play
+  useEffect(() => {
+    if (isNewsInteracted) {
+      const timer = setTimeout(() => {
+        setIsNewsInteracted(false);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [isNewsInteracted]);
   // Filter vehicles based on active showroom category
   const getFilteredVehicles = () => {
     if (vehiclesList.length === 0) {
@@ -608,6 +640,17 @@ export default function Home() {
     } else if (activeServiceIndex < servicesList.length) {
       setIsServiceTransitioning(false);
       setActiveServiceIndex(activeServiceIndex + servicesList.length);
+    }
+  };
+
+  const handleNewsTransitionEnd = () => {
+    if (homeArticles.length === 0) return;
+    if (activeNewsIndex >= homeArticles.length * 2) {
+      setIsNewsTransitioning(false);
+      setActiveNewsIndex(activeNewsIndex - homeArticles.length);
+    } else if (activeNewsIndex < homeArticles.length) {
+      setIsNewsTransitioning(false);
+      setActiveNewsIndex(activeNewsIndex + homeArticles.length);
     }
   };
 
@@ -1229,131 +1272,202 @@ export default function Home() {
 
 
       {/* 8. NEWS & PROMOTION */}
-      <section id="news" className="w-full bg-[#00095b] py-20">
-        <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full">
-          <div className="max-w-[1152px] mx-auto w-full">
-            <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 border-b border-white/10 pb-6">
-              <div>
-                <span className="text-xs font-semibold text-[#0562d2] uppercase tracking-wider block mb-2">
-                  Tin tức hữu ích
-                </span>
-                <h2 className="text-[36px] text-white font-semibold leading-tight">
-                  Tin tức & Ưu Đãi
-                </h2>
-              </div>
-
-              <div className="flex items-center gap-6 mt-4 md:mt-0">
-                <div className="flex md:hidden gap-2">
-                  <button
-                    onClick={() => homeArticles.length > 0 && setActiveNewsIndex((prev) => (prev - 1 + homeArticles.length) % homeArticles.length)}
-                    className="p-2 border border-white/20 hover:bg-white/10 text-white rounded-full transition-colors cursor-pointer bg-transparent"
-                    aria-label="Previous article"
-                  >
-                    <ChevronLeft className="w-5 h-5" />
-                  </button>
-                  <button
-                    onClick={() => homeArticles.length > 0 && setActiveNewsIndex((prev) => (prev + 1) % homeArticles.length)}
-                    className="p-2 border border-white/20 hover:bg-white/10 text-white rounded-full transition-colors cursor-pointer bg-transparent"
-                    aria-label="Next article"
-                  >
-                    <ChevronRight className="w-5 h-5" />
-                  </button>
+      <section id="news" className="w-full bg-[#00095b] py-20 overflow-x-clip">
+        <div className="w-full">
+          <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full mb-10">
+            <div className="max-w-[1152px] mx-auto w-full">
+              <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 border-b border-white/10 pb-6">
+                <div>
+                  <span className="text-xs font-semibold text-[#0562d2] uppercase tracking-wider block mb-2">
+                    Tin tức hữu ích
+                  </span>
+                  <h2 className="text-[36px] text-white font-semibold leading-tight">
+                    Tin tức & Ưu Đãi
+                  </h2>
                 </div>
 
-                <button
-                  onClick={() => {
-                    router.push("/tin-tuc");
-                  }}
-                  className="w-[200px] py-2.5 bg-[#0562d2] text-white hover:bg-[#0451b0] rounded-full text-center text-sm font-semibold transition-all cursor-pointer animate-premium"
-                >
-                  Xem tất cả
-                </button>
-              </div>
-            </div>
-
-            {/* Mobile: horizontal slider container, Desktop: standard grid */}
-            <div className="relative w-full overflow-hidden md:overflow-visible py-4 select-none">
-              <div
-                className="flex md:grid md:grid-cols-3 gap-6 md:gap-8 cursor-grab active:cursor-grabbing news-track"
-                style={{
-                  transform: `translateX(calc(-1 * ${activeNewsIndex} * (var(--card-width-news) + var(--card-gap-news)) + ${newsDragOffset}px))`,
-                  transition: isNewsDragging.current ? "none" : "transform 500ms ease-in-out"
-                }}
-                onMouseEnter={() => setIsNewsHovered(true)}
-                onMouseLeave={(e) => {
-                  setIsNewsHovered(false);
-                  handleNewsEnd();
-                }}
-                onMouseDown={(e) => handleNewsStart(e.clientX)}
-                onMouseMove={(e) => handleNewsMove(e.clientX)}
-                onMouseUp={handleNewsEnd}
-                onTouchStart={(e) => {
-                  setIsNewsHovered(true);
-                  handleNewsStart(e.touches[0].clientX);
-                }}
-                onTouchMove={(e) => handleNewsMove(e.touches[0].clientX)}
-                onTouchEnd={(e) => {
-                  setIsNewsHovered(false);
-                  handleNewsEnd();
-                }}
-              >
-                {homeArticles.map((art) => (
-                  <div
-                    key={art.id}
-                    className="bg-transparent flex flex-col h-full group flex-shrink-0 md:flex-shrink w-[var(--card-width-news)] md:w-auto"
-                  >
-                    {/* Image */}
-                    <div className="aspect-[600/400] relative rounded-[12px] overflow-hidden w-full mb-6 bg-white/5">
-                      <Image
-                        src={art.image}
-                        alt={art.title}
-                        fill
-                        sizes="(max-width: 768px) var(--card-width-news), 30vw"
-                        className="object-cover group-hover:scale-103 transition-transform duration-300"
-                        onError={handleImageError}
-                      />
-                    </div>
-
-                    {/* Text info */}
-                    <div className="flex flex-col flex-1 justify-between text-white">
-                      <div>
-                        <h3 className="text-[18px] font-semibold text-white leading-[1.45] tracking-[0.18px] mb-4 min-h-[52px] line-clamp-2">
-                          {art.title}
-                        </h3>
-                      </div>
-
-                      <div className="pt-4">
-                        <Link
-                          href={`/tin-tuc/${art.id}`}
-                          onClick={(e) => {
-                            if (newsWasDragged.current) {
-                              e.preventDefault();
-                            }
-                          }}
-                          className="inline-block border border-white text-white hover:bg-white hover:text-[#00095b] w-[128px] py-2 rounded-full text-center text-sm font-semibold transition-all cursor-pointer"
-                        >
-                          Xem chi tiết
-                        </Link>
-                      </div>
-                    </div>
+                <div className="flex items-center gap-6 mt-4 md:mt-0">
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => {
+                        if (homeArticles.length === 0) return;
+                        setIsNewsTransitioning(true);
+                        setActiveNewsIndex((prev) => prev - 1);
+                        setIsNewsInteracted(true);
+                      }}
+                      className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/10 transition-colors cursor-pointer text-white bg-transparent"
+                      aria-label="Previous article"
+                    >
+                      <ChevronLeft className="w-5 h-5" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (homeArticles.length === 0) return;
+                        setIsNewsTransitioning(true);
+                        setActiveNewsIndex((prev) => prev + 1);
+                        setIsNewsInteracted(true);
+                      }}
+                      className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/10 transition-colors cursor-pointer text-white bg-transparent"
+                      aria-label="Next article"
+                    >
+                      <ChevronRight className="w-5 h-5" />
+                    </button>
                   </div>
+
+                  <button
+                    onClick={() => {
+                      router.push("/tin-tuc");
+                    }}
+                    className="w-[200px] py-2.5 bg-[#0562d2] text-white hover:bg-[#0451b0] rounded-full text-center text-sm font-semibold transition-all cursor-pointer animate-premium animate-pulse"
+                  >
+                    Xem tất cả
+                  </button>
+                </div>
+              </div>
+
+              {/* Category Tabs */}
+              <div className="flex flex-wrap gap-3 justify-start">
+                {[
+                  { id: 3, label: "TIN KHUYẾN MÃI" },
+                  { id: 1, label: "TIN TỨC MỚI NHẤT" },
+                  { id: 4, label: "CHIA SẺ KINH NGHIỆM" }
+                ].map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => {
+                      setActiveNewsTab(tab.id);
+                      setIsNewsInteracted(true);
+                    }}
+                    className={`px-6 py-2.5 rounded-full text-xs font-semibold tracking-wider transition-all duration-300 cursor-pointer ${
+                      activeNewsTab === tab.id
+                        ? "bg-[#0562d2] text-white shadow-lg shadow-[#0562d2]/30"
+                        : "bg-white/5 text-white/70 hover:bg-white/10 hover:text-white border border-white/10"
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
                 ))}
               </div>
             </div>
-
-            {/* Dots Pagination Indicators for News & Offers on Mobile */}
-            <div className="flex md:hidden justify-center gap-2 mt-6">
-              {homeArticles.map((_, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setActiveNewsIndex(idx)}
-                  className={`h-2 transition-all rounded-full cursor-pointer ${activeNewsIndex === idx ? "w-6 bg-[#0562d2]" : "w-2 bg-white/30"
-                    }`}
-                  aria-label={`Go to article slide ${idx + 1}`}
-                />
-              ))}
-            </div>
           </div>
+
+          {homeArticles.length > 0 ? (
+            <>
+              {/* Slider track container */}
+              <div id="news-slider-container" className="relative w-full overflow-visible py-4 pl-4 xl:pl-[144px] min-[1440px]:pl-[calc((100vw-1152px)/2)] select-none">
+                <style dangerouslySetInnerHTML={{ __html: `
+                  #news-slider-container {
+                    --card-width-news: 360px;
+                    --card-gap-news: 24px;
+                  }
+                  @media (max-width: 640px) {
+                    #news-slider-container {
+                      --card-width-news: 280px;
+                      --card-gap-news: 16px;
+                    }
+                  }
+                ` }} />
+                <div
+                  className="flex cursor-grab active:cursor-grabbing"
+                  style={{
+                    transform: `translateX(calc(-${activeNewsIndex} * (var(--card-width-news, 360px) + var(--card-gap-news, 24px)) + ${newsDragOffset}px))`,
+                    transition: isNewsDragging.current ? "none" : (isNewsTransitioning ? "transform 500ms ease-in-out" : "none"),
+                    gap: "var(--card-gap-news, 24px)"
+                  }}
+                  onTransitionEnd={handleNewsTransitionEnd}
+                  onMouseEnter={() => setIsNewsHovered(true)}
+                  onMouseLeave={() => {
+                    setIsNewsHovered(false);
+                    handleNewsEnd();
+                  }}
+                  onMouseDown={(e) => handleNewsStart(e.clientX)}
+                  onMouseMove={(e) => handleNewsMove(e.clientX)}
+                  onMouseUp={handleNewsEnd}
+                  onTouchStart={(e) => {
+                    setIsNewsHovered(true);
+                    handleNewsStart(e.touches[0].clientX);
+                  }}
+                  onTouchMove={(e) => handleNewsMove(e.touches[0].clientX)}
+                  onTouchEnd={(e) => {
+                    setIsNewsHovered(false);
+                    handleNewsEnd();
+                  }}
+                >
+                  {[...homeArticles, ...homeArticles, ...homeArticles].map((art, idx) => {
+                    const originalIdx = idx % homeArticles.length;
+                    return (
+                      <div
+                        key={`${art.id}-${idx}`}
+                        className="bg-transparent flex flex-col h-full group flex-shrink-0"
+                        style={{
+                          width: "var(--card-width-news, 360px)",
+                        }}
+                      >
+                        {/* Image */}
+                        <div className="aspect-[600/400] relative rounded-[12px] overflow-hidden w-full mb-6 bg-white/5">
+                          <Image
+                            src={art.image}
+                            alt={art.title}
+                            fill
+                            sizes="(max-width: 768px) 280px, 360px"
+                            className="object-cover group-hover:scale-103 transition-transform duration-300"
+                            onError={handleImageError}
+                          />
+                        </div>
+
+                        {/* Text info */}
+                        <div className="flex flex-col flex-1 justify-between text-white">
+                          <div>
+                            <h3 className="text-[18px] font-semibold text-white leading-[1.45] tracking-[0.18px] mb-4 min-h-[52px] line-clamp-2">
+                              {art.title}
+                            </h3>
+                          </div>
+
+                          <div className="pt-4">
+                            <Link
+                              href={`/tin-tuc/${art.id}`}
+                              onClick={(e) => {
+                                if (newsWasDragged.current) {
+                                  e.preventDefault();
+                                }
+                              }}
+                              className="inline-block border border-white text-white hover:bg-white hover:text-[#00095b] w-[128px] py-2 rounded-full text-center text-sm font-semibold transition-all cursor-pointer"
+                            >
+                              Xem chi tiết
+                            </Link>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Dots Pagination Indicators for News & Offers */}
+              <div className="flex justify-center gap-2 mt-8">
+                {homeArticles.map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => {
+                      setIsNewsTransitioning(true);
+                      setActiveNewsIndex(homeArticles.length + idx);
+                      setIsNewsInteracted(true);
+                    }}
+                    className={`h-2 transition-all rounded-full cursor-pointer ${
+                      activeNewsIndex % homeArticles.length === idx ? "w-6 bg-[#0562d2]" : "w-2 bg-white/30"
+                    }`}
+                    aria-label={`Go to article slide ${idx + 1}`}
+                  />
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full">
+              <div className="max-w-[1152px] mx-auto w-full text-center py-20 bg-white/5 border border-white/10 rounded-[12px]">
+                <p className="text-white/50 text-sm">Đang tải danh sách tin tức...</p>
+              </div>
+            </div>
+          )}
         </div>
       </section>
 
