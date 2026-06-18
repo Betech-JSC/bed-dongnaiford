@@ -1,32 +1,37 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Play, X, Video, AlertCircle } from "lucide-react";
+import { Video, AlertCircle } from "lucide-react";
 import { postsAPI } from "@/lib/api";
 
 interface VideoItem {
   id: string;
-  youtubeId: string;
+  tiktokId: string;
   title: string;
   description: string;
-  thumbnail: string;
 }
 
-function getYouTubeId(urlOrId: string): string {
+function getTikTokId(urlOrId: string): string {
   if (!urlOrId) return "";
   const trimmed = urlOrId.trim();
-  if (trimmed.length === 11 && !trimmed.includes("/") && !trimmed.includes("?")) {
+  
+  // If it's already just digits, it's the video ID
+  if (/^\d+$/.test(trimmed)) {
     return trimmed;
   }
-  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-  const match = trimmed.match(regExp);
-  return (match && match[2].length === 11) ? match[2] : trimmed;
+  
+  // Match standard link: https://www.tiktok.com/@username/video/731234567890
+  const standardMatch = trimmed.match(/\/video\/(\d+)/);
+  if (standardMatch && standardMatch[1]) {
+    return standardMatch[1];
+  }
+  
+  return "";
 }
 
 export default function MediaPage() {
   const [videos, setVideos] = useState<VideoItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeVideo, setActiveVideo] = useState<VideoItem | null>(null);
 
   useEffect(() => {
     const fetchVideos = async () => {
@@ -37,12 +42,12 @@ export default function MediaPage() {
         if (Array.isArray(items) && items.length > 0) {
           const mappedVideos: VideoItem[] = items.map((post: any) => ({
             id: post.slug || String(post.id),
-            youtubeId: getYouTubeId(post.author || ""),
-            title: post.title,
-            description: post.description || "",
-            thumbnail: post.image?.url || ""
+            tiktokId: getTikTokId(post.author || ""),
+            title: post.title || "",
+            description: post.description || ""
           }));
-          setVideos(mappedVideos.filter(v => v.youtubeId));
+          // Only show videos that have a valid TikTok ID
+          setVideos(mappedVideos.filter(v => v.tiktokId));
         } else {
           setVideos([]);
         }
@@ -66,15 +71,16 @@ export default function MediaPage() {
             <Video className="w-4 h-4" /> Thư viện Media
           </span>
           <h1 className="font-['Ford_Antenna',sans-serif] font-bold text-3xl md:text-5xl leading-tight text-[#00095b] tracking-tight uppercase">
-            Video Hướng dẫn Lái xe An Toàn
+            Video Ngắn TikTok
           </h1>
           <div className="font-sans text-sm md:text-base leading-relaxed text-gray-600 mt-2 space-y-4 max-w-2xl mx-auto">
             <p>
-              Chương trình Hướng dẫn Lái xe An toàn và Thân thiện với Môi trường (DSFL) được thực hiện bởi đội ngũ chuyên gia hàng đầu từ Ford Việt Nam và Đồng Nai Ford.
+              Khám phá chuỗi video ngắn chia sẻ kinh nghiệm, lái thử xe và các mẹo sử dụng xe Ford hữu ích từ đội ngũ chuyên gia tại Đồng Nai Ford.
             </p>
-            <p className="text-gray-500 text-xs">
-              Xem ngay các chuỗi video bài giảng thực tế để cải thiện kỹ năng xử lý tình huống, nâng cao độ an toàn cho bản thân và gia đình trên mỗi dặm đường.
-            </p>
+            <div className="text-xs text-gray-400 bg-gray-100/60 p-3 rounded-lg border border-gray-200/50 max-w-lg mx-auto leading-relaxed">
+              <span className="font-semibold text-gray-500 block mb-1">💡 Hướng dẫn dành cho Admin:</span>
+              Để đưa video TikTok lên trang này, khi tạo bài viết ở trang quản trị CMS, vui lòng chọn loại bài viết là <code className="bg-gray-200 px-1 py-0.5 rounded text-[#0562d2]">MEDIA</code> và nhập link video TikTok (ví dụ: <code className="bg-gray-200 px-1 py-0.5 rounded text-gray-600 font-mono">https://www.tiktok.com/@user/video/731234567890</code>) vào trường <strong>Tác giả (Author)</strong>.
+            </div>
           </div>
         </div>
 
@@ -83,78 +89,45 @@ export default function MediaPage() {
           <div className="flex items-center justify-center py-20">
             <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#0562d2]" />
           </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-6xl mx-auto">
+        ) : videos.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full max-w-7xl mx-auto">
             {videos.map((video) => (
               <div
                 key={video.id}
-                className="flex flex-col gap-4 bg-white p-4 rounded-2xl border border-gray-200/60 shadow-xs hover:shadow-lg transition-all duration-300 group"
+                className="flex flex-col gap-4 bg-white p-3 rounded-2xl border border-gray-200/60 shadow-xs hover:shadow-md transition-all duration-300 w-full"
               >
-                {/* Thumbnail with hover play overlay */}
-                <div
-                  onClick={() => setActiveVideo(video)}
-                  className="aspect-[16/10] relative rounded-xl overflow-hidden w-full cursor-pointer bg-gray-100"
-                >
-                  <img
-                    src={video.thumbnail}
-                    alt={video.title}
-                    className="absolute inset-0 object-cover w-full h-full group-hover:scale-[1.03] transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-black/20 group-hover:bg-black/35 transition-colors duration-300" />
-
-                  {/* Play Button Overlay */}
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-12 h-12 bg-white/95 text-[#00095b] group-hover:bg-[#0562d2] group-hover:text-white rounded-full flex items-center justify-center shadow-md transform group-hover:scale-110 transition-all duration-300">
-                      <Play className="w-5 h-5 fill-current translate-x-0.5" />
-                    </div>
-                  </div>
+                {/* Embed TikTok Player */}
+                <div className="aspect-[9/16] relative rounded-xl overflow-hidden w-full bg-black">
+                  <iframe
+                    src={`https://www.tiktok.com/embed/v2/${video.tiktokId}`}
+                    title={video.title}
+                    className="absolute inset-0 w-full h-full border-0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  ></iframe>
                 </div>
 
-                {/* Title & Description */}
-                <div className="flex flex-col gap-2 px-1 py-1 text-left">
-                  <h3
-                    onClick={() => setActiveVideo(video)}
-                    className="font-['Ford_Antenna',sans-serif] font-bold text-base text-[#00095b] group-hover:text-[#0562d2] cursor-pointer transition-colors duration-200 line-clamp-2 min-h-[48px]"
-                  >
+                {/* Text Info */}
+                <div className="flex flex-col gap-1 px-1 py-1 text-left">
+                  <h3 className="font-['Ford_Antenna',sans-serif] font-bold text-sm text-[#00095b] line-clamp-2 min-h-[40px]">
                     {video.title}
                   </h3>
-                  <p className="text-xs text-gray-500 leading-relaxed line-clamp-3">
-                    {video.description}
-                  </p>
+                  {video.description && (
+                    <p className="text-xs text-gray-500 leading-relaxed line-clamp-2">
+                      {video.description}
+                    </p>
+                  )}
                 </div>
               </div>
             ))}
           </div>
+        ) : (
+          <div className="flex flex-col items-center gap-3 py-20 text-gray-500">
+            <AlertCircle className="w-8 h-8 text-gray-400" />
+            <p className="text-sm">Chưa có video TikTok nào được đăng tải.</p>
+          </div>
         )}
       </div>
-
-      {/* Video Playback Modal Popup */}
-      {activeVideo && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-xs p-4 animate-fade-in">
-          {/* Modal Container */}
-          <div className="relative w-full max-w-[960px] aspect-[16/9] bg-black rounded-2xl overflow-hidden shadow-2xl border border-white/10">
-            {/* Close Button */}
-            <button
-              onClick={() => setActiveVideo(null)}
-              className="absolute top-4 right-4 z-10 w-10 h-10 bg-black/60 hover:bg-black/90 text-white rounded-full flex items-center justify-center transition cursor-pointer border-0"
-              aria-label="Đóng video"
-            >
-              <X className="w-5 h-5" />
-            </button>
-
-            {/* Embedded YouTube Iframe */}
-            <iframe
-              src={`https://www.youtube.com/embed/${activeVideo.youtubeId}?autoplay=1&rel=0`}
-              title={activeVideo.title}
-              width="100%"
-              height="100%"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              className="w-full h-full border-0"
-            ></iframe>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
