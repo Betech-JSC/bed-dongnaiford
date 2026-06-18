@@ -146,7 +146,9 @@ const TikTokCard = ({ video }: { video: VideoItem }) => {
   return (
     <div
       id={`tiktok-card-${video.id}`}
-      className="w-full max-w-[325px] h-[580px] relative rounded-2xl border border-gray-200/60 shadow-sm overflow-hidden bg-white flex justify-center animate-fade-in"
+      className={`w-full max-w-[325px] relative rounded-2xl border border-gray-200/60 shadow-sm bg-white flex justify-center animate-fade-in ${
+        iframeLoaded ? "h-auto" : "h-[580px] overflow-hidden"
+      }`}
     >
       {!iframeLoaded && (
         <div className="absolute inset-0 bg-white p-4 flex flex-col justify-between animate-pulse z-10 pointer-events-none">
@@ -178,12 +180,12 @@ const TikTokCard = ({ video }: { video: VideoItem }) => {
         </div>
       )}
 
-      <div className={`w-full h-full transition-opacity duration-300 ${iframeLoaded ? 'opacity-100' : 'opacity-0'}`}>
+      <div className={`w-full transition-opacity duration-300 ${iframeLoaded ? 'opacity-100 h-auto' : 'opacity-0 h-full'}`}>
         <blockquote
           className="tiktok-embed"
           cite={video.url}
           data-video-id={video.tiktokId}
-          style={{ width: "100%", margin: "0px", height: "100%" }}
+          style={{ width: "100%", margin: "0px" }}
         >
           <section />
         </blockquote>
@@ -300,14 +302,14 @@ export default function MediaPage() {
 
         {/* Video Grid Section */}
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-6xl mx-auto justify-items-center">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-6xl mx-auto justify-items-center items-start">
             <SkeletonCard />
             <SkeletonCard />
             <SkeletonCard />
           </div>
         ) : videos.length > 0 ? (
           <div className="flex flex-col gap-8 w-full">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-6xl mx-auto justify-items-center">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-6xl mx-auto justify-items-center items-start">
               {videos.map((video) => (
                 <TikTokCard key={video.id} video={video} />
               ))}
