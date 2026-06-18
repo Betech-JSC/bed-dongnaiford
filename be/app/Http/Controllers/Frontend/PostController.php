@@ -17,11 +17,12 @@ class PostController extends Controller
     {
         try {
             $type = request()->query('type', Post::TYPE_POST);
+            $perPage = $type === Post::TYPE_MEDIA ? 3 : 9;
             $posts = Post::query()
                 ->where('type', $type)
                 ->active()
                 ->filter(request()->all())
-                ->paginate(9)
+                ->paginate($perPage)
                 ->onEachSide(0)
                 ->through(function ($item) {
                     return $item->transform();

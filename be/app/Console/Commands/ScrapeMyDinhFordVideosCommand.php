@@ -3,8 +3,8 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use JamstackVietnam\Blog\Models\Post;
-use JamstackVietnam\Blog\Models\PostCategory;
+use App\Models\Post\Post;
+use App\Models\Post\PostCategory;
 use Illuminate\Support\Str;
 
 class ScrapeMyDinhFordVideosCommand extends Command

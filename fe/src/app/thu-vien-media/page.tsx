@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Video, AlertCircle } from "lucide-react";
+import { Video, AlertCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import { postsAPI } from "@/lib/api";
 
 interface VideoItem {
@@ -9,7 +9,41 @@ interface VideoItem {
   tiktokId: string;
   title: string;
   description: string;
+  url: string;
 }
+
+const SkeletonCard = () => (
+  <div className="w-full max-w-[325px] h-[580px] bg-white rounded-2xl border border-gray-200/60 p-4 flex flex-col justify-between animate-pulse shadow-sm">
+    {/* Header profile skeleton */}
+    <div className="flex items-center gap-3">
+      <div className="w-10 h-10 rounded-full bg-gray-200" />
+      <div className="flex flex-col gap-2 flex-1">
+        <div className="h-3 bg-gray-200 rounded w-2/3" />
+        <div className="h-2 bg-gray-200 rounded w-1/3" />
+      </div>
+      <div className="w-12 h-6 bg-gray-200 rounded-full" />
+    </div>
+
+    {/* Video player body skeleton */}
+    <div className="flex-1 bg-gray-100 rounded-xl my-4 flex items-center justify-center relative overflow-hidden">
+      <div className="w-12 h-12 rounded-full bg-white/40 flex items-center justify-center">
+        <div className="w-0 h-0 border-t-8 border-t-transparent border-l-[14px] border-l-white/60 border-b-8 border-b-transparent ml-1" />
+      </div>
+      <div className="absolute right-3 bottom-6 flex flex-col gap-4 items-center">
+        <div className="w-8 h-8 rounded-full bg-gray-200/50" />
+        <div className="w-8 h-8 rounded-full bg-gray-200/50" />
+        <div className="w-8 h-8 rounded-full bg-gray-200/50" />
+      </div>
+    </div>
+
+    {/* Footer skeleton */}
+    <div className="flex flex-col gap-2">
+      <div className="h-3 bg-gray-200 rounded w-1/2" />
+      <div className="h-2.5 bg-gray-200 rounded w-5/6" />
+      <div className="h-2.5 bg-gray-200 rounded w-4/5" />
+    </div>
+  </div>
+);
 
 function getTikTokId(urlOrId: string): string {
   if (!urlOrId) return "";
@@ -29,14 +63,146 @@ function getTikTokId(urlOrId: string): string {
   return "";
 }
 
+const TikTokCard = ({ video }: { video: VideoItem }) => {
+  const [iframeLoaded, setIframeLoaded] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    let observer: MutationObserver | null = null;
+    let checkInterval: NodeJS.Timeout | null = null;
+    let fallbackTimeout: NodeJS.Timeout | null = null;
+
+    const container = document.getElementById(`tiktok-card-${video.id}`);
+    if (!container) return;
+
+    const setupIframeListener = (iframe: HTMLIFrameElement) => {
+      const handleLoad = () => {
+        if (active) setIframeLoaded(true);
+      };
+
+      try {
+        if (iframe.contentDocument?.readyState === 'complete') {
+          setIframeLoaded(true);
+          return;
+        }
+      } catch (e) {
+        // Cross-origin fallback
+      }
+
+      iframe.addEventListener('load', handleLoad);
+
+      fallbackTimeout = setTimeout(() => {
+        if (active) setIframeLoaded(true);
+      }, 6000);
+
+      return () => {
+        iframe.removeEventListener('load', handleLoad);
+        if (fallbackTimeout) clearTimeout(fallbackTimeout);
+      };
+    };
+
+    const existingIframe = container.querySelector('iframe');
+    let cleanupLoad: (() => void) | undefined;
+    if (existingIframe) {
+      cleanupLoad = setupIframeListener(existingIframe);
+    } else {
+      observer = new MutationObserver(() => {
+        const iframe = container.querySelector('iframe');
+        if (iframe) {
+          cleanupLoad = setupIframeListener(iframe);
+          if (observer) {
+            observer.disconnect();
+            observer = null;
+          }
+        }
+      });
+      observer.observe(container, { childList: true, subtree: true });
+
+      checkInterval = setInterval(() => {
+        const iframe = container.querySelector('iframe');
+        if (iframe) {
+          cleanupLoad = setupIframeListener(iframe);
+          if (observer) {
+            observer.disconnect();
+            observer = null;
+          }
+          if (checkInterval) {
+            clearInterval(checkInterval);
+            checkInterval = null;
+          }
+        }
+      }, 100);
+    }
+
+    return () => {
+      active = false;
+      if (observer) observer.disconnect();
+      if (checkInterval) clearInterval(checkInterval);
+      if (cleanupLoad) cleanupLoad();
+      if (fallbackTimeout) clearTimeout(fallbackTimeout);
+    };
+  }, [video.id]);
+
+  return (
+    <div
+      id={`tiktok-card-${video.id}`}
+      className="w-full max-w-[325px] h-[580px] relative rounded-2xl border border-gray-200/60 shadow-sm overflow-hidden bg-white flex justify-center animate-fade-in"
+    >
+      {!iframeLoaded && (
+        <div className="absolute inset-0 bg-white p-4 flex flex-col justify-between animate-pulse z-10 pointer-events-none">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-gray-200" />
+            <div className="flex flex-col gap-2 flex-1">
+              <div className="h-3 bg-gray-200 rounded w-2/3" />
+              <div className="h-2 bg-gray-200 rounded w-1/3" />
+            </div>
+            <div className="w-12 h-6 bg-gray-200 rounded-full" />
+          </div>
+
+          <div className="flex-1 bg-gray-100 rounded-xl my-4 flex items-center justify-center relative overflow-hidden">
+            <div className="w-12 h-12 rounded-full bg-white/40 flex items-center justify-center">
+              <div className="w-0 h-0 border-t-8 border-t-transparent border-l-[14px] border-l-white/60 border-b-8 border-b-transparent ml-1" />
+            </div>
+            <div className="absolute right-3 bottom-6 flex flex-col gap-4 items-center">
+              <div className="w-8 h-8 rounded-full bg-gray-200/50" />
+              <div className="w-8 h-8 rounded-full bg-gray-200/50" />
+              <div className="w-8 h-8 rounded-full bg-gray-200/50" />
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <div className="h-3 bg-gray-200 rounded w-1/2" />
+            <div className="h-2.5 bg-gray-200 rounded w-5/6" />
+            <div className="h-2.5 bg-gray-200 rounded w-4/5" />
+          </div>
+        </div>
+      )}
+
+      <div className={`w-full h-full transition-opacity duration-300 ${iframeLoaded ? 'opacity-100' : 'opacity-0'}`}>
+        <blockquote
+          className="tiktok-embed"
+          cite={video.url}
+          data-video-id={video.tiktokId}
+          style={{ width: "100%", margin: "0px", height: "100%" }}
+        >
+          <section />
+        </blockquote>
+      </div>
+    </div>
+  );
+};
+
 export default function MediaPage() {
   const [videos, setVideos] = useState<VideoItem[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchVideos = async () => {
+      setLoading(true);
       try {
-        const res: any = await postsAPI.getAll({ type: "MEDIA" });
+        const res: any = await postsAPI.getAll({ type: "MEDIA", page: String(currentPage) });
         const items = res?.posts?.data || res?.posts || res?.data || res;
 
         if (Array.isArray(items) && items.length > 0) {
@@ -44,26 +210,78 @@ export default function MediaPage() {
             id: post.slug || String(post.id),
             tiktokId: getTikTokId(post.author || ""),
             title: post.title || "",
-            description: post.description || ""
+            description: post.description || "",
+            url: post.author || ""
           }));
           // Only show videos that have a valid TikTok ID
           setVideos(mappedVideos.filter(v => v.tiktokId));
+          setTotalPages(res?.posts?.last_page || 1);
         } else {
           setVideos([]);
+          setTotalPages(1);
         }
       } catch (err) {
         console.error("Error fetching media library videos:", err);
         setVideos([]);
+        setTotalPages(1);
       } finally {
         setLoading(false);
       }
     };
     fetchVideos();
-  }, []);
+  }, [currentPage]);
+
+  // Dynamically load/trigger official TikTok Embed Script with polling fallback for client-side navigation
+  useEffect(() => {
+    if (videos.length > 0) {
+      const triggerRender = () => {
+        if ((window as any).tiktokEmbed) {
+          try {
+            const tiktoks = document.querySelectorAll('blockquote.tiktok-embed');
+            if (tiktoks.length > 0) {
+              (window as any).tiktokEmbed.lib.render(Array.from(tiktoks));
+              return true; // render successful
+            }
+          } catch (e) {
+            console.error("Error triggering TikTok render:", e);
+          }
+        }
+        return false; // not ready yet
+      };
+
+      const existingScript = document.querySelector('script[src="https://www.tiktok.com/embed.js"]');
+      
+      if (!existingScript) {
+        const script = document.createElement("script");
+        script.src = "https://www.tiktok.com/embed.js";
+        script.async = true;
+        document.body.appendChild(script);
+      }
+
+      // Poll every 100ms up to 20 times (2 seconds) to wait for both the script execution
+      // and React DOM mount to complete, ensuring consistent rendering on client-side routing.
+      let attempts = 0;
+      const interval = setInterval(() => {
+        attempts++;
+        const success = triggerRender();
+        if (success || attempts > 20) {
+          clearInterval(interval);
+        }
+      }, 100);
+
+      return () => clearInterval(interval);
+    }
+  }, [videos]);
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
 
   return (
     <div className="bg-[#fafafa] min-h-screen py-16">
-      <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full flex flex-col gap-12 items-center">
+      <div className="max-w-[1440px] mx-auto px-4 md:px-8 xl:px-16 w-full flex flex-col gap-12 items-center">
 
         {/* Header Title Section */}
         <div className="flex flex-col gap-4 text-center max-w-3xl w-full">
@@ -77,49 +295,77 @@ export default function MediaPage() {
             <p>
               Khám phá chuỗi video ngắn chia sẻ kinh nghiệm, lái thử xe và các mẹo sử dụng xe Ford hữu ích từ đội ngũ chuyên gia tại Đồng Nai Ford.
             </p>
-            <div className="text-xs text-gray-400 bg-gray-100/60 p-3 rounded-lg border border-gray-200/50 max-w-lg mx-auto leading-relaxed">
-              <span className="font-semibold text-gray-500 block mb-1">💡 Hướng dẫn dành cho Admin:</span>
-              Để đưa video TikTok lên trang này, khi tạo bài viết ở trang quản trị CMS, vui lòng chọn loại bài viết là <code className="bg-gray-200 px-1 py-0.5 rounded text-[#0562d2]">MEDIA</code> và nhập link video TikTok (ví dụ: <code className="bg-gray-200 px-1 py-0.5 rounded text-gray-600 font-mono">https://www.tiktok.com/@user/video/731234567890</code>) vào trường <strong>Tác giả (Author)</strong>.
-            </div>
           </div>
         </div>
 
         {/* Video Grid Section */}
         {loading ? (
-          <div className="flex items-center justify-center py-20">
-            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#0562d2]" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-6xl mx-auto justify-items-center">
+            <SkeletonCard />
+            <SkeletonCard />
+            <SkeletonCard />
           </div>
         ) : videos.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full max-w-7xl mx-auto">
-            {videos.map((video) => (
-              <div
-                key={video.id}
-                className="flex flex-col gap-4 bg-white p-3 rounded-2xl border border-gray-200/60 shadow-xs hover:shadow-md transition-all duration-300 w-full"
-              >
-                {/* Embed TikTok Player */}
-                <div className="aspect-[9/16] relative rounded-xl overflow-hidden w-full bg-black">
-                  <iframe
-                    src={`https://www.tiktok.com/embed/v2/${video.tiktokId}`}
-                    title={video.title}
-                    className="absolute inset-0 w-full h-full border-0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  ></iframe>
-                </div>
+          <div className="flex flex-col gap-8 w-full">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-6xl mx-auto justify-items-center">
+              {videos.map((video) => (
+                <TikTokCard key={video.id} video={video} />
+              ))}
+            </div>
 
-                {/* Text Info */}
-                <div className="flex flex-col gap-1 px-1 py-1 text-left">
-                  <h3 className="font-['Ford_Antenna',sans-serif] font-bold text-sm text-[#00095b] line-clamp-2 min-h-[40px]">
-                    {video.title}
-                  </h3>
-                  {video.description && (
-                    <p className="text-xs text-gray-500 leading-relaxed line-clamp-2">
-                      {video.description}
-                    </p>
-                  )}
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="flex justify-center mt-8">
+                <div className="bg-white border border-[#e5e5e5] flex gap-2 items-center px-4 py-2 rounded-[400px] shadow-xs">
+                  {/* Prev button */}
+                  <button
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className={`w-10 h-10 flex items-center justify-center rounded-full transition cursor-pointer ${
+                      currentPage === 1
+                        ? "text-gray-300 pointer-events-none"
+                        : "text-[#424242] hover:bg-gray-100"
+                    }`}
+                    aria-label="Trang trước"
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+
+                  {/* Page numbers */}
+                  {Array.from({ length: totalPages }, (_, idx) => {
+                    const page = idx + 1;
+                    const isActive = currentPage === page;
+                    return (
+                      <button
+                        key={`page-${page}`}
+                        onClick={() => handlePageChange(page)}
+                        className={`w-11 h-11 flex items-center justify-center font-semibold text-sm rounded-[4px] transition cursor-pointer ${
+                          isActive
+                            ? "bg-[#044ea7] text-white"
+                            : "bg-white text-[#808080] hover:bg-gray-100"
+                        }`}
+                      >
+                        {page < 10 ? `0${page}` : page}
+                      </button>
+                    );
+                  })}
+
+                  {/* Next button */}
+                  <button
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className={`w-10 h-10 flex items-center justify-center rounded-full transition cursor-pointer ${
+                      currentPage === totalPages
+                        ? "text-gray-300 pointer-events-none"
+                        : "text-[#424242] hover:bg-gray-100"
+                    }`}
+                    aria-label="Trang sau"
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
                 </div>
               </div>
-            ))}
+            )}
           </div>
         ) : (
           <div className="flex flex-col items-center gap-3 py-20 text-gray-500">
