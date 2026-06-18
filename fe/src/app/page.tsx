@@ -118,6 +118,30 @@ const quickActions = [
   },
 ];
 
+const techSlides = [
+  {
+    title: "Ứng dụng Ford",
+    description: "Ứng dụng Ford mang đến cho bạn trải nghiệm sở hữu trọn vẹn và dễ dàng trong tầm tay. Khi truy cập vào ứng dụng này, bạn có đầy đủ thông tin các tính năng của xe và kiểm tra về tình trạng xe.",
+    image: "/assets/tech_fordpass.png",
+    category: "Lái xe",
+    link: "/lien-he?reason=Đăng ký trải nghiệm công nghệ xe&note=Tôi muốn đăng ký trải nghiệm ứng dụng FordPass."
+  },
+  {
+    title: "Ford Co-Pilot360",
+    description: "Dù trong thành phố hay ra xa lộ, hệ thống Ford Co-Pilot360™ - Công nghệ An toàn Hỗ trợ Người lái được thiết kế để giúp bạn cảm thấy tự tin hơn khi lái xe.",
+    image: "/assets/tech_copilot360.png",
+    category: "Lái xe",
+    link: "/lien-he?reason=Đăng ký trải nghiệm công nghệ xe&note=Tôi muốn đăng ký trải nghiệm công nghệ hỗ trợ lái Ford Co-Pilot360."
+  },
+  {
+    title: "Hệ thống âm thanh cao cấp",
+    description: "Hệ thống loa B&O cho trải nghiệm âm thanh tuyệt vời với chất âm trung thực và rõ ràng đến từng chi tiết.",
+    image: "/assets/tech_audio.png",
+    category: "Giải trí",
+    link: "/lien-he?reason=Đăng ký trải nghiệm công nghệ xe&note=Tôi muốn đăng ký trải nghiệm hệ thống âm thanh cao cấp B&O."
+  }
+];
+
 export default function Home() {
   const router = useRouter();
 
@@ -151,6 +175,13 @@ export default function Home() {
   const [vehiclesList, setVehiclesList] = useState<any[]>([]);
   const [servicesList, setServicesList] = useState<any[]>([]);
   const [customerHandovers, setCustomerHandovers] = useState<any[]>([]);
+
+  // Technology section states
+  const [activeTechTab, setActiveTechTab] = useState(0);
+  const [techDragOffset, setTechDragOffset] = useState(0);
+  const [isTechTransitioning, setIsTechTransitioning] = useState(true);
+  const [isTechHovered, setIsTechHovered] = useState(false);
+  const [isTechInteracted, setIsTechInteracted] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -312,6 +343,10 @@ export default function Home() {
   const isHandoverDragging = useRef(false);
   const handoverWasDragged = useRef(false);
 
+  const techDragStartX = useRef(0);
+  const isTechDragging = useRef(false);
+  const techWasDragged = useRef(false);
+
   const heroDragStartX = useRef(0);
   const isHeroDragging = useRef(false);
 
@@ -332,6 +367,48 @@ export default function Home() {
       // Swipe left: next slide
       setActiveHeroIndex((prev) => (prev + 1) % heroSlides.length);
     }
+  };
+
+  // Drag handlers for Technology Section
+  const handleTechStart = (clientX: number) => {
+    techDragStartX.current = clientX;
+    isTechDragging.current = true;
+    setIsTechInteracted(true); // Pause autoplay
+  };
+
+  const handleTechMove = (clientX: number) => {
+    if (!isTechDragging.current) return;
+    const diff = clientX - techDragStartX.current;
+    setTechDragOffset(diff);
+  };
+
+  const handleTechEnd = () => {
+    if (!isTechDragging.current) return;
+    isTechDragging.current = false;
+    
+    const dist = Math.abs(techDragOffset);
+    if (dist > 10) {
+      techWasDragged.current = true;
+      setTimeout(() => {
+        techWasDragged.current = false;
+      }, 50);
+    } else {
+      techWasDragged.current = false;
+    }
+
+    if (techDragOffset > 50) {
+      if (activeTechTab > 0) {
+        setIsTechTransitioning(true);
+        setActiveTechTab((prev) => prev - 1);
+      }
+    } else if (techDragOffset < -50) {
+      if (activeTechTab < 2) {
+        setIsTechTransitioning(true);
+        setActiveTechTab((prev) => prev + 1);
+      }
+    }
+    
+    setTechDragOffset(0);
   };
 
 
@@ -705,6 +782,26 @@ export default function Home() {
     }
   }, [isHandoverInteracted]);
 
+  // Auto-play technology slides every 3.5 seconds, pause on hover/interaction
+  useEffect(() => {
+    if (isTechHovered || isTechInteracted) return;
+    const timer = setInterval(() => {
+      setIsTechTransitioning(true);
+      setActiveTechTab((prev) => (prev + 1) % 3);
+    }, 3500);
+    return () => clearInterval(timer);
+  }, [isTechHovered, isTechInteracted]);
+
+  // Reset tech interacted flag after 5 seconds of inactivity to resume auto-play
+  useEffect(() => {
+    if (isTechInteracted) {
+      const timer = setTimeout(() => {
+        setIsTechInteracted(false);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [isTechInteracted]);
+
   // Body scroll locking when Lightbox is open
   useEffect(() => {
     if (lightboxIndex !== null) {
@@ -942,6 +1039,181 @@ export default function Home() {
                 </Link>
               );
             })}
+          </div>
+        </div>
+      </section>
+
+      {/* 7. TECHNOLOGY SHOWCASE */}
+      <section id="technology" className="w-full bg-[#00095b] py-20 text-white overflow-hidden relative select-none">
+        <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full">
+          <div className="max-w-[1152px] mx-auto w-full">
+            
+            {/* Title Block */}
+            <div className="mb-12">
+              <span className="text-xs font-semibold text-[#0562d2] uppercase tracking-wider block mb-2">
+                Công nghệ
+              </span>
+              <h2 className="text-4xl md:text-5xl font-semibold leading-tight tracking-[-0.96px]">
+                Khơi nguồn trải nghiệm lái hoàn hảo
+              </h2>
+            </div>
+
+            {/* Tab row (Desktop columns side-by-side) */}
+            <div className="hidden md:flex gap-8 mb-12">
+              {techSlides.map((slide, idx) => (
+                <div 
+                  key={idx} 
+                  className="flex-1 cursor-pointer group"
+                  onClick={() => {
+                    setIsTechTransitioning(true);
+                    setActiveTechTab(idx);
+                    setIsTechInteracted(true);
+                  }}
+                >
+                  <div className="pb-4 relative border-b border-white/10">
+                    <h3 className={`text-lg font-semibold transition-colors duration-300 ${activeTechTab === idx ? "text-white" : "text-white/60 group-hover:text-white"}`}>
+                      {slide.title}
+                    </h3>
+                    {/* Active Indicator Line */}
+                    <div 
+                      className={`absolute bottom-[-1px] left-0 right-0 h-[3px] bg-[#0562d2] transition-transform duration-300 origin-left ${activeTechTab === idx ? "scale-x-100" : "scale-x-0 group-hover:scale-x-50"}`} 
+                    />
+                  </div>
+                  <p className={`mt-4 text-sm leading-relaxed transition-opacity duration-300 ${activeTechTab === idx ? "text-white/95 font-medium" : "text-white/60 font-light"}`}>
+                    {slide.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            {/* Mobile Tabs: horizontal scroll */}
+            <div className="flex md:hidden overflow-x-auto whitespace-nowrap gap-6 pb-3 mb-6 scrollbar-none border-b border-white/10">
+              {techSlides.map((slide, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => {
+                    setIsTechTransitioning(true);
+                    setActiveTechTab(idx);
+                    setIsTechInteracted(true);
+                  }}
+                  className="relative pb-2 flex-shrink-0 cursor-pointer"
+                >
+                  <span className={`text-base font-semibold transition-colors ${activeTechTab === idx ? "text-white" : "text-white/60"}`}>
+                    {slide.title}
+                  </span>
+                  {activeTechTab === idx && (
+                    <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#0562d2]" />
+                  )}
+                </button>
+              ))}
+            </div>
+
+            {/* Slider & Images Container */}
+            <div 
+              className="relative w-full overflow-visible [--slide-width:80vw] md:[--slide-width:760px]"
+              onMouseEnter={() => setIsTechHovered(true)}
+              onMouseLeave={() => {
+                setIsTechHovered(false);
+                handleTechEnd();
+              }}
+              onMouseDown={(e) => handleTechStart(e.clientX)}
+              onMouseMove={(e) => handleTechMove(e.clientX)}
+              onMouseUp={handleTechEnd}
+              onTouchStart={(e) => {
+                setIsTechHovered(true);
+                handleTechStart(e.touches[0].clientX);
+              }}
+              onTouchMove={(e) => handleTechMove(e.touches[0].clientX)}
+              onTouchEnd={(e) => {
+                setIsTechHovered(false);
+                handleTechEnd();
+              }}
+            >
+              <div 
+                className="flex gap-6 cursor-grab active:cursor-grabbing"
+                style={{
+                  transform: `translateX(calc(-${activeTechTab} * (var(--slide-width) + 24px) + ${techDragOffset}px))`,
+                  transition: isTechDragging.current ? "none" : (isTechTransitioning ? "transform 500ms cubic-bezier(0.25, 1, 0.5, 1)" : "none"),
+                }}
+              >
+                {techSlides.map((slide, idx) => (
+                  <div 
+                    key={idx}
+                    onDragStart={(e) => e.preventDefault()}
+                    className="relative overflow-hidden rounded-2xl aspect-[16/10] bg-[#121824] flex-shrink-0 w-[var(--slide-width)] transition-all duration-300 select-none border border-white/5 shadow-2xl"
+                  >
+                    <Image
+                      src={slide.image}
+                      alt={slide.title}
+                      fill
+                      sizes="(max-w-768px) 80vw, 760px"
+                      className="object-cover pointer-events-none group-hover:scale-103 transition-transform duration-700"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+                    
+                    {/* Slide fraction indicator */}
+                    <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-md border border-white/10 text-white text-xs font-semibold px-3 py-1.5 rounded-full select-none">
+                      {idx + 1}/{techSlides.length}
+                    </div>
+
+                    {/* Category tag */}
+                    <div className="absolute bottom-4 left-4 bg-[#0562d2] text-white text-xs font-bold px-3 py-1.5 rounded-md tracking-wider uppercase select-none">
+                      {slide.category}
+                    </div>
+
+                    {/* Chevron navigation buttons */}
+                    {activeTechTab === idx && idx < techSlides.length - 1 && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setIsTechTransitioning(true);
+                          setActiveTechTab((prev) => prev + 1);
+                          setIsTechInteracted(true);
+                        }}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/70 hover:bg-black border border-white/10 flex items-center justify-center text-white transition-all cursor-pointer shadow-lg z-20 group-hover:scale-110 active:scale-95"
+                        aria-label="Next tech slide"
+                      >
+                        <ChevronRight className="w-6 h-6" />
+                      </button>
+                    )}
+
+                    {activeTechTab === idx && idx > 0 && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setIsTechTransitioning(true);
+                          setActiveTechTab((prev) => prev - 1);
+                          setIsTechInteracted(true);
+                        }}
+                        className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/70 hover:bg-black border border-white/10 flex items-center justify-center text-white transition-all cursor-pointer shadow-lg z-20 group-hover:scale-110 active:scale-95"
+                        aria-label="Previous tech slide"
+                      >
+                        <ChevronLeft className="w-6 h-6" />
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Mobile Description */}
+            <div className="block md:hidden mt-6 text-white/80 text-sm leading-relaxed min-h-[60px] transition-all duration-300">
+              <p key={activeTechTab} className="reveal-on-scroll">
+                {techSlides[activeTechTab].description}
+              </p>
+            </div>
+
+            {/* CTA action button */}
+            <div className="mt-8 flex justify-start">
+              <Link
+                href={techSlides[activeTechTab].link}
+                className="inline-flex items-center gap-2 bg-transparent hover:bg-white border border-white text-white hover:text-[#00095b] px-6 py-3 rounded-full text-base font-semibold transition-all duration-300 shadow-md group cursor-pointer"
+              >
+                <span>Trải nghiệm ngay</span>
+                <span className="group-hover:translate-x-1.5 transition-transform duration-300">→</span>
+              </Link>
+            </div>
+
           </div>
         </div>
       </section>
@@ -1268,8 +1540,6 @@ export default function Home() {
           )}
         </div>
       </section>
-
-
 
       {/* 8. NEWS & PROMOTION */}
       <section id="news" className="w-full bg-[#00095b] py-20">
