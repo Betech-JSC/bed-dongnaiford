@@ -1272,202 +1272,204 @@ export default function Home() {
 
 
       {/* 8. NEWS & PROMOTION */}
-      <section id="news" className="w-full bg-[#00095b] py-20 overflow-x-clip">
-        <div className="w-full">
-          <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full mb-10">
-            <div className="max-w-[1152px] mx-auto w-full">
-              <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 border-b border-white/10 pb-6">
-                <div>
-                  <span className="text-xs font-semibold text-[#0562d2] uppercase tracking-wider block mb-2">
-                    Tin tức hữu ích
-                  </span>
-                  <h2 className="text-[36px] text-white font-semibold leading-tight">
-                    Tin tức & Ưu Đãi
-                  </h2>
-                </div>
-
-                <div className="flex items-center gap-6 mt-4 md:mt-0">
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => {
-                        if (homeArticles.length === 0) return;
-                        setIsNewsTransitioning(true);
-                        setActiveNewsIndex((prev) => prev - 1);
-                        setIsNewsInteracted(true);
-                      }}
-                      className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/10 transition-colors cursor-pointer text-white bg-transparent"
-                      aria-label="Previous article"
-                    >
-                      <ChevronLeft className="w-5 h-5" />
-                    </button>
-                    <button
-                      onClick={() => {
-                        if (homeArticles.length === 0) return;
-                        setIsNewsTransitioning(true);
-                        setActiveNewsIndex((prev) => prev + 1);
-                        setIsNewsInteracted(true);
-                      }}
-                      className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/10 transition-colors cursor-pointer text-white bg-transparent"
-                      aria-label="Next article"
-                    >
-                      <ChevronRight className="w-5 h-5" />
-                    </button>
-                  </div>
-
-                  <button
-                    onClick={() => {
-                      router.push("/tin-tuc");
-                    }}
-                    className="w-[200px] py-2.5 bg-[#0562d2] text-white hover:bg-[#0451b0] rounded-full text-center text-sm font-semibold transition-all cursor-pointer animate-premium animate-pulse"
-                  >
-                    Xem tất cả
-                  </button>
-                </div>
+      <section id="news" className="w-full bg-[#00095b] py-20">
+        <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full">
+          <div className="max-w-[1152px] mx-auto w-full">
+            <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 border-b border-white/10 pb-6">
+              <div>
+                <span className="text-xs font-semibold text-[#0562d2] uppercase tracking-wider block mb-2">
+                  Tin tức hữu ích
+                </span>
+                <h2 className="text-[36px] text-white font-semibold leading-tight">
+                  Tin tức & Ưu Đãi
+                </h2>
               </div>
 
-              {/* Category Tabs */}
-              <div className="flex flex-wrap gap-3 justify-start">
-                {[
-                  { id: 3, label: "TIN KHUYẾN MÃI" },
-                  { id: 1, label: "TIN TỨC MỚI NHẤT" },
-                  { id: 4, label: "CHIA SẺ KINH NGHIỆM" }
-                ].map((tab) => (
+              <div className="flex items-center gap-6 mt-4 md:mt-0">
+                <div className="flex gap-2">
                   <button
-                    key={tab.id}
                     onClick={() => {
-                      setActiveNewsTab(tab.id);
+                      if (homeArticles.length === 0) return;
+                      setIsNewsTransitioning(true);
+                      setActiveNewsIndex((prev) => prev - 1);
                       setIsNewsInteracted(true);
                     }}
-                    className={`px-6 py-2.5 rounded-full text-xs font-semibold tracking-wider transition-all duration-300 cursor-pointer ${
-                      activeNewsTab === tab.id
-                        ? "bg-[#0562d2] text-white shadow-lg shadow-[#0562d2]/30"
-                        : "bg-white/5 text-white/70 hover:bg-white/10 hover:text-white border border-white/10"
-                    }`}
+                    className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/10 transition-colors cursor-pointer text-white bg-transparent"
+                    aria-label="Previous article"
                   >
-                    {tab.label}
+                    <ChevronLeft className="w-5 h-5" />
                   </button>
-                ))}
+                  <button
+                    onClick={() => {
+                      if (homeArticles.length === 0) return;
+                      setIsNewsTransitioning(true);
+                      setActiveNewsIndex((prev) => prev + 1);
+                      setIsNewsInteracted(true);
+                    }}
+                    className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/10 transition-colors cursor-pointer text-white bg-transparent"
+                    aria-label="Next article"
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <button
+                  onClick={() => {
+                    router.push("/tin-tuc");
+                  }}
+                  className="w-[200px] py-2.5 bg-[#0562d2] text-white hover:bg-[#0451b0] rounded-full text-center text-sm font-semibold transition-all cursor-pointer animate-premium animate-pulse"
+                >
+                  Xem tất cả
+                </button>
               </div>
             </div>
-          </div>
 
-          {homeArticles.length > 0 ? (
-            <>
-              {/* Slider track container */}
-              <div id="news-slider-container" className="relative w-full overflow-visible py-4 pl-4 xl:pl-[144px] min-[1440px]:pl-[calc((100vw-1152px)/2)] select-none">
-                <style dangerouslySetInnerHTML={{ __html: `
-                  #news-slider-container {
-                    --card-width-news: 360px;
-                    --card-gap-news: 24px;
-                  }
-                  @media (max-width: 640px) {
-                    #news-slider-container {
-                      --card-width-news: 280px;
-                      --card-gap-news: 16px;
-                    }
-                  }
-                ` }} />
-                <div
-                  className="flex cursor-grab active:cursor-grabbing"
-                  style={{
-                    transform: `translateX(calc(-${activeNewsIndex} * (var(--card-width-news, 360px) + var(--card-gap-news, 24px)) + ${newsDragOffset}px))`,
-                    transition: isNewsDragging.current ? "none" : (isNewsTransitioning ? "transform 500ms ease-in-out" : "none"),
-                    gap: "var(--card-gap-news, 24px)"
+            {/* Category Tabs */}
+            <div className="flex flex-wrap gap-3 justify-start mb-10">
+              {[
+                { id: 3, label: "TIN KHUYẾN MÃI" },
+                { id: 1, label: "TIN TỨC MỚI NHẤT" },
+                { id: 4, label: "CHIA SẺ KINH NGHIỆM" }
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => {
+                    setActiveNewsTab(tab.id);
+                    setIsNewsInteracted(true);
                   }}
-                  onTransitionEnd={handleNewsTransitionEnd}
-                  onMouseEnter={() => setIsNewsHovered(true)}
-                  onMouseLeave={() => {
-                    setIsNewsHovered(false);
-                    handleNewsEnd();
-                  }}
-                  onMouseDown={(e) => handleNewsStart(e.clientX)}
-                  onMouseMove={(e) => handleNewsMove(e.clientX)}
-                  onMouseUp={handleNewsEnd}
-                  onTouchStart={(e) => {
-                    setIsNewsHovered(true);
-                    handleNewsStart(e.touches[0].clientX);
-                  }}
-                  onTouchMove={(e) => handleNewsMove(e.touches[0].clientX)}
-                  onTouchEnd={(e) => {
-                    setIsNewsHovered(false);
-                    handleNewsEnd();
-                  }}
+                  className={`px-6 py-2.5 rounded-full text-xs font-semibold tracking-wider transition-all duration-300 cursor-pointer ${
+                    activeNewsTab === tab.id
+                      ? "bg-[#0562d2] text-white shadow-lg shadow-[#0562d2]/30"
+                      : "bg-white/5 text-white/70 hover:bg-white/10 hover:text-white border border-white/10"
+                  }`}
                 >
-                  {[...homeArticles, ...homeArticles, ...homeArticles].map((art, idx) => {
-                    const originalIdx = idx % homeArticles.length;
-                    return (
-                      <div
-                        key={`${art.id}-${idx}`}
-                        className="bg-transparent flex flex-col h-full group flex-shrink-0"
-                        style={{
-                          width: "var(--card-width-news, 360px)",
-                        }}
-                      >
-                        {/* Image */}
-                        <div className="aspect-[600/400] relative rounded-[12px] overflow-hidden w-full mb-6 bg-white/5">
-                          <Image
-                            src={art.image}
-                            alt={art.title}
-                            fill
-                            sizes="(max-width: 768px) 280px, 360px"
-                            className="object-cover group-hover:scale-103 transition-transform duration-300"
-                            onError={handleImageError}
-                          />
-                        </div>
+                  {tab.label}
+                </button>
+              ))}
+            </div>
 
-                        {/* Text info */}
-                        <div className="flex flex-col flex-1 justify-between text-white">
-                          <div>
-                            <h3 className="text-[18px] font-semibold text-white leading-[1.45] tracking-[0.18px] mb-4 min-h-[52px] line-clamp-2">
-                              {art.title}
-                            </h3>
-                          </div>
-
-                          <div className="pt-4">
-                            <Link
-                              href={`/tin-tuc/${art.id}`}
-                              onClick={(e) => {
-                                if (newsWasDragged.current) {
-                                  e.preventDefault();
-                                }
-                              }}
-                              className="inline-block border border-white text-white hover:bg-white hover:text-[#00095b] w-[128px] py-2 rounded-full text-center text-sm font-semibold transition-all cursor-pointer"
-                            >
-                              Xem chi tiết
-                            </Link>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Dots Pagination Indicators for News & Offers */}
-              <div className="flex justify-center gap-2 mt-8">
-                {homeArticles.map((_, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => {
-                      setIsNewsTransitioning(true);
-                      setActiveNewsIndex(homeArticles.length + idx);
-                      setIsNewsInteracted(true);
+            {homeArticles.length > 0 ? (
+              <>
+                {/* Slider track container */}
+                <div id="news-slider-container" className="relative w-full overflow-hidden py-4 select-none">
+                  <style dangerouslySetInnerHTML={{ __html: `
+                    #news-slider-container {
+                      --card-width-news: calc((100% - 2 * 24px) / 3);
+                      --card-gap-news: 24px;
+                    }
+                    @media (max-width: 1024px) {
+                      #news-slider-container {
+                        --card-width-news: calc((100% - 24px) / 2);
+                        --card-gap-news: 24px;
+                      }
+                    }
+                    @media (max-width: 640px) {
+                      #news-slider-container {
+                        --card-width-news: calc(100% - 32px);
+                        --card-gap-news: 16px;
+                      }
+                    }
+                  ` }} />
+                  <div
+                    className="flex cursor-grab active:cursor-grabbing"
+                    style={{
+                      transform: `translateX(calc(-${activeNewsIndex} * (var(--card-width-news, 360px) + var(--card-gap-news, 24px)) + ${newsDragOffset}px))`,
+                      transition: isNewsDragging.current ? "none" : (isNewsTransitioning ? "transform 500ms ease-in-out" : "none"),
+                      gap: "var(--card-gap-news, 24px)"
                     }}
-                    className={`h-2 transition-all rounded-full cursor-pointer ${
-                      activeNewsIndex % homeArticles.length === idx ? "w-6 bg-[#0562d2]" : "w-2 bg-white/30"
-                    }`}
-                    aria-label={`Go to article slide ${idx + 1}`}
-                  />
-                ))}
-              </div>
-            </>
-          ) : (
-            <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full">
-              <div className="max-w-[1152px] mx-auto w-full text-center py-20 bg-white/5 border border-white/10 rounded-[12px]">
+                    onTransitionEnd={handleNewsTransitionEnd}
+                    onMouseEnter={() => setIsNewsHovered(true)}
+                    onMouseLeave={() => {
+                      setIsNewsHovered(false);
+                      handleNewsEnd();
+                    }}
+                    onMouseDown={(e) => handleNewsStart(e.clientX)}
+                    onMouseMove={(e) => handleNewsMove(e.clientX)}
+                    onMouseUp={handleNewsEnd}
+                    onTouchStart={(e) => {
+                      setIsNewsHovered(true);
+                      handleNewsStart(e.touches[0].clientX);
+                    }}
+                    onTouchMove={(e) => handleNewsMove(e.touches[0].clientX)}
+                    onTouchEnd={(e) => {
+                      setIsNewsHovered(false);
+                      handleNewsEnd();
+                    }}
+                  >
+                    {[...homeArticles, ...homeArticles, ...homeArticles].map((art, idx) => {
+                      const originalIdx = idx % homeArticles.length;
+                      return (
+                        <div
+                          key={`${art.id}-${idx}`}
+                          className="bg-transparent flex flex-col h-full group flex-shrink-0"
+                          style={{
+                            width: "var(--card-width-news, 360px)",
+                          }}
+                        >
+                          {/* Image */}
+                          <div className="aspect-[600/400] relative rounded-[12px] overflow-hidden w-full mb-6 bg-white/5">
+                            <Image
+                              src={art.image}
+                              alt={art.title}
+                              fill
+                              sizes="(max-width: 768px) 280px, 360px"
+                              className="object-cover group-hover:scale-103 transition-transform duration-300"
+                              onError={handleImageError}
+                            />
+                          </div>
+
+                          {/* Text info */}
+                          <div className="flex flex-col flex-1 justify-between text-white">
+                            <div>
+                              <h3 className="text-[18px] font-semibold text-white leading-[1.45] tracking-[0.18px] mb-4 min-h-[52px] line-clamp-2">
+                                {art.title}
+                              </h3>
+                            </div>
+
+                            <div className="pt-4">
+                              <Link
+                                href={`/tin-tuc/${art.id}`}
+                                onClick={(e) => {
+                                  if (newsWasDragged.current) {
+                                    e.preventDefault();
+                                  }
+                                }}
+                                className="inline-block border border-white text-white hover:bg-white hover:text-[#00095b] w-[128px] py-2 rounded-full text-center text-sm font-semibold transition-all cursor-pointer"
+                              >
+                                Xem chi tiết
+                              </Link>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Dots Pagination Indicators for News & Offers */}
+                <div className="flex justify-center gap-2 mt-8">
+                  {homeArticles.map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => {
+                        setIsNewsTransitioning(true);
+                        setActiveNewsIndex(homeArticles.length + idx);
+                        setIsNewsInteracted(true);
+                      }}
+                      className={`h-2 transition-all rounded-full cursor-pointer ${
+                        activeNewsIndex % homeArticles.length === idx ? "w-6 bg-[#0562d2]" : "w-2 bg-white/30"
+                      }`}
+                      aria-label={`Go to article slide ${idx + 1}`}
+                    />
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-20 bg-white/5 border border-white/10 rounded-[12px] w-full">
                 <p className="text-white/50 text-sm">Đang tải danh sách tin tức...</p>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </section>
 
