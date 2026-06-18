@@ -327,4 +327,98 @@ PROMPT;
 
         return trim($text);
     }
+
+    /**
+     * Viết bài viết hoặc tạo nội dung bài viết bằng AI
+     */
+    public function generateArticle(array $params): array
+    {
+        if (empty($this->apiKey)) {
+            return [
+                'success' => false,
+                'message' => 'API Key Gemini chưa được cấu hình.',
+            ];
+        }
+
+        $topic = $params['topic'] ?? '';
+        $tone = $params['tone'] ?? 'chuyên nghiệp';
+        $language = $params['language'] ?? 'vi';
+        $keywords = $params['keywords'] ?? '';
+        $outline = $params['outline'] ?? '';
+
+        $prompt = "Bạn là chuyên gia marketing chuyên viết bài blog và tin tức chuẩn SEO cho thương hiệu xe hơi Ford Đồng Nai.\n";
+        $prompt .= "Hãy viết một bài viết hoàn chỉnh và chất lượng cao bằng tiếng " . ($language === 'vi' ? 'Việt' : 'Anh') . " về chủ đề: \"{$topic}\".\n";
+        $prompt .= "Giọng điệu bài viết: {$tone}.\n";
+        if (!empty($keywords)) {
+            $prompt .= "Các từ khóa cần lồng ghép tự nhiên: {$keywords}.\n";
+        }
+        if (!empty($outline)) {
+            $prompt .= "Bám sát dàn ý sau để viết:\n{$outline}\n";
+        }
+        
+        $prompt .= "\n### Yêu Cầu Về Cấu Trúc Đầu Ra:\n";
+        $prompt .= "Bạn PHẢI trả về kết quả định dạng JSON thuần túy (không bọc trong thẻ Markdown ```json ... ```) gồm các trường sau:\n";
+        $prompt .= "{\n";
+        $prompt .= "  \"title\": \"Tiêu đề bài viết hấp dẫn, thu hút người đọc và chuẩn SEO\",\n";
+        $prompt .= "  \"description\": \"Mô tả ngắn (meta description) tóm tắt bài viết trong khoảng 150-160 ký tự\",\n";
+        $prompt .= "  \"content\": \"Nội dung bài viết chi tiết viết bằng định dạng HTML (sử dụng các thẻ h2, h3, p, strong, ul, li để cấu trúc bài viết đẹp mắt và chuyên nghiệp)\"\n";
+        $prompt .= "}\n";
+
+        try {
+            $response = Http::timeout(60)->post(
+                "{$this->baseUrl}/models/{$this->model}:generateContent?key={$this->apiKey}",
+                [
+                    'contents' => [
+                        [
+                            'role' => 'user',
+                            'parts' => [['text' => $prompt]],
+                        ]
+                    ],
+                    'generationConfig' => [
+                        'temperature' => 0.7,
+                        'maxOutputTokens' => 2048,
+                        'responseMimeType' => 'application/json',
+                    ],
+                ]
+            );
+
+            if (!$response->successful()) {
+                Log::error('Gemini Article generation failed', [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ]);
+                return [
+                    'success' => false,
+                    'message' => 'Lỗi kết nối Gemini API: ' . $response->status(),
+                ];
+            }
+
+            $data = $response->json();
+            $text = $data['candidates'][0]['content']['parts'][0]['text'] ?? '';
+            
+            $json = json_decode(trim($text), true);
+            if (!$json || !isset($json['content'])) {
+                return [
+                    'success' => false,
+                    'message' => 'Không thể phân tích dữ liệu JSON trả về từ AI.',
+                    'raw_text' => $text,
+                ];
+            }
+
+            return [
+                'success' => true,
+                'data' => $json,
+            ];
+        } catch (\Throwable $e) {
+            Log::error('generateArticle exception', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return [
+                'success' => false,
+                'message' => 'Có lỗi xảy ra: ' . $e->getMessage(),
+            ];
+        }
+    }
 }

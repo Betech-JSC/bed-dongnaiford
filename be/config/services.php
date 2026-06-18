@@ -41,4 +41,8 @@ return [
         'chat_id' => env('TELEGRAM_CHAT_ID', ''),
     ],
 
+    'firecrawl' => [
+        'key' => env('FIRECRAWL_API_KEY', ''),
+    ],
+
 ];

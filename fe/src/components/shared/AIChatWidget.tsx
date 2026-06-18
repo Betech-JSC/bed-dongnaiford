@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
@@ -7,8 +8,6 @@ import {
   Send,
   Loader2,
   Bot,
-  User,
-  Phone,
   GripVertical,
   Minus,
   Plus,
@@ -32,6 +31,17 @@ interface Message {
 interface Position {
   x: number;
   y: number;
+}
+
+interface FormSubmitData {
+  name?: string;
+  phone?: string;
+  email?: string;
+  vehicle?: string;
+  license_plate?: string;
+  date?: string;
+  time?: string;
+  type?: string;
 }
 
 const INITIAL_MESSAGE: Message = {
@@ -128,6 +138,7 @@ export function RecommendationCarousel({ slugs, reason }: RecommendationCarousel
         {recommendedVehicles.map((vehicle) => (
           <div key={vehicle.id} className="flex-shrink-0 w-48 bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col justify-between hover:shadow-md transition-shadow">
             <div className="p-2 bg-gray-50 flex items-center justify-center h-24 relative">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img 
                 src={vehicle.images[0]} 
                 alt={vehicle.name} 
@@ -160,7 +171,7 @@ export function RecommendationCarousel({ slugs, reason }: RecommendationCarousel
 interface InChatLeadFormProps {
   type: "test_drive" | "quote" | "callback";
   vehicle?: string;
-  onSubmit: (data: any) => void;
+  onSubmit: (data: FormSubmitData) => void;
 }
 
 export function InChatLeadForm({ type, vehicle, onSubmit }: InChatLeadFormProps) {
@@ -252,7 +263,7 @@ export function InChatLeadForm({ type, vehicle, onSubmit }: InChatLeadFormProps)
 }
 
 interface InChatServiceFormProps {
-  onSubmit: (data: any) => void;
+  onSubmit: (data: FormSubmitData) => void;
 }
 
 export function InChatServiceForm({ onSubmit }: InChatServiceFormProps) {
@@ -287,6 +298,15 @@ export function InChatServiceForm({ onSubmit }: InChatServiceFormProps) {
   };
 
   const today = new Date().toISOString().split("T")[0];
+
+  if (isSubmitted) {
+    return (
+      <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-xl text-center max-w-[90%]">
+        <p className="text-xs font-bold text-green-800">✅ Đăng ký lịch bảo dưỡng thành công!</p>
+        <p className="text-[10px] text-green-600 mt-1">Yêu cầu của bạn đã được ghi nhận. Cố vấn dịch vụ sẽ gọi điện xác nhận lịch hẹn sớm.</p>
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit} className="mt-2 p-3.5 bg-gray-50 border border-gray-200 rounded-xl space-y-2 max-w-[90%] shadow-sm">
@@ -399,6 +419,13 @@ export default function AIChatWidget() {
   const bubbleRef = useRef<HTMLButtonElement>(null);
   const windowRef = useRef<HTMLDivElement>(null);
 
+  const setDefaultPosition = useCallback(() => {
+    setPosition({
+      x: window.innerWidth - BUBBLE_SIZE - 24,
+      y: window.innerHeight - BUBBLE_SIZE - 24,
+    });
+  }, []);
+
   // Set mounted
   useEffect(() => {
     setMounted(true);
@@ -423,14 +450,7 @@ export default function AIChatWidget() {
     } else {
       setDefaultPosition();
     }
-  }, []);
-
-  const setDefaultPosition = () => {
-    setPosition({
-      x: window.innerWidth - BUBBLE_SIZE - 24,
-      y: window.innerHeight - BUBBLE_SIZE - 24,
-    });
-  };
+  }, [setDefaultPosition]);
 
   // Save position to localStorage
   useEffect(() => {
@@ -559,7 +579,7 @@ export default function AIChatWidget() {
         if (data.sessionId) setSessionId(data.sessionId);
         if (data.messages?.length > 1) {
           setMessages(
-            data.messages.map((m: any) => ({
+            data.messages.map((m: Omit<Message, "timestamp"> & { timestamp: string }) => ({
               ...m,
               timestamp: new Date(m.timestamp),
             }))
@@ -622,17 +642,17 @@ export default function AIChatWidget() {
     };
   }, [isOpen]);
 
-  const handleFormSubmit = useCallback(async (data: any, formType: string) => {
+  const handleFormSubmit = useCallback(async (data: FormSubmitData, formType: string) => {
     setIsLoading(true);
     let messageText = "";
     if (formType === "service_booking") {
       messageText = `[Đăng ký lịch dịch vụ] Xe: ${data.vehicle}, Biển số: ${data.license_plate}, Hẹn lúc: ${data.time} ngày ${data.date}, SĐT: ${data.phone}`;
     } else {
-      const typeLabel = {
+      const typeLabel = (data.type && {
         test_drive: "Đăng ký lái thử",
         quote: "Yêu cầu báo giá",
         callback: "Yêu cầu gọi lại",
-      }[data.type] || "Đăng ký thông tin";
+      }[data.type as "test_drive" | "quote" | "callback"]) || "Đăng ký thông tin";
       messageText = `[${typeLabel}] Họ tên: ${data.name}, SĐT: ${data.phone}${data.email ? `, Email: ${data.email}` : ""}${data.vehicle ? `, Xe: ${data.vehicle}` : ""}`;
     }
     const userMsg = { id: `user_form_${Date.now()}`, role: "user" as const, content: messageText, timestamp: new Date() };
@@ -650,7 +670,7 @@ export default function AIChatWidget() {
       if (reply) {
         setMessages((prev) => [...prev, { id: `bot_${Date.now()}`, role: "assistant", content: reply, timestamp: new Date() }]);
       }
-    } catch (e) {
+    } catch {
       setMessages((prev) => [...prev, { id: `bot_err_${Date.now()}`, role: "assistant", content: "Cảm ơn thông tin của bạn. Lịch hẹn của bạn đã được ghi nhận. Cố vấn dịch vụ sẽ gọi xác nhận ngay nhé!", timestamp: new Date() }]);
     } finally {
       setIsLoading(false);

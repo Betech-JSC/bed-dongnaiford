@@ -44,6 +44,8 @@ Route::middleware(['auth:admin'])->name('admin.')->group(function () {
     Route::post('folders/create', [FileController::class, 'folderCreate'])->name('files.folders.create');
     Route::post('folders/delete', [FileController::class, 'folderDelete'])->name('files.folders.delete');
 
+    Route::post('posts/generate-ai', [\App\Http\Controllers\Backend\PostController::class, 'generatePostByAI'])->name('posts.generate-ai');
+
     Route::post('model-data', [HelperController::class, 'getModelData'])->name('helper.model-data');
 
     Route::get('logs', [HelperController::class, 'getLogs'])->name('helper.logs');
