@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
             ServiceAgencyJobSeeder::class,
             AccessoryAndBrandSeeder::class,
             MaintenanceScheduleSeeder::class,
+            CustomerHandoverSeeder::class,
         ]);
     }
 }
