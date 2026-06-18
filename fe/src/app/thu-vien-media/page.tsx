@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { Video, AlertCircle, ChevronLeft, ChevronRight } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { postsAPI } from "@/lib/api";
 
 interface VideoItem {
@@ -194,9 +195,13 @@ const TikTokCard = ({ video }: { video: VideoItem }) => {
   );
 };
 
-export default function MediaPage() {
+function MediaPageContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pageParam = searchParams.get("page");
+  const currentPage = pageParam ? parseInt(pageParam, 10) || 1 : 1;
+
   const [videos, setVideos] = useState<VideoItem[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
 
@@ -277,7 +282,7 @@ export default function MediaPage() {
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
+      router.push(`/thu-vien-media?page=${page}`);
     }
   };
 
@@ -377,5 +382,17 @@ export default function MediaPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function MediaPage() {
+  return (
+    <Suspense fallback={
+      <div className="bg-[#fafafa] min-h-screen py-16 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#0562d2]" />
+      </div>
+    }>
+      <MediaPageContent />
+    </Suspense>
   );
 }
