@@ -239,7 +239,7 @@ export default function ProductDetailPage() {
     return apiVehicle
       ? {
         ...apiVehicle,
-        id: apiVehicle.slug,
+        id: apiVehicle.slug || String(apiVehicle.id),
         name: apiVehicle.title,
         typeName: apiVehicle.type_name || apiVehicle.typeName || (
           apiVehicle.type === 'suv'

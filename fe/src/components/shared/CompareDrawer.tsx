@@ -63,6 +63,8 @@ export default function CompareDrawer() {
             const price = typeof v.base_price === 'string' ? parseFloat(v.base_price) : (v.base_price || v.basePrice || 0);
             return {
               id,
+              originalId: v.id,
+              slug: v.slug,
               name,
               type: (v.type === 'suv' || v.type === 'pickup' || v.type === 'commercial' ? v.type : 'suv') as "suv" | "pickup" | "commercial",
               typeName: v.type_name || v.typeName || (v.type === 'suv' ? 'SUV' : v.type === 'pickup' ? 'Bán tải' : 'Thương mại'),
@@ -101,8 +103,30 @@ export default function CompareDrawer() {
     };
   }, []);
 
+  // Helper to match vehicle IDs/slugs robustly
+  const areIdsMatching = (id1: string | number, id2: string | number) => {
+    const s1 = String(id1).toLowerCase().trim();
+    const s2 = String(id2).toLowerCase().trim();
+    
+    if (s1 === s2) return true;
+    
+    const normalize = (s: string) => {
+      if (s === 'ford-transit-2024' || s === 'ford-transit' || s === '4') return 'transit';
+      if (s === 'new-mustang-mach-e' || s === 'ford-mustang-mach-e' || s === '6') return 'mach-e';
+      if (s === 'mustang-fastback' || s === 'ford-mustang' || s === '5') return 'mustang';
+      if (s === 'ford-territory' || s === '1') return 'territory';
+      if (s === 'ford-territory-moi' || s === '19') return 'territory-moi';
+      if (s === 'ford-everest' || s === '2') return 'everest';
+      if (s === 'ford-ranger' || s === '3') return 'ranger';
+      if (s === 'ford-explorer-2025' || s === 'ford-explorer' || s === '25') return 'explorer';
+      return s;
+    };
+
+    return normalize(s1) === normalize(s2);
+  };
+
   const handleRemove = (id: string) => {
-    const updated = selectedIds.filter((item) => item !== id);
+    const updated = selectedIds.filter((item) => !areIdsMatching(item, id));
     localStorage.setItem("compare-vehicles", JSON.stringify(updated));
     setSelectedIds(updated);
     
@@ -122,7 +146,11 @@ export default function CompareDrawer() {
   // Resolve vehicles details
   const compareVehicles = selectedIds
     .map((id) => {
-      return allVehicles.find((v) => v.id === id);
+      return allVehicles.find((v: any) => 
+        areIdsMatching(v.id, id) || 
+        (v.slug && areIdsMatching(v.slug, id)) || 
+        (v.originalId && areIdsMatching(v.originalId, id))
+      );
     })
     .filter((v): v is Vehicle => !!v);
 

@@ -43,6 +43,8 @@ export default function ComparePage() {
             return {
               ...v,
               id,
+              originalId: v.id,
+              slug: v.slug,
               name,
               basePrice: price,
               images: [image],
@@ -60,6 +62,7 @@ export default function ComparePage() {
                   dimensions: ver.specs?.dimensions || '',
                   clearance: ver.specs?.clearance || '',
                   fuelEconomy: ver.specs?.fuelEconomy || ver.specs?.fuel_guide || ver.specs?.fuel_economy || '',
+                  detailed_specs: ver.specs?.detailed_specs || [],
                 }
               })) : []
             };
@@ -112,6 +115,28 @@ export default function ComparePage() {
     }
   }, [allVehicles, selectedIds]);
 
+  // Helper to match vehicle IDs/slugs robustly
+  const areIdsMatching = (id1: string | number, id2: string | number) => {
+    const s1 = String(id1).toLowerCase().trim();
+    const s2 = String(id2).toLowerCase().trim();
+    
+    if (s1 === s2) return true;
+    
+    const normalize = (s: string) => {
+      if (s === 'ford-transit-2024' || s === 'ford-transit' || s === '4') return 'transit';
+      if (s === 'new-mustang-mach-e' || s === 'ford-mustang-mach-e' || s === '6') return 'mach-e';
+      if (s === 'mustang-fastback' || s === 'ford-mustang' || s === '5') return 'mustang';
+      if (s === 'ford-territory' || s === '1') return 'territory';
+      if (s === 'ford-territory-moi' || s === '19') return 'territory-moi';
+      if (s === 'ford-everest' || s === '2') return 'everest';
+      if (s === 'ford-ranger' || s === '3') return 'ranger';
+      if (s === 'ford-explorer-2025' || s === 'ford-explorer' || s === '25') return 'explorer';
+      return s;
+    };
+
+    return normalize(s1) === normalize(s2);
+  };
+
   const listToSearch = allVehicles;
 
   useEffect(() => {
@@ -121,7 +146,11 @@ export default function ComparePage() {
     }
 
     const details = selectedIds.map((id) => {
-      return allVehicles.find((v) => v.id === id) || null;
+      return allVehicles.find((v) => 
+        areIdsMatching(v.id, id) || 
+        (v.slug && areIdsMatching(v.slug, id)) || 
+        (v.originalId && areIdsMatching(v.originalId, id))
+      ) || null;
     });
     setSelectedVehicles(details);
   }, [selectedIds, allVehicles]);
@@ -148,7 +177,13 @@ export default function ComparePage() {
   const handleAdd = () => {
     if (selectedIds.length < MAX_COMPARE) {
       // Find a vehicle not already selected
-      const available = listToSearch.find((v) => !selectedIds.includes(v.id));
+      const available = listToSearch.find((v) => 
+        !selectedIds.some((id) => 
+          areIdsMatching(v.id, id) || 
+          (v.slug && areIdsMatching(v.slug, id)) || 
+          (v.originalId && areIdsMatching(v.originalId, id))
+        )
+      );
       if (available) {
         setSelectedIds((prev) => {
           const updated = [...prev, available.id];
@@ -323,38 +358,86 @@ export default function ComparePage() {
             </div>
 
             {/* Spec Rows */}
-            {SPEC_LABELS.map((spec, specIdx) => (
-              <div
-                key={spec.key}
-                className={`grid border-b border-gray-50 ${
-                  specIdx % 2 === 0 ? "bg-white" : "bg-gray-50/50"
-                }`}
-                style={{
-                  gridTemplateColumns: `200px repeat(${selectedIds.length}, 1fr)`,
-                }}
-              >
-                <div className="px-5 py-4 text-sm font-semibold text-gray-600">
-                  {spec.label}
-                </div>
-                {selectedIds.map((id, index) => {
-                  const v = selectedVehicles[index];
-                  // Find the first version that has any non-empty specs, fallback to the first version
-                  const representativeVersion = v?.versions?.find((ver: any) => 
-                    Object.values(ver.specs || {}).some(val => typeof val === 'string' && val.trim() !== '')
-                  ) || v?.versions?.[0];
+            {(() => {
+              // Helper to extract spec value with fallback to detailed_specs
+              const getSpecValue = (ver: any, specKey: string): string => {
+                if (!ver || !ver.specs) return "—";
+                
+                // 1. Try flat key first
+                const flatValue = ver.specs[specKey];
+                if (flatValue && typeof flatValue === 'string' && flatValue.trim() !== '') {
+                  return flatValue.trim();
+                }
+                
+                // 2. Fallback to detailed_specs
+                const detailed = ver.specs.detailed_specs;
+                if (Array.isArray(detailed)) {
+                  // Map specKey to search terms (lowercase)
+                  const searchTermsMap: Record<string, string[]> = {
+                    engine: ["động cơ"],
+                    power: ["công suất cực đại", "công suất"],
+                    torque: ["mô men xoắn cực đại", "mô-men xoắn cực đại", "mô men xoắn", "mô-men xoắn"],
+                    transmission: ["hộp số", "số tự động", "truyền động"],
+                    drivetrain: ["hệ dẫn động", "dẫn động"],
+                    dimensions: ["kích thước", "kích thước (mm)"],
+                    clearance: ["khoảng sáng gầm", "khoảng sáng gầm xe", "khoảng sáng gầm xe (mm)"],
+                    fuelEconomy: ["tiêu hao nhiên liệu", "mức tiêu thụ nhiên liệu", "chu trình tổ hợp", "kết hợp"]
+                  };
+                  
+                  const terms = searchTermsMap[specKey] || [];
+                  for (const cat of detailed) {
+                    if (Array.isArray(cat.items)) {
+                      for (const item of cat.items) {
+                        const itemName = String(item.name || '').toLowerCase();
+                        if (terms.some(term => itemName.includes(term))) {
+                          if (item.value && String(item.value).trim() !== '') {
+                            return String(item.value).trim();
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+                
+                return "—";
+              };
 
-                  const specValue = representativeVersion?.specs?.[spec.key] || "—";
-                  return (
-                    <div
-                      key={index}
-                      className="px-5 py-4 text-sm text-gray-700 text-center font-medium"
-                    >
-                      {specValue}
-                    </div>
-                  );
-                })}
-              </div>
-            ))}
+              return SPEC_LABELS.map((spec, specIdx) => (
+                <div
+                  key={spec.key}
+                  className={`grid border-b border-gray-55 ${
+                    specIdx % 2 === 0 ? "bg-white" : "bg-gray-50/50"
+                  }`}
+                  style={{
+                    gridTemplateColumns: `200px repeat(${selectedIds.length}, 1fr)`,
+                  }}
+                >
+                  <div className="px-5 py-4 text-sm font-semibold text-gray-600">
+                    {spec.label}
+                  </div>
+                  {selectedIds.map((id, index) => {
+                    const v = selectedVehicles[index];
+                    // Find the first version that has any non-empty specs, fallback to the first version
+                    const representativeVersion = v?.versions?.find((ver: any) => {
+                      const specsObj = ver.specs || {};
+                      return Object.entries(specsObj).some(([key, val]) => 
+                        key !== 'detailed_specs' && typeof val === 'string' && val.trim() !== ''
+                      ) || (Array.isArray(specsObj.detailed_specs) && specsObj.detailed_specs.length > 0);
+                    }) || v?.versions?.[0];
+
+                    const specValue = getSpecValue(representativeVersion, spec.key);
+                    return (
+                      <div
+                        key={index}
+                        className="px-5 py-4 text-sm text-gray-700 text-center font-medium"
+                      >
+                        {specValue}
+                      </div>
+                    );
+                  })}
+                </div>
+              ));
+            })()}
 
             {/* CTA Row */}
             <div

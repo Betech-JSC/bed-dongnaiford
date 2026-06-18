@@ -71,7 +71,7 @@ function parseMessageContent(content: string): ParsedContent {
   let serviceForm: ParsedContent["serviceForm"];
 
   // 1. Check for RECOMMEND_VEHICLE
-  const recommendMatch = text.match(/\[RECOMMEND_VEHICLE\](.*?)\[\/RECOMMEND_VEHICLE\]/s);
+  const recommendMatch = text.match(/\[RECOMMEND_VEHICLE\]([\s\S]*?)\[\/RECOMMEND_VEHICLE\]/);
   if (recommendMatch) {
     try {
       recommendation = JSON.parse(recommendMatch[1]);
@@ -82,7 +82,7 @@ function parseMessageContent(content: string): ParsedContent {
   }
 
   // 2. Check for SHOW_LEAD_FORM
-  const leadMatch = text.match(/\[SHOW_LEAD_FORM\](.*?)\[\/SHOW_LEAD_FORM\]/s);
+  const leadMatch = text.match(/\[SHOW_LEAD_FORM\]([\s\S]*?)\[\/SHOW_LEAD_FORM\]/);
   if (leadMatch) {
     try {
       leadForm = JSON.parse(leadMatch[1]);
@@ -93,7 +93,7 @@ function parseMessageContent(content: string): ParsedContent {
   }
 
   // 3. Check for SHOW_SERVICE_FORM
-  const serviceMatch = text.match(/\[SHOW_SERVICE_FORM\](.*?)\[\/SHOW_SERVICE_FORM\]/s);
+  const serviceMatch = text.match(/\[SHOW_SERVICE_FORM\]([\s\S]*?)\[\/SHOW_SERVICE_FORM\]/);
   if (serviceMatch) {
     try {
       serviceForm = JSON.parse(serviceMatch[1]);
