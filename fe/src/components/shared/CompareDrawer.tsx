@@ -63,8 +63,6 @@ export default function CompareDrawer() {
             const price = typeof v.base_price === 'string' ? parseFloat(v.base_price) : (v.base_price || v.basePrice || 0);
             return {
               id,
-              originalId: v.id,
-              slug: v.slug,
               name,
               type: (v.type === 'suv' || v.type === 'pickup' || v.type === 'commercial' ? v.type : 'suv') as "suv" | "pickup" | "commercial",
               typeName: v.type_name || v.typeName || (v.type === 'suv' ? 'SUV' : v.type === 'pickup' ? 'Bán tải' : 'Thương mại'),
@@ -103,30 +101,8 @@ export default function CompareDrawer() {
     };
   }, []);
 
-  // Helper to match vehicle IDs/slugs robustly
-  const areIdsMatching = (id1: string | number, id2: string | number) => {
-    const s1 = String(id1).toLowerCase().trim();
-    const s2 = String(id2).toLowerCase().trim();
-    
-    if (s1 === s2) return true;
-    
-    const normalize = (s: string) => {
-      if (s === 'ford-transit-2024' || s === 'ford-transit' || s === '4') return 'transit';
-      if (s === 'new-mustang-mach-e' || s === 'ford-mustang-mach-e' || s === '6') return 'mach-e';
-      if (s === 'mustang-fastback' || s === 'ford-mustang' || s === '5') return 'mustang';
-      if (s === 'ford-territory' || s === '1') return 'territory';
-      if (s === 'ford-territory-moi' || s === '19') return 'territory-moi';
-      if (s === 'ford-everest' || s === '2') return 'everest';
-      if (s === 'ford-ranger' || s === '3') return 'ranger';
-      if (s === 'ford-explorer-2025' || s === 'ford-explorer' || s === '25') return 'explorer';
-      return s;
-    };
-
-    return normalize(s1) === normalize(s2);
-  };
-
   const handleRemove = (id: string) => {
-    const updated = selectedIds.filter((item) => !areIdsMatching(item, id));
+    const updated = selectedIds.filter((item) => item !== id);
     localStorage.setItem("compare-vehicles", JSON.stringify(updated));
     setSelectedIds(updated);
     
@@ -146,11 +122,7 @@ export default function CompareDrawer() {
   // Resolve vehicles details
   const compareVehicles = selectedIds
     .map((id) => {
-      return allVehicles.find((v: any) => 
-        areIdsMatching(v.id, id) || 
-        (v.slug && areIdsMatching(v.slug, id)) || 
-        (v.originalId && areIdsMatching(v.originalId, id))
-      );
+      return allVehicles.find((v) => v.id === id);
     })
     .filter((v): v is Vehicle => !!v);
 
@@ -233,14 +205,44 @@ export default function CompareDrawer() {
           ))}
 
           {/* Empty placeholders to reach 3 items */}
-          {Array.from({ length: 3 - compareVehicles.length }).map((_, i) => (
-            <div
-              key={i}
-              className="border border-dashed border-white/20 rounded-xl p-3 flex items-center justify-center h-[66px] text-xs text-white/40 font-medium select-none"
-            >
-              <span>+ Trống</span>
-            </div>
-          ))}
+          {Array.from({ length: 3 - compareVehicles.length }).map((_, i) => {
+            const availableVehicles = allVehicles.filter((v) => !selectedIds.includes(v.id));
+            
+            return (
+              <div
+                key={i}
+                className="relative border border-dashed border-white/20 hover:border-white/40 rounded-xl flex items-center justify-center h-[66px] text-xs text-white/40 font-medium transition-all hover:bg-white/5 group cursor-pointer"
+              >
+                {availableVehicles.length > 0 ? (
+                  <>
+                    <select
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val) {
+                          const updated = [...selectedIds, val];
+                          localStorage.setItem("compare-vehicles", JSON.stringify(updated));
+                          setSelectedIds(updated);
+                          window.dispatchEvent(new Event("compare-updated"));
+                        }
+                      }}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                      value=""
+                    >
+                      <option value="" disabled>+ Chọn xe so sánh</option>
+                      {availableVehicles.map((v) => (
+                        <option key={v.id} value={v.id} className="text-black bg-white">
+                          {v.name}
+                        </option>
+                      ))}
+                    </select>
+                    <span className="group-hover:text-blue-400 transition-colors">+ Trống</span>
+                  </>
+                ) : (
+                  <span>+ Trống</span>
+                )}
+              </div>
+            );
+          })}
         </div>
 
         {/* Action button panel - Stacked Vertically */}

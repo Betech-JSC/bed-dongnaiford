@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ChevronDown, X, Plus, ArrowRight } from "lucide-react";
+import { ChevronDown, X, Plus, ArrowRight, Trash2, GitCompare } from "lucide-react";
 import { type Vehicle, type Specs } from "@/data/vehicles";
 import { getPopularVehicleImage, handleImageError } from "@/lib/site-assets";
 import { formatPriceShort } from "@/lib/rolling-cost";
@@ -27,6 +27,7 @@ export default function ComparePage() {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [allVehicles, setAllVehicles] = useState<any[]>([]);
   const [selectedVehicles, setSelectedVehicles] = useState<(any | null)[]>([]);
+  const [hasClearedAll, setHasClearedAll] = useState(false);
 
   // Fetch API vehicles on mount
   useEffect(() => {
@@ -43,8 +44,6 @@ export default function ComparePage() {
             return {
               ...v,
               id,
-              originalId: v.id,
-              slug: v.slug,
               name,
               basePrice: price,
               images: [image],
@@ -62,7 +61,6 @@ export default function ComparePage() {
                   dimensions: ver.specs?.dimensions || '',
                   clearance: ver.specs?.clearance || '',
                   fuelEconomy: ver.specs?.fuelEconomy || ver.specs?.fuel_guide || ver.specs?.fuel_economy || '',
-                  detailed_specs: ver.specs?.detailed_specs || [],
                 }
               })) : []
             };
@@ -107,35 +105,28 @@ export default function ComparePage() {
 
   // Default fallback when allVehicles are loaded and selectedIds is still empty
   useEffect(() => {
-    if (allVehicles.length > 0 && selectedIds.length === 0) {
+    if (allVehicles.length > 0 && selectedIds.length === 0 && !hasClearedAll) {
       setSelectedIds([
         allVehicles[0]?.id || "",
         allVehicles[1]?.id || "",
       ].filter(Boolean));
     }
-  }, [allVehicles, selectedIds]);
+  }, [allVehicles, selectedIds, hasClearedAll]);
 
-  // Helper to match vehicle IDs/slugs robustly
-  const areIdsMatching = (id1: string | number, id2: string | number) => {
-    const s1 = String(id1).toLowerCase().trim();
-    const s2 = String(id2).toLowerCase().trim();
-    
-    if (s1 === s2) return true;
-    
-    const normalize = (s: string) => {
-      if (s === 'ford-transit-2024' || s === 'ford-transit' || s === '4') return 'transit';
-      if (s === 'new-mustang-mach-e' || s === 'ford-mustang-mach-e' || s === '6') return 'mach-e';
-      if (s === 'mustang-fastback' || s === 'ford-mustang' || s === '5') return 'mustang';
-      if (s === 'ford-territory' || s === '1') return 'territory';
-      if (s === 'ford-territory-moi' || s === '19') return 'territory-moi';
-      if (s === 'ford-everest' || s === '2') return 'everest';
-      if (s === 'ford-ranger' || s === '3') return 'ranger';
-      if (s === 'ford-explorer-2025' || s === 'ford-explorer' || s === '25') return 'explorer';
-      return s;
-    };
-
-    return normalize(s1) === normalize(s2);
-  };
+  // Sync URL query params with selectedIds
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (selectedIds.length > 0) {
+        params.set("ids", selectedIds.join(","));
+      } else {
+        params.delete("ids");
+      }
+      const newSearch = params.toString();
+      const newPath = newSearch ? `?${newSearch}` : window.location.pathname;
+      window.history.replaceState(null, "", newPath);
+    }
+  }, [selectedIds]);
 
   const listToSearch = allVehicles;
 
@@ -146,11 +137,7 @@ export default function ComparePage() {
     }
 
     const details = selectedIds.map((id) => {
-      return allVehicles.find((v) => 
-        areIdsMatching(v.id, id) || 
-        (v.slug && areIdsMatching(v.slug, id)) || 
-        (v.originalId && areIdsMatching(v.originalId, id))
-      ) || null;
+      return allVehicles.find((v) => v.id === id) || null;
     });
     setSelectedVehicles(details);
   }, [selectedIds, allVehicles]);
@@ -161,6 +148,7 @@ export default function ComparePage() {
       updated[index] = vehicleId;
       localStorage.setItem("compare-vehicles", JSON.stringify(updated.filter(Boolean)));
       window.dispatchEvent(new Event("compare-updated"));
+      setHasClearedAll(false);
       return updated;
     });
   };
@@ -170,6 +158,9 @@ export default function ComparePage() {
       const updated = prev.filter((_, i) => i !== index);
       localStorage.setItem("compare-vehicles", JSON.stringify(updated.filter(Boolean)));
       window.dispatchEvent(new Event("compare-updated"));
+      if (updated.length === 0) {
+        setHasClearedAll(true);
+      }
       return updated;
     });
   };
@@ -177,22 +168,24 @@ export default function ComparePage() {
   const handleAdd = () => {
     if (selectedIds.length < MAX_COMPARE) {
       // Find a vehicle not already selected
-      const available = listToSearch.find((v) => 
-        !selectedIds.some((id) => 
-          areIdsMatching(v.id, id) || 
-          (v.slug && areIdsMatching(v.slug, id)) || 
-          (v.originalId && areIdsMatching(v.originalId, id))
-        )
-      );
+      const available = listToSearch.find((v) => !selectedIds.includes(v.id));
       if (available) {
         setSelectedIds((prev) => {
           const updated = [...prev, available.id];
           localStorage.setItem("compare-vehicles", JSON.stringify(updated));
           window.dispatchEvent(new Event("compare-updated"));
+          setHasClearedAll(false);
           return updated;
         });
       }
     }
+  };
+
+  const handleClearAll = () => {
+    localStorage.removeItem("compare-vehicles");
+    setSelectedIds([]);
+    setHasClearedAll(true);
+    window.dispatchEvent(new Event("compare-updated"));
   };
 
   return (
@@ -233,247 +226,262 @@ export default function ComparePage() {
       {/* Compare Content */}
       <section className="py-10 md:py-14">
         <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px]">
-          {/* Vehicle Selector Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-            {selectedIds.map((id, index) => {
-              const vehicle = selectedVehicles[index];
-              return (
-                <div
-                  key={index}
-                  className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm relative"
-                >
-                  {/* Remove button */}
-                  {selectedIds.length > 2 && (
-                    <button
-                      onClick={() => handleRemove(index)}
-                      className="absolute -top-2.5 -right-2.5 w-6 h-6 rounded-full bg-white border border-gray-200 hover:bg-red-50 hover:text-red-500 flex items-center justify-center text-gray-400 transition-all cursor-pointer shadow-sm z-10"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                  )}
-
-                  {/* Vehicle Dropdown */}
-                  <div className="relative mb-4">
-                    <select
-                      value={id}
-                      onChange={(e) => handleSelect(index, e.target.value)}
-                      className="w-full appearance-none bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 pr-10 text-sm font-bold text-[#1a1a1a] uppercase focus:outline-none focus:ring-2 focus:ring-[#0562d2] focus:border-transparent cursor-pointer"
-                    >
-                      {listToSearch.map((v) => (
-                        <option key={v.id} value={v.id}>
-                          {v.name}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-                  </div>
-
-                  {/* Vehicle Preview */}
-                  {vehicle && (
-                    <>
-                      <div className="relative w-full h-[130px] mb-3">
-                        <Image
-                          src={
-                            vehicle.images?.[0]?.startsWith("http") || vehicle.images?.[0]?.startsWith("/")
-                              ? vehicle.images[0]
-                              : getPopularVehicleImage(vehicle.id, vehicle.images?.[0] || "")
-                          }
-                          alt={vehicle.name}
-                          fill
-                          sizes="300px"
-                          className="object-contain"
-                          onError={handleImageError}
-                        />
-                      </div>
-                      <div className="text-center">
-                        <span className="text-xs font-semibold text-[#0562D2] bg-blue-50 px-2.5 py-1 rounded-full">
-                          {vehicle.typeName}
-                        </span>
-                        <p className="mt-2 text-sm text-gray-500">
-                          Giá từ:{" "}
-                          <span className="font-bold text-[#0562D2]">
-                            {formatPriceShort(vehicle.basePrice)}
-                          </span>
-                        </p>
-                      </div>
-                    </>
-                  )}
-                </div>
-              );
-            })}
-
-            {/* Add Vehicle Button */}
-            {selectedIds.length < MAX_COMPARE && (
-              <button
-                onClick={handleAdd}
-                className="bg-white rounded-2xl border-2 border-dashed border-gray-300 hover:border-[#0562d2] p-5 flex flex-col items-center justify-center gap-3 text-gray-400 hover:text-[#0562d2] transition-all cursor-pointer min-h-[280px]"
-              >
-                <Plus className="w-8 h-8" />
-                <span className="text-sm font-semibold">Thêm xe so sánh</span>
-              </button>
-            )}
-          </div>
-
-          {/* Specs Comparison Table */}
-          <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
-            {/* Header Row */}
-            <div
-              className="grid border-b-2 border-gray-200 bg-[#00095B] text-white"
-              style={{
-                gridTemplateColumns: `200px repeat(${selectedIds.length}, 1fr)`,
-              }}
-            >
-              <div className="px-5 py-4 text-sm font-bold">Thông số</div>
-              {selectedIds.map((id, index) => {
-                const v = selectedVehicles[index];
-                return (
-                  <div key={index} className="px-5 py-4 text-sm font-bold text-center">
-                    {v?.name || "Đang tải..."}
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Price Row */}
-            <div
-              className="grid border-b border-gray-100 bg-blue-50/50"
-              style={{
-                gridTemplateColumns: `200px repeat(${selectedIds.length}, 1fr)`,
-              }}
-            >
-              <div className="px-5 py-4 text-sm font-bold text-gray-700">
-                Giá khởi điểm
+          {selectedIds.length === 0 ? (
+            <div className="bg-white rounded-2xl border border-gray-200 p-8 md:p-12 text-center max-w-2xl mx-auto shadow-sm">
+              <div className="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center mx-auto mb-6">
+                <GitCompare className="w-8 h-8 text-[#0562d2]" />
               </div>
-              {selectedIds.map((id, index) => {
-                const v = selectedVehicles[index];
-                return (
-                  <div
-                    key={index}
-                    className="px-5 py-4 text-sm font-bold text-[#0562D2] text-center"
+              <h3 className="text-xl font-bold text-[#1a1a1a] mb-2">
+                Chưa có sản phẩm nào để so sánh
+              </h3>
+              <p className="text-gray-500 text-sm mb-8">
+                Vui lòng chọn từ danh sách xe bên dưới để bắt đầu so sánh thông số kỹ thuật chi tiết.
+              </p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-left">
+                {listToSearch.map((vehicle) => (
+                  <button
+                    key={vehicle.id}
+                    onClick={() => {
+                      setSelectedIds([vehicle.id]);
+                      localStorage.setItem("compare-vehicles", JSON.stringify([vehicle.id]));
+                      window.dispatchEvent(new Event("compare-updated"));
+                      setHasClearedAll(false);
+                    }}
+                    className="p-4 rounded-xl border border-gray-100 hover:border-[#0562d2] hover:bg-blue-50/10 transition-all text-left flex flex-col items-center justify-center gap-2 group cursor-pointer bg-white"
                   >
-                    {v ? formatPriceShort(v.basePrice) : "—"}
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Spec Rows */}
-            {(() => {
-              // Helper to extract spec value with fallback to detailed_specs
-              const getSpecValue = (ver: any, specKey: string): string => {
-                if (!ver || !ver.specs) return "—";
-                
-                // 1. Try flat key first
-                const flatValue = ver.specs[specKey];
-                if (flatValue && typeof flatValue === 'string' && flatValue.trim() !== '') {
-                  return flatValue.trim();
-                }
-                
-                // 2. Fallback to detailed_specs
-                const detailed = ver.specs.detailed_specs;
-                if (Array.isArray(detailed)) {
-                  // Map specKey to search terms (lowercase)
-                  const searchTermsMap: Record<string, string[]> = {
-                    engine: ["động cơ"],
-                    power: ["công suất cực đại", "công suất"],
-                    torque: ["mô men xoắn cực đại", "mô-men xoắn cực đại", "mô men xoắn", "mô-men xoắn"],
-                    transmission: ["hộp số", "số tự động", "truyền động"],
-                    drivetrain: ["hệ dẫn động", "dẫn động"],
-                    dimensions: ["kích thước", "kích thước (mm)"],
-                    clearance: ["khoảng sáng gầm", "khoảng sáng gầm xe", "khoảng sáng gầm xe (mm)"],
-                    fuelEconomy: ["tiêu hao nhiên liệu", "mức tiêu thụ nhiên liệu", "chu trình tổ hợp", "kết hợp"]
-                  };
-                  
-                  const terms = searchTermsMap[specKey] || [];
-                  for (const cat of detailed) {
-                    if (Array.isArray(cat.items)) {
-                      for (const item of cat.items) {
-                        const itemName = String(item.name || '').toLowerCase();
-                        if (terms.some(term => itemName.includes(term))) {
-                          if (item.value && String(item.value).trim() !== '') {
-                            return String(item.value).trim();
-                          }
+                    <div className="relative w-full h-[60px]">
+                      <Image
+                        src={
+                          vehicle.images?.[0]?.startsWith("http") || vehicle.images?.[0]?.startsWith("/")
+                            ? vehicle.images[0]
+                            : getPopularVehicleImage(vehicle.id, vehicle.images?.[0] || "")
                         }
-                      }
-                    }
-                  }
-                }
-                
-                return "—";
-              };
+                        alt={vehicle.name}
+                        fill
+                        sizes="120px"
+                        className="object-contain group-hover:scale-105 transition-transform"
+                        onError={handleImageError}
+                      />
+                    </div>
+                    <span className="text-xs font-bold text-[#1a1a1a] uppercase text-center truncate w-full mt-1">
+                      {vehicle.name}
+                    </span>
+                    <span className="text-[10px] font-semibold text-[#0562D2] bg-blue-50 px-2 py-0.5 rounded-full">
+                      + Thêm so sánh
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <>
+              {/* Header with Title & Clear All */}
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+                <h2 className="text-xl md:text-2xl font-bold text-[#1a1a1a] tracking-tight">
+                  Danh sách so sánh
+                </h2>
+                <button
+                  onClick={handleClearAll}
+                  className="flex items-center justify-center gap-1.5 text-xs font-semibold text-gray-500 hover:text-red-600 px-4 py-2.5 rounded-xl transition-colors cursor-pointer bg-white border border-solid border-gray-200 hover:border-red-200 hover:bg-red-50/50 w-full sm:w-auto shadow-sm animate-fade-in"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Xóa tất cả</span>
+                </button>
+              </div>
 
-              return SPEC_LABELS.map((spec, specIdx) => (
+              {/* Vehicle Selector Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                {selectedIds.map((id, index) => {
+                  const vehicle = selectedVehicles[index];
+                  return (
+                    <div
+                      key={index}
+                      className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm relative"
+                    >
+                      {/* Remove button */}
+                      <button
+                        onClick={() => handleRemove(index)}
+                        className="absolute -top-2.5 -right-2.5 w-6 h-6 rounded-full bg-white border border-gray-200 hover:bg-red-50 hover:text-red-500 flex items-center justify-center text-gray-400 transition-all cursor-pointer shadow-sm z-10 animate-fade-in"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+
+                      {/* Vehicle Dropdown */}
+                      <div className="relative mb-4">
+                        <select
+                          value={id}
+                          onChange={(e) => handleSelect(index, e.target.value)}
+                          className="w-full appearance-none bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 pr-10 text-sm font-bold text-[#1a1a1a] uppercase focus:outline-none focus:ring-2 focus:ring-[#0562d2] focus:border-transparent cursor-pointer"
+                        >
+                          {listToSearch.map((v) => (
+                            <option key={v.id} value={v.id}>
+                              {v.name}
+                            </option>
+                          ))}
+                        </select>
+                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                      </div>
+
+                      {/* Vehicle Preview */}
+                      {vehicle && (
+                        <>
+                          <div className="relative w-full h-[130px] mb-3">
+                            <Image
+                              src={
+                                vehicle.images?.[0]?.startsWith("http") || vehicle.images?.[0]?.startsWith("/")
+                                  ? vehicle.images[0]
+                                  : getPopularVehicleImage(vehicle.id, vehicle.images?.[0] || "")
+                              }
+                              alt={vehicle.name}
+                              fill
+                              sizes="300px"
+                              className="object-contain animate-fade-in"
+                              onError={handleImageError}
+                            />
+                          </div>
+                          <div className="text-center">
+                            <span className="text-xs font-semibold text-[#0562D2] bg-blue-50 px-2.5 py-1 rounded-full">
+                              {vehicle.typeName}
+                            </span>
+                            <p className="mt-2 text-sm text-gray-500">
+                              Giá từ:{" "}
+                              <span className="font-bold text-[#0562D2]">
+                                {formatPriceShort(vehicle.basePrice)}
+                              </span>
+                            </p>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  );
+                })}
+
+                {/* Add Vehicle Button */}
+                {selectedIds.length < MAX_COMPARE && (
+                  <button
+                    onClick={handleAdd}
+                    className="bg-white rounded-2xl border-2 border-dashed border-gray-300 hover:border-[#0562d2] p-5 flex flex-col items-center justify-center gap-3 text-gray-400 hover:text-[#0562d2] transition-all cursor-pointer min-h-[280px]"
+                  >
+                    <Plus className="w-8 h-8" />
+                    <span className="text-sm font-semibold">Thêm xe so sánh</span>
+                  </button>
+                )}
+              </div>
+
+              {/* Specs Comparison Table */}
+              <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
+                {/* Header Row */}
                 <div
-                  key={spec.key}
-                  className={`grid border-b border-gray-55 ${
-                    specIdx % 2 === 0 ? "bg-white" : "bg-gray-50/50"
-                  }`}
+                  className="grid border-b-2 border-gray-200 bg-[#00095B] text-white"
                   style={{
                     gridTemplateColumns: `200px repeat(${selectedIds.length}, 1fr)`,
                   }}
                 >
-                  <div className="px-5 py-4 text-sm font-semibold text-gray-600">
-                    {spec.label}
-                  </div>
+                  <div className="px-5 py-4 text-sm font-bold">Thông số</div>
                   {selectedIds.map((id, index) => {
                     const v = selectedVehicles[index];
-                    // Find the first version that has any non-empty specs, fallback to the first version
-                    const representativeVersion = v?.versions?.find((ver: any) => {
-                      const specsObj = ver.specs || {};
-                      return Object.entries(specsObj).some(([key, val]) => 
-                        key !== 'detailed_specs' && typeof val === 'string' && val.trim() !== ''
-                      ) || (Array.isArray(specsObj.detailed_specs) && specsObj.detailed_specs.length > 0);
-                    }) || v?.versions?.[0];
-
-                    const specValue = getSpecValue(representativeVersion, spec.key);
                     return (
-                      <div
-                        key={index}
-                        className="px-5 py-4 text-sm text-gray-700 text-center font-medium"
-                      >
-                        {specValue}
+                      <div key={index} className="px-5 py-4 text-sm font-bold text-center">
+                        {v?.name || "Đang tải..."}
                       </div>
                     );
                   })}
                 </div>
-              ));
-            })()}
 
-            {/* CTA Row */}
-            <div
-              className="grid bg-gray-50"
-              style={{
-                gridTemplateColumns: `200px repeat(${selectedIds.length}, 1fr)`,
-              }}
-            >
-              <div className="px-5 py-5" />
-              {selectedIds.map((id, index) => {
-                const v = selectedVehicles[index];
-                return v ? (
-                  <div
-                    key={index}
-                    className="px-5 py-5 flex flex-col items-center gap-2"
-                  >
-                    <Link
-                      href={`/san-pham/${v.id}`}
-                      className="text-xs font-semibold text-[#0562d2] hover:text-[#044ea7] transition-colors flex items-center gap-1"
-                    >
-                      Xem chi tiết
-                      <ArrowRight className="w-3 h-3" />
-                    </Link>
-                    <Link
-                      href={`/lien-he?vehicle=${v.id}&reason=Nhận báo giá`}
-                      className="text-xs font-semibold text-white bg-[#0562d2] hover:bg-[#044ea7] px-4 py-2 rounded-full transition-colors"
-                    >
-                      Nhận báo giá
-                    </Link>
+                {/* Price Row */}
+                <div
+                  className="grid border-b border-gray-100 bg-blue-50/50"
+                  style={{
+                    gridTemplateColumns: `200px repeat(${selectedIds.length}, 1fr)`,
+                  }}
+                >
+                  <div className="px-5 py-4 text-sm font-bold text-gray-700">
+                    Giá khởi điểm
                   </div>
-                ) : (
-                  <div key={index} className="px-5 py-5" />
-                );
-              })}
-            </div>
-          </div>
+                  {selectedIds.map((id, index) => {
+                    const v = selectedVehicles[index];
+                    return (
+                      <div
+                        key={index}
+                        className="px-5 py-4 text-sm font-bold text-[#0562D2] text-center"
+                      >
+                        {v ? formatPriceShort(v.basePrice) : "—"}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Spec Rows */}
+                {SPEC_LABELS.map((spec, specIdx) => (
+                  <div
+                    key={spec.key}
+                    className={`grid border-b border-gray-50 ${
+                      specIdx % 2 === 0 ? "bg-white" : "bg-gray-50/50"
+                    }`}
+                    style={{
+                      gridTemplateColumns: `200px repeat(${selectedIds.length}, 1fr)`,
+                    }}
+                  >
+                    <div className="px-5 py-4 text-sm font-semibold text-gray-600">
+                      {spec.label}
+                    </div>
+                    {selectedIds.map((id, index) => {
+                      const v = selectedVehicles[index];
+                      // Find the first version that has any non-empty specs, fallback to the first version
+                      const representativeVersion = v?.versions?.find((ver: any) => 
+                        Object.values(ver.specs || {}).some(val => typeof val === 'string' && val.trim() !== '')
+                      ) || v?.versions?.[0];
+
+                      const specValue = representativeVersion?.specs?.[spec.key] || "—";
+                      return (
+                        <div
+                          key={index}
+                          className="px-5 py-4 text-sm text-gray-700 text-center font-medium"
+                        >
+                          {specValue}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ))}
+
+                {/* CTA Row */}
+                <div
+                  className="grid bg-gray-50"
+                  style={{
+                    gridTemplateColumns: `200px repeat(${selectedIds.length}, 1fr)`,
+                  }}
+                >
+                  <div className="px-5 py-5" />
+                  {selectedIds.map((id, index) => {
+                    const v = selectedVehicles[index];
+                    return v ? (
+                      <div
+                        key={index}
+                        className="px-5 py-5 flex flex-col items-center gap-2"
+                      >
+                        <Link
+                          href={`/san-pham/${v.id}`}
+                          className="text-xs font-semibold text-[#0562d2] hover:text-[#044ea7] transition-colors flex items-center gap-1"
+                        >
+                          Xem chi tiết
+                          <ArrowRight className="w-3 h-3" />
+                        </Link>
+                        <Link
+                          href={`/lien-he?vehicle=${v.id}&reason=Nhận báo giá`}
+                          className="text-xs font-semibold text-white bg-[#0562d2] hover:bg-[#044ea7] px-4 py-2 rounded-full transition-colors"
+                        >
+                          Nhận báo giá
+                        </Link>
+                      </div>
+                    ) : (
+                      <div key={index} className="px-5 py-5" />
+                    );
+                  })}
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </section>
 

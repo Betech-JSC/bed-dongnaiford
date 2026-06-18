@@ -1,11 +1,10 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { MapPin, Phone, Mail, CheckCircle, X } from "lucide-react";
-import { vehicles } from "@/data/vehicles";
 import { siteAssets } from "@/lib/site-assets";
-import { contactsAPI } from "@/lib/api";
+import { contactsAPI, vehiclesAPI } from "@/lib/api";
 
 function ContactFormContent() {
   const searchParams = useSearchParams();
@@ -19,11 +18,34 @@ function ContactFormContent() {
   const [formPhone, setFormPhone] = useState("");
   const [formEmail, setFormEmail] = useState("");
   const [formNote, setFormNote] = useState(() => noteParam || "");
+  const [allVehicles, setAllVehicles] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchVehicles = async () => {
+      try {
+        const res = await vehiclesAPI.getAll().catch(() => null);
+        const items = res?.data || res;
+        if (Array.isArray(items) && items.length > 0) {
+          setAllVehicles(items.map((v: any) => ({
+            id: v.slug || v.id,
+            name: v.title || v.name
+          })));
+        }
+      } catch (e) {
+        console.error("Error loading vehicles in ContactPage:", e);
+      }
+    };
+    fetchVehicles();
+  }, []);
+
+  const getVehicleName = (vId: string) => {
+    const found = allVehicles.find((v) => v.id === vId);
+    if (found) return found.name;
+    return vId.split("-").map(w => w.toUpperCase()).join(" ");
+  };
   
   // Hidden/Implicit state derived from query params
-  const [formVehicle] = useState(() => 
-    (vehicleParam && vehicles.some((v) => v.id === vehicleParam)) ? vehicleParam : "ford-everest"
-  );
+  const [formVehicle] = useState(() => vehicleParam || "ford-everest");
   const [formReason] = useState(() => reasonParam || "Đăng ký lái thử");
   
   const [showToast, setShowToast] = useState(false);
@@ -40,6 +62,7 @@ function ContactFormContent() {
 
     setIsSubmitting(true);
     try {
+      const selectedVehicleName = getVehicleName(formVehicle);
       const response = await contactsAPI.submit({
         contact: {
           type: "CONTACT_FORM",
@@ -47,7 +70,7 @@ function ContactFormContent() {
             Name: formName,
             Phone: formPhone,
             Email: formEmail || undefined,
-            "Nội dung cần hỗ trợ": formNote || `Yêu cầu liên hệ: ${formReason} cho xe ${vehicles.find((v) => v.id === formVehicle)?.name || ""}`,
+            "Nội dung cần hỗ trợ": formNote || `Yêu cầu liên hệ: ${formReason} cho xe ${selectedVehicleName}`,
           }
         }
       });
@@ -56,7 +79,6 @@ function ContactFormContent() {
         setToastMessage(response.message || "Gửi yêu cầu thất bại. Vui lòng thử lại!");
         setShowToast(true);
       } else {
-        const selectedVehicleName = vehicles.find((v) => v.id === formVehicle)?.name || "";
         setToastMessage(
           `Đăng ký thành công! Đồng Nai Ford đã nhận được yêu cầu ${formReason.toLowerCase()} của quý khách cho dòng xe ${selectedVehicleName}. Chúng tôi sẽ liên hệ tư vấn trong vòng 15 phút.`
         );

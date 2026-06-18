@@ -17,7 +17,6 @@ import {
   Settings,
   GitCompare
 } from "lucide-react";
-import { vehicles } from "@/data/vehicles";
 import { vehiclesAPI } from "@/lib/api";
 import { getPopularVehicleImage, handleImageError } from "@/lib/site-assets";
 import { formatPriceShort } from "@/lib/rolling-cost";
@@ -139,11 +138,9 @@ export default function ProductsPage() {
 
   // Helper to extend vehicle data with specs and properties for filtering
   const getExtendedVehicleData = (v: any) => {
-    const staticV = vehicles.find((sv) => sv.id === v.slug || sv.id === v.id);
-    
     const price = typeof v.base_price === 'string' ? parseFloat(v.base_price) : (v.base_price || v.basePrice || 0);
     const id = v.slug || v.id;
-    const name = v.title || v.name;
+    const name = v.title || v.name || "";
     const image = v.image_thumbnail_url || v.image_url || v.images?.[0] || getPopularVehicleImage(id, "");
     
     let categorySlug = "all";
@@ -154,20 +151,23 @@ export default function ProductsPage() {
       }
     } else if (v.type) {
       categorySlug = v.type;
-    } else if (staticV) {
-      categorySlug = staticV.type;
     }
     
     // Normalize category slug for comparison
     if (categorySlug === "pickup") categorySlug = "ban-tai";
     if (categorySlug === "commercial") categorySlug = "thuong-mai";
     
-    const seats = staticV?.typeName || (name.toLowerCase().includes("transit") ? "16 Chỗ" : "5 Chỗ");
+    const seats = v.type_name || v.typeName || (
+      name.toLowerCase().includes("transit") ? "16 Chỗ" : 
+      (name.toLowerCase().includes("everest") || name.toLowerCase().includes("explorer")) ? "7 Chỗ" : 
+      "5 Chỗ"
+    );
     const seatsCount = seats.toLowerCase().includes("16") ? "16" : seats.toLowerCase().includes("7") ? "7" : "5";
     
     let fuel = "Xăng";
-    if (staticV?.versions?.[0]?.specs?.engine) {
-      const eng = staticV.versions[0].specs.engine.toLowerCase();
+    const firstVersionSpecs = v.versions?.[0]?.specs;
+    if (firstVersionSpecs?.engine) {
+      const eng = firstVersionSpecs.engine.toLowerCase();
       if (eng.includes("diesel") || eng.includes("dầu")) {
         fuel = "Diesel";
       }
@@ -176,9 +176,9 @@ export default function ProductsPage() {
     }
     
     let transmission = "Số tự động";
-    if (staticV?.versions?.[0]?.specs?.transmission) {
-      const trans = staticV.versions[0].specs.transmission.toLowerCase();
-      if (trans.includes("số sàn") || trans.includes("mt")) {
+    if (firstVersionSpecs?.transmission) {
+      const trans = firstVersionSpecs.transmission.toLowerCase();
+      if (trans.includes("số sàn") || trans.includes("mt") || trans.includes("manual")) {
         transmission = "Số sàn";
       }
     }
@@ -193,14 +193,14 @@ export default function ProductsPage() {
       seatsCount,
       fuel,
       transmission,
-      typeName: staticV?.typeName || (seatsCount === "16" ? "Xe 16 Chỗ" : `${categorySlug === "ban-tai" ? "Bán tải" : "SUV"} ${seatsCount} Chỗ`),
-      engine: staticV?.versions?.[0]?.specs?.engine || (fuel === "Diesel" ? "Diesel 2.0L" : "Ecoboost 1.5L"),
-      transText: staticV?.versions?.[0]?.specs?.transmission || "Số tự động",
-      drivetrain: staticV?.versions?.[0]?.specs?.drivetrain || "Cầu trước (FWD)"
+      typeName: v.type_name || v.typeName || (seatsCount === "16" ? "Xe 16 Chỗ" : `${categorySlug === "ban-tai" ? "Bán tải" : "SUV"} ${seatsCount} Chỗ`),
+      engine: firstVersionSpecs?.engine || (fuel === "Diesel" ? "Diesel 2.0L" : "Ecoboost 1.5L"),
+      transText: firstVersionSpecs?.transmission || "Số tự động",
+      drivetrain: firstVersionSpecs?.drivetrain || "Cầu trước (FWD)"
     };
   };
 
-  const resolvedVehicles = (apiVehicles.length > 0 ? apiVehicles : vehicles).map(v => getExtendedVehicleData(v));
+  const resolvedVehicles = apiVehicles.map(v => getExtendedVehicleData(v));
 
   // Perform dynamic filtering
   const filteredVehicles = resolvedVehicles.filter((v) => {
@@ -1158,7 +1158,7 @@ export default function ProductsPage() {
             </div>
 
             {/* Footer buttons */}
-            <div className="p-4 border-t border-gray-150 flex gap-3 shrink-0 bg-gray-50">
+            <div className="p-4 border-t border-[#e5e5e5] flex gap-3 shrink-0 bg-gray-50">
               <button 
                 onClick={clearAllFilters}
                 className="flex-1 text-center bg-white hover:bg-gray-100 text-gray-700 text-xs font-bold py-3.5 rounded-full border border-gray-200 cursor-pointer shadow-xs"

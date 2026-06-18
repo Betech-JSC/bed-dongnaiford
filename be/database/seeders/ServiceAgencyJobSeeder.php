@@ -12,25 +12,108 @@ class ServiceAgencyJobSeeder extends Seeder
     public function run(): void
     {
         // 1. SERVICES
+        \DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        \DB::table('service_translations')->truncate();
+        \DB::table('services')->truncate();
+        \DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
         $services = [
+            [
+                'email' => 'sales@dongnaiford.com.vn',
+                'image' => ['path' => 'uploads/services/service_support_customer.png'],
+                'benefit_image' => ['path' => 'uploads/services/service_support_customer.png'],
+                'sliders' => [['path' => 'uploads/services/service_support_customer.png']],
+                'position' => 1,
+                'custom_link' => '/san-pham',
+                'vi' => [
+                    'title' => 'Dịch vụ xe mới',
+                    'slug' => 'dich-vu-xe-moi',
+                    'description' => 'Trải nghiệm mua sắm xe Ford mới với các ưu đãi đặc quyền tại showroom Đồng Nai Ford.',
+                    'content' => '<p>Chúng tôi cung cấp đầy đủ các dòng xe Ford mới nhất, hỗ trợ lái thử và báo giá nhanh chóng.</p>'
+                ]
+            ],
+            [
+                'email' => 'periodic@dongnaiford.com.vn',
+                'image' => ['path' => 'uploads/services/service_fixed_car.png'],
+                'benefit_image' => ['path' => 'uploads/services/service_fixed_car.png'],
+                'sliders' => [['path' => 'uploads/services/service_fixed_car.png']],
+                'position' => 2,
+                'custom_link' => '/dich-vu/bao-duong-dinh-ky',
+                'vi' => [
+                    'title' => 'Dịch vụ bảo dưỡng',
+                    'slug' => 'dich-vu-bao-duong',
+                    'description' => 'Bảo dưỡng xe định kỳ theo chuẩn quy trình toàn cầu của Ford giúp tối ưu hóa hiệu suất xe.',
+                    'content' => '<p>Chương trình bảo dưỡng xe định kỳ chuyên nghiệp tại xưởng dịch vụ Đồng Nai Ford.</p>'
+                ]
+            ],
+            [
+                'email' => 'repair@dongnaiford.com.vn',
+                'image' => ['path' => 'uploads/services/service_fixed_car.png'],
+                'benefit_image' => ['path' => 'uploads/services/service_fixed_car.png'],
+                'sliders' => [['path' => 'uploads/services/service_fixed_car.png']],
+                'position' => 3,
+                'custom_link' => '/lien-he?reason=Yêu cầu sửa chữa xe',
+                'vi' => [
+                    'title' => 'Dịch vụ sửa chữa',
+                    'slug' => 'dich-vu-sua-chua',
+                    'description' => 'Đội ngũ kỹ thuật viên tay nghề cao giúp chẩn đoán và khắc phục sự cố xe của bạn nhanh chóng.',
+                    'content' => '<p>Đồng Nai Ford cam kết mang đến dịch vụ sửa chữa chất lượng, sử dụng phụ tùng chính hãng.</p>'
+                ]
+            ],
+            [
+                'email' => 'rescue@dongnaiford.com.vn',
+                'image' => ['path' => 'uploads/services/service_delivery.png'],
+                'benefit_image' => ['path' => 'uploads/services/service_delivery.png'],
+                'sliders' => [['path' => 'uploads/services/service_delivery.png']],
+                'position' => 4,
+                'custom_link' => '/lien-he?reason=Yêu cầu cứu hộ 24/7',
+                'vi' => [
+                    'title' => 'Dịch vụ cứu hộ 24/7',
+                    'slug' => 'dich-vu-cuu-ho-247',
+                    'description' => 'Hỗ trợ cứu hộ khẩn cấp mọi lúc, mọi nơi, sẵn sàng đồng hành cùng bạn trên mọi hành trình.',
+                    'content' => '<p>Dịch vụ cứu hộ 24/7 chuyên nghiệp của đại lý Đồng Nai Ford.</p>'
+                ]
+            ],
+            [
+                'email' => 'usedcars@dongnaiford.com.vn',
+                'image' => ['path' => 'uploads/showroom/showroom_bg.png'],
+                'benefit_image' => ['path' => 'uploads/showroom/showroom_bg.png'],
+                'sliders' => [['path' => 'uploads/showroom/showroom_bg.png']],
+                'position' => 5,
+                'custom_link' => '/lien-he?reason=Tìm mua xe cũ',
+                'vi' => [
+                    'title' => 'Dịch vụ xe đã qua sử dụng',
+                    'slug' => 'dich-vu-xe-da-qua-su-dung',
+                    'description' => 'Mua bán, ký gửi và trao đổi các dòng xe Ford đã qua sử dụng chính hãng, bảo hành uy tín.',
+                    'content' => '<p>Đại lý hỗ trợ kiểm định 167 điểm kỹ thuật nghiêm ngặt đối với xe đã qua sử dụng.</p>'
+                ]
+            ],
+            [
+                'email' => 'upgrade@dongnaiford.com.vn',
+                'image' => ['path' => 'uploads/services/service_fixed_car.png'],
+                'benefit_image' => ['path' => 'uploads/services/service_fixed_car.png'],
+                'sliders' => [['path' => 'uploads/services/service_fixed_car.png']],
+                'position' => 6,
+                'custom_link' => '/lien-he?reason=Yêu cầu nâng cấp xe',
+                'vi' => [
+                    'title' => 'Dịch vụ nâng cấp xe',
+                    'slug' => 'dich-vu-nang-cap-xe',
+                    'description' => 'Nâng cấp phụ kiện chính hãng, lắp đặt đồ chơi xe hơi cao cấp, nâng tầm đẳng cấp xế cưng.',
+                    'content' => '<p>Chúng tôi cung cấp giải pháp độ xe, nâng cấp nội thất ngoại thất xe Ford chất lượng.</p>'
+                ]
+            ],
             [
                 'email' => 'service@dongnaiford.com.vn',
                 'image' => ['path' => 'uploads/services/service_support_customer.png'],
                 'benefit_image' => ['path' => 'uploads/services/service_support_customer.png'],
-                'sliders' => [
-                    ['path' => 'uploads/services/service_support_customer.png'],
-                    ['path' => 'uploads/services/service_delivery.png']
-                ],
-                'position' => 1,
+                'sliders' => [['path' => 'uploads/services/service_support_customer.png']],
+                'position' => 7,
+                'custom_link' => '/dich-vu/cham-soc-khach-hang',
                 'vi' => [
-                    'title' => 'Chăm sóc khách hàng',
-                    'slug' => 'customer-care',
-                    'description' => 'Dịch vụ chăm sóc khách hàng 24/7 với đội ngũ tư vấn chuyên nghiệp, nhiệt tình.',
-                    'content' => '<p>Đội ngũ chăm sóc khách hàng của Đồng Nai Ford luôn sẵn sàng hỗ trợ bạn mọi lúc mọi nơi.</p>'
-                ],
-                'en' => [
-                    'title' => 'Customer Care',
-                    'slug' => 'customer-care-en'
+                    'title' => 'Dịch vụ chăm sóc xe',
+                    'slug' => 'dich-vu-cham-soc-xe',
+                    'description' => 'Chăm sóc xe toàn diện từ rửa xe, đánh bóng, vệ sinh khoang máy đến phủ ceramic bảo vệ.',
+                    'content' => '<p>Dịch vụ chăm sóc xe Ford chuyên nghiệp giúp giữ gìn giá trị xe bền bỉ theo thời gian.</p>'
                 ]
             ],
             [
@@ -38,38 +121,13 @@ class ServiceAgencyJobSeeder extends Seeder
                 'image' => ['path' => 'uploads/services/service_fixed_car.png'],
                 'benefit_image' => ['path' => 'uploads/services/service_fixed_car.png'],
                 'sliders' => [['path' => 'uploads/services/service_fixed_car.png']],
-                'position' => 2,
+                'position' => 8,
+                'custom_link' => '/dich-vu/bao-duong-nhanh',
                 'vi' => [
-                    'title' => 'Bảo dưỡng nhanh',
-                    'slug' => 'express-maintenance',
-                    'description' => 'Dịch vụ bảo dưỡng nhanh chóng trong 45 phút, không cần hẹn trước.',
-                    'content' => '<p>Chúng tôi cam kết hoàn thành bảo dưỡng định kỳ trong vòng 45 phút.</p>'
-                ]
-            ],
-            [
-                'email' => 'periodic@dongnaiford.com.vn',
-                'image' => ['path' => 'uploads/services/service_delivery.png'],
-                'benefit_image' => ['path' => 'uploads/services/service_delivery.png'],
-                'sliders' => [['path' => 'uploads/services/service_delivery.png']],
-                'position' => 3,
-                'vi' => [
-                    'title' => 'Bảo dưỡng định kỳ',
-                    'slug' => 'periodic-maintenance',
-                    'description' => 'Chương trình bảo dưỡng định kỳ theo lịch của nhà sản xuất với chi phí minh bạch.',
-                    'content' => '<p>Bảo dưỡng định kỳ theo chuẩn Ford toàn cầu.</p>'
-                ]
-            ],
-            [
-                'email' => 'pickup@dongnaiford.com.vn',
-                'image' => ['path' => 'uploads/showroom/showroom_bg.png'],
-                'benefit_image' => ['path' => 'uploads/showroom/showroom_bg.png'],
-                'sliders' => [['path' => 'uploads/showroom/showroom_bg.png']],
-                'position' => 4,
-                'vi' => [
-                    'title' => 'Nhận và giao xe tận nơi',
-                    'slug' => 'pickup-delivery',
-                    'description' => 'Miễn phí nhận và giao xe tận nhà trong bán kính 10km cho khách hàng bảo dưỡng.',
-                    'content' => '<p>Dịch vụ tiện lợi giúp bạn tiết kiệm thời gian.</p>'
+                    'title' => 'Dịch vụ bảo dưỡng nhanh',
+                    'slug' => 'dich-vu-bao-duong-nhanh',
+                    'description' => 'Quy trình bảo dưỡng nhanh 60 phút giúp tiết kiệm tối đa thời gian chờ đợi của bạn.',
+                    'content' => '<p>Dịch vụ bảo dưỡng nhanh chuẩn quy trình kỹ thuật cam kết chất lượng.</p>'
                 ]
             ],
         ];
@@ -81,6 +139,7 @@ class ServiceAgencyJobSeeder extends Seeder
                 'benefit_image' => $serviceData['benefit_image'],
                 'sliders' => $serviceData['sliders'],
                 'position' => $serviceData['position'],
+                'custom_link' => $serviceData['custom_link'],
                 'status' => 'ACTIVE',
             ]);
             $service->fill($serviceData);

@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { handleImageError } from "@/lib/site-assets";
-import { postsAPI } from "@/lib/api";
+import { postsAPI, reviewsAPI } from "@/lib/api";
 
 export default function NewsListPage() {
   const [categories, setCategories] = useState<any[]>([]);
@@ -16,6 +16,18 @@ export default function NewsListPage() {
   const [topPosts, setTopPosts] = useState<any[]>([]);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
+
+  // Testimonials Carousel Slide State
+  const [testimonials, setTestimonials] = useState<any[]>([]);
+  const [activeTestimonialIndex, setActiveTestimonialIndex] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
+  const [isTestimonialInteracted, setIsTestimonialInteracted] = useState(false);
+
+  // Drag states and refs for Testimonials
+  const [testimonialDragOffset, setTestimonialDragOffset] = useState(0);
+  const testimonialDragStartX = useRef(0);
+  const isTestimonialDragging = useRef(false);
+  const testimonialWasDragged = useRef(false);
 
   // Debounce search query to prevent excessive API requests
   useEffect(() => {
@@ -62,6 +74,83 @@ export default function NewsListPage() {
     };
     loadData();
   }, [currentPage, activeTab, debouncedSearchQuery]);
+
+  // Load reviews from API
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const reviewsData = await reviewsAPI.getAll().catch(() => null);
+        const reviewsItems = (reviewsData as any)?.data || reviewsData;
+        if (Array.isArray(reviewsItems) && reviewsItems.length > 0) {
+          setTestimonials(reviewsItems.map((item: any) => ({
+            name: item.customer_name || "Khách hàng",
+            role: "Khách hàng",
+            avatarText: (item.customer_name || "KH").substring(0, 2).toUpperCase(),
+            stars: item.rating || 5,
+            comment: item.content || ""
+          })));
+        }
+      } catch (err) {
+        console.error("Error loading customer reviews", err);
+      }
+    };
+    fetchReviews();
+  }, []);
+
+  // Auto-play testimonials every 2.5 seconds, pause on hover or if interacted
+  useEffect(() => {
+    if (isHovered || isTestimonialInteracted || testimonials.length <= 1) return;
+    const timer = setInterval(() => {
+      setActiveTestimonialIndex((prev) => (prev + 1) % testimonials.length);
+    }, 2500);
+    return () => clearInterval(timer);
+  }, [isHovered, isTestimonialInteracted, testimonials.length]);
+
+  // Reset testimonial interacted flag after 5 seconds of inactivity to resume auto-play
+  useEffect(() => {
+    if (isTestimonialInteracted) {
+      const timer = setTimeout(() => {
+        setIsTestimonialInteracted(false);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [isTestimonialInteracted]);
+
+  // Drag handlers for Testimonials
+  const handleTestimonialStart = (clientX: number) => {
+    testimonialDragStartX.current = clientX;
+    isTestimonialDragging.current = true;
+    setIsTestimonialInteracted(true); // Pause autoplay
+  };
+
+  const handleTestimonialMove = (clientX: number) => {
+    if (!isTestimonialDragging.current) return;
+    const diff = clientX - testimonialDragStartX.current;
+    setTestimonialDragOffset(diff);
+  };
+
+  const handleTestimonialEnd = () => {
+    if (!isTestimonialDragging.current) return;
+    isTestimonialDragging.current = false;
+    
+    const dist = Math.abs(testimonialDragOffset);
+    if (dist > 10) {
+      testimonialWasDragged.current = true;
+      setTimeout(() => {
+        testimonialWasDragged.current = false;
+      }, 50);
+    } else {
+      testimonialWasDragged.current = false;
+    }
+
+    if (testimonialDragOffset > 50) {
+      setActiveTestimonialIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
+    } else if (testimonialDragOffset < -50) {
+      setActiveTestimonialIndex((prev) => (prev + 1) % testimonials.length);
+    }
+    
+    setTestimonialDragOffset(0);
+  };
 
   const handleTabChange = (tabId: number | "all") => {
     setActiveTab(tabId);
@@ -290,6 +379,133 @@ export default function NewsListPage() {
           )}
         </div>
       </section>
+
+      {/* 3. CUSTOMER TESTIMONIALS */}
+      {testimonials.length > 0 && (
+        <section id="media" className="bg-gray-light border-y border-gray-200 py-20 px-0 overflow-x-clip w-full mt-16">
+          <div className="w-full">
+            <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] flex flex-col md:flex-row md:items-end justify-between mb-12">
+              <div>
+                <span className="text-xs font-semibold text-[#0562d2] uppercase tracking-wider block mb-2">
+                  Ý KIẾN TỪ KHÁCH HÀNG
+                </span>
+                <h2 className="font-['Ford_Antenna',sans-serif] text-[36px] font-semibold text-[#1a1a1a] leading-tight">
+                  Cảm nhận khách hàng
+                </h2>
+              </div>
+
+              {/* Arrows controllers */}
+              <div className="flex gap-2 mt-4 md:mt-0">
+                <button
+                  onClick={() => {
+                    setActiveTestimonialIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
+                    setIsTestimonialInteracted(true);
+                  }}
+                  className="p-2 border border-gray-300 hover:bg-[#0562d2] hover:text-white hover:border-[#0562d2] text-primary rounded-full transition-colors cursor-pointer bg-white"
+                  aria-label="Previous testimonial"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() => {
+                    setActiveTestimonialIndex((prev) => (prev + 1) % testimonials.length);
+                    setIsTestimonialInteracted(true);
+                  }}
+                  className="p-2 border border-gray-300 hover:bg-[#0562d2] hover:text-white hover:border-[#0562d2] text-primary rounded-full transition-colors cursor-pointer bg-white"
+                  aria-label="Next testimonial"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Testimonial Active Display Card Row */}
+            <div className="relative w-full overflow-visible py-4 select-none">
+              <div
+                className="flex cursor-grab active:cursor-grabbing"
+                style={{
+                  gap: 'var(--card-gap-testimonial)',
+                  transform: `translateX(calc(50% - (var(--card-width-testimonial) / 2) - ${activeTestimonialIndex} * (var(--card-width-testimonial) + var(--card-gap-testimonial)) + ${testimonialDragOffset}px))`,
+                  transition: isTestimonialDragging.current ? "none" : "transform 500ms ease-in-out"
+                }}
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={(e) => {
+                  setIsHovered(false);
+                  handleTestimonialEnd();
+                }}
+                onMouseDown={(e) => handleTestimonialStart(e.clientX)}
+                onMouseMove={(e) => handleTestimonialMove(e.clientX)}
+                onMouseUp={handleTestimonialEnd}
+                onTouchStart={(e) => {
+                  setIsHovered(true);
+                  handleTestimonialStart(e.touches[0].clientX);
+                }}
+                onTouchMove={(e) => handleTestimonialMove(e.touches[0].clientX)}
+                onTouchEnd={(e) => {
+                  setIsHovered(false);
+                  handleTestimonialEnd();
+                }}
+              >
+                {testimonials.map((item, idx) => {
+                  const isActive = idx === activeTestimonialIndex;
+                  return (
+                    <div
+                      key={idx}
+                      onClick={() => {
+                        if (testimonialWasDragged.current) return;
+                        setActiveTestimonialIndex(idx);
+                      }}
+                      className={`h-auto min-h-[320px] sm:h-[320px] bg-white px-5 py-6 sm:px-6 sm:py-8 rounded-[8px] flex-shrink-0 flex flex-col justify-between cursor-pointer transition-all ${isActive
+                        ? "border-b-4 border-[#0562d2] shadow-md scale-100 opacity-100"
+                        : "border-b border-[#d6d6d6] scale-95 opacity-50"
+                        }`}
+                      style={{
+                        width: 'var(--card-width-testimonial)',
+                      }}
+                    >
+                      {/* Comment text */}
+                      <p className="text-[15px] sm:text-[18px] text-[#424242] font-normal leading-[1.5]">
+                        &ldquo;{item.comment}&rdquo;
+                      </p>
+
+                      {/* Author Info */}
+                      <div className="flex items-center gap-3 sm:gap-4 pt-3 sm:pt-4">
+                        <div className="size-[48px] sm:size-[64px] rounded-full border-[2px] sm:border-[3px] border-[#0562d2] bg-[#003478] flex items-center justify-center font-bold text-white text-base sm:text-lg flex-shrink-0">
+                          {item.avatarText}
+                        </div>
+                        <div>
+                          <h4 className="text-[15px] sm:text-[18px] font-semibold text-[#1a1a1a] tracking-[0.18px] leading-tight">
+                            {item.name}
+                          </h4>
+                          <p className="text-[14px] sm:text-[16px] text-[#333333] mt-0.5 sm:mt-1">
+                            {item.role}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Pagination Indicators dots */}
+            <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] flex justify-center gap-2 mt-8">
+              {testimonials.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => {
+                    setActiveTestimonialIndex(idx);
+                    setIsTestimonialInteracted(true);
+                  }}
+                  className={`h-2 transition-all rounded-full cursor-pointer ${activeTestimonialIndex === idx ? "w-6 bg-[#0562d2]" : "w-2 bg-gray-300"
+                    }`}
+                  aria-label={`Go to slide ${idx + 1}`}
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
     </div>
   );
 }

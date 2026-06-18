@@ -202,6 +202,13 @@ export const maintenanceAPI = {
 };
 
 /**
+ * Customer Handovers API (Tri ân khách hàng)
+ */
+export const customerHandoversAPI = {
+  getAll: () => fetchAPI<{ success: boolean; data: any[] }>('/customer-handovers'),
+};
+
+/**
  * Media API for uploads
  */
 export const mediaAPI = {

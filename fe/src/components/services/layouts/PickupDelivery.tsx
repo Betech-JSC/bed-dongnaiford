@@ -4,11 +4,6 @@ import BookingBanner from "@/components/services/BookingBanner";
 import FaqAccordion from "@/components/services/FaqAccordion";
 import ServicePageBanner from "@/components/services/ServicePageBanner";
 
-export const metadata = {
-  title: "Dịch vụ nhận và giao xe tận nơi | Đồng Nai Ford",
-  description: "Sức khỏe và sự an toàn của Quý Khách hàng luôn là ưu tiên hàng đầu với dịch vụ Nhận và Giao xe tận nơi miễn phí.",
-};
-
 type StepItem = {
   title: string;
   icon: string;
@@ -61,7 +56,7 @@ const steps: StepItem[] = [
     icon: "/assets/icon-handover.svg",
     bullets: [
       "Nhân viên Đồng Nai Ford lái xe đến bàn giao tận nhà cho Khách hàng.",
-      "Giao xe và tiến hành khử khuẩn nhanh lần cuối tại chỗ.",
+      "Giao xe and tiến hành khử khuẩn nhanh lần cuối tại chỗ.",
       "Khách hàng xác nhận và hoàn tất thanh toán trực tuyến an toàn."
     ]
   },
@@ -74,10 +69,10 @@ const steps: StepItem[] = [
   }
 ];
 
-export default function PickupDeliveryPage() {
+export default function PickupDeliveryLayout({ service }: { service?: any }) {
   return (
     <div className="w-full bg-[#fafafa] min-h-screen flex flex-col">
-      <ServicePageBanner title="Dịch vụ nhận và giao xe tận nơi">
+      <ServicePageBanner title={service?.title || "Dịch vụ nhận và giao xe tận nơi"} backgroundImage={service?.banner_image?.url}>
         <div className="flex flex-wrap gap-4 justify-center">
           <Link
             href="/lien-he?reason=Đặt hẹn dịch vụ"
@@ -94,18 +89,25 @@ export default function PickupDeliveryPage() {
         </div>
       </ServicePageBanner>
 
-      {/* COVID-19 Safety Statement Segment */}
+      {/* Intro / COVID-19 Safety Statement Segment */}
       <div className="max-w-[1440px] w-full mx-auto px-4 lg:px-[128px] py-16">
-        <div className="bg-white border border-gray-100 rounded-2xl p-8 shadow-sm text-gray-800 text-base md:text-lg leading-relaxed font-normal">
-          <p className="mb-4 font-semibold text-gray-900 text-lg md:text-xl">
-            Sức khỏe và sự an toàn của Quý Khách hàng luôn là ưu tiên hàng đầu với Đồng Nai Ford!
-          </p>
-          Trong giai đoạn diễn biến phức tạp của dịch bệnh, để thuận tiện và an toàn cho Khách hàng, Đồng Nai Ford đang cung cấp Dịch vụ Nhận và Giao xe Tận nơi miễn phí (*) cho Quý Khách hàng để giúp giảm thiểu giao tiếp trực tiếp với nhân viên của chúng tôi và các khách hàng khác. Để đảm bảo mọi biện pháp phòng ngừa được thực hiện nghiêm ngặt, xe của Quý khách hàng sẽ được người lái xe khử khuẩn tại thời điểm chúng tôi tiếp nhận xe và tại thời điểm giao xe cho Quý Khách hàng. Quý Khách hàng vui lòng xem thông tin phía dưới cho quy trình Nhận và Giao xe Tận nơi miễn phí (*).
-        </div>
+        {service?.content ? (
+          <div 
+            className="bg-white border border-gray-100 rounded-2xl p-8 shadow-sm text-gray-800 text-base md:text-lg leading-relaxed font-normal prose max-w-none"
+            dangerouslySetInnerHTML={{ __html: service.content }}
+          />
+        ) : (
+          <div className="bg-white border border-gray-100 rounded-2xl p-8 shadow-sm text-gray-800 text-base md:text-lg leading-relaxed font-normal">
+            <p className="mb-4 font-semibold text-gray-900 text-lg md:text-xl">
+              Sức khỏe và sự an toàn của Quý Khách hàng luôn là ưu tiên hàng đầu với Đồng Nai Ford!
+            </p>
+            Trong giai đoạn diễn biến phức tạp của dịch bệnh, để thuận tiện và an toàn cho Khách hàng, Đồng Nai Ford đang cung cấp Dịch vụ Nhận và Giao xe Tận nơi miễn phí (*) cho Quý Khách hàng để giúp giảm thiểu giao tiếp trực tiếp với nhân viên của chúng tôi và các khách hàng khác. Để đảm bảo mọi biện pháp phòng ngừa được thực hiện nghiêm ngặt, xe của Quý khách hàng sẽ được người lái xe khử khuẩn tại thời điểm chúng tôi tiếp nhận xe và tại thời điểm giao xe cho Quý Khách hàng. Quý Khách hàng vui lòng xem thông tin phía dưới cho quy trình Nhận và Giao xe Tận nơi miễn phí (*).
+          </div>
+        )}
       </div>
 
       {/* 5-Step Process Cards Grid */}
-      <div className="max-w-[1440px] w-full mx-auto px-4 lg:px-[128px] pb-20 flex flex-col gap-10">
+      <div className="max-w-[1440px] w-full mx-auto px-4 lg:px-[128px] pb-20 mt-4 flex flex-col gap-10">
         <h2 className="font-['Ford_Antenna',sans-serif] font-bold text-2xl md:text-3xl text-gray-900 tracking-tight">
           QUY TRÌNH DỊCH VỤ NHẬN VÀ GIAO XE TẬN NƠI
         </h2>
@@ -155,10 +157,7 @@ export default function PickupDeliveryPage() {
         </div>
       </div>
 
-      {/* Reusable Booking CTA Banner */}
       <BookingBanner />
-
-      {/* Reusable FAQ Accordion */}
       <FaqAccordion />
     </div>
   );

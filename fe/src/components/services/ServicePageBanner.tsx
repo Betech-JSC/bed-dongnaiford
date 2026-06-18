@@ -4,33 +4,38 @@ import { siteAssets } from "@/lib/site-assets";
 
 type ServicePageBannerProps = {
   title: string;
+  backgroundImage?: string | null;
   children?: ReactNode;
 };
 
 export default function ServicePageBanner({
   title,
+  backgroundImage,
   children,
 }: ServicePageBannerProps) {
+  const bgSrc = backgroundImage || siteAssets.serviceBannerBg;
   return (
     <div className="relative h-[480px] w-full flex items-end justify-center pb-12 overflow-hidden">
       <div className="absolute inset-0 z-0">
         <Image
-          src={siteAssets.serviceBannerBg}
+          src={bgSrc}
           alt={title}
           fill
           sizes="100vw"
           priority
           className="object-cover object-center"
         />
-        <Image
-          src={siteAssets.serviceBannerFg}
-          alt=""
-          fill
-          sizes="100vw"
-          priority
-          aria-hidden
-          className="object-cover object-center"
-        />
+        {!backgroundImage && (
+          <Image
+            src={siteAssets.serviceBannerFg}
+            alt=""
+            fill
+            sizes="100vw"
+            priority
+            aria-hidden
+            className="object-cover object-center"
+          />
+        )}
         <div className="absolute inset-0 bg-black/45" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
       </div>

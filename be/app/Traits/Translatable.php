@@ -8,7 +8,34 @@ use Illuminate\Support\Facades\Route;
 
 trait Translatable
 {
-    use AstrotomicTranslatable;
+    use AstrotomicTranslatable {
+        saveTranslations as parentSaveTranslations;
+    }
+
+    protected function saveTranslations(): bool
+    {
+        if ($this->relationLoaded('translations')) {
+            foreach ($this->translations as $key => $translation) {
+                $attributes = $translation->getAttributes();
+                $isEmpty = false;
+
+                if (array_key_exists('title', $attributes) && ($translation->title === null || $translation->title === '')) {
+                    $isEmpty = true;
+                } elseif (array_key_exists('name', $attributes) && ($translation->name === null || $translation->name === '')) {
+                    $isEmpty = true;
+                }
+
+                if ($isEmpty) {
+                    if ($translation->exists) {
+                        $translation->delete();
+                    }
+                    $this->translations->forget($key);
+                }
+            }
+        }
+
+        return $this->parentSaveTranslations();
+    }
 
     public function getDefaultLocale(): ?string
     {

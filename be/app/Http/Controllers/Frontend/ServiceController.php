@@ -36,7 +36,15 @@ class ServiceController extends Controller
     {
         $service = Service::query()
             ->active()
-            ->whereSlug($slug)
+            ->where(function ($query) use ($slug) {
+                $query->whereHas('translations', function ($q) use ($slug) {
+                    $q->where('slug', $slug)
+                      ->orWhere('seo_slug', $slug);
+                })
+                ->orWhere('custom_link', $slug)
+                ->orWhere('custom_link', '/dich-vu/' . $slug)
+                ->orWhere('custom_link', 'dich-vu/' . $slug);
+            })
             ->firstOrFail();
 
         $service->increment('view_count');

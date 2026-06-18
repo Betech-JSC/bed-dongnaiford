@@ -3,12 +3,6 @@ import Link from "next/link";
 import BookingBanner from "@/components/services/BookingBanner";
 import FaqAccordion from "@/components/services/FaqAccordion";
 import ServicePageBanner from "@/components/services/ServicePageBanner";
-import { maintenanceAPI } from "@/lib/api";
-
-export const metadata = {
-  title: "Dịch vụ bảo dưỡng định kỳ | Đồng Nai Ford",
-  description: "Bảo dưỡng định kỳ giúp bạn lái xe an toàn, kéo dài tuổi thọ của xe và tiết kiệm nhiên liệu.",
-};
 
 type VehicleSchedule = {
   name: string;
@@ -16,24 +10,16 @@ type VehicleSchedule = {
   links: { label: string; url: string }[];
 };
 
-export default async function PeriodicMaintenancePage() {
-  let displaySchedules: VehicleSchedule[] = [];
-  try {
-    const response = await maintenanceAPI.getSchedules();
-    if (response && response.success && Array.isArray(response.data)) {
-      displaySchedules = response.data.map((item: any) => ({
-        name: item.name || "",
-        image: item.image || "/assets/car-placeholder.png",
-        links: Array.isArray(item.links) ? item.links : [],
-      }));
-    }
-  } catch (error) {
-    console.error("Failed to load maintenance schedules from CMS API:", error);
-  }
-
+export default function PeriodicMaintenanceLayout({
+  service,
+  displaySchedules,
+}: {
+  service?: any;
+  displaySchedules: VehicleSchedule[];
+}) {
   return (
     <div className="w-full bg-[#fafafa] min-h-screen flex flex-col">
-      <ServicePageBanner title="Lịch bảo dưỡng xe ô tô định kỳ">
+      <ServicePageBanner title={service?.title || "Lịch bảo dưỡng xe ô tô định kỳ"} backgroundImage={service?.banner_image?.url}>
         <div className="flex flex-wrap gap-4 justify-center">
           <Link
             href="/lien-he?reason=Đặt hẹn dịch vụ"
@@ -52,9 +38,16 @@ export default async function PeriodicMaintenancePage() {
 
       {/* Intro Heading Section */}
       <div className="max-w-[1440px] w-full mx-auto px-4 lg:px-[128px] py-16">
-        <h2 className="font-['Ford_Antenna',sans-serif] font-bold text-2xl md:text-3xl text-gray-900 tracking-tight leading-relaxed max-w-[1100px]">
-          Bảo dưỡng định kỳ giúp bạn lái xe an toàn, kéo dài tuổi thọ của xe & tiết kiệm nhiên liệu đảm bảo chiếc xe Ford của bạn luôn ở trong tình trạng tốt nhất.
-        </h2>
+        {service?.content ? (
+          <div 
+            className="prose max-w-none text-xl md:text-2xl text-gray-900 leading-relaxed font-normal"
+            dangerouslySetInnerHTML={{ __html: service.content }}
+          />
+        ) : (
+          <h2 className="font-['Ford_Antenna',sans-serif] font-bold text-2xl md:text-3xl text-gray-900 tracking-tight leading-relaxed max-w-[1100px]">
+            Bảo dưỡng định kỳ giúp bạn lái xe an toàn, kéo dài tuổi thọ của xe & tiết kiệm nhiên liệu đảm bảo chiếc xe Ford của bạn luôn ở trong tình trạng tốt nhất.
+          </h2>
+        )}
       </div>
 
       {/* Grid of Vehicle Schedule Cards */}
@@ -102,10 +95,7 @@ export default async function PeriodicMaintenancePage() {
         </div>
       </div>
 
-      {/* Reusable Booking CTA Banner */}
       <BookingBanner />
-
-      {/* Reusable FAQ Accordion */}
       <FaqAccordion />
     </div>
   );

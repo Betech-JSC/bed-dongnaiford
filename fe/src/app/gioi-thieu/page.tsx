@@ -591,7 +591,7 @@ export default function AboutPage() {
       {/* RECRUITMENT MODAL (Option A) */}
       {selectedJob && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
-          <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl relative border border-gray-150 p-8 flex flex-col gap-6 scrollbar-thin">
+          <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl relative border border-[#e5e5e5] p-8 flex flex-col gap-6 scrollbar-thin">
             {/* Close Button */}
             <button
               onClick={() => setSelectedJob(null)}

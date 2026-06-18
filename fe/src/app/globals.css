@@ -481,6 +481,32 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
+/* Custom variables for Services slider responsive layout */
+:root {
+  --card-width-service: 380px;
+  --card-gap-service: 24px;
+}
+
+@media (max-width: 640px) {
+  :root {
+    --card-width-service: 280px;
+    --card-gap-service: 16px;
+  }
+}
+
+/* Custom variables for Handovers slider responsive layout */
+:root {
+  --card-width-handover: 360px;
+  --card-gap-handover: 24px;
+}
+
+@media (max-width: 640px) {
+  :root {
+    --card-width-handover: 280px;
+    --card-gap-handover: 16px;
+  }
+}
+
 /* News track horizontal translation on mobile only */
 .news-track {
   transform: translateX(calc(-1 * var(--active-news-index) * (var(--card-width-news) + var(--card-gap-news))));

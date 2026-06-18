@@ -5,6 +5,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import AIChatWidget from "@/components/shared/AIChatWidget";
 import CompareDrawer from "@/components/shared/CompareDrawer";
+import QuickAccessToolbar from "@/components/shared/QuickAccessToolbar";
 import PageTransitionLoader from "@/components/shared/PageTransitionLoader";
 import "./globals.css";
 
@@ -102,6 +103,7 @@ export default function RootLayout({
         <Footer />
         <AIChatWidget />
         <CompareDrawer />
+        <QuickAccessToolbar />
       </body>
     </html>
   );

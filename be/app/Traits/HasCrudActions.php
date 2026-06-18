@@ -165,6 +165,20 @@ trait HasCrudActions
             $resource = $this->updateModel($id, $request->all());
         } else {
             $data = $request->all();
+            
+            // Clean up empty translations
+            $tempModel = $this->model();
+            if (method_exists($tempModel, 'getTranslationModelNameDefault')) {
+                $locales = ['vi', 'en'];
+                foreach ($locales as $locale) {
+                    if (isset($data[$locale]) && is_array($data[$locale])) {
+                        if (empty($data[$locale]['title'])) {
+                            unset($data[$locale]);
+                        }
+                    }
+                }
+            }
+
             $defaultLocale = config('app.locale');
             $currentLocale = current_locale();
             if ($defaultLocale != $currentLocale && $request->has('locale')) {
@@ -541,6 +555,21 @@ trait HasCrudActions
         }
 
         $resource = $resource->findOrFail($id);
+
+        // Clean up empty translations
+        if (method_exists($resource, 'getTranslationModelNameDefault')) {
+            $locales = ['vi', 'en'];
+            foreach ($locales as $locale) {
+                if (isset($data[$locale]) && is_array($data[$locale])) {
+                    if (empty($data[$locale]['title'])) {
+                        unset($data[$locale]);
+                        // Delete the translation from DB if it exists
+                        $resource->translations()->where('locale', $locale)->delete();
+                    }
+                }
+            }
+        }
+
         $resource->update($data);
 
         return $resource;

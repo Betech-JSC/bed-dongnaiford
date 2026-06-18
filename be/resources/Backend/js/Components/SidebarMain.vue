@@ -56,6 +56,12 @@
         <ph-newspaper-clipping-light />
         <span>Bài viết</span>
     </Link>
+
+    <Link v-if="can('admin.services.index')" :href="route('admin.services.index')"
+        :class="{ active: isUrl('admin.services.*') }" class="item">
+        <ph:wrench-light />
+        <span>Dịch vụ</span>
+    </Link>
     
     <Link v-if="can('admin.policies.index')" :href="route('admin.policies.index')"
         :class="{ active: isUrl('admin.policies.*') }" class="item">
@@ -67,6 +73,12 @@
         :class="{ active: isUrl('admin.dealer-activities.*') }" class="item">
         <ph:image-light />
         <span>Hoạt động đại lý</span>
+    </Link>
+
+    <Link v-if="can('admin.customer-handovers.index')" :href="route('admin.customer-handovers.index')"
+        :class="{ active: isUrl('admin.customer-handovers.*') }" class="item">
+        <ph:heart-light />
+        <span>Tri ân khách hàng</span>
     </Link>
 
     <Link v-if="can('admin.media.index')" :href="route('admin.media.index')"

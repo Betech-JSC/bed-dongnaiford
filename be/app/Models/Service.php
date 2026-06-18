@@ -28,10 +28,12 @@ class Service extends BaseModel
         'position',
         'view_count',
         'image',
+        'banner_image',
         'benefit_image',
         'sliders',
         'is_content_by_tab',
         'email',
+        'custom_link',
 
         'inject_head',
         'inject_body_start',
@@ -61,6 +63,7 @@ class Service extends BaseModel
 
     protected $casts = [
         'image' => 'array',
+        'banner_image' => 'array',
         'benefit_image' => 'array',
         'sliders' => 'array'
     ];
@@ -123,6 +126,7 @@ class Service extends BaseModel
             'slug' => $this->seo_slug ?? $this->slug,
             'description' => $this->description,
             'image' => $this->getImageDetail($this->image),
+            'custom_link' => $this->custom_link,
         ];
     }
 
@@ -134,6 +138,15 @@ class Service extends BaseModel
             'slug' => $this->seo_slug ?? $this->slug,
             'description' => $this->description,
             'content' => transform_richtext($this->content),
+            'custom_link' => $this->custom_link,
+            'image' => $this->getImageDetail($this->image),
+            'banner_image' => $this->getImageDetail($this->banner_image),
+            'is_content_by_tab' => $this->is_content_by_tab == true || $this->is_content_by_tab == 1,
+            'content_by_tab' => $this->getTabContent(),
+            'benefit_title' => $this->benefit_title,
+            'benefit_image' => $this->getImageDetail($this->benefit_image),
+            'benefits' => $this->benefits,
+            'sliders' => $this->getSliderDetail(),
         ];
     }
 

@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import { vehicles, Vehicle } from "@/data/vehicles";
 import { getPopularVehicleImage, siteAssets, handleImageError } from "@/lib/site-assets";
-import { bannersAPI, reviewsAPI, postsAPI, vehiclesAPI } from "@/lib/api";
+import { bannersAPI, postsAPI, vehiclesAPI, servicesAPI, customerHandoversAPI } from "@/lib/api";
 
 // Custom SVG Icons matching Figma design
 const WheelIcon = ({ className }: { className?: string }) => (
@@ -141,20 +141,22 @@ export default function Home() {
       linkVehicleId: "ford-everest"
     }
   ]);
-  const [testimonials, setTestimonials] = useState<any[]>([]);
   const [homeArticles, setHomeArticles] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [vehiclesList, setVehiclesList] = useState<any[]>([]);
+  const [servicesList, setServicesList] = useState<any[]>([]);
+  const [customerHandovers, setCustomerHandovers] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [bannersData, reviewsData, postsData, categoriesData, vehiclesData] = await Promise.all([
+        const [bannersData, postsData, categoriesData, vehiclesData, servicesData, handoversData] = await Promise.all([
           bannersAPI.getAll().catch(() => null),
-          reviewsAPI.getAll().catch(() => null),
           postsAPI.getAll().catch(() => null),
           vehiclesAPI.getCategories().catch(() => null),
-          vehiclesAPI.getAll().catch(() => null)
+          vehiclesAPI.getAll().catch(() => null),
+          servicesAPI.getAll().catch(() => null),
+          customerHandoversAPI.getAll().catch(() => null)
         ]);
 
         const bannersItems = (bannersData as any)?.data || bannersData;
@@ -165,17 +167,6 @@ export default function Home() {
             tagline: "",
             image: item.image_url || siteAssets.heroSlides[0],
             linkVehicleId: item.button_link || ""
-          })));
-        }
-
-        const reviewsItems = (reviewsData as any)?.data || reviewsData;
-        if (Array.isArray(reviewsItems) && reviewsItems.length > 0) {
-          setTestimonials(reviewsItems.map((item: any) => ({
-            name: item.customer_name || "Khách hàng",
-            role: "Khách hàng",
-            avatarText: (item.customer_name || "KH").substring(0, 2).toUpperCase(),
-            stars: item.rating || 5,
-            comment: item.content || ""
           })));
         }
 
@@ -197,6 +188,16 @@ export default function Home() {
         if (Array.isArray(vehiclesItems)) {
           setVehiclesList(vehiclesItems);
         }
+
+        const servicesItems = (servicesData as any)?.services || (servicesData as any)?.data || servicesData;
+        if (Array.isArray(servicesItems)) {
+          setServicesList(servicesItems);
+        }
+
+        const handoversItems = (handoversData as any)?.data || handoversData;
+        if (Array.isArray(handoversItems)) {
+          setCustomerHandovers(handoversItems);
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -211,10 +212,7 @@ export default function Home() {
   // Showroom Filter State
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
-  // Testimonials Carousel Slide State
-  const [activeTestimonialIndex, setActiveTestimonialIndex] = useState(0);
-  const [isHovered, setIsHovered] = useState(false);
-  const [isTestimonialInteracted, setIsTestimonialInteracted] = useState(false);
+
 
   // Popular Fleet: use API data if available, fallback to static
   const popularVehicles = vehiclesList.length > 0 ? vehiclesList : vehicles;
@@ -233,9 +231,38 @@ export default function Home() {
     }
   }, [popularVehicles.length]);
 
+  // Services Carousel State
+  const [activeServiceIndex, setActiveServiceIndex] = useState(0);
+  const [isServiceTransitioning, setIsServiceTransitioning] = useState(true);
+  const [isServiceHovered, setIsServiceHovered] = useState(false);
+  const [isServiceInteracted, setIsServiceInteracted] = useState(false);
+
+  // Re-initialize carousel index when services list API data loads
+  useEffect(() => {
+    if (servicesList.length > 0) {
+      setIsServiceTransitioning(false);
+      setActiveServiceIndex(servicesList.length);
+    }
+  }, [servicesList.length]);
+
+  // Re-initialize carousel index when customer handovers API data loads
+  useEffect(() => {
+    if (customerHandovers.length > 0) {
+      setIsHandoverTransitioning(false);
+      setActiveHandoverIndex(customerHandovers.length);
+    }
+  }, [customerHandovers.length]);
+
   // News & Offers Carousel State
   const [activeNewsIndex, setActiveNewsIndex] = useState(0);
   const [isNewsHovered, setIsNewsHovered] = useState(false);
+
+  // Customer Handovers Carousel State
+  const [activeHandoverIndex, setActiveHandoverIndex] = useState(0);
+  const [isHandoverTransitioning, setIsHandoverTransitioning] = useState(true);
+  const [isHandoverHovered, setIsHandoverHovered] = useState(false);
+  const [isHandoverInteracted, setIsHandoverInteracted] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   // FAQ Accordion Open States (Single active index, null if all closed)
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
@@ -244,11 +271,7 @@ export default function Home() {
   const [toastMessage, setToastMessage] = useState("");
   const [showBackToTop, setShowBackToTop] = useState(false);
 
-  // Drag states and refs for Hero, Testimonials, Popular Fleet, and News
-  const [testimonialDragOffset, setTestimonialDragOffset] = useState(0);
-  const testimonialDragStartX = useRef(0);
-  const isTestimonialDragging = useRef(false);
-  const testimonialWasDragged = useRef(false);
+
 
   const [popularDragOffset, setPopularDragOffset] = useState(0);
   const popularDragStartX = useRef(0);
@@ -259,6 +282,16 @@ export default function Home() {
   const newsDragStartX = useRef(0);
   const isNewsDragging = useRef(false);
   const newsWasDragged = useRef(false);
+
+  const [serviceDragOffset, setServiceDragOffset] = useState(0);
+  const serviceDragStartX = useRef(0);
+  const isServiceDragging = useRef(false);
+  const serviceWasDragged = useRef(false);
+
+  const [handoverDragOffset, setHandoverDragOffset] = useState(0);
+  const handoverDragStartX = useRef(0);
+  const isHandoverDragging = useRef(false);
+  const handoverWasDragged = useRef(false);
 
   const heroDragStartX = useRef(0);
   const isHeroDragging = useRef(false);
@@ -282,41 +315,7 @@ export default function Home() {
     }
   };
 
-  // Drag handlers for Testimonials
-  const handleTestimonialStart = (clientX: number) => {
-    testimonialDragStartX.current = clientX;
-    isTestimonialDragging.current = true;
-    setIsTestimonialInteracted(true); // Pause autoplay
-  };
 
-  const handleTestimonialMove = (clientX: number) => {
-    if (!isTestimonialDragging.current) return;
-    const diff = clientX - testimonialDragStartX.current;
-    setTestimonialDragOffset(diff);
-  };
-
-  const handleTestimonialEnd = () => {
-    if (!isTestimonialDragging.current) return;
-    isTestimonialDragging.current = false;
-    
-    const dist = Math.abs(testimonialDragOffset);
-    if (dist > 10) {
-      testimonialWasDragged.current = true;
-      setTimeout(() => {
-        testimonialWasDragged.current = false;
-      }, 50);
-    } else {
-      testimonialWasDragged.current = false;
-    }
-
-    if (testimonialDragOffset > 50) {
-      setActiveTestimonialIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
-    } else if (testimonialDragOffset < -50) {
-      setActiveTestimonialIndex((prev) => (prev + 1) % testimonials.length);
-    }
-    
-    setTestimonialDragOffset(0);
-  };
 
   // Drag handlers for Popular Fleet
   const handlePopularStart = (clientX: number) => {
@@ -392,6 +391,82 @@ export default function Home() {
     setNewsDragOffset(0);
   };
 
+  // Drag handlers for Services
+  const handleServiceStart = (clientX: number) => {
+    serviceDragStartX.current = clientX;
+    isServiceDragging.current = true;
+    setIsServiceInteracted(true); // Pause autoplay
+  };
+
+  const handleServiceMove = (clientX: number) => {
+    if (!isServiceDragging.current) return;
+    const diff = clientX - serviceDragStartX.current;
+    setServiceDragOffset(diff);
+  };
+
+  const handleServiceEnd = () => {
+    if (!isServiceDragging.current) return;
+    isServiceDragging.current = false;
+    
+    const dist = Math.abs(serviceDragOffset);
+    if (dist > 10) {
+      serviceWasDragged.current = true;
+      setTimeout(() => {
+        serviceWasDragged.current = false;
+      }, 50);
+    } else {
+      serviceWasDragged.current = false;
+    }
+
+    if (serviceDragOffset > 50) {
+      setIsServiceTransitioning(true);
+      setActiveServiceIndex((prev) => prev - 1);
+    } else if (serviceDragOffset < -50) {
+      setIsServiceTransitioning(true);
+      setActiveServiceIndex((prev) => prev + 1);
+    }
+    
+    setServiceDragOffset(0);
+  };
+
+  // Drag handlers for Handovers
+  const handleHandoverStart = (clientX: number) => {
+    handoverDragStartX.current = clientX;
+    isHandoverDragging.current = true;
+    setIsHandoverInteracted(true); // Pause autoplay
+  };
+
+  const handleHandoverMove = (clientX: number) => {
+    if (!isHandoverDragging.current) return;
+    const diff = clientX - handoverDragStartX.current;
+    setHandoverDragOffset(diff);
+  };
+
+  const handleHandoverEnd = () => {
+    if (!isHandoverDragging.current) return;
+    isHandoverDragging.current = false;
+    
+    const dist = Math.abs(handoverDragOffset);
+    if (dist > 10) {
+      handoverWasDragged.current = true;
+      setTimeout(() => {
+        handoverWasDragged.current = false;
+      }, 50);
+    } else {
+      handoverWasDragged.current = false;
+    }
+
+    if (handoverDragOffset > 50) {
+      setIsHandoverTransitioning(true);
+      setActiveHandoverIndex((prev) => prev - 1);
+    } else if (handoverDragOffset < -50) {
+      setIsHandoverTransitioning(true);
+      setActiveHandoverIndex((prev) => prev + 1);
+    }
+    
+    setHandoverDragOffset(0);
+  };
+
   // Monitor scroll height to show/hide Back to Top button
   useEffect(() => {
     const handleScroll = () => {
@@ -421,24 +496,7 @@ export default function Home() {
     return () => clearInterval(timer);
   }, [heroSlides.length]);
 
-  // Auto-play testimonials every 2.5 seconds, pause on hover or if interacted
-  useEffect(() => {
-    if (isHovered || isTestimonialInteracted || testimonials.length <= 1) return;
-    const timer = setInterval(() => {
-      setActiveTestimonialIndex((prev) => (prev + 1) % testimonials.length);
-    }, 2500);
-    return () => clearInterval(timer);
-  }, [isHovered, isTestimonialInteracted, testimonials.length]);
 
-  // Reset testimonial interacted flag after 5 seconds of inactivity to resume auto-play
-  useEffect(() => {
-    if (isTestimonialInteracted) {
-      const timer = setTimeout(() => {
-        setIsTestimonialInteracted(false);
-      }, 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [isTestimonialInteracted]);
 
   // Auto-play popular fleet every 2.5 seconds, pause on hover or if interacted (with infinite loop support)
   useEffect(() => {
@@ -541,6 +599,96 @@ export default function Home() {
       setActivePopularIndex(activePopularIndex + popularVehicles.length);
     }
   };
+
+  const handleServiceTransitionEnd = () => {
+    if (servicesList.length === 0) return;
+    if (activeServiceIndex >= servicesList.length * 2) {
+      setIsServiceTransitioning(false);
+      setActiveServiceIndex(activeServiceIndex - servicesList.length);
+    } else if (activeServiceIndex < servicesList.length) {
+      setIsServiceTransitioning(false);
+      setActiveServiceIndex(activeServiceIndex + servicesList.length);
+    }
+  };
+
+  // Auto-play services every 3 seconds, pause on hover/interaction
+  useEffect(() => {
+    if (isServiceHovered || isServiceInteracted || servicesList.length <= 1) return;
+    const timer = setInterval(() => {
+      setIsServiceTransitioning(true);
+      setActiveServiceIndex((prev) => prev + 1);
+    }, 3000);
+    return () => clearInterval(timer);
+  }, [isServiceHovered, isServiceInteracted, servicesList.length]);
+
+  // Reset service interacted flag after 5 seconds of inactivity to resume auto-play
+  useEffect(() => {
+    if (isServiceInteracted) {
+      const timer = setTimeout(() => {
+        setIsServiceInteracted(false);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [isServiceInteracted]);
+
+  const handleHandoverTransitionEnd = () => {
+    if (customerHandovers.length === 0) return;
+    if (activeHandoverIndex >= customerHandovers.length * 2) {
+      setIsHandoverTransitioning(false);
+      setActiveHandoverIndex(activeHandoverIndex - customerHandovers.length);
+    } else if (activeHandoverIndex < customerHandovers.length) {
+      setIsHandoverTransitioning(false);
+      setActiveHandoverIndex(activeHandoverIndex + customerHandovers.length);
+    }
+  };
+
+  // Auto-play customer handovers every 3000ms, pause on hover/interaction
+  useEffect(() => {
+    if (isHandoverHovered || isHandoverInteracted || customerHandovers.length <= 1) return;
+    const timer = setInterval(() => {
+      setIsHandoverTransitioning(true);
+      setActiveHandoverIndex((prev) => prev + 1);
+    }, 3000);
+    return () => clearInterval(timer);
+  }, [isHandoverHovered, isHandoverInteracted, customerHandovers.length]);
+
+  // Reset handover interacted flag after 5 seconds of inactivity to resume auto-play
+  useEffect(() => {
+    if (isHandoverInteracted) {
+      const timer = setTimeout(() => {
+        setIsHandoverInteracted(false);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [isHandoverInteracted]);
+
+  // Body scroll locking when Lightbox is open
+  useEffect(() => {
+    if (lightboxIndex !== null) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [lightboxIndex]);
+
+  // Keyboard navigation for Lightbox
+  useEffect(() => {
+    if (lightboxIndex === null) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setLightboxIndex(null);
+      } else if (e.key === "ArrowLeft") {
+        setLightboxIndex((prev) => (prev !== null ? (prev - 1 + customerHandovers.length) % customerHandovers.length : null));
+      } else if (e.key === "ArrowRight") {
+        setLightboxIndex((prev) => (prev !== null ? (prev + 1) % customerHandovers.length : null));
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [lightboxIndex, customerHandovers.length]);
 
   const getPopularVehicleImageForSlide = (vehicle: any) => {
     // Slider: ưu tiên ảnh featured panoramic, fallback về image_url
@@ -760,138 +908,142 @@ export default function Home() {
         <div className="w-full">
 
           {/* Header row: title left + nav arrows right — Figma: 48px semibold, gap-24 */}
-          <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] flex items-end justify-between mb-6 gap-6">
-            <div className="space-y-2">
-              <h2 className="text-4xl md:text-5xl font-semibold text-[#1a1a1a] tracking-[-0.96px] leading-[1.2]">
-                Các dòng xe phổ biến
-              </h2>
-              <p className="text-base text-[#424242] leading-relaxed">
-                Đa dạng lựa chọn từ SUV, bán tải đến xe thương mại — tất cả đều có sẵn tại showroom Đồng Nai.
-              </p>
-            </div>
-            {/* Nav arrows — Figma: 40px circle, black bg opacity */}
-            <div className="flex gap-6 flex-shrink-0">
-              <button
-                onClick={() => {
-                  setIsPopularTransitioning(true);
-                  setActivePopularIndex((prev) => prev - 1);
-                  setIsPopularInteracted(true);
-                }}
-                className="w-10 h-10 rounded-full bg-black/60 flex items-center justify-center hover:bg-black/80 transition-colors cursor-pointer text-white"
-                aria-label="Previous"
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </button>
-              <button
-                onClick={() => {
-                  setIsPopularTransitioning(true);
-                  setActivePopularIndex((prev) => prev + 1);
-                  setIsPopularInteracted(true);
-                }}
-                className="w-10 h-10 rounded-full bg-black/80 flex items-center justify-center hover:bg-black transition-colors cursor-pointer text-white"
-                aria-label="Next"
-              >
-                <ChevronRight className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-
-          {/* Vehicle cards sliding container */}
-          <div className="relative w-full overflow-visible py-4 pl-4 xl:pl-[144px] min-[1440px]:pl-[calc((100vw-1152px)/2)] select-none">
-            <div
-              className="flex gap-[var(--card-gap-popular)] cursor-grab active:cursor-grabbing"
-              style={{
-                transform: `translateX(calc(-${activePopularIndex} * (var(--card-width-popular) + var(--card-gap-popular)) + ${popularDragOffset}px))`,
-                transition: isPopularDragging.current ? "none" : (isPopularTransitioning ? "transform 500ms ease-in-out" : "none")
-              }}
-              onTransitionEnd={handlePopularTransitionEnd}
-              onMouseEnter={() => setIsPopularHovered(true)}
-              onMouseLeave={(e) => {
-                setIsPopularHovered(false);
-                handlePopularEnd();
-              }}
-              onMouseDown={(e) => handlePopularStart(e.clientX)}
-              onMouseMove={(e) => handlePopularMove(e.clientX)}
-              onMouseUp={handlePopularEnd}
-              onTouchStart={(e) => {
-                setIsPopularHovered(true);
-                handlePopularStart(e.touches[0].clientX);
-              }}
-              onTouchMove={(e) => handlePopularMove(e.touches[0].clientX)}
-              onTouchEnd={(e) => {
-                setIsPopularHovered(false);
-                handlePopularEnd();
-              }}
-            >
-              {[...popularVehicles, ...popularVehicles, ...popularVehicles].map((vehicle, idx) => {
-                const vSlug = vehicle.slug || vehicle.id;
-                const vName = vehicle.title || vehicle.name;
-                return (
-                  <div
-                    key={`${vehicle.id}-${idx}`}
-                    onClick={(e) => {
-                      if (popularWasDragged.current) {
-                        return;
-                      }
-                      const target = e.target as HTMLElement;
-                      if (!target.closest('a')) {
-                        router.push(`/san-pham/${vSlug}`);
-                      }
+          {false && (
+            <>
+              <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] flex items-end justify-between mb-6 gap-6">
+                <div className="space-y-2">
+                  <h2 className="text-4xl md:text-5xl font-semibold text-[#1a1a1a] tracking-[-0.96px] leading-[1.2]">
+                    Các dòng xe phổ biến
+                  </h2>
+                  <p className="text-base text-[#424242] leading-relaxed">
+                    Đa dạng lựa chọn từ SUV, bán tải đến xe thương mại — tất cả đều có sẵn tại showroom Đồng Nai.
+                  </p>
+                </div>
+                {/* Nav arrows — Figma: 40px circle, black bg opacity */}
+                <div className="flex gap-6 flex-shrink-0">
+                  <button
+                    onClick={() => {
+                      setIsPopularTransitioning(true);
+                      setActivePopularIndex((prev) => prev - 1);
+                      setIsPopularInteracted(true);
                     }}
-                    className="relative overflow-hidden rounded-xl h-[420px] sm:h-[595px] group cursor-pointer bg-[#121824] flex-shrink-0 transition-all duration-300 block"
-                    style={{
-                      width: 'var(--card-width-popular)',
-                    }}
+                    className="w-10 h-10 rounded-full bg-black/60 flex items-center justify-center hover:bg-black/80 transition-colors cursor-pointer text-white"
+                    aria-label="Previous"
                   >
-                    <Image
-                      src={getPopularVehicleImageForSlide(vehicle)}
-                      alt={vName}
-                      fill
-                      sizes="var(--card-width-popular)"
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                    {/* Gradient overlay — Figma: top rgba(0,0,0,0) → bottom heavy */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
-                    {/* Content — Figma: p-8 bottom */}
-                    <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-8 z-10 flex flex-col gap-3 sm:gap-4">
-                      <h3 className="text-xl sm:text-2xl md:text-3xl font-semibold text-white leading-[1.2]">{vName}</h3>
-                      <div className="flex flex-row gap-2 sm:gap-3 mt-1">
-                        <Link
-                          href={`/san-pham/${vSlug}`}
-                          className="bg-[#0562D2] text-white text-xs sm:text-sm font-semibold px-4 sm:px-5 py-2 sm:py-2.5 rounded-full hover:bg-[#044ea7] transition-all duration-200 whitespace-nowrap text-center flex-1 sm:flex-none"
-                        >
-                          Xem chi tiết
-                        </Link>
-                        <Link
-                          href={`/lien-he?vehicle=${vSlug}&reason=Báo giá`}
-                          className="bg-transparent border border-white text-white text-xs sm:text-sm font-semibold px-4 sm:px-5 py-2 sm:py-2.5 rounded-full hover:bg-white/10 transition-all duration-200 whitespace-nowrap text-center flex-1 sm:flex-none"
-                        >
-                          Báo giá
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+                  <button
+                    onClick={() => {
+                      setIsPopularTransitioning(true);
+                      setActivePopularIndex((prev) => prev + 1);
+                      setIsPopularInteracted(true);
+                    }}
+                    className="w-10 h-10 rounded-full bg-black/80 flex items-center justify-center hover:bg-black transition-colors cursor-pointer text-white"
+                    aria-label="Next"
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
 
-          {/* Dots Pagination Indicators for Popular Fleet */}
-          <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] flex justify-center gap-2 mt-4 mb-8">
-            {popularVehicles.map((_, idx) => (
-              <button
-                key={idx}
-                onClick={() => {
-                  setIsPopularTransitioning(true);
-                  setActivePopularIndex(idx + popularVehicles.length);
-                  setIsPopularInteracted(true);
-                }}
-                className={`h-2 transition-all rounded-full cursor-pointer ${activePopularIndex % popularVehicles.length === idx ? "w-6 bg-[#0562d2]" : "w-2 bg-gray-300"
-                  }`}
-                aria-label={`Go to vehicle slide ${idx + 1}`}
-              />
-            ))}
-          </div>
+              {/* Vehicle cards sliding container */}
+              <div className="relative w-full overflow-visible py-4 pl-4 xl:pl-[144px] min-[1440px]:pl-[calc((100vw-1152px)/2)] select-none">
+                <div
+                  className="flex gap-[var(--card-gap-popular)] cursor-grab active:cursor-grabbing"
+                  style={{
+                    transform: `translateX(calc(-${activePopularIndex} * (var(--card-width-popular) + var(--card-gap-popular)) + ${popularDragOffset}px))`,
+                    transition: isPopularDragging.current ? "none" : (isPopularTransitioning ? "transform 500ms ease-in-out" : "none")
+                  }}
+                  onTransitionEnd={handlePopularTransitionEnd}
+                  onMouseEnter={() => setIsPopularHovered(true)}
+                  onMouseLeave={(e) => {
+                    setIsPopularHovered(false);
+                    handlePopularEnd();
+                  }}
+                  onMouseDown={(e) => handlePopularStart(e.clientX)}
+                  onMouseMove={(e) => handlePopularMove(e.clientX)}
+                  onMouseUp={handlePopularEnd}
+                  onTouchStart={(e) => {
+                    setIsPopularHovered(true);
+                    handlePopularStart(e.touches[0].clientX);
+                  }}
+                  onTouchMove={(e) => handlePopularMove(e.touches[0].clientX)}
+                  onTouchEnd={(e) => {
+                    setIsPopularHovered(false);
+                    handlePopularEnd();
+                  }}
+                >
+                  {[...popularVehicles, ...popularVehicles, ...popularVehicles].map((vehicle, idx) => {
+                    const vSlug = vehicle.slug || vehicle.id;
+                    const vName = vehicle.title || vehicle.name;
+                    return (
+                      <div
+                        key={`${vehicle.id}-${idx}`}
+                        onClick={(e) => {
+                          if (popularWasDragged.current) {
+                            return;
+                          }
+                          const target = e.target as HTMLElement;
+                          if (!target.closest('a')) {
+                            router.push(`/san-pham/${vSlug}`);
+                          }
+                        }}
+                        className="relative overflow-hidden rounded-xl h-[420px] sm:h-[595px] group cursor-pointer bg-[#121824] flex-shrink-0 transition-all duration-300 block"
+                        style={{
+                          width: 'var(--card-width-popular)',
+                        }}
+                      >
+                        <Image
+                          src={getPopularVehicleImageForSlide(vehicle)}
+                          alt={vName}
+                          fill
+                          sizes="var(--card-width-popular)"
+                          className="object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                        {/* Gradient overlay — Figma: top rgba(0,0,0,0) → bottom heavy */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
+                        {/* Content — Figma: p-8 bottom */}
+                        <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-8 z-10 flex flex-col gap-3 sm:gap-4">
+                          <h3 className="text-xl sm:text-2xl md:text-3xl font-semibold text-white leading-[1.2]">{vName}</h3>
+                          <div className="flex flex-row gap-2 sm:gap-3 mt-1">
+                            <Link
+                              href={`/san-pham/${vSlug}`}
+                              className="bg-[#0562D2] text-white text-xs sm:text-sm font-semibold px-4 sm:px-5 py-2 sm:py-2.5 rounded-full hover:bg-[#044ea7] transition-all duration-200 whitespace-nowrap text-center flex-1 sm:flex-none"
+                            >
+                              Xem chi tiết
+                            </Link>
+                            <Link
+                              href={`/lien-he?vehicle=${vSlug}&reason=Báo giá`}
+                              className="bg-transparent border border-white text-white text-xs sm:text-sm font-semibold px-4 sm:px-5 py-2 sm:py-2.5 rounded-full hover:bg-white/10 transition-all duration-200 whitespace-nowrap text-center flex-1 sm:flex-none"
+                            >
+                              Báo giá
+                            </Link>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Dots Pagination Indicators for Popular Fleet */}
+              <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] flex justify-center gap-2 mt-4 mb-8">
+                {popularVehicles.map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => {
+                      setIsPopularTransitioning(true);
+                      setActivePopularIndex(idx + popularVehicles.length);
+                      setIsPopularInteracted(true);
+                    }}
+                    className={`h-2 transition-all rounded-full cursor-pointer ${activePopularIndex % popularVehicles.length === idx ? "w-6 bg-[#0562d2]" : "w-2 bg-gray-300"
+                      }`}
+                    aria-label={`Go to vehicle slide ${idx + 1}`}
+                  />
+                ))}
+              </div>
+            </>
+          )}
 
           {/* 5. TEST DRIVE BANNER — Figma: inside Section 4, 1152x320px, bg-[#0562d2] + gradient, rounded-12px */}
           <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full mt-6">
@@ -933,204 +1085,148 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 6. SERVICES GRID — Figma: bg-[#f0f0f0], py-72px, px-144px, cards h-480px, rounded-12px */}
-      <section id="services" className="w-full bg-[#f0f0f0] py-[72px]">
-        <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full">
-          {/* Title — Figma: 48px Semibold #1a1a1a tracking -0.96px, mb-24px */}
-          <h2 className="text-4xl md:text-5xl font-semibold text-[#1a1a1a] tracking-[-0.96px] leading-[1.2] mb-6">
-            Các dịch vụ của chúng tôi
-          </h2>
-
-          {/* Cards — Figma: flex row, gap-24, h-480 each, rounded-12 */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
-
-            {/* Card 1: Chăm sóc khách hàng */}
-            <Link
-              href="/dich-vu/cham-soc-khach-hang"
-              className="relative overflow-hidden rounded-xl h-[480px] group cursor-pointer bg-white block"
-            >
-              <Image
-                src={siteAssets.serviceCustomerCare}
-                alt="Chăm sóc khách hàng"
-                fill
-                className="object-cover transition-transform duration-500 group-hover:scale-105"
-              />
-              <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0))' }} />
-              <div className="absolute bottom-0 left-0 right-0 pb-8 pt-12 px-4 z-10">
-                <h3 className="text-2xl font-semibold text-white leading-[1.25]">
-                  Chăm sóc khách hàng
-                </h3>
-              </div>
-            </Link>
-
-            {/* Card 2: Bảo dưỡng Xe */}
-            <Link
-              href="/dich-vu/bao-duong-dinh-ky"
-              className="relative overflow-hidden rounded-xl h-[480px] group cursor-pointer bg-white block"
-            >
-              <Image
-                src={siteAssets.serviceMaintenance}
-                alt="Bảo dưỡng Xe"
-                fill
-                className="object-cover transition-transform duration-500 group-hover:scale-105"
-              />
-              <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0))' }} />
-              <div className="absolute bottom-0 left-0 right-0 pb-8 pt-12 px-4 z-10">
-                <h3 className="text-2xl font-semibold text-white leading-[1.25]">
-                  Bảo dưỡng Xe
-                </h3>
-              </div>
-            </Link>
-
-            {/* Card 3: Nhận & Giao xe */}
-            <Link
-              href="/dich-vu/giao-nhan-xe-tan-noi"
-              className="relative overflow-hidden rounded-xl h-[480px] group cursor-pointer bg-white block"
-            >
-              <Image
-                src={siteAssets.serviceDelivery}
-                alt="Nhận & Giao xe"
-                fill
-                className="object-cover transition-transform duration-500 group-hover:scale-105"
-              />
-              <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0))' }} />
-              <div className="absolute bottom-0 left-0 right-0 pb-8 pt-12 px-4 z-10">
-                <h3 className="text-2xl font-semibold text-white leading-[1.25]">
-                  Nhận &amp; Giao xe
-                </h3>
-              </div>
-            </Link>
-
-          </div>
-        </div>
-      </section>
-
-      {/* 7. CUSTOMER TESTIMONIALS */}
-      <section id="media" className="bg-gray-light border-y border-gray-200 py-20 px-0 overflow-x-clip">
+      {/* 6. SERVICES CAROUSEL — Figma: bg-[#f0f0f0], py-72px, cards h-480px, rounded-12px, draggable */}
+      <section id="services" className="w-full bg-[#f0f0f0] py-[72px] overflow-x-clip">
         <div className="w-full">
-
-          <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] flex flex-col md:flex-row md:items-end justify-between mb-12">
-            <div>
-              <span className="text-xs font-semibold text-[#0562d2] uppercase tracking-wider block mb-2">
-                Ý KIẾN TỪ KHÁCH HÀNG
-              </span>
-              <h2 className="text-[36px] font-semibold text-[#1a1a1a] leading-tight">
-                Cảm nhận khách hàng
+          {/* Header row: title left + nav arrows right */}
+          <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] flex items-end justify-between mb-6 gap-6">
+            <div className="space-y-2">
+              <h2 className="text-4xl md:text-5xl font-semibold text-[#1a1a1a] tracking-[-0.96px] leading-[1.2]">
+                Các dịch vụ của chúng tôi
               </h2>
+              <p className="text-base text-[#424242] leading-relaxed">
+                Các giải pháp dịch vụ toàn diện, tận tâm và chính hãng từ Đồng Nai Ford.
+              </p>
             </div>
-
-            {/* Arrows controllers */}
-            <div className="flex gap-2 mt-4 md:mt-0">
-              <button
-                onClick={() => {
-                  setActiveTestimonialIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
-                  setIsTestimonialInteracted(true);
-                }}
-                className="p-2 border border-gray-300 hover:bg-[#0562d2] hover:text-white hover:border-[#0562d2] text-primary rounded-full transition-colors cursor-pointer bg-white"
-                aria-label="Previous testimonial"
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </button>
-              <button
-                onClick={() => {
-                  setActiveTestimonialIndex((prev) => (prev + 1) % testimonials.length);
-                  setIsTestimonialInteracted(true);
-                }}
-                className="p-2 border border-gray-300 hover:bg-[#0562d2] hover:text-white hover:border-[#0562d2] text-primary rounded-full transition-colors cursor-pointer bg-white"
-                aria-label="Next testimonial"
-              >
-                <ChevronRight className="w-5 h-5" />
-              </button>
-            </div>
+            {/* Nav arrows */}
+            {servicesList.length > 0 && (
+              <div className="flex gap-6 flex-shrink-0">
+                <button
+                  onClick={() => {
+                    setIsServiceTransitioning(true);
+                    setActiveServiceIndex((prev) => prev - 1);
+                    setIsServiceInteracted(true);
+                  }}
+                  className="w-10 h-10 rounded-full bg-black/60 flex items-center justify-center hover:bg-black/80 transition-colors cursor-pointer text-white"
+                  aria-label="Previous service"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() => {
+                    setIsServiceTransitioning(true);
+                    setActiveServiceIndex((prev) => prev + 1);
+                    setIsServiceInteracted(true);
+                  }}
+                  className="w-10 h-10 rounded-full bg-black/80 flex items-center justify-center hover:bg-black transition-colors cursor-pointer text-white"
+                  aria-label="Next service"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
+            )}
           </div>
 
-          {/* Testimonial Active Display Card Row */}
-          <div className="relative w-full overflow-visible py-4 select-none">
-            <div
-              className="flex cursor-grab active:cursor-grabbing"
-              style={{
-                gap: 'var(--card-gap-testimonial)',
-                transform: `translateX(calc(50% - (var(--card-width-testimonial) / 2) - ${activeTestimonialIndex} * (var(--card-width-testimonial) + var(--card-gap-testimonial)) + ${testimonialDragOffset}px))`,
-                transition: isTestimonialDragging.current ? "none" : "transform 500ms ease-in-out"
-              }}
-              onMouseEnter={() => setIsHovered(true)}
-              onMouseLeave={(e) => {
-                setIsHovered(false);
-                handleTestimonialEnd();
-              }}
-              onMouseDown={(e) => handleTestimonialStart(e.clientX)}
-              onMouseMove={(e) => handleTestimonialMove(e.clientX)}
-              onMouseUp={handleTestimonialEnd}
-              onTouchStart={(e) => {
-                setIsHovered(true);
-                handleTestimonialStart(e.touches[0].clientX);
-              }}
-              onTouchMove={(e) => handleTestimonialMove(e.touches[0].clientX)}
-              onTouchEnd={(e) => {
-                setIsHovered(false);
-                handleTestimonialEnd();
-              }}
-            >
-              {testimonials.map((item, idx) => {
-                const isActive = idx === activeTestimonialIndex;
-                return (
-                  <div
+          {/* Vehicle cards sliding container */}
+          {servicesList.length > 0 ? (
+            <>
+              <div className="relative w-full overflow-visible py-4 pl-4 xl:pl-[144px] min-[1440px]:pl-[calc((100vw-1152px)/2)] select-none">
+                <div
+                  className="flex gap-[var(--card-gap-service)] cursor-grab active:cursor-grabbing"
+                  style={{
+                    transform: `translateX(calc(-${activeServiceIndex} * (var(--card-width-service) + var(--card-gap-service)) + ${serviceDragOffset}px))`,
+                    transition: isServiceDragging.current ? "none" : (isServiceTransitioning ? "transform 500ms ease-in-out" : "none")
+                  }}
+                  onTransitionEnd={handleServiceTransitionEnd}
+                  onMouseEnter={() => setIsServiceHovered(true)}
+                  onMouseLeave={() => {
+                    setIsServiceHovered(false);
+                    handleServiceEnd();
+                  }}
+                  onMouseDown={(e) => handleServiceStart(e.clientX)}
+                  onMouseMove={(e) => handleServiceMove(e.clientX)}
+                  onMouseUp={handleServiceEnd}
+                  onTouchStart={(e) => {
+                    setIsServiceHovered(true);
+                    handleServiceStart(e.touches[0].clientX);
+                  }}
+                  onTouchMove={(e) => handleServiceMove(e.touches[0].clientX)}
+                  onTouchEnd={(e) => {
+                    setIsServiceHovered(false);
+                    handleServiceEnd();
+                  }}
+                >
+                  {[...servicesList, ...servicesList, ...servicesList].map((srv, idx) => {
+                    const sTitle = srv.title;
+                    const sImg = srv.image?.url || "/service-support-customer.jpg";
+                    const sHref = (srv.custom_link && srv.custom_link.startsWith('/dich-vu/'))
+                      ? srv.custom_link
+                      : `/dich-vu/${srv.slug}`;
+                    return (
+                      <div
+                        key={`${srv.id}-${idx}`}
+                        onClick={() => {
+                          if (serviceWasDragged.current) return;
+                          router.push(sHref);
+                        }}
+                        className="relative overflow-hidden rounded-xl h-[480px] group cursor-pointer bg-[#121824] flex-shrink-0 transition-all duration-300 block"
+                        style={{
+                          width: 'var(--card-width-service)',
+                        }}
+                      >
+                        <Image
+                          src={sImg}
+                          alt={sTitle}
+                          fill
+                          sizes="var(--card-width-service)"
+                          className="object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
+                        <div className="absolute bottom-0 left-0 right-0 p-8 z-10 flex flex-col gap-3 sm:gap-4">
+                          <h3 className="text-xl sm:text-2xl md:text-3xl font-semibold text-white leading-[1.2]">{sTitle}</h3>
+                          {srv.description && (
+                            <p className="text-sm text-white/70 line-clamp-2 leading-relaxed font-normal">
+                              {srv.description}
+                            </p>
+                          )}
+                          <div className="flex flex-row gap-2 sm:gap-3 mt-2">
+                            <span className="bg-[#0562D2] text-white text-xs sm:text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-[#044ea7] transition-all duration-200 whitespace-nowrap text-center">
+                              Xem chi tiết
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Dots Pagination Indicators for Services */}
+              <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] flex justify-center gap-2 mt-4 mb-8">
+                {servicesList.map((_, idx) => (
+                  <button
                     key={idx}
                     onClick={() => {
-                      if (testimonialWasDragged.current) return;
-                      setActiveTestimonialIndex(idx);
+                      setIsServiceTransitioning(true);
+                      setActiveServiceIndex(idx + servicesList.length);
+                      setIsServiceInteracted(true);
                     }}
-                    className={`h-auto min-h-[320px] sm:h-[320px] bg-white px-5 py-6 sm:px-6 sm:py-8 rounded-[8px] flex-shrink-0 flex flex-col justify-between cursor-pointer transition-all ${isActive
-                      ? "border-b-4 border-[#0562d2] shadow-md scale-100 opacity-100"
-                      : "border-b border-[#d6d6d6] scale-95 opacity-50"
+                    className={`h-2 transition-all rounded-full cursor-pointer ${activeServiceIndex % servicesList.length === idx ? "w-6 bg-[#0562d2]" : "w-2 bg-gray-300"
                       }`}
-                    style={{
-                      width: 'var(--card-width-testimonial)',
-                    }}
-                  >
-                    {/* Comment text */}
-                    <p className="text-[15px] sm:text-[18px] text-[#424242] font-normal leading-[1.5]">
-                      &ldquo;{item.comment}&rdquo;
-                    </p>
-
-                    {/* Author Info */}
-                    <div className="flex items-center gap-3 sm:gap-4 pt-3 sm:pt-4">
-                      <div className="size-[48px] sm:size-[64px] rounded-full border-[2px] sm:border-[3px] border-[#0562d2] bg-[#003478] flex items-center justify-center font-bold text-white text-base sm:text-lg flex-shrink-0">
-                        {item.avatarText}
-                      </div>
-                      <div>
-                        <h4 className="text-[15px] sm:text-[18px] font-semibold text-[#1a1a1a] tracking-[0.18px] leading-tight">
-                          {item.name}
-                        </h4>
-                        <p className="text-[14px] sm:text-[16px] text-[#333333] mt-0.5 sm:mt-1">
-                          {item.role}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+                    aria-label={`Go to service slide ${idx + 1}`}
+                  />
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className="text-center py-20 bg-white border border-[#e5e5e5] rounded-[12px] max-w-[1152px] mx-auto">
+              <p className="text-gray-500 text-sm">Đang tải danh sách dịch vụ...</p>
             </div>
-          </div>
-
-          {/* Pagination Indicators dots */}
-          <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] flex justify-center gap-2 mt-8">
-            {testimonials.map((_, idx) => (
-              <button
-                key={idx}
-                onClick={() => {
-                  setActiveTestimonialIndex(idx);
-                  setIsTestimonialInteracted(true);
-                }}
-                className={`h-2 transition-all rounded-full cursor-pointer ${activeTestimonialIndex === idx ? "w-6 bg-[#0562d2]" : "w-2 bg-gray-300"
-                  }`}
-                aria-label={`Go to slide ${idx + 1}`}
-              />
-            ))}
-          </div>
-
+          )}
         </div>
       </section>
+
+
 
       {/* 8. NEWS & PROMOTION */}
       <section id="news" className="w-full bg-[#00095b] py-20">
@@ -1260,6 +1356,150 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* CUSTOMER HANDOVER (TRI ÂN KHÁCH HÀNG) */}
+      {customerHandovers.length > 0 && (
+        <section id="customer-handovers" className="w-full bg-white py-[72px] overflow-x-clip relative select-none border-b border-gray-100">
+          <style dangerouslySetInnerHTML={{ __html: `
+            #customer-handovers {
+              --card-width-handover: 360px;
+              --card-gap-handover: 24px;
+            }
+            @media (max-width: 640px) {
+              #customer-handovers {
+                --card-width-handover: 280px;
+                --card-gap-handover: 16px;
+              }
+            }
+          ` }} />
+          <div className="w-full">
+            {/* Header row: title left + nav arrows right */}
+            <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] flex flex-col md:flex-row md:items-end justify-between mb-8 gap-6">
+              <div className="space-y-2 max-w-4xl">
+                <span className="text-xs font-semibold text-[#0562d2] uppercase tracking-wider block mb-2">
+                  Tri ân khách hàng
+                </span>
+                <h2 className="text-2xl md:text-3xl lg:text-[32px] font-bold text-[#1a1a1a] tracking-tight leading-tight uppercase">
+                  CHÚC MỪNG & CẢM ƠN QUÝ KHÁCH HÀNG ĐÃ LỰA CHỌN ĐỒNG NAI FORD
+                </h2>
+              </div>
+              
+              {/* Nav arrows */}
+              <div className="flex gap-4 flex-shrink-0">
+                <button
+                  onClick={() => {
+                    setIsHandoverTransitioning(true);
+                    setActiveHandoverIndex((prev) => prev - 1);
+                    setIsHandoverInteracted(true);
+                  }}
+                  className="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer text-gray-700 bg-white shadow-sm"
+                  aria-label="Previous image"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() => {
+                    setIsHandoverTransitioning(true);
+                    setActiveHandoverIndex((prev) => prev + 1);
+                    setIsHandoverInteracted(true);
+                  }}
+                  className="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer text-gray-700 bg-white shadow-sm"
+                  aria-label="Next image"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Slider track container */}
+            <div className="relative w-full overflow-visible py-4 pl-4 xl:pl-[144px] min-[1440px]:pl-[calc((100vw-1152px)/2)] select-none">
+              <div
+                className="flex cursor-grab active:cursor-grabbing"
+                style={{
+                  transform: `translateX(calc(-${activeHandoverIndex} * (var(--card-width-handover, 360px) + var(--card-gap-handover, 24px)) + ${handoverDragOffset}px))`,
+                  transition: isHandoverDragging.current ? "none" : (isHandoverTransitioning ? "transform 500ms ease-in-out" : "none"),
+                  gap: "var(--card-gap-handover, 24px)"
+                }}
+                onTransitionEnd={handleHandoverTransitionEnd}
+                onMouseEnter={() => setIsHandoverHovered(true)}
+                onMouseLeave={() => {
+                  setIsHandoverHovered(false);
+                  handleHandoverEnd();
+                }}
+                onMouseDown={(e) => handleHandoverStart(e.clientX)}
+                onMouseMove={(e) => handleHandoverMove(e.clientX)}
+                onMouseUp={handleHandoverEnd}
+                onTouchStart={(e) => {
+                  setIsHandoverHovered(true);
+                  handleHandoverStart(e.touches[0].clientX);
+                }}
+                onTouchMove={(e) => handleHandoverMove(e.touches[0].clientX)}
+                onTouchEnd={(e) => {
+                  setIsHandoverHovered(false);
+                  handleHandoverEnd();
+                }}
+              >
+                {[...customerHandovers, ...customerHandovers, ...customerHandovers].map((item, idx) => {
+                  const originalIdx = idx % customerHandovers.length;
+                  return (
+                    <div
+                      key={`${item.id}-${idx}`}
+                      onClick={() => {
+                        if (handoverWasDragged.current) return;
+                        setLightboxIndex(originalIdx);
+                      }}
+                      className="relative overflow-hidden rounded-xl aspect-[4/3] group cursor-pointer bg-gray-100 flex-shrink-0 transition-all duration-300 block shadow-sm hover:shadow-md border border-gray-100"
+                      style={{
+                        width: "var(--card-width-handover, 360px)",
+                      }}
+                    >
+                      <Image
+                        src={item.image_url}
+                        alt={item.title || "Tri ân khách hàng"}
+                        fill
+                        sizes="(max-width: 768px) 280px, 360px"
+                        className="object-cover group-hover:scale-103 transition-transform duration-500"
+                        onError={handleImageError}
+                      />
+                      
+                      {/* Premium gradient overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+                        <h3 className="text-white text-base font-semibold leading-snug transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+                          {item.title}
+                        </h3>
+                        <p className="text-white/70 text-xs mt-1.5 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300 delay-75">
+                          Xem phóng to hình ảnh
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Dots Pagination Indicators */}
+            <div className="flex justify-center gap-2 mt-8">
+              {customerHandovers.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => {
+                    setIsHandoverTransitioning(true);
+                    setActiveHandoverIndex(idx + customerHandovers.length);
+                    setIsHandoverInteracted(true);
+                  }}
+                  className={`h-2 transition-all rounded-full cursor-pointer ${
+                    (activeHandoverIndex % customerHandovers.length) === idx
+                      ? "w-8 bg-[#0562d2]"
+                      : "w-2 bg-gray-300 hover:bg-gray-400"
+                  }`}
+                  aria-label={`Go to handover slide ${idx + 1}`}
+                />
+              ))}
+            </div>
+
+          </div>
+        </section>
+      )}
 
       {/* 9. FAQ ACCORDION (FIGMA SECTION 8) */}
       <section className="w-full bg-[#F8F9FA] border-y border-gray-200 py-[72px]">
@@ -1529,63 +1769,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* FLOATING ACTION UTILITY SIDEBAR */}
-      <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-3">
-        {/* Back to Top Button */}
-        {showBackToTop && (
-          <button
-            onClick={scrollToTop}
-            className="w-10 h-10 bg-[#e5e5e5] hover:bg-gray-300 text-[#1a1a1a] flex items-center justify-center shadow-lg hover:scale-105 transition-all duration-200 rounded-full cursor-pointer border border-gray-200/50"
-            title="Lên đầu trang"
-          >
-            <ChevronUp className="w-5 h-5" />
-          </button>
-        )}
 
-        {/* Hotline Phone Button */}
-        <a
-          href="tel:0918909060"
-          className="group flex items-center justify-end h-10 bg-[#0562D2] hover:bg-[#003478] text-white shadow-lg rounded-full transition-all duration-300 w-10 hover:w-[160px] relative overflow-hidden cursor-pointer"
-          title="Gọi Hotline 0918 90 90 60"
-        >
-          <span className="absolute right-10 font-semibold text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 pr-2">
-            0918 90 90 60
-          </span>
-          <div className="w-10 h-10 flex items-center justify-center flex-shrink-0">
-            <Phone className="w-5 h-5 animate-pulse" />
-          </div>
-        </a>
-
-        {/* Zalo Button */}
-        <a
-          href="https://zalo.me/0918909060"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="group flex items-center justify-end h-10 bg-[#0562D2] hover:bg-[#003478] text-white shadow-lg rounded-full transition-all duration-300 w-10 hover:w-[130px] relative overflow-hidden cursor-pointer"
-          title="Chat Zalo hỗ trợ nhanh"
-        >
-          <span className="absolute right-10 font-semibold text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 pr-2">
-            Chat Zalo
-          </span>
-          <div className="w-10 h-10 flex items-center justify-center flex-shrink-0">
-            <MessageCircle className="w-5 h-5" />
-          </div>
-        </a>
-
-        {/* Book Test Drive Button */}
-        <button
-          onClick={() => triggerQuickAction("Đăng ký lái thử", "Tôi đặt lịch lái thử xe Ford.")}
-          className="group flex items-center justify-end h-10 bg-[#0562D2] hover:bg-[#003478] text-white shadow-lg rounded-full transition-all duration-300 w-10 hover:w-[160px] relative overflow-hidden border border-white/10 cursor-pointer"
-          title="Đăng ký lái thử"
-        >
-          <span className="absolute right-10 font-semibold text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 pr-2">
-            Đăng ký lái thử
-          </span>
-          <div className="w-10 h-10 flex items-center justify-center flex-shrink-0">
-            <Calendar className="w-5 h-5 text-white" />
-          </div>
-        </button>
-      </div>
 
       {/* CLIENT SIDE TOAST NOTIFICATION */}
       {showToast && (
@@ -1603,6 +1787,63 @@ export default function Home() {
           >
             <X className="w-4 h-4" />
           </button>
+        </div>
+      )}
+
+      {/* GLASSMORPHIC LIGHTBOX OVERLAY */}
+      {lightboxIndex !== null && customerHandovers.length > 0 && (
+        <div 
+          className="fixed inset-0 bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-4 transition-all duration-300 select-none"
+          style={{ zIndex: 9999 }}
+        >
+          {/* Close button */}
+          <button
+            onClick={() => setLightboxIndex(null)}
+            className="absolute top-6 right-6 z-50 p-3 rounded-full text-white/80 hover:text-white hover:bg-white/10 transition-all cursor-pointer bg-black/20 backdrop-blur-xs"
+            aria-label="Close lightbox"
+          >
+            <X className="w-6 h-6" />
+          </button>
+
+          {/* Left Arrow Button */}
+          <button
+            onClick={() => setLightboxIndex((prev) => (prev !== null ? (prev - 1 + customerHandovers.length) % customerHandovers.length : null))}
+            className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-50 p-4 rounded-full text-white/80 hover:text-white hover:bg-white/10 transition-all cursor-pointer bg-black/20 backdrop-blur-xs"
+            aria-label="Previous image"
+          >
+            <ChevronLeft className="w-8 h-8" />
+          </button>
+
+          {/* Right Arrow Button */}
+          <button
+            onClick={() => setLightboxIndex((prev) => (prev !== null ? (prev + 1) % customerHandovers.length : null))}
+            className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-50 p-4 rounded-full text-white/80 hover:text-white hover:bg-white/10 transition-all cursor-pointer bg-black/20 backdrop-blur-xs"
+            aria-label="Next image"
+          >
+            <ChevronRight className="w-8 h-8" />
+          </button>
+
+          {/* Content Wrapper */}
+          <div className="relative w-full max-w-[1200px] h-full max-h-[80vh] flex flex-col items-center justify-center">
+            {/* Image container */}
+            <div className="relative w-full h-full flex items-center justify-center">
+              <img
+                src={customerHandovers[lightboxIndex].image_url}
+                alt={customerHandovers[lightboxIndex].title || "Tri ân khách hàng"}
+                className="max-w-full max-h-full object-contain rounded-lg shadow-2xl border border-white/10"
+              />
+            </div>
+
+            {/* Title / Description */}
+            <div className="mt-6 text-center max-w-2xl px-4">
+              <h3 className="text-white text-lg md:text-2xl font-bold tracking-wide drop-shadow-md">
+                {customerHandovers[lightboxIndex].title}
+              </h3>
+              <p className="text-white/60 text-sm mt-1 uppercase tracking-wider font-semibold">
+                ĐỒNG NAI FORD
+              </p>
+            </div>
+          </div>
         </div>
       )}
 

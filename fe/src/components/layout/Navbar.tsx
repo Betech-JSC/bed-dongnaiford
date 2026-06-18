@@ -5,8 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { MapPin, Mail, Phone, Search, ChevronDown, ChevronRight } from "lucide-react";
-import { vehicles } from "@/data/vehicles";
-import { vehiclesAPI, accessoriesAPI } from "@/lib/api";
+import { vehiclesAPI, accessoriesAPI, servicesAPI } from "@/lib/api";
 import { accessoriesData } from "@/data/accessories";
 
 type DropdownItem = {
@@ -34,6 +33,12 @@ export default function Navbar() {
   const [categoriesList, setCategoriesList] = useState<any[]>([]);
   const [vehiclesList, setVehiclesList] = useState<any[]>([]);
   const [accessoriesList, setAccessoriesList] = useState<any[]>([]);
+  const [servicesMenuList, setServicesMenuList] = useState<DropdownItem[]>([
+    { name: "Chăm sóc khách hàng", href: "/dich-vu/cham-soc-khach-hang" },
+    { name: "Bảo dưỡng nhanh 60 phút", href: "/dich-vu/bao-duong-nhanh" },
+    { name: "Bảo dưỡng định kỳ", href: "/dich-vu/bao-duong-dinh-ky" },
+    { name: "Nhận & Giao xe tận nơi", href: "/dich-vu/giao-nhan-xe-tan-noi" },
+  ]);
   const [loading, setLoading] = useState(true);
 
   const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -69,15 +74,16 @@ export default function Navbar() {
     };
   }, []);
 
-  // Fetch Category, Vehicle & Accessories data from API
+  // Fetch Category, Vehicle, Accessories & Services data from API
   useEffect(() => {
     let active = true;
     const fetchMenuData = async () => {
       try {
-        const [catsData, vehsData, accsData] = await Promise.all([
+        const [catsData, vehsData, accsData, servicesData] = await Promise.all([
           vehiclesAPI.getCategories().catch(() => null),
           vehiclesAPI.getAll().catch(() => null),
           accessoriesAPI.getAll({ limit: 6 }).catch(() => null),
+          servicesAPI.getAll().catch(() => null),
         ]);
         
         if (!active) return;
@@ -85,6 +91,7 @@ export default function Navbar() {
         const cats = (catsData as any)?.data || catsData;
         const vehs = (vehsData as any)?.data || vehsData;
         const accs = (accsData as any)?.data || accsData;
+        const services = (servicesData as any)?.services || (servicesData as any)?.data || servicesData;
 
         if (Array.isArray(cats) && cats.length > 0) {
           setCategoriesList(cats);
@@ -95,8 +102,19 @@ export default function Navbar() {
         if (Array.isArray(accs) && accs.length > 0) {
           setAccessoriesList(accs);
         }
+        if (Array.isArray(services) && services.length > 0) {
+          setServicesMenuList(services.map((srv: any) => {
+            const href = (srv.custom_link && srv.custom_link.startsWith('/dich-vu/'))
+              ? srv.custom_link
+              : `/dich-vu/${srv.slug}`;
+            return {
+              name: srv.title || srv.name || "",
+              href: href,
+            };
+          }));
+        }
       } catch (err) {
-        console.error("Error fetching menu categories/vehicles/accessories:", err);
+        console.error("Error fetching menu categories/vehicles/accessories/services:", err);
       } finally {
         if (active) setLoading(false);
       }
@@ -208,16 +226,19 @@ export default function Navbar() {
         image: car.image,
       };
     }
-    const vehicle = vehicles.find((v) => v.id === car.id);
+    // Fallback search in vehiclesList (loaded dynamically from CMS API)
+    const vehicle = vehiclesList.find((v) => (v.slug || String(v.id)) === car.id);
     if (!vehicle) {
       return {
         price: "Đang cập nhật",
         image: "",
       };
     }
+    const price = typeof vehicle.base_price === 'string' ? parseFloat(vehicle.base_price) : (vehicle.base_price || vehicle.basePrice || 0);
+    const image = vehicle.image_thumbnail_url || vehicle.image_url || vehicle.images?.[0] || "";
     return {
-      price: formatPrice(vehicle.basePrice),
-      image: (vehicle as any).image_thumbnail_url || (vehicle as any).image_url || vehicle.images[0] || "",
+      price: price > 0 ? formatPrice(price) : "Liên hệ",
+      image: image,
     };
   };
 
@@ -246,13 +267,8 @@ export default function Navbar() {
     },
     {
       name: "Dịch vụ",
-      href: "/dich-vu/cham-soc-khach-hang",
-      dropdownItems: [
-        { name: "Chăm sóc khách hàng", href: "/dich-vu/cham-soc-khach-hang" },
-        { name: "Bảo dưỡng nhanh 60 phút", href: "/dich-vu/bao-duong-nhanh" },
-        { name: "Bảo dưỡng định kỳ", href: "/dich-vu/bao-duong-dinh-ky" },
-        { name: "Nhận & Giao xe tận nơi", href: "/dich-vu/giao-nhan-xe-tan-noi" },
-      ],
+      href: servicesMenuList[0]?.href || "/dich-vu/cham-soc-khach-hang",
+      dropdownItems: servicesMenuList,
     },
     {
       name: "Bài viết",
@@ -326,26 +342,32 @@ export default function Navbar() {
   return (
     <header className="w-full z-50 bg-white border-b border-gray-200 sticky top-0">
       {/* Top Header Utility Bar */}
-      <div className="hidden lg:block bg-black text-white text-xs py-2">
+      <div className="hidden lg:block bg-[#00095b] text-white text-xs py-2">
         <div className="max-w-[1440px] mx-auto px-4 xl:px-[128px] flex justify-between items-center font-medium">
           <div className="flex items-center gap-6">
-            <span className="flex items-center gap-2 text-white/90">
-              <MapPin className="w-3.5 h-3.5 text-white/80 flex-shrink-0" />
-              Số B04, Khu thương mại Amata, Khu phố 29, Phường Long Bình, Thành Phố Đồng Nai
-            </span>
-          </div>
-          <div className="flex items-center gap-6">
-            <span className="flex items-center gap-2 text-white/90">
-              <Mail className="w-3.5 h-3.5 text-white/80 flex-shrink-0" />
-              marketing@dongnaiford.com.vn
-            </span>
+            <button 
+              onClick={() => { window.location.href = "tel:1800556858"; }}
+              className="flex items-center gap-1.5 text-white hover:text-white/85 transition-colors cursor-pointer bg-transparent border-0 p-0 font-medium text-xs"
+            >
+              <Phone className="w-3.5 h-3.5 text-white/90 flex-shrink-0" />
+              <span>Tổng đài &amp; CSKH: 1800 55 68 58</span>
+            </button>
             <span className="text-white/30">|</span>
             <button 
-              onClick={() => { window.location.href = "tel:0918909060"; }}
-              className="flex items-center gap-2 text-white/90 hover:text-white transition-colors cursor-pointer bg-transparent border-0 p-0 font-medium text-xs"
+              onClick={() => { window.location.href = "tel:1800556858"; }}
+              className="flex items-center gap-1.5 text-white hover:text-white/85 transition-colors cursor-pointer bg-transparent border-0 p-0 font-medium text-xs"
             >
-              <Phone className="w-3.5 h-3.5 text-white/80 flex-shrink-0" />
-              0918 90 90 60
+              <Phone className="w-3.5 h-3.5 text-red-400 flex-shrink-0 animate-pulse" />
+              <span>Cứu hộ 24/7: 1800 55 68 58</span>
+            </button>
+          </div>
+          <div className="flex items-center gap-6">
+            <button 
+              onClick={() => { window.location.href = "tel:0918909060"; }}
+              className="flex items-center gap-1.5 text-white hover:text-white/85 transition-colors cursor-pointer bg-transparent border-0 p-0 font-medium text-xs"
+            >
+              <Phone className="w-3.5 h-3.5 text-white/90 flex-shrink-0" />
+              <span>Hotline kinh doanh: 0918 90 90 60</span>
             </button>
           </div>
         </div>
@@ -855,10 +877,34 @@ export default function Navbar() {
             );
           })}
           <div className="border-t border-gray-100 pt-4 flex flex-col gap-2.5">
-            <div className="text-xs text-gray-550 px-3 space-y-1.5 font-medium">
-              <p className="flex items-start gap-1.5">📍 <span className="leading-tight text-[#424242]">Số B04, Khu thương mại Amata, Khu phố 29, Phường Long Bình, Thành Phố Đồng Nai</span></p>
-              <p className="text-[#424242]">📞 Hotline: 0918 90 90 60</p>
-              <p className="text-[#424242]">✉️ Email: marketing@dongnaiford.com.vn</p>
+            <div className="text-xs text-gray-550 px-3 space-y-2 font-medium">
+              <p className="text-[#424242]">
+                📞 Tổng đài &amp; CSKH:{" "}
+                <button
+                  onClick={() => { window.location.href = "tel:1800556858"; }}
+                  className="font-bold text-[#0562d2] bg-transparent border-0 p-0 cursor-pointer text-xs"
+                >
+                  1800 55 68 58
+                </button>
+              </p>
+              <p className="text-[#424242]">
+                📞 Hotline kinh doanh:{" "}
+                <button
+                  onClick={() => { window.location.href = "tel:0918909060"; }}
+                  className="font-bold text-[#0562d2] bg-transparent border-0 p-0 cursor-pointer text-xs"
+                >
+                  0918 90 90 60
+                </button>
+              </p>
+              <p className="text-[#424242]">
+                🚨 Cứu hộ 24/7:{" "}
+                <button
+                  onClick={() => { window.location.href = "tel:1800556858"; }}
+                  className="font-bold text-red-500 bg-transparent border-0 p-0 cursor-pointer text-xs"
+                >
+                  1800 55 68 58
+                </button>
+              </p>
             </div>
           </div>
         </div>

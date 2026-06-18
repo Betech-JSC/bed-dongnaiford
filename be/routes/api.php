@@ -47,6 +47,8 @@ Route::localized(function () {
     });
 
     Route::post('contacts', [App\Http\Controllers\Frontend\ContactController::class, 'store'])->name('api.contacts.store');
+    Route::get('services', [\App\Http\Controllers\Frontend\ServiceController::class, 'index'])->name('api.services');
+    Route::get('services/{slug}', [\App\Http\Controllers\Frontend\ServiceController::class, 'show'])->name('api.services.show');
     Route::get('posts', [\App\Http\Controllers\Frontend\PostController::class, 'index'])->name('api.posts');
     Route::get('posts/{slug}', [\App\Http\Controllers\Frontend\PostController::class, 'show'])->name('api.posts.show');
     Route::get('policies', [\App\Http\Controllers\Frontend\PolicyController::class, 'index'])->name('api.policies');
@@ -61,6 +63,9 @@ Route::localized(function () {
 
     // Lịch bảo dưỡng xe
     Route::get('maintenance-schedules', [\App\Http\Controllers\Api\MaintenanceScheduleController::class, 'index'])->name('api.maintenance_schedules.index');
+
+    // Tri ân khách hàng (Bàn giao xe)
+    Route::get('customer-handovers', [\App\Http\Controllers\Frontend\CustomerHandoverController::class, 'index'])->name('api.customer_handovers');
 
     // Tải ảnh trực tiếp từ FrontEnd Page Builder
     Route::post('upload', [VehicleController::class, 'uploadImage'])->name('api.upload');
