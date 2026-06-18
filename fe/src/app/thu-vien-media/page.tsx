@@ -20,10 +20,10 @@ function getTikTokId(urlOrId: string): string {
     return trimmed;
   }
   
-  // Match standard link: https://www.tiktok.com/@username/video/731234567890
-  const standardMatch = trimmed.match(/\/video\/(\d+)/);
-  if (standardMatch && standardMatch[1]) {
-    return standardMatch[1];
+  // Match standard link: https://www.tiktok.com/@username/video/731234567890 or photo/731234567890
+  const match = trimmed.match(/\/(video|photo)\/(\d+)/);
+  if (match && match[2]) {
+    return match[2];
   }
   
   return "";
