@@ -24,69 +24,6 @@ const getVersionDisplayName = (verName: string, vehicleName: string) => {
   return verName;
 };
 
-const MACHE_DETAILED_SPECS_FALLBACK = [
-  {
-    category: "Vận hành",
-    items: [
-      "Quãng đường vận hành (WLTP): 550km¹",
-      "Công suất cực đại: 395 Ps",
-      "Mô men xoắn cực đại: 676 Nm",
-      "Mức tiêu thụ năng lượng 193 Wh/km",
-      "Dẫn động 4 bánh",
-      "Dung lượng pin: 87 kWh",
-      "Chuẩn sạc CCS2"
-    ]
-  },
-  {
-    category: "Thiết kế bánh xe",
-    items: [
-      "Kích cỡ lốp: 225/55R19",
-      "Vành mâm xe: Mâm hợp kim 19 inch thiết kế thể thao"
-    ]
-  },
-  {
-    category: "Ngoại thất",
-    items: [
-      "Đèn pha: LED Projector tự động bật tắt, tự động pha cốt",
-      "Đèn chạy ban ngày: LED đặc trưng Mustang",
-      "Đèn hậu: LED dạng 3 thanh đặc trưng Mustang",
-      "Gương chiếu hậu: Gập điện, chỉnh điện, tích hợp đèn báo rẽ, sấy gương và đèn chào mừng",
-      "Cửa cốp sau: Mở rảnh tay thông minh",
-      "Cốp trước (Frunk): Thể tích 139.5L tiện dụng"
-    ]
-  },
-  {
-    category: "Nội thất",
-    items: [
-      "Chất liệu ghế: Da cao cấp sang trọng",
-      "Ghế lái: Chỉnh điện 8 hướng, nhớ vị trí ghế",
-      "Vô lăng: Bọc da cao cấp, tích hợp nút điều khiển âm thanh và hỗ trợ lái",
-      "Hệ thống điều hòa: Tự động 2 vùng độc lập, có cửa gió hàng ghế sau",
-      "Cửa sổ trời: Toàn cảnh Panorama kính Low-E chống nhiệt"
-    ]
-  },
-  {
-    category: "Công nghệ",
-    items: [
-      "Màn hình trung tâm: Cảm ứng đặt dọc 15.5 inch kết hợp hệ thống SYNC 4A",
-      "Bảng đồng hồ: Kỹ thuật số 10.2 inch hiển thị đa thông tin",
-      "Hệ thống âm thanh: B&O Premium 10 loa chất lượng cao",
-      "Kết nối: Apple CarPlay và Android Auto không dây, sạc điện thoại không dây",
-      "Kết nối thông minh: Ứng dụng FordPass khởi động và làm mát xe từ xa"
-    ]
-  },
-  {
-    category: "Hỗ trợ Người Lái",
-    items: [
-      "Hệ thống camera: Camera 360 độ góc nhìn toàn cảnh",
-      "Kiểm soát hành trình: Thích ứng Adaptive Cruise Control (ACC) với Stop & Go",
-      "Hỗ trợ giữ làn: Hệ thống giữ làn đường và cảnh báo chệch làn LKA",
-      "Cảnh báo điểm mù: BLIS tích hợp cảnh báo phương tiện cắt ngang khi lùi",
-      "Hỗ trợ đỗ xe: Hỗ trợ đỗ xe tự động thông minh Active Park Assist 2.0",
-      "Hệ thống an toàn chủ động: Phanh tự động khẩn cấp AEB, Cảnh báo va chạm phía trước FCW"
-    ]
-  }
-];
 
 export default function VehicleVersionDetailPage() {
   const {
@@ -149,14 +86,6 @@ export default function VehicleVersionDetailPage() {
       }
     }
 
-    const isMachE = vehicle.name?.toLowerCase().includes("mustang") || vehicle.name?.toLowerCase().includes("mach-e");
-    
-    if (isMachE) {
-      return MACHE_DETAILED_SPECS_FALLBACK.map(cat => ({
-        category: cat.category,
-        content: `<ul class="list-disc pl-4 space-y-1">${cat.items.map(item => `<li>${item}</li>`).join('')}</ul>`
-      }));
-    }
 
     if (Array.isArray(rawSpecs)) {
       return rawSpecs.map(s => ({

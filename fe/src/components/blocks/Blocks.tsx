@@ -452,36 +452,6 @@ function HeroBannerBlock({ data, vehicle, openQuoteDrawer, openDriveModal, isEdi
   );
 }
 
-/* ==========================================================================
-   2. SPECS COMPARISON BLOCK
-   ========================================================================== */
-const MACHE_DETAILED_SPECS_FALLBACK = [
-  {
-    title: "Vận hành",
-    content: "<ul><li>Quãng đường vận hành (WLTP): 550km¹</li><li>Công suất cực đại: 395 Ps</li><li>Mô men xoắn cực đại: 676 Nm</li><li>Mức tiêu thụ năng lượng 193 Wh/km</li><li>Dẫn động 4 bánh</li><li>Dung lượng pin: 87 kWh</li><li>Chuẩn sạc CCS2</li></ul>"
-  },
-  {
-    title: "Thiết kế bánh xe",
-    content: "<ul><li>Kích cỡ lốp: 225/55R19</li><li>Vành mâm xe: Mâm hợp kim 19 inch thiết kế thể thao</li></ul>"
-  },
-  {
-    title: "Ngoại thất",
-    content: "<ul><li>Đèn pha: LED Projector tự động bật tắt, tự động pha cốt</li><li>Đèn chạy ban ngày: LED đặc trưng Mustang</li><li>Đèn hậu: LED dạng 3 thanh đặc trưng Mustang</li><li>Gương chiếu hậu: Gập điện, chỉnh điện, tích hợp đèn báo rẽ, sấy gương và đèn chào mừng</li><li>Cửa cốp sau: Mở rảnh tay thông minh</li><li>Cốp trước (Frunk): Thể tích 139.5L tiện dụng</li></ul>"
-  },
-  {
-    title: "Nội thất",
-    content: "<ul><li>Chất liệu ghế: Da cao cấp sang trọng</li><li>Ghế lái: Chỉnh điện 8 hướng, nhớ vị trí ghế</li><li>Vô lăng: Bọc da cao cấp, tích hợp nút điều khiển âm thanh và hỗ trợ lái</li><li>Hệ thống điều hòa: Tự động 2 vùng độc lập, có cửa gió hàng ghế sau</li><li>Cửa sổ trời: Toàn cảnh Panorama kính Low-E chống nhiệt</li></ul>"
-  },
-  {
-    title: "Công nghệ",
-    content: "<ul><li>Màn hình trung tâm: Cảm ứng đặt dọc 15.5 inch kết hợp hệ thống SYNC 4A</li><li>Bảng đồng hồ: Kỹ thuật số 10.2 inch hiển thị đa thông tin</li><li>Hệ thống âm thanh: B&O Premium 10 loa chất lượng cao</li><li>Kết nối: Apple CarPlay và Android Auto không dây, sạc điện thoại không dây</li><li>Kết nối thông minh: Ứng dụng FordPass khởi động và làm mát xe từ xa</li></ul>"
-  },
-  {
-    title: "Hỗ trợ Người Lái & An toàn",
-    content: "<ul><li>Hệ thống camera: Camera 360 độ góc nhìn toàn cảnh</li><li>Kiểm soát hành trình: Thích ứng Adaptive Cruise Control (ACC) với Stop & Go</li><li>Hỗ trợ giữ làn: Hệ thống giữ làn đường và cảnh báo chệch làn LKA</li><li>Cảnh báo điểm mù: BLIS tích hợp cảnh báo phương tiện cắt ngang khi lùi</li><li>Hỗ trợ đỗ xe: Hỗ trợ đỗ xe tự động thông minh Active Park Assist 2.0</li><li>Hệ thống an toàn chủ động: Phanh tự động khẩn cấp AEB, Cảnh báo va chạm phía trước FCW</li></ul>"
-  }
-];
-
 function parseSpecs(specs: any, vehicleName: string): any[] {
   const parseDetailedItem = (item: any) => {
     if (item.content) {
@@ -561,11 +531,6 @@ function parseSpecs(specs: any, vehicleName: string): any[] {
     if (hasContent) {
       return [{ title: 'Thông số chung', content: contentHtml }];
     }
-  }
-
-  const isMachE = vehicleName?.toLowerCase().includes("mustang") || vehicleName?.toLowerCase().includes("mach-e");
-  if (isMachE) {
-    return MACHE_DETAILED_SPECS_FALLBACK;
   }
 
   return [];

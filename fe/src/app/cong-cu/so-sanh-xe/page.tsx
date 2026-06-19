@@ -38,7 +38,7 @@ const mapSpecKey = (key: string, val: string, result: Record<string, string>) =>
   }
 };
 
-const parseSpecsArray = (specsArray: any, isMachE: boolean = false): Record<string, string> => {
+const parseSpecsArray = (specsArray: any): Record<string, string> => {
   const result: Record<string, string> = {
     engine: '',
     power: '',
@@ -59,15 +59,7 @@ const parseSpecsArray = (specsArray: any, isMachE: boolean = false): Record<stri
   }
 
   if (!Array.isArray(actualArray)) {
-    if (isMachE) {
-      actualArray = MACHE_DETAILED_SPECS_FALLBACK;
-    } else {
-      return result;
-    }
-  }
-
-  if (Array.isArray(actualArray) && actualArray.length === 0 && isMachE) {
-    actualArray = MACHE_DETAILED_SPECS_FALLBACK;
+    return result;
   }
 
   actualArray.forEach((group: any) => {
@@ -96,33 +88,6 @@ const parseSpecsArray = (specsArray: any, isMachE: boolean = false): Record<stri
 
   return result;
 };
-
-const MACHE_DETAILED_SPECS_FALLBACK = [
-  {
-    title: "Vận hành",
-    content: "<ul><li>Quãng đường vận hành (WLTP): 550km¹</li><li>Công suất cực đại: 395 Ps</li><li>Mô men xoắn cực đại: 676 Nm</li><li>Mức tiêu thụ năng lượng: 193 Wh/km</li><li>Dẫn động: 4 bánh</li><li>Dung lượng pin: 87 kWh</li><li>Chuẩn sạc: CCS2</li></ul>"
-  },
-  {
-    title: "Thiết kế bánh xe",
-    content: "<ul><li>Kích cỡ lốp: 225/55R19</li><li>Vành mâm xe: Mâm hợp kim 19 inch thiết kế thể thao</li></ul>"
-  },
-  {
-    title: "Ngoại thất",
-    content: "<ul><li>Đèn pha: LED Projector tự động bật tắt, tự động pha cốt</li><li>Đèn chạy ban ngày: LED đặc trưng Mustang</li><li>Đèn hậu: LED dạng 3 thanh đặc trưng Mustang</li><li>Gương chiếu hậu: Gập điện, chỉnh điện, tích hợp đèn báo rẽ, sấy gương và đèn chào mừng</li><li>Cửa cốp sau: Mở rảnh tay thông minh</li><li>Cốp trước (Frunk): Thể tích 139.5L tiện dụng</li></ul>"
-  },
-  {
-    title: "Nội thất",
-    content: "<ul><li>Chất liệu ghế: Da cao cấp sang trọng</li><li>Ghế lái: Chỉnh điện 8 hướng, nhớ vị trí ghế</li><li>Vô lăng: Bọc da cao cấp, tích hợp nút điều khiển âm thanh và hỗ trợ lái</li><li>Hệ thống điều hòa: Tự động 2 vùng độc lập, có cửa gió hàng ghế sau</li><li>Cửa sổ trời: Toàn cảnh Panorama kính Low-E chống nhiệt</li></ul>"
-  },
-  {
-    title: "Công nghệ",
-    content: "<ul><li>Màn hình trung tâm: Cảm ứng đặt dọc 15.5 inch kết hợp hệ thống SYNC 4A</li><li>Bảng đồng hồ: Kỹ thuật số 10.2 inch hiển thị đa thông tin</li><li>Hệ thống âm thanh: B&O Premium 10 loa chất lượng cao</li><li>Kết nối: Apple CarPlay và Android Auto không dây, sạc điện thoại không dây</li><li>Kết nối thông minh: Ứng dụng FordPass khởi động và làm mát xe từ xa</li></ul>"
-  },
-  {
-    title: "Hỗ trợ Người Lái & An toàn",
-    content: "<ul><li>Hệ thống camera: Camera 360 độ góc nhìn toàn cảnh</li><li>Kiểm soát hành trình: Thích ứng Adaptive Cruise Control (ACC) với Stop & Go</li><li>Hỗ trợ giữ làn: Hệ thống giữ làn đường và cảnh báo chệch làn LKA</li><li>Cảnh báo điểm mù: BLIS tích hợp cảnh báo phương tiện cắt ngang khi lùi</li><li>Hỗ trợ đỗ xe: Hỗ trợ đỗ xe tự động thông minh Active Park Assist 2.0</li><li>Hệ thống an toàn chủ động: Phanh tự động khẩn cấp AEB, Cảnh báo va chạm phía trước FCW</li></ul>"
-  }
-];
 
 function parseSpecs(specs: any, vehicleName: string): any[] {
   const parseDetailedItem = (item: any) => {
@@ -205,11 +170,6 @@ function parseSpecs(specs: any, vehicleName: string): any[] {
     }
   }
 
-  const isMachE = vehicleName?.toLowerCase().includes("mustang") || vehicleName?.toLowerCase().includes("mach-e");
-  if (isMachE) {
-    return MACHE_DETAILED_SPECS_FALLBACK;
-  }
-
   return [];
 }
 
@@ -242,7 +202,6 @@ export default function ComparePage() {
           const mapped = items.map((v: any) => {
             const id = v.slug || v.id;
             const name = v.title || v.name;
-            const isMachE = name.toLowerCase().includes("mustang") || name.toLowerCase().includes("mach-e") || id.toLowerCase().includes("mach-e") || id.toLowerCase().includes("mustang");
             const image = v.image_thumbnail_url || v.image_url || v.images?.[0] || "";
             const price = typeof v.base_price === 'string' ? parseFloat(v.base_price) : (v.base_price || v.basePrice || 0);
             return {
@@ -253,7 +212,7 @@ export default function ComparePage() {
               images: [image],
               typeName: v.type_name || v.typeName || (v.type === 'suv' ? 'SUV' : v.type === 'pickup' ? 'Bán tải' : 'Thương mại'),
               versions: v.versions ? v.versions.map((ver: any) => {
-                const parsedSpecs = parseSpecsArray(ver.specs, isMachE);
+                const parsedSpecs = parseSpecsArray(ver.specs);
                 return {
                   id: ver.id,
                   name: ver.name,
