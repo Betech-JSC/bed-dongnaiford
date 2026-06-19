@@ -147,7 +147,7 @@
                 <div v-if="Object.keys(searchFiles).length"
                     class="px-4 pt-8 pb-16 mx-auto space-y-4 max-w-7xl sm:px-6 lg:px-8">
                     <ul role="list" class="grid grid-cols-3 gap-4 lg:grid-cols-4 2xl:grid-cols-6">
-                        <li class="relative" v-if="data" v-for="(file, index) in searchFiles" :key="file.static_url">
+                        <li class="relative" v-if="data" v-for="(file, index) in searchFiles" :key="file.id || file.static_url || file.path || index">
                             <div class="group w-full rounded bg-gray-100 overflow-hidden aspect-[1/1] flex cursor-pointer justify-center items-center border border-transparent hover:border-gray-400 relative outline outline-offset-2 outline-2"
                                 :class="selectedFiles.includes(file) ? 'outline-black' : 'outline-transparent'"
                                 @click="onSelect(file)"
