@@ -238,12 +238,31 @@ export default function VehicleVersionDetailPage() {
     if (viewType === "interior") {
       return (currentColor?.images_360_internal && currentColor.images_360_internal.length > 0)
         ? currentColor.images_360_internal[0]
-        : (currentColor?.image_360_internal || currentColor?.image || selectedVersion?.image_url || vehicle?.image_url || "");
+        : (currentColor?.image_360_internal || vehicle?.image_360_internal_url || currentColor?.image || selectedVersion?.image_url || vehicle?.image_url || "");
     }
     return (currentColor?.images_360 && currentColor.images_360.length > 0)
       ? currentColor.images_360[0]
       : (currentColor?.image || selectedVersion?.image_url || vehicle?.image_url || "");
   }, [viewType, currentColor, selectedVersion, vehicle]);
+
+  const hasInteriorPhotos = useMemo(() => {
+    if (currentColor) {
+      if (currentColor.images_360_internal && currentColor.images_360_internal.length > 0) return true;
+      if (currentColor.image_360_internal) return true;
+    }
+    if (vehicle) {
+      if (vehicle.images_360_internal && vehicle.images_360_internal.length > 0) return true;
+      if (vehicle.image_360_internal_url) return true;
+    }
+    return false;
+  }, [currentColor, vehicle]);
+
+  // Reset viewType to exterior if active version/color doesn't have interior photos
+  useEffect(() => {
+    if (!hasInteriorPhotos && viewType === "interior") {
+      setViewType("exterior");
+    }
+  }, [hasInteriorPhotos, viewType]);
 
   // Reset 360 active state when color or version changes
   useEffect(() => {
@@ -638,26 +657,28 @@ export default function VehicleVersionDetailPage() {
               </div>
 
               {/* Right: View Type Toggle Switch */}
-              <div className="bg-white border border-[#e5e5e5] p-1 rounded-full flex gap-1 shadow-sm self-end">
-                <button
-                  type="button"
-                  onClick={() => setViewType("exterior")}
-                  className={`px-5 py-2 rounded-full text-xs font-bold border-0 cursor-pointer transition-all ${
-                    viewType === "exterior" ? "bg-slate-900 text-white shadow-xs" : "text-gray-500 hover:text-gray-900 bg-transparent"
-                  }`}
-                >
-                  Vẻ ngoài
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setViewType("interior")}
-                  className={`px-5 py-2 rounded-full text-xs font-bold border-0 cursor-pointer transition-all ${
-                    viewType === "interior" ? "bg-slate-900 text-white shadow-xs" : "text-gray-500 hover:text-gray-900 bg-transparent"
-                  }`}
-                >
-                  Khoang Lái
-                </button>
-              </div>
+              {hasInteriorPhotos && (
+                <div className="bg-white border border-[#e5e5e5] p-1 rounded-full flex gap-1 shadow-sm self-end">
+                  <button
+                    type="button"
+                    onClick={() => setViewType("exterior")}
+                    className={`px-5 py-2 rounded-full text-xs font-bold border-0 cursor-pointer transition-all ${
+                      viewType === "exterior" ? "bg-slate-900 text-white shadow-xs" : "text-gray-500 hover:text-gray-900 bg-transparent"
+                    }`}
+                  >
+                    Vẻ ngoài
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setViewType("interior")}
+                    className={`px-5 py-2 rounded-full text-xs font-bold border-0 cursor-pointer transition-all ${
+                      viewType === "interior" ? "bg-slate-900 text-white shadow-xs" : "text-gray-500 hover:text-gray-900 bg-transparent"
+                    }`}
+                  >
+                    Khoang Lái
+                  </button>
+                </div>
+              )}
             </div>
 
           </div>
