@@ -1,6 +1,7 @@
 <template>
     <div class="fixed top-0 bottom-0 right-0 z-50 overflow-hidden bg-white" v-show="show"
-        :class="embed ? 'left-0 overflow-auto' : 'left-from-sidebar'">
+        :class="embed ? 'left-0 overflow-auto' : 'left-from-sidebar'"
+        :style="{ '--sidebar-width': sidebarWidth + 'px' }">
         <input type="file" class="hidden"
             accept="image/png, image/gif, image/jpeg, image/svg+xml, application/pdf, image/webp, video/mp4, video/x-m4v, video/*" multiple="true"
             ref="file" @change="fileChange" />
@@ -48,7 +49,18 @@
                 @drop.prevent="; (isDragging = false), (dragCounter = 0), drop($event)"></div>
 
             <!-- Details sidebar -->
-            <aside class="hidden p-4 pb-16 overflow-y-auto bg-white border-l border-r border-gray-200 w-72 md:block">
+            <aside 
+                ref="sidebarAside"
+                class="hidden p-4 pb-16 overflow-y-auto bg-white border-l border-r border-gray-200 md:block relative shrink-0"
+                :style="{ width: sidebarWidth + 'px' }"
+            >
+                <div 
+                    @mousedown="startResize" 
+                    class="absolute top-0 right-0 w-1.5 h-full cursor-col-resize hover:bg-emerald-500/30 active:bg-emerald-600 transition-colors z-30 select-none group"
+                    title="Kéo để thay đổi độ rộng"
+                >
+                    <div class="w-[1.5px] h-full bg-gray-200 group-hover:bg-emerald-500 mx-auto transition-colors"></div>
+                </div>
                 <template v-if="embed">
                     <Button @click.prevent="browse" class="w-full space-x-2 btn-primary">
                         <ph:upload-simple />
@@ -70,6 +82,21 @@
                 }" />
             </aside>
             <main class="overflow-y-auto grow group-image-admin flex flex-col">
+                <!-- Breadcrumbs -->
+                <div class="px-4 py-2.5 bg-gray-50 border-b border-gray-200 flex items-center flex-wrap gap-1.5 text-xs text-gray-500 sm:px-6 lg:px-8 shrink-0 select-none">
+                    <template v-for="(crumb, idx) in breadcrumbs" :key="crumb.path">
+                        <span v-if="idx > 0" class="text-gray-300">/</span>
+                        <button 
+                            type="button"
+                            @click="selectedItem({ path: crumb.path })"
+                            class="hover:text-emerald-600 hover:underline font-medium transition cursor-pointer border-0 bg-transparent p-0 text-xs flex items-center"
+                            :class="idx === breadcrumbs.length - 1 ? 'text-gray-800 font-semibold pointer-events-none' : 'text-gray-400'"
+                        >
+                            {{ crumb.name }}
+                        </button>
+                    </template>
+                </div>
+
                 <!-- Toolbar for filters and sorting -->
                 <div class="sticky top-0 z-20 px-4 py-3 bg-white border-b border-gray-200 flex flex-wrap items-center justify-between gap-4 sm:px-6 lg:px-8">
                     <!-- Type filters (tabs/pills) -->
@@ -343,6 +370,8 @@ export default {
 
     data() {
         return {
+            sidebarWidth: 288,
+            isResizing: false,
             uploadingFiles: [],
             selectedFiles: [],
             isDragging: false,
@@ -435,6 +464,24 @@ export default {
     },
 
     computed: {
+        breadcrumbs() {
+            const path = this.currentPath || '/';
+            if (path === '/') return [{ name: 'Root', path: '/' }];
+            
+            const parts = path.split('/').filter(Boolean);
+            const list = [{ name: '📁 Root', path: '/' }];
+            let accumulated = '';
+            
+            parts.forEach((part) => {
+                accumulated += '/' + part;
+                list.push({
+                    name: part,
+                    path: accumulated
+                });
+            });
+            
+            return list;
+        },
         searchFiles() {
             if (!this.data || !this.data.files) return []
             return Array.isArray(this.data.files) ? this.data.files : Object.values(this.data.files)
@@ -464,6 +511,31 @@ export default {
     },
 
     methods: {
+        startResize(e) {
+            this.isResizing = true;
+            document.addEventListener('mousemove', this.resizeSidebar);
+            document.addEventListener('mouseup', this.stopResize);
+            document.body.style.cursor = 'col-resize';
+            document.body.style.userSelect = 'none';
+        },
+        resizeSidebar(e) {
+            if (!this.isResizing) return;
+            const aside = this.$refs.sidebarAside;
+            if (aside) {
+                const rect = aside.getBoundingClientRect();
+                const newWidth = e.clientX - rect.left;
+                if (newWidth >= 180 && newWidth <= 600) {
+                    this.sidebarWidth = newWidth;
+                }
+            }
+        },
+        stopResize() {
+            this.isResizing = false;
+            document.removeEventListener('mousemove', this.resizeSidebar);
+            document.removeEventListener('mouseup', this.stopResize);
+            document.body.style.cursor = '';
+            document.body.style.userSelect = '';
+        },
         scrollImage() {
             this.page = this.page + 1
             this.getFiles({ page: this.page })
