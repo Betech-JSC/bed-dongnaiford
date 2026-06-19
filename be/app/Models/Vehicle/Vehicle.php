@@ -74,6 +74,7 @@ class Vehicle extends BaseModel
             'image_360_internal_url' => 'nullable|string',
             'status'         => 'required|string|in:ACTIVE,INACTIVE',
             'sort_order'     => 'nullable|integer',
+            'accessories'    => 'nullable|array',
         ];
 
         return [

@@ -6,6 +6,7 @@ use Inertia\Inertia;
 use App\Models\Vehicle\Vehicle;
 use App\Models\Vehicle\VehicleCategory;
 use App\Models\Vehicle\CustomerReview;
+use App\Models\Vehicle\Accessory;
 use App\Traits\HasCrudActions;
 use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
@@ -16,6 +17,8 @@ class VehicleController extends Controller
     use HasCrudActions;
 
     public $model = Vehicle::class;
+
+    private $originalVehicleTitle = null;
 
     public $with = [
         'form' => ['category', 'translations', 'versions', 'versions.translations'],
@@ -81,11 +84,62 @@ class VehicleController extends Controller
                 'label'       => "#{$r->id} — {$r->customer_name} (" . str_repeat('★', $r->rating ?? 0) . ")",
             ]);
 
+        // Load all active accessories for selection in the form
+        $data['accessories'] = Accessory::query()
+            ->where('status', Accessory::STATUS_ACTIVE)
+            ->with(['translations'])
+            ->orderBy('sort_order')
+            ->get()
+            ->map(fn($acc) => [
+                'id'           => $acc->id,
+                'title'        => $acc->title,
+                'code'         => $acc->code,
+                'category'     => $acc->category,
+                'fit_vehicles' => $acc->fit_vehicles ?? [],
+            ]);
+
         return $data;
+    }
+
+    private function afterForm($item)
+    {
+        // Find accessories associated with this vehicle by name matching
+        $vehicleTitle = null;
+        if (is_object($item)) {
+            $vehicleTitle = $item->translate('vi')->title ?? $item->title;
+        } elseif (is_array($item)) {
+            $vehicleTitle = $item['vi']['title'] ?? ($item['title'] ?? null);
+        }
+
+        $selectedAccessoryIds = [];
+        if ($vehicleTitle) {
+            $selectedAccessoryIds = Accessory::query()
+                ->where('status', Accessory::STATUS_ACTIVE)
+                ->whereJsonContains('fit_vehicles', $vehicleTitle)
+                ->pluck('id')
+                ->toArray();
+        }
+
+        if (is_object($item)) {
+            $item->accessories = $selectedAccessoryIds;
+        } elseif (is_array($item)) {
+            $item['accessories'] = $selectedAccessoryIds;
+        }
+
+        return $item;
     }
 
     private function beforeStore(Request $request, array $rules): array
     {
+        // Get the original title before updating
+        $id = request()->route('id') ?? request()->input('id');
+        if ($id) {
+            $vehicle = Vehicle::find($id);
+            if ($vehicle) {
+                $this->originalVehicleTitle = $vehicle->translate('vi')->title ?? $vehicle->title;
+            }
+        }
+
         if ($request->has('image_thumbnail')) {
             $request->merge([
                 'image' => $request->input('image_thumbnail')
@@ -103,6 +157,7 @@ class VehicleController extends Controller
             'image_featured',
             'versions',
             'layout_blocks',
+            'accessories',
         ];
 
         foreach ($arrayKeys as $key) {
@@ -216,6 +271,68 @@ class VehicleController extends Controller
             }
 
             $resource->versions()->whereNotIn('id', $keepIds)->delete();
+
+            // Sync accessories fit_vehicles list
+            $selectedIds = $request->input('accessories', []);
+            if (!is_array($selectedIds)) {
+                $selectedIds = [];
+            }
+
+            $vehicleTitle = $resource->translate('vi')->title ?? $resource->title;
+
+            if ($vehicleTitle) {
+                // If title was changed, clean up original title first
+                if ($this->originalVehicleTitle && strtolower(trim($this->originalVehicleTitle)) !== strtolower(trim($vehicleTitle))) {
+                    $allAccs = Accessory::all();
+                    foreach ($allAccs as $acc) {
+                        $fit = $acc->fit_vehicles ?? [];
+                        if (is_array($fit)) {
+                            $newFit = [];
+                            foreach ($fit as $v) {
+                                if (strtolower(trim($v)) !== strtolower(trim($this->originalVehicleTitle))) {
+                                    $newFit[] = $v;
+                                }
+                            }
+                            if (count($newFit) !== count($fit)) {
+                                $acc->update(['fit_vehicles' => $newFit]);
+                            }
+                        }
+                    }
+                }
+
+                // Sync new vehicleTitle to the selected accessories
+                $allAccessories = Accessory::all();
+                foreach ($allAccessories as $acc) {
+                    $fitVehicles = $acc->fit_vehicles ?? [];
+                    if (!is_array($fitVehicles)) {
+                        $fitVehicles = [];
+                    }
+
+                    $hasVehicle = false;
+                    $matchingIndex = -1;
+
+                    foreach ($fitVehicles as $idx => $v) {
+                        if (strtolower(trim($v)) === strtolower(trim($vehicleTitle))) {
+                            $hasVehicle = true;
+                            $matchingIndex = $idx;
+                            break;
+                        }
+                    }
+
+                    $shouldHave = in_array($acc->id, $selectedIds);
+
+                    if ($shouldHave && !$hasVehicle) {
+                        $fitVehicles[] = $vehicleTitle;
+                        $acc->update(['fit_vehicles' => $fitVehicles]);
+                    } elseif (!$shouldHave && $hasVehicle) {
+                        if ($matchingIndex !== -1) {
+                            unset($fitVehicles[$matchingIndex]);
+                            $fitVehicles = array_values($fitVehicles);
+                            $acc->update(['fit_vehicles' => $fitVehicles]);
+                        }
+                    }
+                }
+            }
         });
     }
 

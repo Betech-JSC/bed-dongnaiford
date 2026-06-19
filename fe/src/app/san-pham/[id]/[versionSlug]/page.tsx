@@ -128,7 +128,7 @@ export default function VehicleVersionDetailPage() {
   };
 
   // 360 Viewer & Color Selection States
-  const [selectedColorIndex, setSelectedColorIndex] = useState(0);
+  const [selectedColorIndex, setSelectedColorIndex] = useState<number | null>(null);
   const [viewType, setViewType] = useState<"exterior" | "interior">("exterior");
   const [is360Active, setIs360Active] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -223,7 +223,7 @@ export default function VehicleVersionDetailPage() {
   };
 
   const colors = (selectedVersion?.colors && selectedVersion.colors.length > 0) ? selectedVersion.colors : (vehicle?.colors || []);
-  const currentColor = colors[selectedColorIndex] || colors[0];
+  const currentColor = selectedColorIndex !== null ? colors[selectedColorIndex] : (selectedVersion?.image_url ? null : colors[0]);
 
   // Detect if external or internal image sequence exists
   const hasExteriorSeq = (currentColor && currentColor.images_360 && currentColor.images_360.length > 0)
@@ -241,6 +241,17 @@ export default function VehicleVersionDetailPage() {
     setTilt(0);
     setPan({ x: 0, y: 0 });
   }, [selectedColorIndex, activeVersionIndex]);
+
+  // Auto-select first color when version changes or colors load
+  useEffect(() => {
+    if (colors && colors.length > 0) {
+      if (selectedColorIndex === null || selectedColorIndex >= colors.length) {
+        setSelectedColorIndex(0);
+      }
+    } else {
+      setSelectedColorIndex(null);
+    }
+  }, [activeVersionIndex, colors, selectedColorIndex]);
 
   // Drag handlers for 360 rotation
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -329,10 +340,9 @@ export default function VehicleVersionDetailPage() {
               key={idx}
               src={imgUrl}
               alt={`${currentColor?.name || vehicle.name} exterior 360 view`}
-              className="w-full h-full object-cover select-none pointer-events-none transition-opacity duration-75"
+              className="absolute inset-0 w-full h-full object-cover select-none pointer-events-none"
               style={{
                 opacity: isActive ? 1 : 0,
-                position: isActive ? "relative" : "absolute",
                 zIndex: isActive ? 10 : 0
               }}
             />
@@ -361,10 +371,9 @@ export default function VehicleVersionDetailPage() {
               key={idx}
               src={imgUrl}
               alt={`${currentColor?.name || vehicle.name} interior 360 view`}
-              className="w-full h-full object-cover select-none pointer-events-none transition-opacity duration-75"
+              className="absolute inset-0 w-full h-full object-cover select-none pointer-events-none"
               style={{
                 opacity: isActive ? 1 : 0,
-                position: isActive ? "relative" : "absolute",
                 zIndex: isActive ? 10 : 0
               }}
             />
@@ -594,7 +603,7 @@ export default function VehicleVersionDetailPage() {
                 <div className="flex gap-2">
                   {viewType === "exterior" && colors && colors.length > 0 ? (
                     colors.map((color: any, idx: number) => {
-                      const isSelected = selectedColorIndex === idx;
+                      const isSelected = selectedColorIndex === idx || (selectedColorIndex === null && idx === 0 && !selectedVersion?.image_url);
                       return (
                         <button
                           key={color.name}

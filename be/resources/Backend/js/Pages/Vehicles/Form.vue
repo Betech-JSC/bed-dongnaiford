@@ -57,162 +57,7 @@
                 </div>
             </div>
 
-            <!-- Tab 2: Màu sắc & 360° -->
-            <div v-show="activeFormTab === 'colors'">
 
-                <!-- Bảng màu xe (KHÔNG dịch) -->
-                <div class="card mt-4">
-                    <div class="card-header font-bold text-gray-700">Bảng màu xe (Color Swatches) & Trải nghiệm 360°</div>
-                    <div class="card-body">
-                        <div v-if="!form.colors || form.colors.length === 0" class="text-center py-8 bg-gray-50 rounded-xl border border-dashed border-gray-300">
-                            <span class="text-3xl">🎨</span>
-                            <p class="text-sm text-gray-500 mt-2 font-medium">Chưa cấu hình bảng màu xe nào</p>
-                            <button type="button" class="mt-4 btn btn-indigo btn-sm" @click="addColor">
-                                + Thêm màu xe đầu tiên
-                            </button>
-                        </div>
-                        <div v-else class="grid grid-cols-12 gap-6">
-                            <!-- SIDEBAR (3/12 cols) -->
-                            <div class="col-span-12 lg:col-span-4 xl:col-span-3 bg-gray-50/50 p-4 rounded-2xl border border-gray-200 flex flex-col gap-3">
-                                <div class="flex items-center justify-between pb-2 border-b border-gray-200">
-                                    <span class="font-bold text-xs uppercase text-gray-500 tracking-wider">Danh sách màu sắc</span>
-                                    <span class="bg-indigo-100 text-indigo-800 text-[10px] font-bold px-2 py-0.5 rounded-full">
-                                        {{ form.colors.length }} màu
-                                    </span>
-                                </div>
-
-                                <Draggable
-                                    v-model="form.colors"
-                                    item-key="name"
-                                    handle=".color-drag-handle"
-                                    :animation="200"
-                                    class="space-y-2 max-h-[500px] overflow-y-auto pr-1"
-                                >
-                                    <template #item="{ element, index }">
-                                        <div 
-                                            class="flex items-center justify-between p-3 rounded-xl border cursor-pointer transition duration-155 group"
-                                            :class="activeColorIndex === index 
-                                                ? 'bg-indigo-50/80 border-indigo-250 ring-2 ring-indigo-500/10' 
-                                                : 'bg-white hover:bg-gray-50 border-gray-200'"
-                                            @click="activeColorIndex = index"
-                                        >
-                                            <div class="flex items-center space-x-2.5 overflow-hidden">
-                                                <!-- Drag Handle -->
-                                                <div class="color-drag-handle cursor-grab text-gray-400 hover:text-gray-600 transition shrink-0">
-                                                    ☰
-                                                </div>
-                                                <!-- Visual Color Swatch -->
-                                                <div class="w-6 h-6 rounded-full border border-gray-300 shadow-2xs shrink-0"
-                                                     :style="{ backgroundColor: element.color_code || '#cbd5e1' }">
-                                                </div>
-                                                <!-- Swatch Name -->
-                                                <span class="text-xs font-bold text-gray-700 truncate">
-                                                    {{ element.name || 'Màu chưa đặt tên' }}
-                                                </span>
-                                            </div>
-                                            <!-- Delete Swatch Button -->
-                                            <button 
-                                                type="button" 
-                                                class="text-red-500 hover:text-red-700 text-xs bg-red-50 hover:bg-red-100 w-5 h-5 flex items-center justify-center rounded-md border-0 cursor-pointer shrink-0 transition"
-                                                @click.stop="removeColor(index)"
-                                                title="Xóa màu xe"
-                                            >
-                                                ✕
-                                            </button>
-                                        </div>
-                                    </template>
-                                </Draggable>
-
-                                <button type="button" class="btn btn-secondary btn-sm mt-2 w-full justify-center" @click="addColor">
-                                    + Thêm màu xe
-                                </button>
-                            </div>
-
-                            <!-- DETAIL PANE (9/12 cols) -->
-                            <div class="col-span-12 lg:col-span-8 xl:col-span-9 space-y-5 bg-white p-5 rounded-2xl border border-gray-200" v-if="form.colors[activeColorIndex]">
-                                <div class="flex justify-between items-center pb-3 border-b border-gray-150">
-                                    <div class="flex items-center gap-2">
-                                        <div class="w-5 h-5 rounded-full border shadow-2xs" :style="{ backgroundColor: form.colors[activeColorIndex].color_code || '#cbd5e1' }"></div>
-                                        <h4 class="font-bold text-gray-800 text-sm md:text-base">
-                                            Cấu hình màu: {{ form.colors[activeColorIndex].name || 'Màu sắc chưa đặt tên' }}
-                                        </h4>
-                                    </div>
-                                    <button type="button" class="text-red-600 hover:text-red-800 font-bold text-xs bg-red-50 hover:bg-red-100 border border-red-200 px-3 py-1.5 rounded-lg transition cursor-pointer" @click="removeColor(activeColorIndex)">
-                                        ✕ Xóa màu này
-                                    </button>
-                                </div>
-
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <Field v-model="form.colors[activeColorIndex].name" :field="{
-                                        type: 'text',
-                                        name: 'color_name_' + activeColorIndex,
-                                        label: 'Tên màu sắc',
-                                        placeholder: 'vd: Trắng Pearl / Đen Panther',
-                                    }" />
-                                    
-                                    <div class="field">
-                                        <label class="flex items-center label mb-1">
-                                            <span class="text-xs font-bold text-gray-700">Mã màu Hex & Chọn màu trực quan</span>
-                                        </label>
-                                        <div class="flex items-center gap-2">
-                                            <input 
-                                                type="color" 
-                                                v-model="form.colors[activeColorIndex].color_code"
-                                                class="w-11 h-[38px] p-0.5 rounded-lg border border-gray-300 cursor-pointer bg-white shrink-0"
-                                            />
-                                            <InputText 
-                                                type="text" 
-                                                v-model="form.colors[activeColorIndex].color_code"
-                                                placeholder="vd: #ffffff"
-                                                class="w-full"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="border-t border-gray-150 pt-4 mt-4">
-                                    <p class="text-xs font-bold text-indigo-750 uppercase tracking-wider mb-3 flex items-center gap-1">
-                                        <span>📸</span>
-                                        <span>Hình ảnh & Trải nghiệm 360°</span>
-                                    </p>
-                                    
-                                    <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
-                                        <Field v-model="form.colors[activeColorIndex].image_360_internal" :field="{
-                                            type: 'file_upload',
-                                            name: 'color_image_360_internal_' + activeColorIndex,
-                                            label: 'Ảnh Panorama 360° (Nội thất)',
-                                        }" />
-                                    </div>
-
-                                    <div class="mt-3 bg-gray-50 p-4 rounded-xl border border-gray-200">
-                                        <Field v-model="form.colors[activeColorIndex].images_360" :field="{
-                                            type: 'file_upload',
-                                            name: 'color_images_360_' + activeColorIndex,
-                                            label: 'Bộ ảnh xoay 360° Ngoại thất cho màu này (Chọn nhiều ảnh theo thứ tự xoay)',
-                                            multiple: true,
-                                        }" />
-                                        <div class="text-xs text-amber-750 mt-2 font-medium">
-                                            💡 <b>Mẹo:</b> Đặt tên tệp theo số thứ tự (ví dụ: <code>01.jpg</code>, <code>02.jpg</code>,...) để hệ thống tự động sắp xếp vị trí xoay chính xác.
-                                        </div>
-                                    </div>
-
-                                    <div class="mt-3 bg-gray-50 p-4 rounded-xl border border-gray-200">
-                                        <Field v-model="form.colors[activeColorIndex].images_360_internal" :field="{
-                                            type: 'file_upload',
-                                            name: 'color_images_360_internal_' + activeColorIndex,
-                                            label: 'Bộ ảnh xoay 360° Nội thất cho màu này (Chọn nhiều ảnh theo thứ tự xoay)',
-                                            multiple: true,
-                                        }" />
-                                        <div class="text-xs text-amber-750 mt-2 font-medium">
-                                            💡 <b>Mẹo:</b> Đặt tên tệp theo số thứ tự để hệ thống tự động sắp xếp vị trí xoay chính xác.
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
             <!-- Tab 3: Phiên bản & Thông số -->
             <div v-show="activeFormTab === 'versions'">
@@ -317,11 +162,15 @@
 
                                 <div class="mb-4 bg-white p-4 rounded-xl border border-gray-200">
                                     <!-- Ảnh đặc trưng phiên bản -->
-                                    <Field v-model="form.versions[activeVersionIndex].image" :field="{
-                                        type: 'file_upload',
-                                        name: 'version_image_' + activeVersionIndex,
-                                        label: 'Ảnh đặc trưng của phiên bản (Hiển thị ở trang chi tiết xe)',
-                                    }" />
+                                    <Field 
+                                        :key="'version_image_' + activeVersionIndex"
+                                        v-model="form.versions[activeVersionIndex].image" 
+                                        :field="{
+                                            type: 'file_upload',
+                                            name: 'version_image_' + activeVersionIndex,
+                                            label: 'Ảnh đặc trưng của phiên bản (Hiển thị ở trang chi tiết xe)',
+                                        }" 
+                                    />
                                 </div>
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -399,29 +248,41 @@
                                                 <p class="text-[11px] font-bold text-indigo-750 uppercase tracking-wider">Hình ảnh 360° phiên bản</p>
                                                 
                                                 <div class="bg-white p-3 rounded-lg border border-gray-150">
-                                                    <Field v-model="form.versions[activeVersionIndex].colors[cIdx].image_360_internal" :field="{
-                                                        type: 'file_upload',
-                                                        name: 'ver_' + activeVersionIndex + '_color_image_360_internal_' + cIdx,
-                                                        label: 'Ảnh Panorama 360° (Nội thất)',
-                                                    }" />
+                                                    <Field 
+                                                        :key="'ver_' + activeVersionIndex + '_color_image_360_internal_' + cIdx"
+                                                        v-model="form.versions[activeVersionIndex].colors[cIdx].image_360_internal" 
+                                                        :field="{
+                                                            type: 'file_upload',
+                                                            name: 'ver_' + activeVersionIndex + '_color_image_360_internal_' + cIdx,
+                                                            label: 'Ảnh Panorama 360° (Nội thất)',
+                                                        }" 
+                                                    />
                                                 </div>
 
                                                 <div class="bg-white p-3 rounded-lg border border-gray-150">
-                                                    <Field v-model="form.versions[activeVersionIndex].colors[cIdx].images_360" :field="{
-                                                        type: 'file_upload',
-                                                        name: 'ver_' + activeVersionIndex + '_color_images_360_' + cIdx,
-                                                        label: 'Bộ ảnh xoay 360° Ngoại thất cho màu này (Chọn nhiều ảnh theo thứ tự xoay)',
-                                                        multiple: true,
-                                                    }" />
+                                                    <Field 
+                                                        :key="'ver_' + activeVersionIndex + '_color_images_360_' + cIdx"
+                                                        v-model="form.versions[activeVersionIndex].colors[cIdx].images_360" 
+                                                        :field="{
+                                                            type: 'file_upload',
+                                                            name: 'ver_' + activeVersionIndex + '_color_images_360_' + cIdx,
+                                                            label: 'Bộ ảnh xoay 360° Ngoại thất cho màu này (Chọn nhiều ảnh theo thứ tự xoay)',
+                                                            multiple: true,
+                                                        }" 
+                                                    />
                                                 </div>
 
                                                 <div class="bg-white p-3 rounded-lg border border-gray-150">
-                                                    <Field v-model="form.versions[activeVersionIndex].colors[cIdx].images_360_internal" :field="{
-                                                        type: 'file_upload',
-                                                        name: 'ver_' + activeVersionIndex + '_color_images_360_internal_' + cIdx,
-                                                        label: 'Bộ ảnh xoay 360° Nội thất cho màu này (Chọn nhiều ảnh theo thứ tự xoay)',
-                                                        multiple: true,
-                                                    }" />
+                                                    <Field 
+                                                        :key="'ver_' + activeVersionIndex + '_color_images_360_internal_' + cIdx"
+                                                        v-model="form.versions[activeVersionIndex].colors[cIdx].images_360_internal" 
+                                                        :field="{
+                                                            type: 'file_upload',
+                                                            name: 'ver_' + activeVersionIndex + '_color_images_360_internal_' + cIdx,
+                                                            label: 'Bộ ảnh xoay 360° Nội thất cho màu này (Chọn nhiều ảnh theo thứ tự xoay)',
+                                                            multiple: true,
+                                                        }" 
+                                                    />
                                                 </div>
                                             </div>
                                         </div>
@@ -539,6 +400,121 @@
                 </div>
             </teleport>
 
+            <!-- Tab 4: Phụ kiện xe -->
+            <div v-show="activeFormTab === 'accessories'" class="space-y-6">
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-gray-150 pb-5 mb-6">
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-900">🎒 Chọn phụ kiện tương thích</h3>
+                            <p class="text-sm text-gray-500 mt-1">Chọn các phụ kiện chính hãng tương thích với dòng xe này. Những phụ kiện được chọn sẽ tự động hiển thị trong trang chi tiết sản phẩm.</p>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-3">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                                Đã chọn: {{ (form.accessories || []).length }} phụ kiện
+                            </span>
+                            <button 
+                                type="button"
+                                @click="form.accessories = []"
+                                class="text-xs text-red-600 hover:text-red-800 font-semibold transition-colors cursor-pointer focus:outline-none"
+                            >
+                                Xóa tất cả
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Filter & Search Controls -->
+                    <div class="flex flex-col sm:flex-row gap-4 mb-6">
+                        <div class="flex-1 relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </span>
+                            <input 
+                                v-model="accessorySearch" 
+                                type="text" 
+                                placeholder="Tìm theo tên hoặc mã phụ kiện..." 
+                                class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900"
+                            />
+                        </div>
+                        <div class="sm:w-64">
+                            <select 
+                                v-model="accessoryFilterCategory" 
+                                class="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 cursor-pointer"
+                            >
+                                <option value="all">Tất cả danh mục</option>
+                                <option value="interior">Nội thất (Interior)</option>
+                                <option value="exterior">Ngoại thất (Exterior)</option>
+                                <option value="tech">Công nghệ (Tech)</option>
+                                <option value="wheels">Mâm &amp; Lốp (Wheels)</option>
+                                <option value="performance">Hiệu suất (Performance)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Accessories Grid -->
+                    <div v-if="filteredAccessoriesList.length === 0" class="flex flex-col items-center justify-center py-12 border-2 border-dashed border-gray-200 rounded-lg">
+                        <svg class="h-10 w-10 text-gray-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0a2 2 0 01-2 2H6a2 2 0 01-2-2m16 0V9a2 2 0 00-2-2H6a2 2 0 00-2 2v4.5m15 3.5l-3-3m0 0l-3 3m3-3V17" />
+                        </svg>
+                        <p class="text-sm font-semibold text-gray-500">Không tìm thấy phụ kiện nào phù hợp</p>
+                    </div>
+                    
+                    <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 max-h-[500px] overflow-y-auto pr-2">
+                        <div 
+                            v-for="acc in filteredAccessoriesList" 
+                            :key="acc.id"
+                            @click="toggleAccessorySelection(acc.id)"
+                            :class="[
+                                'relative border rounded-lg p-4 cursor-pointer select-none transition-all duration-200 flex flex-col justify-between h-32 hover:scale-[1.01] hover:shadow-sm',
+                                isAccessorySelected(acc.id) 
+                                    ? 'border-indigo-500 bg-indigo-50/30 ring-1 ring-indigo-500' 
+                                    : 'border-gray-200 bg-white hover:border-gray-300'
+                            ]"
+                        >
+                            <!-- Top Info -->
+                            <div>
+                                <div class="flex items-start justify-between gap-2">
+                                    <span class="text-xs font-bold text-gray-400 uppercase tracking-wider block">
+                                        {{ acc.code || 'N/A' }}
+                                    </span>
+                                    <!-- Selected Indicator -->
+                                    <div 
+                                        :class="[
+                                            'w-5 h-5 rounded-full flex items-center justify-center transition-all duration-200 border',
+                                            isAccessorySelected(acc.id)
+                                                ? 'bg-indigo-600 border-indigo-600 text-white'
+                                                : 'border-gray-300 bg-white'
+                                        ]"
+                                    >
+                                        <svg v-if="isAccessorySelected(acc.id)" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                <h4 class="text-sm font-semibold text-gray-900 mt-1 line-clamp-2 pr-4 leading-tight">
+                                    {{ acc.title }}
+                                </h4>
+                            </div>
+
+                            <!-- Bottom Tag -->
+                            <div class="flex items-center justify-between mt-2 pt-2 border-t border-gray-100/50">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
+                                    {{ getCategoryLabel(acc.category) }}
+                                </span>
+                                <span 
+                                    v-if="isInitiallyFit(acc)" 
+                                    class="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full"
+                                    title="Phụ kiện này ban đầu được gắn nhãn tương thích trong DB"
+                                >
+                                    Đã gán
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Tab 5: Cấu hình SEO -->
             <div v-show="activeFormTab === 'seo'">
                 <!-- SEO Settings -->
@@ -621,10 +597,12 @@ export default {
             activeFormTab: 'general',
             activeColorIndex: 0,
             activeVersionIndex: 0,
+            accessorySearch: '',
+            accessoryFilterCategory: 'all',
             tabs: [
                 { id: 'general', name: 'ℹ️ Thông tin chung & Ảnh' },
-                { id: 'colors', name: '🎨 Màu xe & 360°' },
                 { id: 'versions', name: '⚙️ Phiên bản & Thông số' },
+                { id: 'accessories', name: '🎒 Phụ kiện xe' },
                 { id: 'builder', name: '🧱 Thiết kế trang' },
                 { id: 'seo', name: '🔍 Cấu hình SEO' }
             ],
@@ -656,6 +634,24 @@ export default {
         }
     },
 
+    computed: {
+        filteredAccessoriesList() {
+            const list = this.data?.accessories ?? [];
+            const search = (this.accessorySearch || '').toLowerCase().trim();
+            const category = this.accessoryFilterCategory || 'all';
+
+            return list.filter(acc => {
+                const matchesSearch = !search || 
+                    (acc.title && acc.title.toLowerCase().includes(search)) || 
+                    (acc.code && acc.code.toLowerCase().includes(search));
+
+                const matchesCategory = category === 'all' || acc.category === category;
+
+                return matchesSearch && matchesCategory;
+            });
+        }
+    },
+
     methods: {
         initFormData(item) {
             const data = {
@@ -669,12 +665,12 @@ export default {
                 image_thumbnail: null,
                 image_featured: null,
                 images: [],
-                colors: [],
                 images_360_external: [],
                 images_360_internal: [],
                 image_360_internal_url: '',
                 versions: [],
                 layout_blocks: [],
+                accessories: [],
                 ...item,
             }
             data.images_360_external = data.images_360_external || []
@@ -714,22 +710,7 @@ export default {
                 }
             })
 
-            // Parse existing colors with defaults to avoid reactivity issues in Vue
-            data.colors = (data.colors || []).map(col => {
-                let code = col.color_code ?? col.hex ?? '';
-                if (code && !code.startsWith('#')) {
-                    code = '#' + code;
-                }
-                return {
-                    name: col.name ?? col.color_name ?? '',
-                    color_code: code || '#cbd5e1',
-                    image: col.image ?? (col.image_path ? { path: col.image_path } : null),
-                    images_360: col.images_360 ?? [],
-                    image_360_internal: col.image_360_internal ?? null,
-                    images_360_internal: col.images_360_internal ?? [],
-                    showDetails: false,
-                };
-            })
+
 
             // Parse existing versions with locales & default empty specs
             data.versions = (data.versions || []).map(ver => {
@@ -834,26 +815,7 @@ export default {
             return data
         },
 
-        addColor() {
-            if (!this.formData.colors) this.formData.colors = []
-            this.formData.colors.push({ 
-                name: '', 
-                color_code: '#cbd5e1', 
-                images_360: [],
-                image_360_internal: null,
-                images_360_internal: [],
-            })
-            this.activeColorIndex = this.formData.colors.length - 1
-        },
 
-        removeColor(index) {
-            if (this.formData.colors) {
-                this.formData.colors.splice(index, 1)
-                if (this.activeColorIndex >= this.formData.colors.length) {
-                    this.activeColorIndex = Math.max(0, this.formData.colors.length - 1)
-                }
-            }
-        },
 
         addVersion() {
             if (!this.formData.versions) this.formData.versions = []
@@ -925,6 +887,39 @@ export default {
                 ver.colors.splice(colorIndex, 1);
             }
         },
+
+        toggleAccessorySelection(id) {
+            if (!this.formData.accessories) {
+                this.formData.accessories = [];
+            }
+            const idx = this.formData.accessories.indexOf(id);
+            if (idx > -1) {
+                this.formData.accessories.splice(idx, 1);
+            } else {
+                this.formData.accessories.push(id);
+            }
+        },
+
+        isAccessorySelected(id) {
+            return (this.formData.accessories || []).includes(id);
+        },
+
+        getCategoryLabel(category) {
+            const labels = {
+                interior: 'Nội thất',
+                exterior: 'Ngoại thất',
+                tech: 'Công nghệ',
+                wheels: 'Mâm & Lốp',
+                performance: 'Hiệu suất'
+            };
+            return labels[category] || category;
+        },
+
+        isInitiallyFit(acc) {
+            const vehicleTitle = this.formData.vi?.title || this.formData.title;
+            if (!vehicleTitle || !acc.fit_vehicles) return false;
+            return acc.fit_vehicles.some(v => v.toLowerCase().trim() === vehicleTitle.toLowerCase().trim());
+        }
     },
 }
 </script>
