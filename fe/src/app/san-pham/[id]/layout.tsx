@@ -91,6 +91,56 @@ const getVersionSlug = (verName: string) => {
     .replace(/\s+/g, "-");
 };
 
+const parseSpecsArray = (specsArray: any): Record<string, string> => {
+  const result: Record<string, string> = {
+    engine: '',
+    power: '',
+    torque: '',
+    transmission: '',
+    drivetrain: '',
+    dimensions: '',
+    clearance: '',
+    fuelEconomy: ''
+  };
+
+  if (!Array.isArray(specsArray)) return result;
+
+  specsArray.forEach((group: any) => {
+    const htmlContent = group.content || '';
+    const items = htmlContent.split(/<\/li>|<li>|<br\s*\/?>|\n/).map((item: string) => {
+      return item.replace(/<[^>]*>/g, '').trim();
+    }).filter(Boolean);
+
+    items.forEach((item: string) => {
+      const colonIndex = item.indexOf(':');
+      if (colonIndex > -1) {
+        const key = item.substring(0, colonIndex).trim().toLowerCase();
+        const val = item.substring(colonIndex + 1).trim();
+
+        if (key.includes('động cơ') || key.includes('dong co') || key.includes('engine')) {
+          result.engine = val;
+        } else if (key.includes('công suất') || key.includes('cong suat') || key.includes('power')) {
+          result.power = val;
+        } else if (key.includes('mô-men xoắn') || key.includes('mô men xoắn') || key.includes('mo-men xoan') || key.includes('torque')) {
+          result.torque = val;
+        } else if (key.includes('hộp số') || key.includes('hop so') || key.includes('transmission')) {
+          result.transmission = val;
+        } else if (key.includes('dẫn động') || key.includes('dan dong') || key.includes('drivetrain')) {
+          result.drivetrain = val;
+        } else if (key.includes('kích thước') || key.includes('kich thuoc') || key.includes('dimensions')) {
+          result.dimensions = val;
+        } else if (key.includes('khoảng sáng gầm') || key.includes('khoang sang gam') || key.includes('clearance')) {
+          result.clearance = val;
+        } else if (key.includes('tiêu hao nhiên liệu') || key.includes('tieu hao nhien lieu') || key.includes('nhiên liệu') || key.includes('fuel')) {
+          result.fuelEconomy = val;
+        }
+      }
+    });
+  });
+
+  return result;
+};
+
 // ----------------------------------------------------------------------
 // 2. Layout Component
 // ----------------------------------------------------------------------
@@ -268,31 +318,34 @@ export default function VehicleDetailLayout({
         images: (apiVehicle.images && Array.isArray(apiVehicle.images) && apiVehicle.images.length > 0)
           ? apiVehicle.images.map((img: any) => resolveFileUrl(img)).filter(Boolean)
           : [apiVehicle.image_url || resolveFileUrl(apiVehicle.image)].filter(Boolean),
-        versions: apiVehicle.versions ? safeArray(apiVehicle.versions).map((v: any) => ({
-          id: String(v.id),
-          name: v.name,
-          price: typeof v.price === 'string' ? parseFloat(v.price) : v.price,
-          image_url: v.image_url || resolveFileUrl(v.image) || null,
-          colors: v.colors ? safeArray(v.colors).map((c: any) => ({
-            name: c.name || c.color_name || '',
-            hex: c.hex || c.color_code || '',
-            image: resolveFileUrl(c.image_path || c.image),
-            images_360: safeArray(c.images_360).map((img: any) => resolveFileUrl(img)).filter(Boolean),
-            image_360_internal: resolveFileUrl(c.image_360_internal) || null,
-            images_360_internal: safeArray(c.images_360_internal).map((img: any) => resolveFileUrl(img)).filter(Boolean)
-          })) : [],
-          specs: {
-            ...(v.specs || {}),
-            engine: v.specs?.engine || '',
-            power: v.specs?.power || '',
-            torque: v.specs?.torque || '',
-            transmission: v.specs?.transmission || '',
-            drivetrain: v.specs?.drivetrain || '',
-            dimensions: v.specs?.dimensions || '',
-            clearance: v.specs?.clearance || '',
-            fuelEconomy: v.specs?.fuelEconomy || v.specs?.fuel_guide || v.specs?.fuel_economy || '',
-          }
-        })) : [],
+        versions: apiVehicle.versions ? safeArray(apiVehicle.versions).map((v: any) => {
+          const parsedSpecs = parseSpecsArray(v.specs);
+          return {
+            id: String(v.id),
+            name: v.name,
+            price: typeof v.price === 'string' ? parseFloat(v.price) : v.price,
+            image_url: v.image_url || resolveFileUrl(v.image) || null,
+            colors: v.colors ? safeArray(v.colors).map((c: any) => ({
+              name: c.name || c.color_name || '',
+              hex: c.hex || c.color_code || '',
+              image: resolveFileUrl(c.image_path || c.image),
+              images_360: safeArray(c.images_360).map((img: any) => resolveFileUrl(img)).filter(Boolean),
+              image_360_internal: resolveFileUrl(c.image_360_internal) || null,
+              images_360_internal: safeArray(c.images_360_internal).map((img: any) => resolveFileUrl(img)).filter(Boolean)
+            })) : [],
+            specs: {
+              detailed_specs: Array.isArray(v.specs) ? v.specs : [],
+              engine: parsedSpecs.engine || v.specs?.engine || '',
+              power: parsedSpecs.power || v.specs?.power || '',
+              torque: parsedSpecs.torque || v.specs?.torque || '',
+              transmission: parsedSpecs.transmission || v.specs?.transmission || '',
+              drivetrain: parsedSpecs.drivetrain || v.specs?.drivetrain || '',
+              dimensions: parsedSpecs.dimensions || v.specs?.dimensions || '',
+              clearance: parsedSpecs.clearance || v.specs?.clearance || '',
+              fuelEconomy: parsedSpecs.fuelEconomy || v.specs?.fuelEconomy || v.specs?.fuel_guide || v.specs?.fuel_economy || '',
+            }
+          };
+        }) : [],
         layout_blocks: apiVehicle.layout_blocks || [],
         images_360_external: safeArray(apiVehicle.images_360_external).map((img: any) => resolveFileUrl(img)).filter(Boolean),
         images_360_internal: safeArray(apiVehicle.images_360_internal).map((img: any) => resolveFileUrl(img)).filter(Boolean),

@@ -10,6 +10,56 @@ import { formatPriceShort } from "@/lib/rolling-cost";
 import BookingBanner from "@/components/services/BookingBanner";
 import { vehiclesAPI } from "@/lib/api";
 
+const parseSpecsArray = (specsArray: any): Record<string, string> => {
+  const result: Record<string, string> = {
+    engine: '',
+    power: '',
+    torque: '',
+    transmission: '',
+    drivetrain: '',
+    dimensions: '',
+    clearance: '',
+    fuelEconomy: ''
+  };
+
+  if (!Array.isArray(specsArray)) return result;
+
+  specsArray.forEach((group: any) => {
+    const htmlContent = group.content || '';
+    const items = htmlContent.split(/<\/li>|<li>|<br\s*\/?>|\n/).map((item: string) => {
+      return item.replace(/<[^>]*>/g, '').trim();
+    }).filter(Boolean);
+
+    items.forEach((item: string) => {
+      const colonIndex = item.indexOf(':');
+      if (colonIndex > -1) {
+        const key = item.substring(0, colonIndex).trim().toLowerCase();
+        const val = item.substring(colonIndex + 1).trim();
+
+        if (key.includes('động cơ') || key.includes('dong co') || key.includes('engine')) {
+          result.engine = val;
+        } else if (key.includes('công suất') || key.includes('cong suat') || key.includes('power')) {
+          result.power = val;
+        } else if (key.includes('mô-men xoắn') || key.includes('mô men xoắn') || key.includes('mo-men xoan') || key.includes('torque')) {
+          result.torque = val;
+        } else if (key.includes('hộp số') || key.includes('hop so') || key.includes('transmission')) {
+          result.transmission = val;
+        } else if (key.includes('dẫn động') || key.includes('dan dong') || key.includes('drivetrain')) {
+          result.drivetrain = val;
+        } else if (key.includes('kích thước') || key.includes('kich thuoc') || key.includes('dimensions')) {
+          result.dimensions = val;
+        } else if (key.includes('khoảng sáng gầm') || key.includes('khoang sang gam') || key.includes('clearance')) {
+          result.clearance = val;
+        } else if (key.includes('tiêu hao nhiên liệu') || key.includes('tieu hao nhien lieu') || key.includes('nhiên liệu') || key.includes('fuel')) {
+          result.fuelEconomy = val;
+        }
+      }
+    });
+  });
+
+  return result;
+};
+
 const SPEC_LABELS: { key: keyof Specs; label: string }[] = [
   { key: "engine", label: "Động cơ" },
   { key: "power", label: "Công suất cực đại" },
@@ -48,21 +98,24 @@ export default function ComparePage() {
               basePrice: price,
               images: [image],
               typeName: v.type_name || v.typeName || (v.type === 'suv' ? 'SUV' : v.type === 'pickup' ? 'Bán tải' : 'Thương mại'),
-              versions: v.versions ? v.versions.map((ver: any) => ({
-                id: ver.id,
-                name: ver.name,
-                price: typeof ver.price === 'string' ? parseFloat(ver.price) : (ver.price || 0),
-                specs: {
-                  engine: ver.specs?.engine || ver.specs?.engine_type || '',
-                  power: ver.specs?.power || '',
-                  torque: ver.specs?.torque || '',
-                  transmission: ver.specs?.transmission || '',
-                  drivetrain: ver.specs?.drivetrain || '',
-                  dimensions: ver.specs?.dimensions || '',
-                  clearance: ver.specs?.clearance || '',
-                  fuelEconomy: ver.specs?.fuelEconomy || ver.specs?.fuel_guide || ver.specs?.fuel_economy || '',
-                }
-              })) : []
+              versions: v.versions ? v.versions.map((ver: any) => {
+                const parsedSpecs = parseSpecsArray(ver.specs);
+                return {
+                  id: ver.id,
+                  name: ver.name,
+                  price: typeof ver.price === 'string' ? parseFloat(ver.price) : (ver.price || 0),
+                  specs: {
+                    engine: parsedSpecs.engine || ver.specs?.engine || ver.specs?.engine_type || '',
+                    power: parsedSpecs.power || ver.specs?.power || '',
+                    torque: parsedSpecs.torque || ver.specs?.torque || '',
+                    transmission: parsedSpecs.transmission || ver.specs?.transmission || '',
+                    drivetrain: parsedSpecs.drivetrain || ver.specs?.drivetrain || '',
+                    dimensions: parsedSpecs.dimensions || ver.specs?.dimensions || '',
+                    clearance: parsedSpecs.clearance || ver.specs?.clearance || '',
+                    fuelEconomy: parsedSpecs.fuelEconomy || ver.specs?.fuelEconomy || ver.specs?.fuel_guide || ver.specs?.fuel_economy || '',
+                  }
+                };
+              }) : []
             };
           });
           setAllVehicles(mapped);
