@@ -273,6 +273,14 @@ export default function VehicleDetailLayout({
           name: v.name,
           price: typeof v.price === 'string' ? parseFloat(v.price) : v.price,
           image_url: v.image_url || resolveFileUrl(v.image) || null,
+          colors: v.colors ? safeArray(v.colors).map((c: any) => ({
+            name: c.name || c.color_name || '',
+            hex: c.hex || c.color_code || '',
+            image: resolveFileUrl(c.image_path || c.image),
+            images_360: safeArray(c.images_360).map((img: any) => resolveFileUrl(img)).filter(Boolean),
+            image_360_internal: resolveFileUrl(c.image_360_internal) || null,
+            images_360_internal: safeArray(c.images_360_internal).map((img: any) => resolveFileUrl(img)).filter(Boolean)
+          })) : [],
           specs: {
             ...(v.specs || {}),
             engine: v.specs?.engine || '',
