@@ -874,33 +874,13 @@ export default {
         },
         featureCategories() {
             if (!this.formData.layout_blocks) return ["Thiết kế", "Vận hành", "Công nghệ", "An toàn"];
-            let block = this.formData.layout_blocks.find(b => b.type === 'FeaturesList');
-            if (!block || !block.data) return ["Thiết kế", "Vận hành", "Công nghệ", "An toàn"];
-            if (!block.data.categories || !Array.isArray(block.data.categories)) {
-                block.data.categories = ["Thiết kế", "Vận hành", "Công nghệ", "An toàn"];
-            }
-            return block.data.categories;
+            const block = this.formData.layout_blocks.find(b => b.type === 'FeaturesList');
+            return block?.data?.categories || ["Thiết kế", "Vận hành", "Công nghệ", "An toàn"];
         },
         features() {
             if (!this.formData.layout_blocks) return [];
-            let block = this.formData.layout_blocks.find(b => b.type === 'FeaturesList');
-            if (!block) {
-                block = {
-                    type: 'FeaturesList',
-                    data: {
-                        features: [],
-                        categories: ["Thiết kế", "Vận hành", "Công nghệ", "An toàn"]
-                    }
-                };
-                this.formData.layout_blocks.push(block);
-            }
-            if (!block.data) {
-                block.data = { features: [], categories: ["Thiết kế", "Vận hành", "Công nghệ", "An toàn"] };
-            }
-            if (!block.data.features) {
-                block.data.features = [];
-            }
-            return block.data.features;
+            const block = this.formData.layout_blocks.find(b => b.type === 'FeaturesList');
+            return block?.data?.features || [];
         }
     },
 
