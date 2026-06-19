@@ -167,10 +167,6 @@ export default function Home() {
   ]);
   const [homeArticles, setHomeArticles] = useState<any[]>([]);
   const [activeNewsTab, setActiveNewsTab] = useState<number>(3); // Default: 3 (Tin Khuyến Mãi)
-  const [activeNewsIndex, setActiveNewsIndex] = useState(0);
-  const [isNewsTransitioning, setIsNewsTransitioning] = useState(true);
-  const [isNewsHovered, setIsNewsHovered] = useState(false);
-  const [isNewsInteracted, setIsNewsInteracted] = useState(false);
   const [categories, setCategories] = useState<any[]>([]);
   const [vehiclesList, setVehiclesList] = useState<any[]>([]);
   const [servicesList, setServicesList] = useState<any[]>([]);
@@ -232,6 +228,20 @@ export default function Home() {
     fetchData();
   }, []);
 
+  // Helper function to format date from API
+  const formatDate = (dateStr: string) => {
+    if (!dateStr) return "";
+    try {
+      const date = new Date(dateStr);
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      return `${day}-${month}-${year}`;
+    } catch {
+      return dateStr;
+    }
+  };
+
   // Load posts dynamically when activeNewsTab changes
   useEffect(() => {
     const fetchTabPosts = async () => {
@@ -243,18 +253,17 @@ export default function Home() {
             id: item.slug || item.id || String(Math.random()),
             title: item.title || "",
             image: item.image?.url || "/placeholder-news.jpg",
+            published_at: item.published_at || "",
+            category: item.category ? { title: item.category.title } : undefined,
+            description: item.description || "",
           }));
           setHomeArticles(formatted);
-          setIsNewsTransitioning(false);
-          setActiveNewsIndex(formatted.length);
         } else {
           setHomeArticles([]);
-          setActiveNewsIndex(0);
         }
       } catch (error) {
         console.error("Error fetching tab posts:", error);
         setHomeArticles([]);
-        setActiveNewsIndex(0);
       }
     };
     fetchTabPosts();
@@ -328,10 +337,7 @@ export default function Home() {
   const isPopularDragging = useRef(false);
   const popularWasDragged = useRef(false);
 
-  const [newsDragOffset, setNewsDragOffset] = useState(0);
-  const newsDragStartX = useRef(0);
-  const isNewsDragging = useRef(false);
-  const newsWasDragged = useRef(false);
+
 
   const [serviceDragOffset, setServiceDragOffset] = useState(0);
   const serviceDragStartX = useRef(0);
@@ -451,43 +457,7 @@ export default function Home() {
     setPopularDragOffset(0);
   };
 
-  // Drag handlers for News & Offers
-  const handleNewsStart = (clientX: number) => {
-    newsDragStartX.current = clientX;
-    isNewsDragging.current = true;
-    setIsNewsHovered(true); // Pause autoplay
-  };
 
-  const handleNewsMove = (clientX: number) => {
-    if (!isNewsDragging.current) return;
-    const diff = clientX - newsDragStartX.current;
-    setNewsDragOffset(diff);
-  };
-
-  const handleNewsEnd = () => {
-    if (!isNewsDragging.current) return;
-    isNewsDragging.current = false;
-    
-    const dist = Math.abs(newsDragOffset);
-    if (dist > 10) {
-      newsWasDragged.current = true;
-      setTimeout(() => {
-        newsWasDragged.current = false;
-      }, 50);
-    } else {
-      newsWasDragged.current = false;
-    }
-
-    if (newsDragOffset > 50) {
-      setIsNewsTransitioning(true);
-      setActiveNewsIndex((prev) => prev - 1);
-    } else if (newsDragOffset < -50) {
-      setIsNewsTransitioning(true);
-      setActiveNewsIndex((prev) => prev + 1);
-    }
-    
-    setNewsDragOffset(0);
-  };
 
   // Drag handlers for Services
   const handleServiceStart = (clientX: number) => {
@@ -616,25 +586,7 @@ export default function Home() {
     }
   }, [isPopularInteracted]);
 
-  // Auto-play news/offers every 3 seconds, pause on hover/interaction (autoplay scrolls from right to left, i.e., index increases)
-  useEffect(() => {
-    if (isNewsHovered || isNewsInteracted || homeArticles.length <= 1) return;
-    const timer = setInterval(() => {
-      setIsNewsTransitioning(true);
-      setActiveNewsIndex((prev) => prev + 1);
-    }, 3000);
-    return () => clearInterval(timer);
-  }, [isNewsHovered, isNewsInteracted, homeArticles.length]);
 
-  // Reset news interacted flag after 5 seconds of inactivity to resume auto-play
-  useEffect(() => {
-    if (isNewsInteracted) {
-      const timer = setTimeout(() => {
-        setIsNewsInteracted(false);
-      }, 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [isNewsInteracted]);
   // Filter vehicles based on active showroom category
   const getFilteredVehicles = () => {
     if (vehiclesList.length === 0) {
@@ -720,16 +672,7 @@ export default function Home() {
     }
   };
 
-  const handleNewsTransitionEnd = () => {
-    if (homeArticles.length === 0) return;
-    if (activeNewsIndex >= homeArticles.length * 2) {
-      setIsNewsTransitioning(false);
-      setActiveNewsIndex(activeNewsIndex - homeArticles.length);
-    } else if (activeNewsIndex < homeArticles.length) {
-      setIsNewsTransitioning(false);
-      setActiveNewsIndex(activeNewsIndex + homeArticles.length);
-    }
-  };
+
 
   // Auto-play services every 3 seconds, pause on hover/interaction
   useEffect(() => {
@@ -1547,70 +1490,28 @@ export default function Home() {
           <div className="max-w-[1152px] mx-auto w-full">
             <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 border-b border-white/10 pb-6">
               <div>
-                <span className="text-xs font-semibold text-[#0562d2] uppercase tracking-wider block mb-2">
-                  Tin tức hữu ích
-                </span>
-                <h2 className="text-[36px] text-white font-semibold leading-tight">
-                  Tin tức & Ưu Đãi
+                <h2 className="text-[32px] md:text-[36px] text-white font-semibold leading-tight">
+                  Điều gì đang diễn ra tại Đồng Nai Ford
                 </h2>
-              </div>
-
-              <div className="flex items-center gap-6 mt-4 md:mt-0">
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => {
-                      if (homeArticles.length === 0) return;
-                      setIsNewsTransitioning(true);
-                      setActiveNewsIndex((prev) => prev - 1);
-                      setIsNewsInteracted(true);
-                    }}
-                    className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/10 transition-colors cursor-pointer text-white bg-transparent"
-                    aria-label="Previous article"
-                  >
-                    <ChevronLeft className="w-5 h-5" />
-                  </button>
-                  <button
-                    onClick={() => {
-                      if (homeArticles.length === 0) return;
-                      setIsNewsTransitioning(true);
-                      setActiveNewsIndex((prev) => prev + 1);
-                      setIsNewsInteracted(true);
-                    }}
-                    className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/10 transition-colors cursor-pointer text-white bg-transparent"
-                    aria-label="Next article"
-                  >
-                    <ChevronRight className="w-5 h-5" />
-                  </button>
-                </div>
-
-                <button
-                  onClick={() => {
-                    router.push("/tin-tuc");
-                  }}
-                  className="w-[200px] py-2.5 bg-[#0562d2] text-white hover:bg-[#0451b0] rounded-full text-center text-sm font-semibold transition-all cursor-pointer animate-premium animate-pulse"
-                >
-                  Xem tất cả
-                </button>
               </div>
             </div>
 
             {/* Category Tabs */}
             <div className="flex flex-wrap gap-3 justify-start mb-10">
               {[
-                { id: 3, label: "TIN KHUYẾN MÃI" },
-                { id: 1, label: "TIN TỨC MỚI NHẤT" },
-                { id: 4, label: "CHIA SẺ KINH NGHIỆM" }
+                { id: 3, label: "Tin tức khuyến mãi" },
+                { id: 1, label: "Tin tức Đồng Nai Ford" },
+                { id: 4, label: "Chia sẻ kiến thức" }
               ].map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => {
                     setActiveNewsTab(tab.id);
-                    setIsNewsInteracted(true);
                   }}
-                  className={`px-6 py-2.5 rounded-full text-xs font-semibold tracking-wider transition-all duration-300 cursor-pointer ${
+                  className={`px-6 py-2.5 rounded-[4px] text-xs font-semibold tracking-wider transition-all duration-300 cursor-pointer border ${
                     activeNewsTab === tab.id
-                      ? "bg-[#0562d2] text-white shadow-lg shadow-[#0562d2]/30"
-                      : "bg-white/5 text-white/70 hover:bg-white/10 hover:text-white border border-white/10"
+                      ? "bg-white text-[#00095b] border-white"
+                      : "bg-transparent text-white/70 hover:bg-white/10 hover:text-white border-white/20"
                   }`}
                 >
                   {tab.label}
@@ -1619,121 +1520,110 @@ export default function Home() {
             </div>
 
             {homeArticles.length > 0 ? (
-              <>
-                {/* Slider track container */}
-                <div id="news-slider-container" className="relative w-full overflow-hidden py-4 select-none">
-                  <style dangerouslySetInnerHTML={{ __html: `
-                    #news-slider-container {
-                      --card-width-news: calc((100% - 2 * 24px) / 3);
-                      --card-gap-news: 24px;
-                    }
-                    @media (max-width: 1024px) {
-                      #news-slider-container {
-                        --card-width-news: calc((100% - 24px) / 2);
-                        --card-gap-news: 24px;
-                      }
-                    }
-                    @media (max-width: 640px) {
-                      #news-slider-container {
-                        --card-width-news: calc(100% - 32px);
-                        --card-gap-news: 16px;
-                      }
-                    }
-                  ` }} />
-                  <div
-                    className="flex cursor-grab active:cursor-grabbing"
-                    style={{
-                      transform: `translateX(calc(-${activeNewsIndex} * (var(--card-width-news, 360px) + var(--card-gap-news, 24px)) + ${newsDragOffset}px))`,
-                      transition: isNewsDragging.current ? "none" : (isNewsTransitioning ? "transform 500ms ease-in-out" : "none"),
-                      gap: "var(--card-gap-news, 24px)"
-                    }}
-                    onTransitionEnd={handleNewsTransitionEnd}
-                    onMouseEnter={() => setIsNewsHovered(true)}
-                    onMouseLeave={() => {
-                      setIsNewsHovered(false);
-                      handleNewsEnd();
-                    }}
-                    onMouseDown={(e) => handleNewsStart(e.clientX)}
-                    onMouseMove={(e) => handleNewsMove(e.clientX)}
-                    onMouseUp={handleNewsEnd}
-                    onTouchStart={(e) => {
-                      setIsNewsHovered(true);
-                      handleNewsStart(e.touches[0].clientX);
-                    }}
-                    onTouchMove={(e) => handleNewsMove(e.touches[0].clientX)}
-                    onTouchEnd={(e) => {
-                      setIsNewsHovered(false);
-                      handleNewsEnd();
-                    }}
-                  >
-                    {[...homeArticles, ...homeArticles, ...homeArticles].map((art, idx) => {
-                      const originalIdx = idx % homeArticles.length;
-                      return (
-                        <div
-                          key={`${art.id}-${idx}`}
-                          className="bg-transparent flex flex-col h-full group flex-shrink-0"
-                          style={{
-                            width: "var(--card-width-news, 360px)",
-                          }}
-                        >
-                          {/* Image */}
-                          <div className="aspect-[600/400] relative rounded-[12px] overflow-hidden w-full mb-6 bg-white/5">
-                            <Image
-                              src={art.image}
-                              alt={art.title}
-                              fill
-                              sizes="(max-width: 768px) 280px, 360px"
-                              className="object-cover group-hover:scale-103 transition-transform duration-300"
-                              onError={handleImageError}
-                            />
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch w-full text-[#1a1a1a]">
+                
+                {/* Left Column: 1 Featured Large Card */}
+                {homeArticles[0] && (
+                  <div className="lg:col-span-5 flex animate-fade-in">
+                    <Link
+                      href={`/tin-tuc/${homeArticles[0].id}`}
+                      className="bg-white rounded-[12px] overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col w-full group"
+                    >
+                      {/* Image container */}
+                      <div className="aspect-[16/10] relative overflow-hidden w-full bg-gray-100 flex-shrink-0">
+                        <img
+                          src={homeArticles[0].image}
+                          alt={homeArticles[0].title}
+                          className="absolute inset-0 object-cover w-full h-full group-hover:scale-[1.03] transition-transform duration-500"
+                          onError={handleImageError}
+                        />
+                      </div>
+                      
+                      {/* Content */}
+                      <div className="p-6 flex flex-col flex-1 justify-between gap-4">
+                        <div className="space-y-3">
+                          <div className="flex flex-wrap items-center gap-3">
+                            <span className="text-xs text-[#424242]/70 font-medium">
+                              Ngày đăng: {formatDate(homeArticles[0].published_at)}
+                            </span>
+                            {homeArticles[0].category?.title && (
+                              <span className="bg-[#E03A3A] text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">
+                                {homeArticles[0].category.title}
+                              </span>
+                            )}
                           </div>
-
-                          {/* Text info */}
-                          <div className="flex flex-col flex-1 justify-between text-white">
-                            <div>
-                              <h3 className="text-[18px] font-semibold text-white leading-[1.45] tracking-[0.18px] mb-4 min-h-[52px] line-clamp-2">
-                                {art.title}
-                              </h3>
-                            </div>
-
-                            <div className="pt-4">
-                              <Link
-                                href={`/tin-tuc/${art.id}`}
-                                onClick={(e) => {
-                                  if (newsWasDragged.current) {
-                                    e.preventDefault();
-                                  }
-                                }}
-                                className="inline-block border border-white text-white hover:bg-white hover:text-[#00095b] w-[128px] py-2 rounded-full text-center text-sm font-semibold transition-all cursor-pointer"
-                              >
-                                Xem chi tiết
-                              </Link>
-                            </div>
-                          </div>
+                          
+                          <h3 className="font-['Ford_Antenna',sans-serif] font-semibold text-lg sm:text-xl text-[#1a1a1a] group-hover:text-[#0562d2] transition-colors duration-200 line-clamp-2 leading-snug">
+                            {homeArticles[0].title}
+                          </h3>
+                          
+                          {homeArticles[0].description && (
+                            <p className="text-sm text-[#424242]/80 leading-relaxed line-clamp-3 font-normal">
+                              {homeArticles[0].description}
+                            </p>
+                          )}
                         </div>
-                      );
-                    })}
+                        
+                        <div className="pt-2 flex items-center text-sm font-bold text-[#0562d2] group-hover:underline">
+                          Xem chi tiết <span className="ml-1">&rsaquo;</span>
+                        </div>
+                      </div>
+                    </Link>
                   </div>
-                </div>
-
-                {/* Dots Pagination Indicators for News & Offers */}
-                <div className="flex justify-center gap-2 mt-8">
-                  {homeArticles.map((_, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => {
-                        setIsNewsTransitioning(true);
-                        setActiveNewsIndex(homeArticles.length + idx);
-                        setIsNewsInteracted(true);
-                      }}
-                      className={`h-2 transition-all rounded-full cursor-pointer ${
-                        activeNewsIndex % homeArticles.length === idx ? "w-6 bg-[#0562d2]" : "w-2 bg-white/30"
-                      }`}
-                      aria-label={`Go to article slide ${idx + 1}`}
-                    />
+                )}
+                
+                {/* Right Column: 3 Horizontal Cards */}
+                <div className="lg:col-span-7 flex flex-col gap-6">
+                  {homeArticles.slice(1, 4).map((art) => (
+                    <Link
+                      key={art.id}
+                      href={`/tin-tuc/${art.id}`}
+                      className="bg-white rounded-[12px] overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col sm:flex-row w-full group min-h-[160px] animate-fade-in"
+                    >
+                      {/* Left: Image (stacked on mobile) */}
+                      <div className="w-full sm:w-[200px] h-[180px] sm:h-auto relative overflow-hidden bg-gray-100 flex-shrink-0">
+                        <img
+                          src={art.image}
+                          alt={art.title}
+                          className="absolute inset-0 object-cover w-full h-full group-hover:scale-[1.03] transition-transform duration-500"
+                          onError={handleImageError}
+                        />
+                      </div>
+                      
+                      {/* Right: Content */}
+                      <div className="p-5 flex flex-col flex-1 justify-between gap-3">
+                        <div className="space-y-2">
+                          <div className="flex flex-wrap items-center gap-3">
+                            <span className="text-xs text-[#424242]/70 font-medium">
+                              Ngày đăng: {formatDate(art.published_at)}
+                            </span>
+                            {art.category?.title && (
+                              <span className="bg-[#E03A3A] text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">
+                                {art.category.title}
+                              </span>
+                            )}
+                          </div>
+                          
+                          <h3 className="font-['Ford_Antenna',sans-serif] font-semibold text-[15px] sm:text-base text-[#1a1a1a] group-hover:text-[#0562d2] transition-colors duration-200 line-clamp-2 leading-snug">
+                            {art.title}
+                          </h3>
+                          
+                          {art.description && (
+                            <p className="text-xs text-[#424242]/80 leading-relaxed line-clamp-2 font-normal">
+                              {art.description}
+                            </p>
+                          )}
+                        </div>
+                        
+                        <div className="flex items-center text-xs font-bold text-[#0562d2] group-hover:underline">
+                          Xem chi tiết <span className="ml-1">&rsaquo;</span>
+                        </div>
+                      </div>
+                    </Link>
                   ))}
                 </div>
-              </>
+                
+              </div>
             ) : (
               <div className="text-center py-20 bg-white/5 border border-white/10 rounded-[12px] w-full">
                 <p className="text-white/50 text-sm">Đang tải danh sách tin tức...</p>

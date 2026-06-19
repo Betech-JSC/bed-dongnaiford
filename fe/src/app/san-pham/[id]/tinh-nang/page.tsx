@@ -269,14 +269,6 @@ export default function VehicleFeaturesPage() {
       });
     }
 
-    // Parse from FeaturesGrid block if listBlock is empty
-    const gridBlock = vehicle.layout_blocks?.find((b: any) => b.type === "FeaturesGrid");
-    if (rawFeatures.length === 0 && gridBlock && gridBlock.data) {
-      const d = gridBlock.data;
-      if (d.title_1) rawFeatures.push({ title: d.title_1, desc: "Thiết kế hiện đại chuẩn Ford nâng tầm khí động học và phong cách cá nhân cá tính.", image: resolveFileUrl(d.image_1 || vehicle.images?.[0] || "") });
-      if (d.title_2) rawFeatures.push({ title: d.title_2, desc: "Khoang cabin rộng rãi tối ưu, tiện nghi sang trọng và vật liệu da cao cấp.", image: resolveFileUrl(d.image_large || vehicle.images?.[1] || "") });
-      if (d.split_title) rawFeatures.push({ title: d.split_title, desc: "Trang bị công nghệ hàng đầu, đồng bộ hóa kết nối thông minh SYNC 4A.", image: resolveFileUrl(d.split_image || vehicle.images?.[2] || "") });
-    }
 
     // Dynamic Categorization based on keywords (matching performance, design, tech, safety)
     return rawFeatures.map((f) => {
