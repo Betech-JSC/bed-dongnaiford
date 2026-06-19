@@ -263,16 +263,17 @@
                                 <!-- Version Colors List -->
                                 <div class="border-t border-gray-150 pt-5 mt-5">
                                     <div class="flex justify-between items-center mb-3">
-                                        <p class="text-sm font-bold text-emerald-750 uppercase flex items-center gap-1">
+                                        <p class="text-sm font-bold text-emerald-750 uppercase flex items-center gap-1 cursor-pointer select-none" @click="showColorsSection = !showColorsSection">
                                             <span>🎨</span>
                                             <span>Màu sắc riêng của phiên bản này (Colors)</span>
+                                            <span class="text-gray-400 text-xs font-normal normal-case ml-1">{{ showColorsSection ? '▼' : '►' }}</span>
                                         </p>
-                                        <button type="button" class="text-xs text-emerald-600 hover:text-emerald-800 font-bold bg-transparent border-0 cursor-pointer" @click="addVersionColor(activeVersionIndex)">
+                                        <button v-show="showColorsSection" type="button" class="text-xs text-emerald-600 hover:text-emerald-800 font-bold bg-transparent border-0 cursor-pointer" @click="addVersionColor(activeVersionIndex)">
                                             ＋ Thêm màu mới cho phiên bản
                                         </button>
                                     </div>
 
-                                    <div class="space-y-4">
+                                    <div v-show="showColorsSection" class="space-y-4">
                                         <div v-for="(color, cIdx) in form.versions[activeVersionIndex].colors" :key="cIdx" class="bg-gray-50 border border-gray-200 p-4 rounded-xl hover:shadow-xs transition duration-150 relative">
                                             <button 
                                                 type="button" 
@@ -362,13 +363,17 @@
                                 <!-- Dynamic Specifications List -->
                                 <div class="border-t border-gray-150 pt-5 mt-5">
                                     <div class="flex justify-between items-center mb-3">
-                                        <p class="text-sm font-bold text-indigo-700 uppercase">📋 Nhóm thông số kỹ thuật chi tiết (Specs)</p>
-                                        <button type="button" class="text-xs text-indigo-650 hover:text-indigo-850 font-bold bg-transparent border-0 cursor-pointer" @click="addCustomSpec(activeVersionIndex)">
+                                        <p class="text-sm font-bold text-indigo-700 uppercase flex items-center gap-1 cursor-pointer select-none" @click="showSpecsSection = !showSpecsSection">
+                                            <span>📋</span>
+                                            <span>Nhóm thông số kỹ thuật chi tiết (Specs)</span>
+                                            <span class="text-gray-400 text-xs font-normal normal-case ml-1">{{ showSpecsSection ? '▼' : '►' }}</span>
+                                        </p>
+                                        <button v-show="showSpecsSection" type="button" class="text-xs text-indigo-650 hover:text-indigo-850 font-bold bg-transparent border-0 cursor-pointer" @click="addCustomSpec(activeVersionIndex)">
                                             ＋ Thêm nhóm thông số mới
                                         </button>
                                     </div>
                                     
-                                    <div class="space-y-4">
+                                    <div v-show="showSpecsSection" class="space-y-4">
                                         <div v-for="(spec, sIdx) in form.versions[activeVersionIndex].customSpecs" :key="sIdx" class="bg-gray-50 border border-gray-200 p-4 rounded-xl hover:shadow-xs transition duration-150 relative">
                                             <button 
                                                 type="button" 
@@ -668,6 +673,8 @@ export default {
             accessoryFilterCategory: 'all',
             showSpecsImportModal: false,
             specsImportText: '',
+            showColorsSection: true,
+            showSpecsSection: true,
             tabs: [
                 { id: 'general', name: 'ℹ️ Thông tin chung & Ảnh' },
                 { id: 'versions', name: '⚙️ Phiên bản & Thông số' },
