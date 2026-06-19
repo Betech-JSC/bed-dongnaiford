@@ -612,15 +612,23 @@
                 ></iframe>
             </div>
         </div>
+
+        <FileManager
+            v-if="showMediaManager"
+            v-model:show="showMediaManager"
+            @onSelect="onSelectMedia"
+            :multiple="false"
+        />
     </div>
 </template>
 
 <script>
 import Draggable from 'vuedraggable'
+import FileManager from '@Core/Components/FileManager.vue'
 
 export default {
     name: 'BlockEditor',
-    components: { Draggable },
+    components: { Draggable, FileManager },
     props: {
         modelValue: {
             type: Array,
@@ -646,6 +654,8 @@ export default {
             activeIndex: null, // Index of the block being edited in Left Panel
             iframeLoaded: false,
             isSidebarCollapsed: false, // Control sidebar toggle collapse/expand
+            showMediaManager: false,
+            mediaTarget: null, // { index, field, subIndex }
             libraryBlocks: [
                 { type: 'HeroBanner', icon: '📢', name: 'Banner lớn (Hero)', desc: 'Banner trần viền ấn tượng, có chữ và nút bấm hành động' },
                 { type: 'Promotions', icon: '🎁', name: 'Ưu đãi khuyến mãi', desc: 'Thông tin quà tặng tiền mặt, bảo hiểm và quà độc quyền' },
@@ -714,6 +724,33 @@ export default {
         window.removeEventListener('message', this.handleIframeMessage);
     },
     methods: {
+        onSelectMedia(files) {
+            if (files && files.length > 0 && this.mediaTarget) {
+                const file = files[0];
+                const fileUrl = file.static_url || file.path;
+
+                const { index, field, subIndex } = this.mediaTarget;
+                if (this.blocks[index]) {
+                    if (field === 'features' && subIndex !== undefined) {
+                        if (!this.blocks[index].data.features) {
+                            this.blocks[index].data.features = [];
+                        }
+                        if (this.blocks[index].data.features[subIndex]) {
+                            this.blocks[index].data.features[subIndex].image = fileUrl;
+                        }
+                    } else {
+                        this.blocks[index].data[field] = fileUrl;
+                    }
+                    
+                    // Force reactivity update
+                    this.blocks = [...this.blocks];
+                    this.$emit('update:modelValue', this.blocks);
+                    this.syncToIframe();
+                }
+            }
+            this.showMediaManager = false;
+            this.mediaTarget = null;
+        },
         lowercaseColor(val) {
             if (!val || typeof val !== 'string') return '#ffffff';
             let cleaned = val.trim();
@@ -801,6 +838,15 @@ export default {
             if (data.type === 'SELECT_BLOCK') {
                 if (data.index !== undefined) {
                     this.activeIndex = data.index;
+                }
+            } else if (data.type === 'OPEN_FILE_MANAGER') {
+                if (data.index !== undefined && data.field !== undefined) {
+                    this.mediaTarget = {
+                        index: data.index,
+                        field: data.field,
+                        subIndex: data.subIndex
+                    };
+                    this.showMediaManager = true;
                 }
             } else if (data.type === 'SYNC_BLOCKS_FROM_IFRAME') {
                 if (data.blocks) {

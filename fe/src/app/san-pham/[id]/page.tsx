@@ -50,10 +50,43 @@ export default function VehicleDetailPage() {
       if (params.get("edit") === "true") {
         setIsEditMode(true);
       }
-      if (params.get("embedded") === "true") {
+      if (params.get("embedded") === "true" || params.get("embed") === "true") {
         setIsEmbedded(true);
       }
     }
+  }, []);
+
+  // Listen to message events from parent window
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      const data = event.data;
+      if (!data || typeof data !== "object") return;
+
+      if (data.type === "INIT_PREVIEW") {
+        if (data.blocks) {
+          setCurrentBlocks(data.blocks);
+        }
+        if (data.activeIndex !== undefined) {
+          setActiveIndex(data.activeIndex);
+        }
+      } else if (data.type === "UPDATE_BLOCKS") {
+        if (data.blocks) {
+          setCurrentBlocks(data.blocks);
+        }
+        if (data.activeIndex !== undefined) {
+          setActiveIndex(data.activeIndex);
+        }
+      } else if (data.type === "UPDATE_ACTIVE_INDEX") {
+        if (data.activeIndex !== undefined) {
+          setActiveIndex(data.activeIndex);
+        }
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+    return () => {
+      window.removeEventListener("message", handleMessage);
+    };
   }, []);
 
   // Initialize blocks when vehicle loads
@@ -125,7 +158,7 @@ export default function VehicleDetailPage() {
             data: {
               title: "Câu hỏi thường gặp",
               faqs: [
-                { q: "Điều gì tạo nên sự nổi bật của showroom Đồng Nai Ford?", a: "Đồng Nai Ford được đầu tư quy mô về trang thiết bị hiện đại, đội ngũ kỹ thuật tay nghề cao, được đào tạo chuyên nghiệp từ Ford Motor." },
+                { q: "Điều gì tạo nên sự nổi bật của showroom Đồng Nai Ford?", a: "Đồng Nai Ford được đầu ty quy mô về trang thiết bị hiện đại, đội ngũ kỹ thuật tay nghề cao, được đào tạo chuyên nghiệp từ Ford Motor." },
                 { q: "Có hỗ trợ mua xe trả góp không?", a: "Có, đại lý hỗ trợ trả góp lên đến 80% giá trị xe với lãi suất ưu đãi và thủ tục nhanh gọn." }
               ]
             }
@@ -147,6 +180,16 @@ export default function VehicleDetailPage() {
       setOriginalBlocks(JSON.parse(JSON.stringify(blocks)));
     }
   }, [vehicle]);
+
+  const handleSelectBlock = (idx: number) => {
+    setActiveIndex(idx);
+    if (typeof window !== "undefined") {
+      window.parent.postMessage({
+        type: 'SELECT_BLOCK',
+        index: idx
+      }, '*');
+    }
+  };
 
   const handleBlockChange = (index: number, updatedData: any) => {
     const nextBlocks = [...currentBlocks];
@@ -173,14 +216,14 @@ export default function VehicleDetailPage() {
     }
 
     setCurrentBlocks([...currentBlocks, newBlock]);
-    setActiveIndex(currentBlocks.length);
+    handleSelectBlock(currentBlocks.length);
   };
 
   const handleRemoveBlock = (index: number) => {
     const updated = currentBlocks.filter((_, i) => i !== index);
     setCurrentBlocks(updated);
-    if (activeIndex === index) setActiveIndex(null);
-    else if (activeIndex !== null && activeIndex > index) setActiveIndex(activeIndex - 1);
+    if (activeIndex === index) handleSelectBlock(null as any);
+    else if (activeIndex !== null && activeIndex > index) handleSelectBlock(activeIndex - 1);
   };
 
   const handleSaveLayout = async () => {
@@ -210,7 +253,7 @@ export default function VehicleDetailPage() {
   const handleCancelEdit = () => {
     setCurrentBlocks(JSON.parse(JSON.stringify(originalBlocks)));
     setIsEditMode(false);
-    setActiveIndex(null);
+    handleSelectBlock(null as any);
   };
 
   // Drag and drop sorting handlers
@@ -231,7 +274,7 @@ export default function VehicleDetailPage() {
     nextBlocks.splice(draggedIndex, 1);
     nextBlocks.splice(index, 0, draggedBlock);
     setCurrentBlocks(nextBlocks);
-    setActiveIndex(index);
+    handleSelectBlock(index);
   };
   const handleDragEnd = () => {
     setDraggedIndex(null);
@@ -334,7 +377,7 @@ export default function VehicleDetailPage() {
                         onDragOver={(e) => handleDragOver(e, idx)}
                         onDrop={(e) => handleDrop(e, idx)}
                         onDragEnd={handleDragEnd}
-                        onClick={() => setActiveIndex(idx)}
+                        onClick={() => handleSelectBlock(idx)}
                         className={`flex items-center justify-between p-3 rounded-lg border text-xs cursor-pointer transition-all active:scale-[0.98] ${
                           activeIndex === idx
                             ? "bg-slate-800 border-[#0562d2] text-white shadow-md shadow-blue-500/10"
@@ -449,6 +492,9 @@ export default function VehicleDetailPage() {
                         onChangeBlock={handleHeroChange}
                         openQuoteDrawer={openQuoteDrawer}
                         openDriveModal={() => openDriveDrawer()}
+                        activeIndex={activeIndex}
+                        onSelectBlock={handleSelectBlock}
+                        startIndex={currentBlocks.indexOf(heroBlock)}
                       />
                     )}
                     
@@ -461,6 +507,9 @@ export default function VehicleDetailPage() {
                       onChangeBlock={handleOtherChange}
                       openQuoteDrawer={openQuoteDrawer}
                       openDriveModal={() => openDriveDrawer()}
+                      activeIndex={activeIndex}
+                      onSelectBlock={handleSelectBlock}
+                      startIndex={otherBlocks.length > 0 ? (currentBlocks.indexOf(otherBlocks[0]) !== -1 ? currentBlocks.indexOf(otherBlocks[0]) : 0) : 0}
                     />
                   </>
                 );

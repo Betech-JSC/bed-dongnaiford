@@ -99,6 +99,7 @@ export default function Blocks({
           case "HeroBanner":
             blockComponent = (
               <HeroBannerBlock
+                blockIndex={startIndex + index}
                 data={block.data}
                 vehicle={vehicle}
                 openQuoteDrawer={openQuoteDrawer}
@@ -112,6 +113,7 @@ export default function Blocks({
           case "Promotions":
             blockComponent = (
               <PromotionsBlock
+                blockIndex={startIndex + index}
                 data={block.data}
                 vehicle={vehicle}
                 openQuoteDrawer={openQuoteDrawer}
@@ -136,6 +138,7 @@ export default function Blocks({
           case "FeaturesGrid":
             blockComponent = (
               <FeaturesGridBlock
+                blockIndex={startIndex + index}
                 data={block.data}
                 vehicle={vehicle}
                 isEditMode={isEditMode}
@@ -171,6 +174,7 @@ export default function Blocks({
           case "FeaturesList":
             blockComponent = (
               <FeaturesListBlock
+                blockIndex={startIndex + index}
                 data={block.data}
                 vehicle={vehicle}
                 isEditMode={isEditMode}
@@ -193,6 +197,7 @@ export default function Blocks({
           case "BookingBanner":
             blockComponent = (
               <BookingBannerBlock
+                blockIndex={startIndex + index}
                 data={block.data}
                 vehicle={vehicle}
                 isEditMode={isEditMode}
@@ -303,7 +308,7 @@ export default function Blocks({
 /* ==========================================================================
    1. HERO BANNER BLOCK
    ========================================================================== */
-function HeroBannerBlock({ data, vehicle, openQuoteDrawer, openDriveModal, isEditMode, onChangeData, anchorId }: any) {
+function HeroBannerBlock({ blockIndex, data, vehicle, openQuoteDrawer, openDriveModal, isEditMode, onChangeData, anchorId }: any) {
   const title = data.title || vehicle.name;
   const tagline = data.tagline || vehicle.tagline;
   const btnText = data.button_text || "Book Lái thử";
@@ -405,6 +410,21 @@ function HeroBannerBlock({ data, vehicle, openQuoteDrawer, openDriveModal, isEdi
                 onChange={handleUploadImage}
                 className="block w-full text-xs text-gray-500 file:mr-2.5 file:py-1 file:px-2 file:rounded-md file:border file:border-gray-300 file:text-[10px] file:font-semibold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100 cursor-pointer"
               />
+              <button
+                type="button"
+                onClick={() => {
+                  if (typeof window !== "undefined") {
+                    window.parent.postMessage({
+                      type: "OPEN_FILE_MANAGER",
+                      index: blockIndex,
+                      field: "background_image"
+                    }, "*");
+                  }
+                }}
+                className="w-full mt-1.5 py-1 px-2.5 bg-[#008060] hover:bg-[#006e52] text-white text-[10px] font-bold rounded cursor-pointer border-0 transition-colors"
+              >
+                📁 Chọn từ Quản lý file
+              </button>
             </div>
             <div className="border-t border-gray-100 pt-2.5">
               <span className="block mb-1 font-bold text-[10px] uppercase tracking-wider text-gray-500">Video nền (URL MP4):</span>
@@ -686,7 +706,7 @@ function SpecsGridBlock({ data, vehicle, isEditMode, onChangeData, openQuoteDraw
 /* ==========================================================================
    3. FEATURES LIST BLOCK
    ========================================================================== */
-function FeaturesListBlock({ data, vehicle, isEditMode, onChangeData, anchorId }: any) {
+function FeaturesListBlock({ blockIndex, data, vehicle, isEditMode, onChangeData, anchorId }: any) {
   const features = data.features || [];
 
   const handleFeatureTextChange = (idx: number, key: string, val: string) => {
@@ -777,6 +797,22 @@ function FeaturesListBlock({ data, vehicle, isEditMode, onChangeData, anchorId }
                         onChange={(e) => handleUploadFeatureImage(idx, e)}
                         className="block w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border file:border-gray-300 file:text-[10px] file:font-semibold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100 cursor-pointer"
                       />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (typeof window !== "undefined") {
+                            window.parent.postMessage({
+                              type: "OPEN_FILE_MANAGER",
+                              index: blockIndex,
+                              field: "features",
+                              subIndex: idx
+                            }, "*");
+                          }
+                        }}
+                        className="w-full mt-1.5 py-1 px-2.5 bg-[#008060] hover:bg-[#006e52] text-white text-[10px] font-bold rounded cursor-pointer border-0 transition-colors"
+                      >
+                        📁 Chọn từ Quản lý file
+                      </button>
                     </div>
                   )}
                 </div>
@@ -936,7 +972,7 @@ function AccordionFAQsBlock({ data, vehicle, isEditMode, onChangeData, anchorId 
 /* ==========================================================================
    5. PROMOTIONS BLOCK
    ========================================================================== */
-function PromotionsBlock({ data, isEditMode, onChangeData, openQuoteDrawer, vehicle, anchorId }: any) {
+function PromotionsBlock({ blockIndex, data, isEditMode, onChangeData, openQuoteDrawer, vehicle, anchorId }: any) {
   const title = data.title || "Ưu Đãi Đặc Biệt";
   const desc = data.description || "Nhập chương trình khuyến mãi tháng...";
   const bgImg = resolveImageUrl(data.image || "/assets/img-gradient-2.png");
@@ -1024,6 +1060,21 @@ function PromotionsBlock({ data, isEditMode, onChangeData, openQuoteDrawer, vehi
                 onChange={handleUploadImage}
                 className="block w-full text-xs text-gray-500 file:mr-2.5 file:py-1 file:px-2 file:rounded-md file:border file:border-gray-300 file:text-[10px] file:font-semibold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100 cursor-pointer"
               />
+              <button
+                type="button"
+                onClick={() => {
+                  if (typeof window !== "undefined") {
+                    window.parent.postMessage({
+                      type: "OPEN_FILE_MANAGER",
+                      index: blockIndex,
+                      field: "image"
+                    }, "*");
+                  }
+                }}
+                className="w-full mt-1.5 py-1 px-2.5 bg-[#008060] hover:bg-[#006e52] text-white text-[10px] font-bold rounded cursor-pointer border-0 transition-colors"
+              >
+                📁 Chọn từ Quản lý file
+              </button>
             </div>
           )}
         </div>
@@ -1337,7 +1388,7 @@ function ThreeSixtyViewerBlock({ data, vehicle, isEditMode, onChangeData, threeS
 /* ==========================================================================
    7. FEATURES GRID BLOCK
    ========================================================================== */
-function FeaturesGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId }: any) {
+function FeaturesGridBlock({ blockIndex, data, vehicle, isEditMode, onChangeData, anchorId }: any) {
   const title_1 = data.title_1 || "Thiết kế hiện đại, sắc sảo, đầy cuốn hút";
   const image_1 = resolveImageUrl(data.image_1 || vehicle?.images?.[2] || vehicle?.images?.[0] || "/assets/territory-hero.png");
   const image_2 = resolveImageUrl(data.image_2 || vehicle?.images?.[3] || vehicle?.images?.[1] || "/assets/territory-tech-split.png");
@@ -1405,6 +1456,21 @@ function FeaturesGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId }
               <div className="absolute top-4 left-4 z-20 bg-white/95 backdrop-blur-xs p-3 rounded-lg border border-gray-200 text-xs text-gray-800 shadow-md">
                 <span className="block mb-2 font-bold text-[10px] uppercase tracking-wider text-gray-500">Thay thế ảnh 1:</span>
                 <input type="file" accept="image/*" onChange={(e) => handleUploadImage("image_1", e)} className="block w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border file:border-gray-300 file:text-[10px] file:font-semibold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100 cursor-pointer" />
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (typeof window !== "undefined") {
+                      window.parent.postMessage({
+                        type: "OPEN_FILE_MANAGER",
+                        index: blockIndex,
+                        field: "image_1"
+                      }, "*");
+                    }
+                  }}
+                  className="w-full mt-1.5 py-1 px-2.5 bg-[#008060] hover:bg-[#006e52] text-white text-[10px] font-bold rounded cursor-pointer border-0 transition-colors"
+                >
+                  📁 Chọn từ Quản lý file
+                </button>
               </div>
             )}
           </div>
@@ -1415,6 +1481,21 @@ function FeaturesGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId }
                 <div className="absolute top-4 left-4 z-20 bg-white/95 backdrop-blur-xs p-3 rounded-lg border border-gray-200 text-xs text-gray-800 shadow-md">
                   <span className="block mb-2 font-bold text-[10px] uppercase tracking-wider text-gray-500">Thay thế ảnh 2:</span>
                   <input type="file" accept="image/*" onChange={(e) => handleUploadImage("image_2", e)} className="block w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border file:border-gray-300 file:text-[10px] file:font-semibold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100 cursor-pointer" />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (typeof window !== "undefined") {
+                        window.parent.postMessage({
+                          type: "OPEN_FILE_MANAGER",
+                          index: blockIndex,
+                          field: "image_2"
+                        }, "*");
+                      }
+                    }}
+                    className="w-full mt-1.5 py-1 px-2.5 bg-[#008060] hover:bg-[#006e52] text-white text-[10px] font-bold rounded cursor-pointer border-0 transition-colors"
+                  >
+                    📁 Chọn từ Quản lý file
+                  </button>
                 </div>
               )}
             </div>
@@ -1424,6 +1505,21 @@ function FeaturesGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId }
                 <div className="absolute top-4 left-4 z-20 bg-white/95 backdrop-blur-xs p-3 rounded-lg border border-gray-200 text-xs text-gray-800 shadow-md">
                   <span className="block mb-2 font-bold text-[10px] uppercase tracking-wider text-gray-500">Thay thế ảnh 3:</span>
                   <input type="file" accept="image/*" onChange={(e) => handleUploadImage("image_3", e)} className="block w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border file:border-gray-300 file:text-[10px] file:font-semibold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100 cursor-pointer" />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (typeof window !== "undefined") {
+                        window.parent.postMessage({
+                          type: "OPEN_FILE_MANAGER",
+                          index: blockIndex,
+                          field: "image_3"
+                        }, "*");
+                      }
+                    }}
+                    className="w-full mt-1.5 py-1 px-2.5 bg-[#008060] hover:bg-[#006e52] text-white text-[10px] font-bold rounded cursor-pointer border-0 transition-colors"
+                  >
+                    📁 Chọn từ Quản lý file
+                  </button>
                 </div>
               )}
             </div>
@@ -1445,6 +1541,21 @@ function FeaturesGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId }
               <div className="absolute top-4 left-4 z-20 bg-white/95 backdrop-blur-xs p-3 rounded-lg border border-gray-200 text-xs text-gray-800 shadow-md">
                 <span className="block mb-2 font-bold text-[10px] uppercase tracking-wider text-gray-500">Thay thế ảnh lớn (Trái):</span>
                 <input type="file" accept="image/*" onChange={(e) => handleUploadImage("image_large", e)} className="block w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border file:border-gray-300 file:text-[10px] file:font-semibold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100 cursor-pointer" />
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (typeof window !== "undefined") {
+                      window.parent.postMessage({
+                        type: "OPEN_FILE_MANAGER",
+                        index: blockIndex,
+                        field: "image_large"
+                      }, "*");
+                    }
+                  }}
+                  className="w-full mt-1.5 py-1 px-2.5 bg-[#008060] hover:bg-[#006e52] text-white text-[10px] font-bold rounded cursor-pointer border-0 transition-colors"
+                >
+                  📁 Chọn từ Quản lý file
+                </button>
               </div>
             )}
           </div>
@@ -1456,6 +1567,21 @@ function FeaturesGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId }
                 <div className="absolute top-4 left-4 z-20 bg-white/95 backdrop-blur-xs p-3 rounded-lg border border-gray-200 text-xs text-gray-800 shadow-md">
                   <span className="block mb-2 font-bold text-[10px] uppercase tracking-wider text-gray-500">Thay thế ảnh phụ 1 (Phải trên):</span>
                   <input type="file" accept="image/*" onChange={(e) => handleUploadImage("image_large_2", e)} className="block w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border file:border-gray-300 file:text-[10px] file:font-semibold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100 cursor-pointer" />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (typeof window !== "undefined") {
+                        window.parent.postMessage({
+                          type: "OPEN_FILE_MANAGER",
+                          index: blockIndex,
+                          field: "image_large_2"
+                        }, "*");
+                      }
+                    }}
+                    className="w-full mt-1.5 py-1 px-2.5 bg-[#008060] hover:bg-[#006e52] text-white text-[10px] font-bold rounded cursor-pointer border-0 transition-colors"
+                  >
+                    📁 Chọn từ Quản lý file
+                  </button>
                 </div>
               )}
             </div>
@@ -1465,6 +1591,21 @@ function FeaturesGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId }
                 <div className="absolute top-4 left-4 z-20 bg-white/95 backdrop-blur-xs p-3 rounded-lg border border-gray-200 text-xs text-gray-800 shadow-md">
                   <span className="block mb-2 font-bold text-[10px] uppercase tracking-wider text-gray-500">Thay thế ảnh phụ 2 (Phải dưới):</span>
                   <input type="file" accept="image/*" onChange={(e) => handleUploadImage("image_large_3", e)} className="block w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border file:border-gray-300 file:text-[10px] file:font-semibold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100 cursor-pointer" />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (typeof window !== "undefined") {
+                        window.parent.postMessage({
+                          type: "OPEN_FILE_MANAGER",
+                          index: blockIndex,
+                          field: "image_large_3"
+                        }, "*");
+                      }
+                    }}
+                    className="w-full mt-1.5 py-1 px-2.5 bg-[#008060] hover:bg-[#006e52] text-white text-[10px] font-bold rounded cursor-pointer border-0 transition-colors"
+                  >
+                    📁 Chọn từ Quản lý file
+                  </button>
                 </div>
               )}
             </div>
@@ -1485,6 +1626,21 @@ function FeaturesGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId }
               <div className="absolute top-4 left-4 z-20 bg-white/95 backdrop-blur-xs p-3 rounded-lg border border-gray-200 text-xs text-gray-800 shadow-md">
                 <span className="block mb-2 font-bold text-[10px] uppercase tracking-wider text-gray-500">Thay thế ảnh trái:</span>
                 <input type="file" accept="image/*" onChange={(e) => handleUploadImage("split_image", e)} className="block w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border file:border-gray-300 file:text-[10px] file:font-semibold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100 cursor-pointer" />
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (typeof window !== "undefined") {
+                      window.parent.postMessage({
+                        type: "OPEN_FILE_MANAGER",
+                        index: blockIndex,
+                        field: "split_image"
+                      }, "*");
+                    }
+                  }}
+                  className="w-full mt-1.5 py-1 px-2.5 bg-[#008060] hover:bg-[#006e52] text-white text-[10px] font-bold rounded cursor-pointer border-0 transition-colors"
+                >
+                  📁 Chọn từ Quản lý file
+                </button>
               </div>
             )}
           </div>
@@ -1682,7 +1838,7 @@ function VersionsGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId, 
 /* ==========================================================================
    9. BOOKING BANNER BLOCK
    ========================================================================== */
-function BookingBannerBlock({ data, vehicle, isEditMode, onChangeData, anchorId }: any) {
+function BookingBannerBlock({ blockIndex, data, vehicle, isEditMode, onChangeData, anchorId }: any) {
   const title = data.title || "Kết nối ngay với chuyên viên Đồng Nai Ford";
   const phone = data.phone || "1800 55 68 58";
   const btnText = data.btn_text || "Đặt lịch hẹn";
@@ -1774,6 +1930,21 @@ function BookingBannerBlock({ data, vehicle, isEditMode, onChangeData, anchorId 
                 onChange={handleUploadCarImage}
                 className="block w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border file:border-gray-300 file:text-[10px] file:font-semibold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100 cursor-pointer"
               />
+              <button
+                type="button"
+                onClick={() => {
+                  if (typeof window !== "undefined") {
+                    window.parent.postMessage({
+                      type: "OPEN_FILE_MANAGER",
+                      index: blockIndex,
+                      field: "car_image"
+                    }, "*");
+                  }
+                }}
+                className="w-full mt-1.5 py-1 px-2.5 bg-[#008060] hover:bg-[#006e52] text-white text-[10px] font-bold rounded cursor-pointer border-0 transition-colors"
+              >
+                📁 Chọn từ Quản lý file
+              </button>
             </div>
           )}
         </div>
