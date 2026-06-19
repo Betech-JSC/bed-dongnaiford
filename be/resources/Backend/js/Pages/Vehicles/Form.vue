@@ -761,7 +761,7 @@
                             />
                             <button 
                                 type="button" 
-                                class="btn btn-indigo text-xs py-2 px-4 whitespace-nowrap"
+                                class="bg-indigo-650 hover:bg-indigo-700 text-white text-xs font-bold py-2 px-4 rounded-xl border-0 cursor-pointer transition whitespace-nowrap focus:outline-none"
                                 @click="addFeatureCategory"
                             >
                                 + Thêm nhóm
@@ -770,90 +770,168 @@
                     </div>
                 </div>
 
-                <!-- Danh sách tính năng -->
-                <div class="card bg-white border border-gray-200 rounded-2xl shadow-xs">
-                    <div class="card-header font-bold text-gray-700 flex justify-between items-center bg-gray-50 border-b border-gray-200 p-4 text-sm">
-                        <span>✨ Danh sách tính năng của xe</span>
+                <!-- Danh sách tính năng (Master-Detail Layout) -->
+                <div class="grid grid-cols-12 gap-5 items-start">
+                    <!-- MASTER PANE (4/12 cols) -->
+                    <div class="col-span-12 lg:col-span-4 bg-white p-4 rounded-2xl border border-gray-200 space-y-4 shadow-sm">
+                        <div class="flex items-center justify-between pb-2 border-b border-gray-200">
+                            <span class="font-bold text-xs uppercase text-gray-500 tracking-wider">Danh sách tính năng</span>
+                            <span class="bg-indigo-100 text-indigo-800 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                                {{ features.length }} tính năng
+                            </span>
+                        </div>
+
+                        <div v-if="!features || features.length === 0" class="text-center py-8 bg-gray-50 rounded-xl border border-dashed border-gray-300">
+                            <p class="text-xs text-gray-400 italic">Chưa có tính năng nào</p>
+                        </div>
+
+                        <Draggable
+                            v-else
+                            v-model="features"
+                            item-key="title"
+                            handle=".feature-drag-handle"
+                            :animation="200"
+                            class="space-y-2 max-h-[500px] overflow-y-auto pr-1"
+                        >
+                            <template #item="{ element, index }">
+                                <div 
+                                    class="flex items-center justify-between p-2.5 rounded-xl border cursor-pointer transition duration-155 group gap-2"
+                                    :class="activeFeatureIndex === index 
+                                        ? 'bg-indigo-50/85 border-indigo-250 ring-2 ring-indigo-500/10' 
+                                        : 'bg-white hover:bg-gray-50 border-gray-200'"
+                                    @click="activeFeatureIndex = index"
+                                >
+                                    <div class="flex items-center space-x-2.5 overflow-hidden flex-1">
+                                        <!-- Drag Handle -->
+                                        <div class="feature-drag-handle cursor-grab text-gray-450 hover:text-gray-700 transition shrink-0 text-sm">
+                                            ☰
+                                        </div>
+                                        <!-- Thumbnail Image -->
+                                        <img v-if="getFeatureImage(element.image)" :src="getFeatureImage(element.image)" class="w-8 h-6 object-cover rounded bg-gray-100 shrink-0 border border-gray-150" />
+                                        <div v-else class="w-8 h-6 flex items-center justify-center bg-gray-100 text-gray-400 text-[10px] rounded shrink-0 border border-gray-150">✨</div>
+                                        
+                                        <!-- Title & Category Badge -->
+                                        <div class="flex flex-col truncate flex-1 min-w-0">
+                                            <span class="text-xs font-bold text-gray-750 truncate">
+                                                {{ element.title || 'Tính năng chưa đặt tên' }}
+                                            </span>
+                                            <div class="flex items-center gap-1.5 mt-0.5">
+                                                <span 
+                                                    class="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.25 rounded-full border"
+                                                    :class="[
+                                                        element.category === 'Thiết kế' || element.category === 'design'
+                                                            ? 'bg-blue-50 text-blue-700 border-blue-150'
+                                                            : element.category === 'Vận hành' || element.category === 'performance'
+                                                                ? 'bg-orange-50 text-orange-700 border-orange-150'
+                                                                : element.category === 'Công nghệ' || element.category === 'tech'
+                                                                    ? 'bg-purple-50 text-purple-700 border-purple-150'
+                                                                    : element.category === 'An toàn' || element.category === 'safety'
+                                                                        ? 'bg-emerald-50 text-emerald-700 border-emerald-150'
+                                                                        : 'bg-gray-50 text-gray-700 border-gray-200'
+                                                    ]"
+                                                >
+                                                    {{ element.category || 'Chưa phân nhóm' }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Delete Button -->
+                                    <button 
+                                        type="button" 
+                                        class="text-red-500 hover:text-red-700 text-xs bg-red-50 hover:bg-red-100 w-5 h-5 flex items-center justify-center rounded-md border border-red-250 cursor-pointer shrink-0 transition"
+                                        @click.stop="removeFeature(index)"
+                                        title="Xóa tính năng"
+                                    >
+                                        ✕
+                                    </button>
+                                </div>
+                            </template>
+                        </Draggable>
+
                         <button 
                             type="button" 
-                            @click="addFeature" 
-                            class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg border-0 cursor-pointer transition shadow-xs flex items-center gap-1.5"
+                            class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold py-2 px-4 rounded-xl border-0 cursor-pointer transition shadow-xs w-full flex items-center justify-center gap-1.5 focus:outline-none"
+                            @click="addFeature"
                         >
                             <span>➕ Thêm tính năng mới</span>
                         </button>
                     </div>
-                    <div class="card-body p-4 space-y-6">
-                        <div v-if="!features || features.length === 0" class="text-center py-8 bg-gray-50 rounded-xl border border-dashed border-gray-300">
-                            <span class="text-3xl">✨</span>
-                            <p class="text-sm text-gray-500 mt-2 font-medium">Chưa có tính năng nào cho dòng xe này</p>
-                            <button type="button" class="mt-4 btn btn-indigo btn-sm" @click="addFeature">
-                                + Thêm tính năng đầu tiên
-                            </button>
-                        </div>
-                        <div v-else class="space-y-4">
-                            <div 
-                                v-for="(feat, idx) in features" 
-                                :key="idx" 
-                                class="p-4 bg-gray-50 border border-gray-200 rounded-xl relative space-y-4 shadow-2xs"
+
+                    <!-- DETAIL PANE (8/12 cols) -->
+                    <div class="col-span-12 lg:col-span-8 bg-white p-5 rounded-2xl border border-gray-200 space-y-5 shadow-sm" v-if="features[activeFeatureIndex]">
+                        <div class="flex justify-between items-center pb-3 border-b border-gray-150">
+                            <h4 class="font-bold text-gray-800 text-sm md:text-base">
+                                Chi tiết: {{ features[activeFeatureIndex].title || 'Tính năng chưa đặt tên' }}
+                            </h4>
+                            <span 
+                                class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border"
+                                :class="[
+                                    features[activeFeatureIndex].category === 'Thiết kế' || features[activeFeatureIndex].category === 'design'
+                                        ? 'bg-blue-50 text-blue-700 border-blue-150'
+                                        : features[activeFeatureIndex].category === 'Vận hành' || features[activeFeatureIndex].category === 'performance'
+                                            ? 'bg-orange-50 text-orange-700 border-orange-150'
+                                            : features[activeFeatureIndex].category === 'Công nghệ' || features[activeFeatureIndex].category === 'tech'
+                                                ? 'bg-purple-50 text-purple-700 border-purple-150'
+                                                : features[activeFeatureIndex].category === 'An toàn' || features[activeFeatureIndex].category === 'safety'
+                                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-150'
+                                                    : 'bg-gray-50 text-gray-700 border-gray-200'
+                                ]"
                             >
-                                <!-- Remove Button -->
-                                <button 
-                                    type="button" 
-                                    @click="removeFeature(idx)" 
-                                    class="absolute top-4 right-4 bg-red-50 hover:bg-red-100 text-red-700 hover:text-red-800 text-xs font-bold px-2.5 py-1.5 rounded-lg border border-red-200 cursor-pointer transition-all"
-                                >
-                                    🗑️ Xóa
-                                </button>
+                                {{ features[activeFeatureIndex].category || 'Chưa phân nhóm' }}
+                            </span>
+                        </div>
 
-                                <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
-                                    <!-- Title, Category & Description -->
-                                    <div class="col-span-1 md:col-span-8 space-y-4">
-                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <div class="field">
-                                                <label class="label text-xs font-bold text-gray-600 mb-1">Tên tính năng</label>
-                                                <InputText 
-                                                    v-model="feat.title" 
-                                                    type="text" 
-                                                    placeholder="vd: Hệ thống hỗ trợ đỗ xe tự động 2.0"
-                                                    class="w-full"
-                                                />
-                                            </div>
-                                            <div class="field">
-                                                <label class="label text-xs font-bold text-gray-600 mb-1">Phân loại nhóm</label>
-                                                <select 
-                                                    v-model="feat.category"
-                                                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-xs text-gray-800 bg-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 h-[38px] cursor-pointer"
-                                                >
-                                                    <option v-for="cat in featureCategories" :key="cat" :value="cat">{{ cat }}</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="field">
-                                            <label class="label text-xs font-bold text-gray-600 mb-1">Mô tả chi tiết</label>
-                                            <textarea 
-                                                v-model="feat.description" 
-                                                @input="feat.desc = feat.description"
-                                                class="w-full border border-gray-300 rounded-lg p-3 text-xs text-gray-850 bg-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 resize-y h-20"
-                                                placeholder="Mô tả các chi tiết nổi bật của tính năng này..."
-                                            ></textarea>
-                                        </div>
-                                    </div>
-
-                                    <!-- Image Upload -->
-                                    <div class="col-span-1 md:col-span-4 bg-white p-3 rounded-lg border border-gray-200">
-                                        <Field 
-                                            :key="'feat_image_' + idx"
-                                            v-model="feat.image" 
-                                            :field="{
-                                                type: 'file_upload',
-                                                name: 'feat_image_' + idx,
-                                                label: 'Hình ảnh minh họa',
-                                            }" 
+                        <div class="grid grid-cols-1 md:grid-cols-12 gap-5">
+                            <!-- Left form elements -->
+                            <div class="col-span-12 md:col-span-8 space-y-4">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="field">
+                                        <label class="block text-xs font-bold text-gray-700 mb-1">Tên tính năng</label>
+                                        <InputText 
+                                            v-model="features[activeFeatureIndex].title" 
+                                            type="text" 
+                                            placeholder="vd: Hệ thống hỗ trợ đỗ xe tự động 2.0"
+                                            class="w-full text-xs"
                                         />
                                     </div>
+                                    <div class="field">
+                                        <label class="block text-xs font-bold text-gray-700 mb-1">Phân loại nhóm</label>
+                                        <select 
+                                            v-model="features[activeFeatureIndex].category"
+                                            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-xs text-gray-800 bg-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 h-[38px] cursor-pointer"
+                                        >
+                                            <option v-for="cat in featureCategories" :key="cat" :value="cat">{{ cat }}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="field">
+                                    <label class="block text-xs font-bold text-gray-700 mb-1">Mô tả chi tiết</label>
+                                    <textarea 
+                                        v-model="features[activeFeatureIndex].description" 
+                                        @input="features[activeFeatureIndex].desc = features[activeFeatureIndex].description"
+                                        class="w-full border border-gray-300 rounded-lg p-3 text-xs text-gray-850 bg-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 resize-y h-32"
+                                        placeholder="Mô tả các chi tiết nổi bật của tính năng này..."
+                                    ></textarea>
                                 </div>
                             </div>
+
+                            <!-- Right upload field -->
+                            <div class="col-span-12 md:col-span-4 bg-gray-50 p-4 rounded-xl border border-gray-200">
+                                <Field 
+                                    :key="'feat_image_' + activeFeatureIndex"
+                                    v-model="features[activeFeatureIndex].image" 
+                                    :field="{
+                                        type: 'file_upload',
+                                        name: 'feat_image_' + activeFeatureIndex,
+                                        label: 'Hình ảnh minh họa',
+                                    }" 
+                                />
+                            </div>
                         </div>
+                    </div>
+                    <div v-else-if="features.length > 0" class="col-span-12 lg:col-span-8 bg-white p-8 rounded-2xl border border-gray-200 text-center text-gray-400 italic shadow-sm">
+                        Hãy chọn một tính năng ở danh sách bên trái để chỉnh sửa thông tin.
                     </div>
                 </div>
             </div>
@@ -940,6 +1018,7 @@ export default {
             activeFormTab: 'general',
             activeColorIndex: 0,
             activeVersionIndex: 0,
+            activeFeatureIndex: 0,
             accessorySearch: '',
             accessoryFilterCategory: 'all',
             showSpecsImportModal: false,
@@ -1014,10 +1093,30 @@ export default {
             const block = this.formData.layout_blocks.find(b => b.type === 'FeaturesList');
             return block?.data?.categories || ["Thiết kế", "Vận hành", "Công nghệ", "An toàn"];
         },
-        features() {
-            if (!this.formData.layout_blocks) return [];
-            const block = this.formData.layout_blocks.find(b => b.type === 'FeaturesList');
-            return block?.data?.features || [];
+        features: {
+            get() {
+                if (!this.formData.layout_blocks) return [];
+                const block = this.formData.layout_blocks.find(b => b.type === 'FeaturesList');
+                return block?.data?.features || [];
+            },
+            set(val) {
+                if (!this.formData.layout_blocks) this.formData.layout_blocks = [];
+                let block = this.formData.layout_blocks.find(b => b.type === 'FeaturesList');
+                if (!block) {
+                    block = {
+                        type: 'FeaturesList',
+                        data: {
+                            features: [],
+                            categories: ["Thiết kế", "Vận hành", "Công nghệ", "An toàn"]
+                        }
+                    };
+                    this.formData.layout_blocks.push(block);
+                }
+                if (!block.data) {
+                    block.data = { features: [], categories: ["Thiết kế", "Vận hành", "Công nghệ", "An toàn"] };
+                }
+                block.data.features = val;
+            }
         }
     },
 
@@ -1574,6 +1673,20 @@ export default {
                 block.data.categories.splice(idx, 1);
             }
         },
+        getFeatureImage(image) {
+            if (!image) return null;
+            if (typeof image === 'string') {
+                if (image.startsWith('http') || image.startsWith('/')) return image;
+                return '/static/' + image;
+            }
+            if (image.path) {
+                return '/static/' + image.path;
+            }
+            if (image.url) {
+                return image.url;
+            }
+            return null;
+        },
         addFeature() {
             if (!this.formData.layout_blocks) this.formData.layout_blocks = [];
             let block = this.formData.layout_blocks.find(b => b.type === 'FeaturesList');
@@ -1600,12 +1713,16 @@ export default {
                 image: null,
                 category: block.data.categories?.[0] || 'Thiết kế'
             });
+            this.activeFeatureIndex = block.data.features.length - 1;
         },
         removeFeature(idx) {
             if (!this.formData.layout_blocks) return;
             let block = this.formData.layout_blocks.find(b => b.type === 'FeaturesList');
             if (block && block.data && block.data.features) {
                 block.data.features.splice(idx, 1);
+                if (this.activeFeatureIndex >= block.data.features.length) {
+                    this.activeFeatureIndex = Math.max(0, block.data.features.length - 1);
+                }
             }
         }
     },
