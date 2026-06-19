@@ -313,6 +313,11 @@ class File
                         $targetDir = $this->path;
                     }
 
+                    if (!$file->isValid()) {
+                        $failureFiles[] = $fileName;
+                        continue;
+                    }
+
                     if ($this->fileValidation($file)) {
                         $mimeType = $file->getMimeType();
                         $isImage = str_contains($mimeType, 'image/') && !str_contains($mimeType, 'svg') && !str_contains($mimeType, 'gif');
@@ -598,6 +603,9 @@ class File
 
     private function fileValidation($file)
     {
+        if (!$file->isValid()) {
+            return false;
+        }
         $mimeType = $file->getMimeType();
         $maxSize = self::MAX_SIZE_LIST['others'];
         foreach (self::MAX_SIZE_LIST as $key => $size) {

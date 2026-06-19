@@ -855,6 +855,15 @@ export default {
                         })
                     }
                 })
+                .catch((error) => {
+                    const msg = error.response?.data?.message || 'Tải file lên thất bại. Vui lòng kiểm tra lại cấu hình upload PHP hoặc định dạng file.';
+                    this.$toast.add({
+                        severity: 'error',
+                        summary: 'Lỗi tải tệp',
+                        detail: msg,
+                        life: 5000,
+                    })
+                })
                 .finally(() => {
                     this.loading = false
                 })

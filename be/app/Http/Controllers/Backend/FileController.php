@@ -36,7 +36,16 @@ class FileController extends Controller
         $relativePaths = $request->input('relative_paths', []);
 
         $file = new File($request->input('path', '/'));
-        return $file->store($files, $relativePaths);
+        $result = $file->store($files, $relativePaths);
+
+        if (!empty($result['failureFiles'])) {
+            return response()->json([
+                'message' => 'Tải file thất bại: File vượt quá giới hạn cấu hình PHP (upload_max_filesize / post_max_size) hoặc dung lượng tối đa cho phép.',
+                'errors' => $result['failureFiles']
+            ], 422);
+        }
+
+        return response()->json($result);
     }
 
     public function destroy(Request $request)
