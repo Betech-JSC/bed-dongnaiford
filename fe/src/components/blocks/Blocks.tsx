@@ -65,15 +65,15 @@ interface BlocksProps {
   draggedOverIndex?: number | null;
 }
 
-export default function Blocks({ 
-  layout, 
-  vehicle, 
-  openQuoteDrawer, 
+export default function Blocks({
+  layout,
+  vehicle,
+  openQuoteDrawer,
   openDriveModal,
   isEditMode = false,
-  onChangeBlock = () => {},
-  onMoveBlock = () => {},
-  onDeleteBlock = () => {},
+  onChangeBlock = () => { },
+  onMoveBlock = () => { },
+  onDeleteBlock = () => { },
   threeSixtyProps,
   startIndex = 0,
   totalBlocks,
@@ -224,7 +224,7 @@ export default function Blocks({
           };
 
           return (
-            <div 
+            <div
               key={`edit-wrapper-${index}`}
               draggable
               onDragStart={(e) => onDragStart && onDragStart(e, startIndex + index)}
@@ -249,7 +249,7 @@ export default function Blocks({
                 <span className="text-xs font-bold text-gray-500 uppercase mr-2 select-none">
                   #{startIndex + index + 1} {getBlockLabel(block.type)}
                 </span>
-                
+
                 {/* Move Up */}
                 <button
                   type="button"
@@ -260,7 +260,7 @@ export default function Blocks({
                 >
                   ↑
                 </button>
-                
+
                 {/* Move Down */}
                 <button
                   type="button"
@@ -273,7 +273,7 @@ export default function Blocks({
                 </button>
 
                 <div className="w-[1px] h-4 bg-gray-200" />
-                
+
                 {/* Delete */}
                 <button
                   type="button"
@@ -311,23 +311,23 @@ function HeroBannerBlock({ data, vehicle, openQuoteDrawer, openDriveModal, isEdi
   const bgImg = resolveImageUrl(data.background_image || vehicle.images?.[0] || "/assets/territory-hero.png");
   const youtubeId = getYoutubeId(data.background_video || vehicle.video_url);
   const hasVehicleVideo = vehicle.video && (
-    (typeof vehicle.video === 'string' && vehicle.video.trim() !== '') || 
+    (typeof vehicle.video === 'string' && vehicle.video.trim() !== '') ||
     (typeof vehicle.video === 'object' && (vehicle.video.url || vehicle.video.path))
   );
   const bgVideo = youtubeId ? null : (
-    data.background_video || 
-    vehicle.video_url || 
+    data.background_video ||
+    vehicle.video_url ||
     (hasVehicleVideo ? resolveImageUrl(vehicle.video) : null)
   );
 
   // Alignment classes
-  const alignClass = data.align === 'left' ? 'items-start text-left' 
-                   : data.align === 'right' ? 'items-end text-right ml-auto'
-                   : 'items-center text-center mx-auto';
+  const alignClass = data.align === 'left' ? 'items-start text-left'
+    : data.align === 'right' ? 'items-end text-right ml-auto'
+      : 'items-center text-center mx-auto';
 
   const btnAlignClass = data.align === 'center' ? 'justify-center'
-                      : data.align === 'right' ? 'justify-end'
-                      : 'justify-start';
+    : data.align === 'right' ? 'justify-end'
+      : 'justify-start';
 
   // Title Size Classes
   let titleSizeClass = "text-[36px] sm:text-[48px] md:text-[56px]";
@@ -367,8 +367,8 @@ function HeroBannerBlock({ data, vehicle, openQuoteDrawer, openDriveModal, isEdi
   return (
     <section id={anchorId || undefined} className="relative h-[550px] sm:h-[650px] flex items-end overflow-hidden bg-black text-white pb-[68px] w-full">
       <div className="absolute inset-0 z-0">
-        <Image 
-          src={bgImg} 
+        <Image
+          src={bgImg}
           alt={title}
           fill
           sizes="100vw"
@@ -394,23 +394,23 @@ function HeroBannerBlock({ data, vehicle, openQuoteDrawer, openDriveModal, isEdi
           />
         ) : null}
         <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent h-[250px] z-10" />
-        
+
         {isEditMode && (
           <div className="absolute top-24 left-4 z-30 bg-white/95 backdrop-blur-xs p-3 rounded-lg border border-gray-200 text-xs text-gray-800 shadow-md flex flex-col gap-2.5 max-w-[240px]">
             <div>
               <span className="block mb-1 font-bold text-[10px] uppercase tracking-wider text-gray-500">Ảnh nền Banner:</span>
-              <input 
-                type="file" 
-                accept="image/*" 
+              <input
+                type="file"
+                accept="image/*"
                 onChange={handleUploadImage}
                 className="block w-full text-xs text-gray-500 file:mr-2.5 file:py-1 file:px-2 file:rounded-md file:border file:border-gray-300 file:text-[10px] file:font-semibold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100 cursor-pointer"
               />
             </div>
             <div className="border-t border-gray-100 pt-2.5">
               <span className="block mb-1 font-bold text-[10px] uppercase tracking-wider text-gray-500">Video nền (URL MP4):</span>
-              <input 
-                type="text" 
-                placeholder="https://example.com/video.mp4" 
+              <input
+                type="text"
+                placeholder="https://example.com/video.mp4"
                 value={data.background_video || ""}
                 onChange={(e) => onChangeData({ ...data, background_video: e.target.value })}
                 className="block w-full text-xs text-gray-800 px-2.5 py-1 border border-gray-300 rounded-md bg-white focus:outline-none focus:border-[#008060] w-full"
@@ -422,25 +422,16 @@ function HeroBannerBlock({ data, vehicle, openQuoteDrawer, openDriveModal, isEdi
 
       <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full relative z-20">
         <div className={`flex flex-col gap-[16px] sm:gap-[24px] py-[24px] w-full ${alignClass}`}>
-          {tagline && (
-            <span 
-              className={`text-xs sm:text-sm font-bold uppercase tracking-wider text-[#0562d2] bg-blue-50/10 px-3 py-1 rounded-full backdrop-blur-xs
-                ${isEditMode ? 'outline-[1px] outline-dashed outline-[#008060]/70 hover:outline-[#008060] outline-offset-2 cursor-pointer transition-all' : ''}`}
-              style={taglineStyle}
-            >
-              {tagline}
-            </span>
-          )}
-          <h1 
+          <h1
             className={`font-['Ford_Antenna',sans-serif] font-semibold text-white tracking-[-0.96px] leading-[1.15] uppercase ${titleSizeClass}
               ${isEditMode ? 'outline-[1px] outline-dashed outline-[#008060]/70 hover:outline-[#008060] outline-offset-2 cursor-pointer transition-all' : ''}`}
             style={titleStyle}
           >
             {title}
           </h1>
-          
+
           <div className={`flex flex-wrap gap-[12px] items-start mt-2 w-full ${btnAlignClass}`}>
-            <a 
+            <a
               href={btnLink}
               onClick={handleBtnClick}
               className={`bg-[#0562d2] hover:bg-[#044ea7] border border-[#0562d2] border-solid flex gap-[8px] items-center justify-center overflow-clip px-[28px] py-[12px] rounded-[800px] text-white text-[16px] font-semibold transition-all cursor-pointer shadow-lg hover:shadow-blue-500/20
@@ -448,7 +439,7 @@ function HeroBannerBlock({ data, vehicle, openQuoteDrawer, openDriveModal, isEdi
             >
               {btnText}
             </a>
-            <button 
+            <button
               onClick={() => openQuoteDrawer()}
               className="bg-transparent hover:bg-white/10 border border-solid border-white flex gap-[8px] items-center justify-center overflow-clip px-[28px] py-[12px] rounded-[800px] text-white text-[16px] font-semibold transition-all cursor-pointer"
             >
@@ -496,14 +487,14 @@ function parseSpecs(specs: any, vehicleName: string): any[] {
   if (isMachE) {
     return MACHE_DETAILED_SPECS_FALLBACK;
   }
-  
+
   if (Array.isArray(specs)) {
     return specs.map(item => ({
       title: item.title ?? item.label ?? item.category ?? '',
       content: item.content ?? item.value ?? ''
     }));
   }
-  
+
   if (specs && typeof specs === "object") {
     if (specs.detailed_specs && Array.isArray(specs.detailed_specs)) {
       return specs.detailed_specs.map((item: any) => ({
@@ -574,11 +565,10 @@ function VersionSpecsAccordion({ specs }: { specs: any[] }) {
               </span>
             </button>
             <div
-              className={`transition-all duration-300 overflow-hidden ${
-                isOpen ? 'max-h-[800px] opacity-100 pb-4' : 'max-h-0 opacity-0'
-              }`}
+              className={`transition-all duration-300 overflow-hidden ${isOpen ? 'max-h-[800px] opacity-100 pb-4' : 'max-h-0 opacity-0'
+                }`}
             >
-              <div 
+              <div
                 className="px-4 text-[13px] text-gray-600 leading-relaxed font-normal whitespace-pre-line prose prose-sm max-w-none [&_p]:mb-1 [&_strong]:text-black"
                 dangerouslySetInnerHTML={{ __html: item.content }}
               />
@@ -592,26 +582,26 @@ function VersionSpecsAccordion({ specs }: { specs: any[] }) {
 
 function SpecsGridBlock({ data, vehicle, isEditMode, onChangeData, openQuoteDrawer, anchorId }: any) {
   const versions = vehicle.versions || [];
-  
+
   if (versions.length === 0) return null;
 
   const compareItems = versions.map((ver: any, idx: number) => ({
     id: ver.id,
     name: ver.name,
     price: ver.price,
-    image: resolveImageUrl(ver.image_url || ver.image || vehicle.images?.[idx] || vehicle.images?.[0] || (idx === 0 
-      ? "/assets/territory-hero.png" 
-      : idx === 1 
-        ? "/assets/territory-tech-split.png" 
-        : "/assets/territory-promo.png")), 
+    image: resolveImageUrl(ver.image_url || ver.image || vehicle.images?.[idx] || vehicle.images?.[0] || (idx === 0
+      ? "/assets/territory-hero.png"
+      : idx === 1
+        ? "/assets/territory-tech-split.png"
+        : "/assets/territory-promo.png")),
     specs: ver.specs || {},
     isExternal: false
   }));
 
   const align = data.align || 'center';
-  const alignClass = align === 'left' ? 'text-left mr-auto ml-0' 
-                   : align === 'right' ? 'text-right ml-auto mr-0' 
-                   : 'text-center mx-auto';
+  const alignClass = align === 'left' ? 'text-left mr-auto ml-0'
+    : align === 'right' ? 'text-right ml-auto mr-0'
+      : 'text-center mx-auto';
 
   return (
     <section id={anchorId || undefined} className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full pt-16 pb-12">
@@ -628,14 +618,14 @@ function SpecsGridBlock({ data, vehicle, isEditMode, onChangeData, openQuoteDraw
 
         <div className="flex flex-col md:flex-row gap-6 justify-center items-stretch w-full overflow-x-auto pb-4 scrollbar-none">
           {compareItems.map((item: any) => (
-            <div 
+            <div
               key={item.id}
               className="bg-white border border-gray-200/60 drop-shadow-[0px_4px_4px_rgba(16,24,40,0.06)] flex flex-col items-stretch relative w-full md:w-[368px] min-w-[280px] md:min-w-[320px] rounded-[12px] overflow-hidden transition-all duration-300 hover:scale-[1.01] hover:shadow-lg"
             >
               <div className="content-stretch flex flex-col items-start relative shrink-0 w-full">
                 <div className="aspect-[800/550] relative shrink-0 w-full bg-gray-50 overflow-hidden">
-                  <Image 
-                    src={item.image} 
+                  <Image
+                    src={item.image}
                     alt={item.name}
                     fill
                     sizes="(max-width: 768px) 100vw, 368px"
@@ -648,12 +638,12 @@ function SpecsGridBlock({ data, vehicle, isEditMode, onChangeData, openQuoteDraw
                   </div>
                 </div>
               </div>
-              
+
               {/* specs */}
               <VersionSpecsAccordion specs={parseSpecs(item.specs, vehicle.name)} />
 
               <div className="p-4 bg-white flex flex-col items-center justify-center shrink-0 w-full border-t border-gray-100/50">
-                <button 
+                <button
                   onClick={() => openQuoteDrawer(vehicle.id, item.id)}
                   className="bg-[#0562d2] hover:bg-[#044ea7] border border-[#0562d2] border-solid flex gap-[8px] items-center justify-center overflow-clip px-[24px] py-[10px] rounded-[800px] text-white text-[16px] font-semibold transition-all cursor-pointer shadow-xs w-full"
                 >
@@ -696,10 +686,10 @@ function FeaturesListBlock({ data, vehicle, isEditMode, onChangeData, anchorId }
   };
 
   const handleAddFeature = () => {
-    const newFeatures = [...features, { 
-      title: "TÍNH NĂNG MỚI", 
-      description: "Nhập mô tả tính năng ở đây để thu hút khách hàng.", 
-      image: vehicle?.images?.[0] || "/assets/territory-hero.png" 
+    const newFeatures = [...features, {
+      title: "TÍNH NĂNG MỚI",
+      description: "Nhập mô tả tính năng ở đây để thu hút khách hàng.",
+      image: vehicle?.images?.[0] || "/assets/territory-hero.png"
     }];
     onChangeData({ ...data, features: newFeatures });
   };
@@ -710,9 +700,9 @@ function FeaturesListBlock({ data, vehicle, isEditMode, onChangeData, anchorId }
   };
 
   const align = data.align || 'center';
-  const alignClass = align === 'left' ? 'text-left mr-auto ml-0' 
-                   : align === 'right' ? 'text-right ml-auto mr-0' 
-                   : 'text-center mx-auto';
+  const alignClass = align === 'left' ? 'text-left mr-auto ml-0'
+    : align === 'right' ? 'text-right ml-auto mr-0'
+      : 'text-center mx-auto';
 
   return (
     <section id={anchorId || undefined} className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full py-16">
@@ -731,7 +721,7 @@ function FeaturesListBlock({ data, vehicle, isEditMode, onChangeData, anchorId }
           {features.map((feat: any, idx: number) => {
             const featImg = resolveImageUrl(feat.image || vehicle?.images?.[0] || "/assets/territory-hero.png");
             return (
-              <div 
+              <div
                 key={idx}
                 className="bg-white border border-[#EAECF0] rounded-2xl p-5 flex flex-col hover:shadow-lg hover:border-[#0562d2]/40 transition-all duration-300 group relative"
               >
@@ -756,9 +746,9 @@ function FeaturesListBlock({ data, vehicle, isEditMode, onChangeData, anchorId }
                   {isEditMode && (
                     <div className="absolute inset-0 bg-white/90 flex flex-col items-center justify-center p-3 z-20">
                       <span className="text-[10px] font-bold text-gray-750 mb-2">Đổi ảnh:</span>
-                      <input 
-                        type="file" 
-                        accept="image/*" 
+                      <input
+                        type="file"
+                        accept="image/*"
                         onChange={(e) => handleUploadFeatureImage(idx, e)}
                         className="block w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border file:border-gray-300 file:text-[10px] file:font-semibold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100 cursor-pointer"
                       />
@@ -833,14 +823,14 @@ function AccordionFAQsBlock({ data, vehicle, isEditMode, onChangeData, anchorId 
   };
 
   const align = data.align || 'left';
-  const alignClass = align === 'right' ? 'text-right' 
-                   : align === 'center' ? 'text-center' 
-                   : 'text-left';
+  const alignClass = align === 'right' ? 'text-right'
+    : align === 'center' ? 'text-center'
+      : 'text-left';
 
   return (
     <section id={anchorId || undefined} className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full py-16 border-t border-[#e5e5e5]">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-[40px] lg:gap-[80px] items-start justify-center">
-        
+
         <div className={`lg:col-span-4 space-y-3 ${alignClass}`}>
           <span className="text-xs font-bold uppercase tracking-wider text-[#0562d2] block">Giải đáp thắc mắc</span>
           <h2 className="font-['Ford_Antenna',sans-serif] font-semibold text-[#1a1a1a] text-[36px] sm:text-[48px] tracking-[-0.96px] leading-[1.2] uppercase">
@@ -855,7 +845,7 @@ function AccordionFAQsBlock({ data, vehicle, isEditMode, onChangeData, anchorId 
           {faqs.map((faq: any, idx: number) => {
             const isExpanded = expandedIndex === idx;
             return (
-              <div 
+              <div
                 key={idx}
                 className={`w-full transition-all duration-300 px-[24px] py-[20px] bg-white relative
                   ${isExpanded ? "border-b-3 border-[#0562d2]" : "border-b border-[#f0f0f0] last:border-b-0"}`}
@@ -875,12 +865,12 @@ function AccordionFAQsBlock({ data, vehicle, isEditMode, onChangeData, anchorId 
                   onClick={() => setExpandedIndex(isExpanded ? null : idx)}
                   className="flex items-center justify-between text-left w-full cursor-pointer border-0 bg-transparent py-1 transition-colors group"
                 >
-                    <span className={`font-['Ford_Antenna',sans-serif] font-semibold text-[16px] leading-[1.5]
+                  <span className={`font-['Ford_Antenna',sans-serif] font-semibold text-[16px] leading-[1.5]
                       ${isExpanded ? "text-[#0562d2]" : "text-[#1a1a1a] group-hover:text-[#0562d2]"}
                       ${isEditMode ? 'outline-[1px] outline-dashed outline-[#008060]/70 hover:outline-[#008060] outline-offset-2 cursor-pointer transition-all' : ''}`}
-                    >
-                      {faq.q || "Câu hỏi thường gặp?"}
-                    </span>
+                  >
+                    {faq.q || "Câu hỏi thường gặp?"}
+                  </span>
                   {isExpanded ? (
                     <Minus className="w-[20px] h-[20px] text-[#0562d2] shrink-0 ml-4" />
                   ) : (
@@ -941,9 +931,9 @@ function PromotionsBlock({ data, isEditMode, onChangeData, openQuoteDrawer, vehi
   };
 
   // Alignment classes
-  const alignClass = data.align === 'center' ? 'items-center text-center mx-auto' 
-                   : data.align === 'right' ? 'items-end text-right ml-auto'
-                   : 'items-start text-left';
+  const alignClass = data.align === 'center' ? 'items-center text-center mx-auto'
+    : data.align === 'right' ? 'items-end text-right ml-auto'
+      : 'items-start text-left';
 
   // Title Size Classes
   let titleSizeClass = "text-[36px] sm:text-[48px]";
@@ -970,14 +960,14 @@ function PromotionsBlock({ data, isEditMode, onChangeData, openQuoteDrawer, vehi
       <div className="flex flex-col gap-[32px] w-full">
         <div className={`flex flex-col gap-[24px] pt-[32px] w-full max-w-[1152px] mx-auto ${alignClass}`}>
           <div className={`flex flex-col gap-[12px] w-full ${data.align === 'center' ? 'items-center' : data.align === 'right' ? 'items-end' : 'items-start'}`}>
-            <h2 
+            <h2
               className={`font-['Ford_Antenna',sans-serif] font-semibold text-[#0562d2] tracking-[-0.96px] leading-[1.2] ${titleSizeClass} w-full
                 ${isEditMode ? 'outline-[1px] outline-dashed outline-[#008060]/70 hover:outline-[#008060] outline-offset-2 cursor-pointer transition-all' : ''}`}
               style={titleStyle}
             >
               {title}
             </h2>
-            <p 
+            <p
               className={`font-['Ford_Antenna',sans-serif] font-normal text-[#1a1a1a] leading-[1.5] ${descSizeClass} w-full
                 ${isEditMode ? 'outline-[1px] outline-dashed outline-[#008060]/70 hover:outline-[#008060] outline-offset-2 cursor-pointer transition-all' : ''}`}
               style={descStyle}
@@ -985,8 +975,8 @@ function PromotionsBlock({ data, isEditMode, onChangeData, openQuoteDrawer, vehi
               {desc}
             </p>
           </div>
-          
-          <button 
+
+          <button
             onClick={() => openQuoteDrawer(vehicle?.id)}
             className="bg-[#0562d2] hover:bg-[#044ea7] border border-[#0562d2] border-solid flex gap-[8px] items-center justify-center overflow-clip px-[24px] py-[10px] rounded-[800px] text-white text-[16px] font-semibold transition-all cursor-pointer shadow-md hover:shadow-blue-500/20"
           >
@@ -995,17 +985,17 @@ function PromotionsBlock({ data, isEditMode, onChangeData, openQuoteDrawer, vehi
         </div>
 
         <div className="w-full mt-4 relative">
-          <img 
-            src={bgImg} 
+          <img
+            src={bgImg}
             alt="Promotion Banner"
             className="object-cover rounded-[12px] w-full h-auto shadow-xs max-h-[500px]"
           />
           {isEditMode && (
             <div className="absolute top-4 left-4 z-20 bg-white/95 backdrop-blur-xs p-3 rounded-lg border border-gray-200 text-xs text-gray-800 shadow-md">
               <span className="block mb-2 font-bold text-[10px] uppercase tracking-wider text-gray-500">Ảnh khuyến mãi:</span>
-              <input 
-                type="file" 
-                accept="image/*" 
+              <input
+                type="file"
+                accept="image/*"
                 onChange={handleUploadImage}
                 className="block w-full text-xs text-gray-500 file:mr-2.5 file:py-1 file:px-2 file:rounded-md file:border file:border-gray-300 file:text-[10px] file:font-semibold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100 cursor-pointer"
               />
@@ -1022,14 +1012,14 @@ function PromotionsBlock({ data, isEditMode, onChangeData, openQuoteDrawer, vehi
    ========================================================================== */
 function ThreeSixtyViewerBlock({ data, vehicle, isEditMode, onChangeData, threeSixtyProps, anchorId }: any) {
   const title = data.title || (vehicle?.id === "mustang-fastback" ? "360° Colorizer & Viewer" : "Khám phá không gian đa chiều");
-  const desc = data.description || (vehicle?.id === "mustang-fastback" 
+  const desc = data.description || (vehicle?.id === "mustang-fastback"
     ? "Tùy biến ngoại thất và nội thất theo phong cách riêng của bạn. Kéo để xoay 360 độ hoặc chọn màu sơn và mâm xe."
     : "Diện mạo mới đầy cuốn hút! Trải nghiệm góc nhìn đa chiều và chọn màu sắc ngoại thất yêu thích.");
 
   // Alignment classes
-  const alignClass = data.align === 'center' ? 'items-center text-center mx-auto' 
-                   : data.align === 'right' ? 'items-end text-right ml-auto'
-                   : 'items-start text-left';
+  const alignClass = data.align === 'center' ? 'items-center text-center mx-auto'
+    : data.align === 'right' ? 'items-end text-right ml-auto'
+      : 'items-start text-left';
 
   // Title Size Classes
   let titleSizeClass = "text-[36px] sm:text-[48px]";
@@ -1092,14 +1082,14 @@ function ThreeSixtyViewerBlock({ data, vehicle, isEditMode, onChangeData, threeS
     <section id={anchorId || undefined} className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full py-16 border-t border-[#e5e5e5]">
       <div className="flex flex-col gap-[32px] items-start w-full">
         <div className={`flex flex-col pt-[32px] w-full max-w-[1152px] gap-[12px] ${alignClass}`}>
-          <h2 
+          <h2
             className={`font-['Ford_Antenna',sans-serif] font-semibold text-[#0562d2] tracking-[-0.96px] leading-[1.2] uppercase ${titleSizeClass} w-full
               ${isEditMode ? 'outline-[1px] outline-dashed outline-[#008060]/70 hover:outline-[#008060] outline-offset-2 cursor-pointer transition-all' : ''}`}
             style={titleStyle}
           >
             {title}
           </h2>
-          <p 
+          <p
             className={`font-['Ford_Antenna',sans-serif] font-normal text-[#1a1a1a] leading-[1.5] ${descSizeClass} w-full
               ${isEditMode ? 'outline-[1px] outline-dashed outline-[#008060]/70 hover:outline-[#008060] outline-offset-2 cursor-pointer transition-all' : ''}`}
             style={descStyle}
@@ -1111,16 +1101,16 @@ function ThreeSixtyViewerBlock({ data, vehicle, isEditMode, onChangeData, threeS
         <div className="cmp-360-colorizer-wrapper w-full">
           <div id="360Colorizer" aria-label="360 Viewer" className="cmp-360-colorizer">
             <div className={`model-wrapper ${viewType}`}>
-              
+
               <div className="cmp-360-colorizer__vehicle-variation-container">
-                <div 
-                  className="dropdown trimAware__dropdown dropdown-trim dropdownWrapper" 
+                <div
+                  className="dropdown trimAware__dropdown dropdown-trim dropdownWrapper"
                   aria-expanded={isTrimDropdownOpen}
                 >
-                  <div 
-                    className="dropdown-trigger" 
-                    role="combobox" 
-                    tabIndex={0} 
+                  <div
+                    className="dropdown-trigger"
+                    role="combobox"
+                    tabIndex={0}
                     aria-expanded={isTrimDropdownOpen}
                     onClick={() => setIsTrimDropdownOpen(!isTrimDropdownOpen)}
                     onBlur={() => setTimeout(() => setIsTrimDropdownOpen(false), 200)}
@@ -1130,13 +1120,13 @@ function ThreeSixtyViewerBlock({ data, vehicle, isEditMode, onChangeData, threeS
                       <ChevronDown className="w-5 h-5 text-gray-500" />
                     </div>
                   </div>
-                  
+
                   <div className="dropdown-menu-wrapper" role="listbox" tabIndex={-1}>
                     {vehicle.versions.map((ver: any, idx: number) => (
-                      <div 
+                      <div
                         key={ver.id}
                         className={`dropdown-item trimAware__item trimAware__item--enable ${activeVersionIndex === idx ? "active-option" : ""}`}
-                        role="option" 
+                        role="option"
                         aria-selected={activeVersionIndex === idx}
                         onClick={() => {
                           setActiveVersionIndex(idx);
@@ -1153,16 +1143,16 @@ function ThreeSixtyViewerBlock({ data, vehicle, isEditMode, onChangeData, threeS
               <div className="toggle-wrapper">
                 <div className="model-view toggle-container">
                   <div className="toggle" role="tablist">
-                    <button 
+                    <button
                       type="button"
-                      className={`toggle-option border-0 cursor-pointer ${viewType === "exterior" ? "active" : "bg-transparent"}`} 
+                      className={`toggle-option border-0 cursor-pointer ${viewType === "exterior" ? "active" : "bg-transparent"}`}
                       onClick={() => setViewType("exterior")}
                     >
                       Exterior
                     </button>
-                    <button 
+                    <button
                       type="button"
-                      className={`toggle-option border-0 cursor-pointer ${viewType === "interior" ? "active" : "bg-transparent"}`} 
+                      className={`toggle-option border-0 cursor-pointer ${viewType === "interior" ? "active" : "bg-transparent"}`}
                       onClick={() => {
                         setViewType("interior");
                         setIs360Active(true);
@@ -1180,7 +1170,7 @@ function ThreeSixtyViewerBlock({ data, vehicle, isEditMode, onChangeData, threeS
                     <div className="color-selector-container">
                       <div className="color-selector" role="radiogroup">
                         {colors.map((color: any, idx: number) => (
-                          <div 
+                          <div
                             key={color.name}
                             className={`color-container ${selectedColorIndex === idx ? "selected" : ""}`}
                             onClick={() => setSelectedColorIndex(idx)}
@@ -1201,15 +1191,15 @@ function ThreeSixtyViewerBlock({ data, vehicle, isEditMode, onChangeData, threeS
                   <div className="interiorColors">
                     <div className="color-selector-container">
                       <div className="color-selector interior" role="radiogroup">
-                        <div 
-                          className={`color-container ${selectedInteriorColorIndex === 0 ? "selected" : ""}`} 
+                        <div
+                          className={`color-container ${selectedInteriorColorIndex === 0 ? "selected" : ""}`}
                           onClick={() => setSelectedInteriorColorIndex(0)}
                           title="Black Onyx"
                         >
                           <div className="color" style={{ backgroundColor: "#1b1a1a" }}></div>
                         </div>
-                        <div 
-                          className={`color-container ${selectedInteriorColorIndex === 1 ? "selected" : ""}`} 
+                        <div
+                          className={`color-container ${selectedInteriorColorIndex === 1 ? "selected" : ""}`}
                           onClick={() => setSelectedInteriorColorIndex(1)}
                           title="Space Gray"
                         >
@@ -1224,7 +1214,7 @@ function ThreeSixtyViewerBlock({ data, vehicle, isEditMode, onChangeData, threeS
                 </div>
               </div>
 
-              <div 
+              <div
                 className="car-image-container select-none cursor-grab active:cursor-grabbing w-full h-[400px] md:h-[580px] relative overflow-hidden"
                 onMouseDown={is360Active && (viewType === "exterior" || (viewType === "interior" && hasInteriorSequence)) ? handleMouseDown : undefined}
                 onMouseMove={is360Active && (viewType === "exterior" || (viewType === "interior" && hasInteriorSequence)) ? handleMouseMove : undefined}
@@ -1237,7 +1227,7 @@ function ThreeSixtyViewerBlock({ data, vehicle, isEditMode, onChangeData, threeS
                 {is360Active ? (
                   viewType === "exterior" ? (
                     <div className="relative w-full h-full flex flex-col items-center justify-center bg-gray-50/50">
-                      <div 
+                      <div
                         className="absolute bottom-8 w-[60%] h-6 bg-black/15 blur-md rounded-[100%] transition-transform duration-100 pointer-events-none"
                         style={{
                           transform: `scaleX(${1 - Math.abs(tilt) / 40}) scaleY(${1 - Math.abs(rotation % 180 - 90) / 180}) rotateZ(${rotation * 0.05}deg)`,
@@ -1253,7 +1243,7 @@ function ThreeSixtyViewerBlock({ data, vehicle, isEditMode, onChangeData, threeS
                     ) : (
                       (vehicle.image_360_internal_url && !vehicle.image_360_internal_url.match(/\.(jpg|jpeg|png|webp|gif)/i)) ? (
                         <div className="w-full h-full relative overflow-hidden bg-black">
-                          <iframe 
+                          <iframe
                             src={vehicle.image_360_internal_url}
                             className="w-full h-full border-0 absolute inset-0"
                             allowFullScreen
@@ -1267,24 +1257,24 @@ function ThreeSixtyViewerBlock({ data, vehicle, isEditMode, onChangeData, threeS
                   )
                 ) : (
                   <>
-                    <img 
+                    <img
                       src={resolveImageUrl(vehicle.id === "mustang-fastback"
                         ? `/images/360/mustang/ecoboostfastback/exterior/desktop/adriatic-blue-green/64f/001-adriatic-blue-green-64f.jpeg`
                         : vehicle.id === "new-territory"
                           ? (viewType === "exterior" ? "/assets/territory-3d.png" : "/assets/territory-interior.png")
                           : (viewType === "exterior"
-                              ? (() => {
-                                  const colorImg = (colors?.[selectedColorIndex] || colors?.[0])?.image;
-                                  if (colorImg) {
-                                    return colorImg;
-                                  }
-                                  return vehicle.images?.[0] || vehicle.image_url || "/assets/car-everest.png";
-                                })()
-                              : media.splitLeft))}
+                            ? (() => {
+                              const colorImg = (colors?.[selectedColorIndex] || colors?.[0])?.image;
+                              if (colorImg) {
+                                return colorImg;
+                              }
+                              return vehicle.images?.[0] || vehicle.image_url || "/assets/car-everest.png";
+                            })()
+                            : media.splitLeft))}
                       alt="3D vehicle preview"
                       className="w-full h-full object-cover pointer-events-none"
                     />
-                    <button 
+                    <button
                       type="button"
                       onClick={() => setIs360Active(true)}
                       className="absolute bg-black/40 hover:bg-black/60 hover:scale-105 active:scale-95 transition-all p-[12px] rounded-[800px] border-0 cursor-pointer flex flex-col items-center justify-center size-[96px] z-10 text-white gap-1 group left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
@@ -1327,12 +1317,12 @@ function FeaturesGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId }
   const image_1 = resolveImageUrl(data.image_1 || vehicle?.images?.[2] || vehicle?.images?.[0] || "/assets/territory-hero.png");
   const image_2 = resolveImageUrl(data.image_2 || vehicle?.images?.[3] || vehicle?.images?.[1] || "/assets/territory-tech-split.png");
   const image_3 = resolveImageUrl(data.image_3 || vehicle?.images?.[4] || vehicle?.images?.[2] || "/assets/territory-promo.png");
-  
+
   const title_2 = data.title_2 || "Không gian nội thất rộng rãi, tiện nghi";
   const image_large = resolveImageUrl(data.image_large || vehicle?.images?.[5] || vehicle?.images?.[1] || "/assets/territory-interior.png");
   const image_large_2 = resolveImageUrl(data.image_large_2 || vehicle?.images?.[6] || vehicle?.images?.[2] || "/assets/territory-interior.png");
   const image_large_3 = resolveImageUrl(data.image_large_3 || vehicle?.images?.[7] || vehicle?.images?.[3] || "/assets/territory-interior.png");
-  
+
   const title_3 = data.title_3 || "Nâng tầm công nghệ và tiện nghi Tận hưởng trên mọi hành trình";
   const split_image = resolveImageUrl(data.split_image || vehicle?.images?.[6] || vehicle?.images?.[0] || "/assets/territory-tech-split.png");
   const split_title = data.split_title || "Tiện nghi thông minh";
@@ -1368,14 +1358,14 @@ function FeaturesGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId }
   };
 
   const align = data.align || 'center';
-  const alignClass = align === 'left' ? 'items-start text-left' 
-                   : align === 'right' ? 'items-end text-right' 
-                   : 'items-center text-center';
+  const alignClass = align === 'left' ? 'items-start text-left'
+    : align === 'right' ? 'items-end text-right'
+      : 'items-center text-center';
 
   return (
     <section id={anchorId || undefined} className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full py-16 border-t border-[#e5e5e5]">
       <div className="flex flex-col gap-[48px] items-center">
-        
+
         <div className={`flex flex-col pt-[32px] px-[48px] w-full max-w-[1152px] text-black ${alignClass}`}>
           <h2 className={`font-['Ford_Antenna',sans-serif] font-semibold text-[#00095b] text-[36px] sm:text-[48px] tracking-[-0.96px] leading-[1.2] w-full
             ${isEditMode ? 'outline-[1px] outline-dashed outline-[#008060]/70 hover:outline-[#008060] outline-offset-2 cursor-pointer transition-all' : ''}`}>
@@ -1473,20 +1463,20 @@ function FeaturesGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId }
               </div>
             )}
           </div>
-          
+
           <div className="bg-[#0562d2] flex flex-col h-full items-start px-[24px] py-[32px] rounded-b-[12px] lg:rounded-b-none lg:rounded-r-[12px] shrink-0 w-full lg:w-[480px] text-white">
             <div className="flex flex-col justify-between h-full w-full min-h-[400px]">
               <h3 className={`font-['Ford_Antenna',sans-serif] font-semibold text-[32px] sm:text-[36px] leading-[1.32] pb-6 border-b border-white/20 w-full
                 ${isEditMode ? 'outline-[1px] outline-dashed outline-white/50 hover:outline-white outline-offset-2 cursor-pointer transition-all' : ''}`}>
                 {split_title}
               </h3>
-              
+
               <div className="flex flex-col gap-[28px] pt-8 flex-grow">
                 {split_features.map((feat: any, idx: number) => (
                   <div key={idx} className="flex flex-col gap-[4px] items-start w-full relative group">
                     {isEditMode && (
-                      <button 
-                        type="button" 
+                      <button
+                        type="button"
                         onClick={() => handleRemoveFeature(idx)}
                         className="absolute -top-1 -right-2 text-white/50 hover:text-white text-xs border-0 bg-transparent cursor-pointer font-bold"
                       >
@@ -1503,10 +1493,10 @@ function FeaturesGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId }
                     </p>
                   </div>
                 ))}
-                
+
                 {isEditMode && (
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     onClick={handleAddFeature}
                     className="mt-4 bg-white/20 hover:bg-white/30 text-white text-xs font-semibold px-4 py-2 rounded-full border-0 cursor-pointer w-fit"
                   >
@@ -1528,13 +1518,13 @@ function FeaturesGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId }
    ========================================================================== */
 function VersionsGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId, openQuoteDrawer }: any) {
   const vehicleName = vehicle?.name || "";
-  const cleanName = vehicleName.toLowerCase().startsWith("ford") 
-    ? vehicleName.slice(4).trim() 
+  const cleanName = vehicleName.toLowerCase().startsWith("ford")
+    ? vehicleName.slice(4).trim()
     : vehicleName;
   const title = data.title || `Các mẫu xe Ford ${cleanName.replace("NEW ", "") || ""}`;
   const descriptions = data.descriptions || [];
   const versions = vehicle?.versions || [];
-  
+
   const sliderRef = React.useRef<HTMLDivElement>(null);
   const [mounted, setMounted] = React.useState(false);
   React.useEffect(() => {
@@ -1561,14 +1551,14 @@ function VersionsGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId, 
 
 
   const align = data.align || 'center';
-  const alignClass = align === 'left' ? 'text-left' 
-                   : align === 'right' ? 'text-right' 
-                   : 'text-center';
+  const alignClass = align === 'left' ? 'text-left'
+    : align === 'right' ? 'text-right'
+      : 'text-center';
 
   return (
     <section id={anchorId || undefined} className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full py-16 border-t border-[#e5e5e5]">
       <div className="flex flex-col gap-[32px] items-center w-full">
-        
+
         <div className="flex items-center justify-between w-full max-w-[1152px] gap-4">
           <div className={`flex-grow text-black ${alignClass}`}>
             <h2 className={`font-['Ford_Antenna',sans-serif] font-semibold text-[#1a1a1a] text-[32px] sm:text-[42px] tracking-[-0.96px] leading-[1.2] uppercase w-full
@@ -1579,15 +1569,15 @@ function VersionsGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId, 
           {/* Slider Buttons */}
           {!isEditMode && versions.length > 3 && (
             <div className="flex justify-end gap-2 shrink-0">
-              <button 
-                onClick={() => scroll('left')} 
+              <button
+                onClick={() => scroll('left')}
                 className="p-2 border border-gray-200 rounded-full bg-white hover:bg-gray-100 transition shadow-xs cursor-pointer focus:outline-none"
                 aria-label="Scroll left"
               >
                 <ChevronLeft className="w-5 h-5 text-gray-600" />
               </button>
-              <button 
-                onClick={() => scroll('right')} 
+              <button
+                onClick={() => scroll('right')}
                 className="p-2 border border-gray-200 rounded-full bg-white hover:bg-gray-100 transition shadow-xs cursor-pointer focus:outline-none"
                 aria-label="Scroll right"
               >
@@ -1600,18 +1590,18 @@ function VersionsGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId, 
         {/* Outer container */}
         <div className="relative w-full overflow-hidden">
           {/* Horizontal scroll container */}
-          <div 
+          <div
             ref={sliderRef}
             className="flex gap-[24px] overflow-x-auto snap-x snap-mandatory scroll-smooth scrollbar-none w-full pb-4"
             style={{ WebkitOverflowScrolling: 'touch' }}
           >
             {versions.map((ver: any, idx: number) => {
-              const defaultDesc = idx === 0 
+              const defaultDesc = idx === 0
                 ? `Phiên bản Ford ${cleanName} ${ver.name} 2026 sở hữu nhiều nâng cấp đắt giá về cả thiết kế ngoại thất lẫn nội thất.`
                 : `Trải nghiệm vận hành ấn tượng cùng công nghệ kết nối thông minh vượt trội của Ford ${cleanName} ${ver.name}.`;
 
               const desc = descriptions[idx] || defaultDesc;
-              
+
               // Quyết định ảnh: Lấy ảnh đặc trưng của phiên bản nếu có, nếu không lấy ảnh trong images array theo index, nếu không lấy ảnh chính của xe
               const versionImage = ver.image_url || vehicle?.images?.[idx] || vehicle?.images?.[0] || vehicle?.image;
               const imgUrl = mounted ? resolveImageUrl(versionImage) : "/assets/img-gradient-1.png";
@@ -1620,18 +1610,17 @@ function VersionsGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId, 
                 <div
                   key={ver.id}
                   onClick={isEditMode ? undefined : () => openQuoteDrawer?.(vehicle?.id, ver.id)}
-                  className={`flex flex-col items-center overflow-hidden rounded-[12px] text-left border border-gray-200/60 p-5 bg-white transition-all duration-300 shadow-xs h-auto justify-between snap-start shrink-0 w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] ${
-                    isEditMode ? "" : "hover:scale-[1.01] hover:shadow-md cursor-pointer group hover:border-[#0562d2]/40"
-                  }`}
+                  className={`flex flex-col items-center overflow-hidden rounded-[12px] text-left border border-gray-200/60 p-5 bg-white transition-all duration-300 shadow-xs h-auto justify-between snap-start shrink-0 w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] ${isEditMode ? "" : "hover:scale-[1.01] hover:shadow-md cursor-pointer group hover:border-[#0562d2]/40"
+                    }`}
                 >
                   <div className="aspect-[4/3] relative rounded-[8px] overflow-hidden w-full bg-gray-50 shrink-0">
-                    <img 
-                      src={imgUrl} 
+                    <img
+                      src={imgUrl}
                       alt={ver.name}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 pointer-events-none"
                     />
                   </div>
-                  
+
                   <div className="flex flex-col items-start pt-[20px] w-full flex-grow justify-between">
                     <div className="flex flex-col gap-[10px] items-start w-full">
                       <p className="font-['Ford_Antenna',sans-serif] font-bold text-[#1a1a1a] text-[18px] sm:text-[20px] leading-[1.3] group-hover:text-[#0562d2] transition-colors">
@@ -1640,7 +1629,7 @@ function VersionsGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId, 
                       <p className="font-['Ford_Antenna',sans-serif] font-semibold text-[#0562d2] text-[15px] sm:text-[16px]">
                         {formatPrice(ver.price)}
                       </p>
-                      
+
                       <p className={`font-['Ford_Antenna',sans-serif] font-normal text-[#616161] text-[13px] sm:text-[14px] leading-[1.5] line-clamp-3 w-full
                         ${isEditMode ? 'outline-[1px] outline-dashed outline-[#008060]/70 hover:outline-[#008060] outline-offset-2 cursor-pointer transition-all' : ''}`}>
                         {desc}
@@ -1700,13 +1689,13 @@ function BookingBannerBlock({ data, vehicle, isEditMode, onChangeData, anchorId 
   const titleStyle = data.title_color ? { color: data.title_color } : {};
 
   const align = data.align || 'left';
-  const alignClass = align === 'center' ? 'items-center text-center mx-auto' 
-                   : align === 'right' ? 'items-end text-right ml-auto' 
-                   : 'items-start text-left';
-  
+  const alignClass = align === 'center' ? 'items-center text-center mx-auto'
+    : align === 'right' ? 'items-end text-right ml-auto'
+      : 'items-start text-left';
+
   const btnAlignClass = align === 'center' ? 'justify-center'
-                      : align === 'right' ? 'justify-end'
-                      : 'justify-start';
+    : align === 'right' ? 'justify-end'
+      : 'justify-start';
 
   return (
     <section id={anchorId || undefined} className="w-full bg-[#00095b] py-[32px] px-4 md:px-[144px] flex justify-center overflow-visible">
@@ -1715,32 +1704,32 @@ function BookingBannerBlock({ data, vehicle, isEditMode, onChangeData, anchorId 
         <div className="w-full lg:w-[913px] bg-gradient-to-r from-[#00095B] via-[#02337A] to-[#0562D2] rounded-[12px] p-8 lg:p-[32px] h-auto lg:h-[320px] flex items-center relative overflow-hidden lg:overflow-visible shadow-xl">
           {/* Content */}
           <div className={`flex flex-col gap-6 max-w-full lg:max-w-[505px] relative z-10 text-white w-full ${alignClass}`}>
-              <>
-                <h3 
-                  className={`font-bold font-display leading-[1.32] ${titleSizeClass} w-full
+            <>
+              <h3
+                className={`font-bold font-display leading-[1.32] ${titleSizeClass} w-full
                     ${isEditMode ? 'outline-[1px] outline-dashed outline-white/50 hover:outline-white outline-offset-2 cursor-pointer transition-all' : ''}`}
-                  style={titleStyle}
-                >
-                  {title}
-                </h3>
-                <div className={`flex flex-col sm:flex-row gap-4 w-full ${btnAlignClass}`}>
-                  <a
-                    href={`tel:${phone.replace(/\s+/g, "")}`}
-                    className={`flex items-center justify-center gap-2 bg-[#0562d2] hover:bg-[#044ea7] border border-[#0562d2] transition-colors text-white font-bold px-6 py-3 rounded-full text-base shrink-0
+                style={titleStyle}
+              >
+                {title}
+              </h3>
+              <div className={`flex flex-col sm:flex-row gap-4 w-full ${btnAlignClass}`}>
+                <a
+                  href={`tel:${phone.replace(/\s+/g, "")}`}
+                  className={`flex items-center justify-center gap-2 bg-[#0562d2] hover:bg-[#044ea7] border border-[#0562d2] transition-colors text-white font-bold px-6 py-3 rounded-full text-base shrink-0
                       ${isEditMode ? 'outline-[1px] outline-dashed outline-white/50 hover:outline-white outline-offset-2 cursor-pointer transition-all' : ''}`}
-                  >
-                    <Phone className="w-5 h-5" />
-                    <span>{phone}</span>
-                  </a>
-                  <a
-                    href={btnLink}
-                    className="flex items-center justify-center gap-2 bg-transparent hover:bg-white/10 border border-white transition-colors text-white font-bold px-6 py-3 rounded-full text-base shrink-0"
-                  >
-                    <Bookmark className="w-5 h-5" />
-                    <span>{btnText}</span>
-                  </a>
-                </div>
-              </>
+                >
+                  <Phone className="w-5 h-5" />
+                  <span>{phone}</span>
+                </a>
+                <a
+                  href={btnLink}
+                  className="flex items-center justify-center gap-2 bg-transparent hover:bg-white/10 border border-white transition-colors text-white font-bold px-6 py-3 rounded-full text-base shrink-0"
+                >
+                  <Bookmark className="w-5 h-5" />
+                  <span>{btnText}</span>
+                </a>
+              </div>
+            </>
           </div>
         </div>
 

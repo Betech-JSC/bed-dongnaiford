@@ -343,7 +343,7 @@ function FeatureSectionSlider({ sec, openDriveDrawer }: FeatureSectionSliderProp
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     const el = scrollRef.current;
     if (!el) return;
-    
+
     const target = e.target as HTMLElement;
     if (target.closest("button") || target.closest("a")) return;
 
@@ -375,7 +375,7 @@ function FeatureSectionSlider({ sec, openDriveDrawer }: FeatureSectionSliderProp
       className="w-full py-16 border-b border-[#e5e5e5] bg-white transition-colors duration-300 relative group/slider"
     >
       <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full">
-        
+
         {/* Section Header with "Bắt đầu mua xe" on the right */}
         <div className="flex flex-row justify-between items-center border-b border-gray-150 pb-4 mb-8">
           <h2 className="font-['Ford_Antenna',sans-serif] font-extrabold text-2xl md:text-3xl text-[#00095b] tracking-tight">
@@ -389,8 +389,8 @@ function FeatureSectionSlider({ sec, openDriveDrawer }: FeatureSectionSliderProp
                   onClick={() => scroll("left")}
                   disabled={!showLeftArrow}
                   className={`w-8 h-8 rounded-full border flex items-center justify-center transition-all cursor-pointer bg-white shadow-xs
-                    ${showLeftArrow 
-                      ? "border-gray-300 text-gray-700 hover:bg-gray-50 active:scale-95" 
+                    ${showLeftArrow
+                      ? "border-gray-300 text-gray-700 hover:bg-gray-50 active:scale-95"
                       : "border-gray-200 text-gray-300 cursor-not-allowed opacity-50"}`}
                   aria-label="Previous features"
                 >
@@ -400,8 +400,8 @@ function FeatureSectionSlider({ sec, openDriveDrawer }: FeatureSectionSliderProp
                   onClick={() => scroll("right")}
                   disabled={!showRightArrow}
                   className={`w-8 h-8 rounded-full border flex items-center justify-center transition-all cursor-pointer bg-white shadow-xs
-                    ${showRightArrow 
-                      ? "border-gray-300 text-gray-700 hover:bg-gray-50 active:scale-95" 
+                    ${showRightArrow
+                      ? "border-gray-300 text-gray-700 hover:bg-gray-50 active:scale-95"
                       : "border-gray-200 text-gray-300 cursor-not-allowed opacity-50"}`}
                   aria-label="Next features"
                 >
@@ -422,13 +422,13 @@ function FeatureSectionSlider({ sec, openDriveDrawer }: FeatureSectionSliderProp
         {/* Slider Layout for Cards */}
         {sec.features.length > 0 ? (
           <div className="relative w-full">
-            <div 
+            <div
               ref={scrollRef}
               onMouseDown={handleMouseDown}
               className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth scrollbar-none gap-6 cursor-grab active:cursor-grabbing pb-4"
             >
               {sec.features.map((feat) => (
-                <div 
+                <div
                   key={feat.title}
                   className="group flex flex-col items-start text-left bg-white rounded-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-lg p-1.5 shrink-0 snap-start
                     w-[85vw] sm:w-[45vw] md:w-[calc((100%-48px)/3)] xl:w-[calc((100%-96px)/5)]"
@@ -443,7 +443,7 @@ function FeatureSectionSlider({ sec, openDriveDrawer }: FeatureSectionSliderProp
                       draggable={false}
                     />
                   </div>
-                  
+
                   {/* Text details */}
                   <h3 className="font-['Ford_Antenna',sans-serif] font-bold text-sm md:text-[15px] text-[#1a1a1a] mt-4 mb-2 line-clamp-2 min-h-[40px] md:min-h-[44px]">
                     {feat.title}
@@ -645,13 +645,13 @@ export default function VehicleFeaturesPage() {
     const categoriesList = cmsCategories.map((catName) => {
       const key = getCategoryKey(catName);
       const isStandard = ["design", "performance", "tech", "safety"].includes(key);
-      const meta = isStandard 
-        ? standardMeta[key] 
+      const meta = isStandard
+        ? standardMeta[key]
         : {
-            subLabel: `${catName.toUpperCase()} & TIỆN NGHI`,
-            title: `Trang Bị ${catName} & Tiện Nghi Nổi Bật`,
-            desc: `Khám phá các tính năng và trang bị nổi bật thuộc nhóm ${catName} của dòng xe.`
-          };
+          subLabel: `${catName.toUpperCase()} & TIỆN NGHI`,
+          title: `Trang Bị ${catName} & Tiện Nghi Nổi Bật`,
+          desc: `Khám phá các tính năng và trang bị nổi bật thuộc nhóm ${catName} của dòng xe.`
+        };
 
       return {
         id: key,
@@ -696,7 +696,7 @@ export default function VehicleFeaturesPage() {
 
   return (
     <div className="bg-[#ffffff] text-[#1a1a1a] font-sans pb-16 selection:bg-[#0562d2] selection:text-white">
-      
+
       {/* 1. Hero Banner Section */}
       <section className="relative h-[400px] md:h-[480px] w-full overflow-hidden bg-slate-950 flex items-center">
         <div className="absolute inset-0 z-0">
@@ -710,10 +710,7 @@ export default function VehicleFeaturesPage() {
         </div>
 
         <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full relative z-10 text-white flex flex-col gap-5 items-start text-left">
-          <span className="text-xs md:text-sm font-extrabold uppercase tracking-widest text-[#0562d2] bg-white/10 px-4 py-1.5 rounded-full backdrop-blur-xs">
-            Tính năng &amp; Công nghệ
-          </span>
-          <h1 className="font-['Ford_Antenna',sans-serif] font-bold text-3xl md:text-5xl lg:text-[52px] tracking-tight max-w-2xl leading-[1.15] text-white">
+          <h1 className="font-['Ford_Antenna',sans-serif] font-bold text-3xl md:text-5xl lg:text-[48px] tracking-tight max-w-2xl leading-[1.15] text-white">
             Trang bị ưu việt cùng Ford {vehicle.name}
           </h1>
           <p className="text-xs md:text-[15px] text-gray-300 max-w-xl leading-relaxed">
@@ -743,13 +740,13 @@ export default function VehicleFeaturesPage() {
 
       {/* 3. Feature Sections Content (Slider/Carousel) */}
       {sections.map((sec) => (
-        <FeatureSectionSlider 
-          key={sec.id} 
-          sec={sec} 
-          openDriveDrawer={openDriveDrawer} 
+        <FeatureSectionSlider
+          key={sec.id}
+          sec={sec}
+          openDriveDrawer={openDriveDrawer}
         />
       ))}
-      
+
       {/* 4. Shared Booking Call To Action Banner */}
       <div className="mt-16">
         <BookingBanner />

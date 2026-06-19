@@ -599,6 +599,138 @@
                 </div>
             </div>
 
+            <!-- Tab: Tính năng xe -->
+            <div v-show="activeFormTab === 'features'" class="space-y-4">
+                <!-- Quản lý các nhóm tính năng -->
+                <div class="card bg-white border border-gray-200 rounded-2xl shadow-xs">
+                    <div class="card-header font-bold text-gray-700 bg-gray-50 border-b border-gray-200 p-4 text-sm">
+                        📁 Quản lý các nhóm tính năng
+                    </div>
+                    <div class="card-body p-4 space-y-4">
+                        <div class="flex flex-wrap gap-2 items-center">
+                            <span 
+                                v-for="(cat, cIdx) in featureCategories" 
+                                :key="cIdx"
+                                class="inline-flex items-center gap-1.5 bg-indigo-50 text-indigo-700 text-xs font-semibold px-3 py-1.5 rounded-full border border-indigo-150"
+                            >
+                                <span>{{ cat }}</span>
+                                <button 
+                                    type="button" 
+                                    class="text-indigo-400 hover:text-indigo-650 font-bold bg-transparent border-0 cursor-pointer text-[10px] p-0.5 leading-none transition"
+                                    @click="removeFeatureCategory(cIdx)"
+                                    title="Xóa nhóm này"
+                                >
+                                    ✕
+                                </button>
+                            </span>
+                        </div>
+                        <div class="flex gap-2 max-w-md mt-2">
+                            <InputText 
+                                v-model="newCategoryName"
+                                type="text"
+                                placeholder="Nhập tên nhóm mới (vd: Nội thất, Ngoại thất...)"
+                                class="w-full text-xs"
+                                @keyup.enter="addFeatureCategory"
+                            />
+                            <button 
+                                type="button" 
+                                class="btn btn-indigo text-xs py-2 px-4 whitespace-nowrap"
+                                @click="addFeatureCategory"
+                            >
+                                + Thêm nhóm
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Danh sách tính năng -->
+                <div class="card bg-white border border-gray-200 rounded-2xl shadow-xs">
+                    <div class="card-header font-bold text-gray-700 flex justify-between items-center bg-gray-50 border-b border-gray-200 p-4 text-sm">
+                        <span>✨ Danh sách tính năng của xe</span>
+                        <button 
+                            type="button" 
+                            @click="addFeature" 
+                            class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg border-0 cursor-pointer transition shadow-xs flex items-center gap-1.5"
+                        >
+                            <span>➕ Thêm tính năng mới</span>
+                        </button>
+                    </div>
+                    <div class="card-body p-4 space-y-6">
+                        <div v-if="!features || features.length === 0" class="text-center py-8 bg-gray-50 rounded-xl border border-dashed border-gray-300">
+                            <span class="text-3xl">✨</span>
+                            <p class="text-sm text-gray-500 mt-2 font-medium">Chưa có tính năng nào cho dòng xe này</p>
+                            <button type="button" class="mt-4 btn btn-indigo btn-sm" @click="addFeature">
+                                + Thêm tính năng đầu tiên
+                            </button>
+                        </div>
+                        <div v-else class="space-y-4">
+                            <div 
+                                v-for="(feat, idx) in features" 
+                                :key="idx" 
+                                class="p-4 bg-gray-50 border border-gray-200 rounded-xl relative space-y-4 shadow-2xs"
+                            >
+                                <!-- Remove Button -->
+                                <button 
+                                    type="button" 
+                                    @click="removeFeature(idx)" 
+                                    class="absolute top-4 right-4 bg-red-50 hover:bg-red-100 text-red-700 hover:text-red-800 text-xs font-bold px-2.5 py-1.5 rounded-lg border border-red-200 cursor-pointer transition-all"
+                                >
+                                    🗑️ Xóa
+                                </button>
+
+                                <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+                                    <!-- Title, Category & Description -->
+                                    <div class="col-span-1 md:col-span-8 space-y-4">
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div class="field">
+                                                <label class="label text-xs font-bold text-gray-600 mb-1">Tên tính năng</label>
+                                                <InputText 
+                                                    v-model="feat.title" 
+                                                    type="text" 
+                                                    placeholder="vd: Hệ thống hỗ trợ đỗ xe tự động 2.0"
+                                                    class="w-full"
+                                                />
+                                            </div>
+                                            <div class="field">
+                                                <label class="label text-xs font-bold text-gray-600 mb-1">Phân loại nhóm</label>
+                                                <select 
+                                                    v-model="feat.category"
+                                                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-xs text-gray-800 bg-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 h-[38px] cursor-pointer"
+                                                >
+                                                    <option v-for="cat in featureCategories" :key="cat" :value="cat">{{ cat }}</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <label class="label text-xs font-bold text-gray-600 mb-1">Mô tả chi tiết</label>
+                                            <textarea 
+                                                v-model="feat.description" 
+                                                @input="feat.desc = feat.description"
+                                                class="w-full border border-gray-300 rounded-lg p-3 text-xs text-gray-850 bg-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 resize-y h-20"
+                                                placeholder="Mô tả các chi tiết nổi bật của tính năng này..."
+                                            ></textarea>
+                                        </div>
+                                    </div>
+
+                                    <!-- Image Upload -->
+                                    <div class="col-span-1 md:col-span-4 bg-white p-3 rounded-lg border border-gray-200">
+                                        <Field 
+                                            :key="'feat_image_' + idx"
+                                            v-model="feat.image" 
+                                            :field="{
+                                                type: 'file_upload',
+                                                name: 'feat_image_' + idx,
+                                                label: 'Hình ảnh minh họa',
+                                            }" 
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Tab 5: Cấu hình SEO -->
             <div v-show="activeFormTab === 'seo'">
                 <!-- SEO Settings -->
@@ -687,10 +819,12 @@ export default {
             specsImportText: '',
             showColorsSection: true,
             showSpecsSection: true,
+            newCategoryName: '',
             tabs: [
                 { id: 'general', name: 'ℹ️ Thông tin chung & Ảnh' },
                 { id: 'versions', name: '⚙️ Phiên bản & Thông số' },
                 { id: 'accessories', name: '🎒 Phụ kiện xe' },
+                { id: 'features', name: '✨ Tính năng xe' },
                 { id: 'builder', name: '🧱 Thiết kế trang' },
                 { id: 'seo', name: '🔍 Cấu hình SEO' }
             ],
@@ -737,6 +871,36 @@ export default {
 
                 return matchesSearch && matchesCategory;
             });
+        },
+        featureCategories() {
+            if (!this.formData.layout_blocks) return ["Thiết kế", "Vận hành", "Công nghệ", "An toàn"];
+            let block = this.formData.layout_blocks.find(b => b.type === 'FeaturesList');
+            if (!block || !block.data) return ["Thiết kế", "Vận hành", "Công nghệ", "An toàn"];
+            if (!block.data.categories || !Array.isArray(block.data.categories)) {
+                block.data.categories = ["Thiết kế", "Vận hành", "Công nghệ", "An toàn"];
+            }
+            return block.data.categories;
+        },
+        features() {
+            if (!this.formData.layout_blocks) return [];
+            let block = this.formData.layout_blocks.find(b => b.type === 'FeaturesList');
+            if (!block) {
+                block = {
+                    type: 'FeaturesList',
+                    data: {
+                        features: [],
+                        categories: ["Thiết kế", "Vận hành", "Công nghệ", "An toàn"]
+                    }
+                };
+                this.formData.layout_blocks.push(block);
+            }
+            if (!block.data) {
+                block.data = { features: [], categories: ["Thiết kế", "Vận hành", "Công nghệ", "An toàn"] };
+            }
+            if (!block.data.features) {
+                block.data.features = [];
+            }
+            return block.data.features;
         }
     },
 
@@ -1174,6 +1338,73 @@ export default {
             const vehicleTitle = this.formData.vi?.title || this.formData.title;
             if (!vehicleTitle || !acc.fit_vehicles) return false;
             return acc.fit_vehicles.some(v => v.toLowerCase().trim() === vehicleTitle.toLowerCase().trim());
+        },
+        addFeatureCategory() {
+            if (!this.newCategoryName || !this.newCategoryName.trim()) return;
+            const name = this.newCategoryName.trim();
+            if (!this.formData.layout_blocks) this.formData.layout_blocks = [];
+            let block = this.formData.layout_blocks.find(b => b.type === 'FeaturesList');
+            if (!block) {
+                block = {
+                    type: 'FeaturesList',
+                    data: {
+                        features: [],
+                        categories: ["Thiết kế", "Vận hành", "Công nghệ", "An toàn"]
+                    }
+                };
+                this.formData.layout_blocks.push(block);
+            }
+            if (!block.data) {
+                block.data = { features: [], categories: ["Thiết kế", "Vận hành", "Công nghệ", "An toàn"] };
+            }
+            if (!block.data.categories) {
+                block.data.categories = ["Thiết kế", "Vận hành", "Công nghệ", "An toàn"];
+            }
+            if (!block.data.categories.includes(name)) {
+                block.data.categories.push(name);
+            }
+            this.newCategoryName = '';
+        },
+        removeFeatureCategory(idx) {
+            if (!this.formData.layout_blocks) return;
+            let block = this.formData.layout_blocks.find(b => b.type === 'FeaturesList');
+            if (block && block.data && block.data.categories) {
+                block.data.categories.splice(idx, 1);
+            }
+        },
+        addFeature() {
+            if (!this.formData.layout_blocks) this.formData.layout_blocks = [];
+            let block = this.formData.layout_blocks.find(b => b.type === 'FeaturesList');
+            if (!block) {
+                block = {
+                    type: 'FeaturesList',
+                    data: {
+                        features: [],
+                        categories: ["Thiết kế", "Vận hành", "Công nghệ", "An toàn"]
+                    }
+                };
+                this.formData.layout_blocks.push(block);
+            }
+            if (!block.data) {
+                block.data = { features: [], categories: ["Thiết kế", "Vận hành", "Công nghệ", "An toàn"] };
+            }
+            if (!block.data.features) {
+                block.data.features = [];
+            }
+            block.data.features.push({
+                title: '',
+                desc: '',
+                description: '',
+                image: null,
+                category: block.data.categories?.[0] || 'Thiết kế'
+            });
+        },
+        removeFeature(idx) {
+            if (!this.formData.layout_blocks) return;
+            let block = this.formData.layout_blocks.find(b => b.type === 'FeaturesList');
+            if (block && block.data && block.data.features) {
+                block.data.features.splice(idx, 1);
+            }
         }
     },
 }
