@@ -98,7 +98,7 @@
                         </div>
 
                         <!-- Select all button -->
-                        <Button v-if="canSelectMultiple && searchFiles.length" @click="toggleSelectAll" class="space-x-1.5 btn-outline-secondary btn-xs flex items-center">
+                        <Button v-if="(!selectable || canSelectMultiple) && searchFiles.length" @click="toggleSelectAll" class="space-x-1.5 btn-outline-secondary btn-xs flex items-center">
                             <component :is="isAllSelected ? 'ph-minus-square-light' : 'ph-check-square-light'" class="w-3.5 h-3.5 mr-1" />
                             <span>{{ isAllSelected ? 'Bỏ chọn hết' : 'Chọn tất cả' }}</span>
                         </Button>
