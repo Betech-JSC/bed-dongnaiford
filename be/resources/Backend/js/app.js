@@ -196,11 +196,19 @@ createInertiaApp({
                         return isCurrentRoute && isCurrentParams
                     },
                     staticUrl(url) {
-                        if (url && !url.includes('http') && url.includes('assets')) {
-                            return window.location.origin + url;
+                        if (!url) return '';
+                        const urlStr = url.toString();
+                        if (urlStr.includes('http') || urlStr.startsWith('//') || urlStr.startsWith('data:')) {
+                            return urlStr;
+                        }
+                        if (urlStr.includes('assets')) {
+                            return window.location.origin + (urlStr.startsWith('/') ? '' : '/') + urlStr;
+                        }
+                        if (/^([a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}|localhost)(:[0-9]+)?\//.test(urlStr)) {
+                            return window.location.protocol + '//' + urlStr;
                         }
 
-                        return url && url.toString().includes('http') ? url : this.route('files.show') + '/' + url
+                        return this.route('files.show') + '/' + urlStr;
                     },
                     isImage(url) {
                         if (!url || !(url.toString().includes('.'))) return false;

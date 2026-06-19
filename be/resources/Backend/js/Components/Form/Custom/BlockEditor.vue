@@ -1157,12 +1157,18 @@ export default {
         resolveImageUrl(image) {
             if (!image) return ''
             if (typeof image === 'string') {
-                if (image.startsWith('http') || image.startsWith('data:')) return image
+                if (image.startsWith('http') || image.startsWith('data:') || image.startsWith('//')) return image
+                if (/^([a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}|localhost)(:[0-9]+)?\//.test(image)) {
+                    return window.location.protocol + '//' + image
+                }
                 return this.staticUrl(image)
             }
             if (typeof image === 'object') {
                 if (image.path && typeof image.path === 'string') {
-                    if (image.path.startsWith('http') || image.path.startsWith('data:')) return image.path
+                    if (image.path.startsWith('http') || image.path.startsWith('data:') || image.path.startsWith('//')) return image.path
+                    if (/^([a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}|localhost)(:[0-9]+)?\//.test(image.path)) {
+                        return window.location.protocol + '//' + image.path
+                    }
                     return this.staticUrl(image.path)
                 }
                 if (image.url && typeof image.url === 'string') return image.url

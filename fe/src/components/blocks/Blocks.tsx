@@ -26,8 +26,11 @@ export const resolveImageUrl = (img: any): string => {
     path = img.url || img.path || "";
   }
   if (!path) return "/assets/img-gradient-1.png";
-  if (path.startsWith("http://") || path.startsWith("https://") || path.startsWith("/")) {
+  if (path.startsWith("http://") || path.startsWith("https://") || path.startsWith("/") || path.startsWith("//")) {
     return path;
+  }
+  if (/^([a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}|localhost)(:[0-9]+)?\//.test(path)) {
+    return `https://${path}`;
   }
   const cleanPath = path.startsWith("uploads/") ? path.replace("uploads/", "") : path;
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
