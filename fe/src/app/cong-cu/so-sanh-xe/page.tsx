@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Fragment } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ChevronDown, X, Plus, ArrowRight, Trash2, GitCompare } from "lucide-react";
@@ -10,7 +10,7 @@ import { formatPriceShort } from "@/lib/rolling-cost";
 import BookingBanner from "@/components/services/BookingBanner";
 import { vehiclesAPI } from "@/lib/api";
 
-const parseSpecsArray = (specsArray: any): Record<string, string> => {
+const parseSpecsArray = (specsArray: any, isMachE: boolean = false): Record<string, string> => {
   const result: Record<string, string> = {
     engine: '',
     power: '',
@@ -22,9 +22,14 @@ const parseSpecsArray = (specsArray: any): Record<string, string> => {
     fuelEconomy: ''
   };
 
-  if (!Array.isArray(specsArray)) return result;
+  let actualArray = specsArray;
+  if (isMachE) {
+    actualArray = MACHE_DETAILED_SPECS_FALLBACK;
+  }
 
-  specsArray.forEach((group: any) => {
+  if (!Array.isArray(actualArray)) return result;
+
+  actualArray.forEach((group: any) => {
     const htmlContent = group.content || '';
     const items = htmlContent.split(/<\/li>|<li>|<br\s*\/?>|\n/).map((item: string) => {
       return item.replace(/<[^>]*>/g, '').trim();
@@ -36,13 +41,17 @@ const parseSpecsArray = (specsArray: any): Record<string, string> => {
         const key = item.substring(0, colonIndex).trim().toLowerCase();
         const val = item.substring(colonIndex + 1).trim();
 
-        if (key.includes('động cơ') || key.includes('dong co') || key.includes('engine')) {
-          result.engine = val;
+        if (key.includes('động cơ') || key.includes('dong co') || key.includes('engine') || key.includes('motor') || key.includes('pin')) {
+          if (key.includes('pin') && !result.engine.toLowerCase().includes('pin')) {
+            result.engine = result.engine ? `${result.engine} / Pin: ${val}` : `Pin: ${val}`;
+          } else {
+            result.engine = val;
+          }
         } else if (key.includes('công suất') || key.includes('cong suat') || key.includes('power')) {
           result.power = val;
         } else if (key.includes('mô-men xoắn') || key.includes('mô men xoắn') || key.includes('mo-men xoan') || key.includes('torque')) {
           result.torque = val;
-        } else if (key.includes('hộp số') || key.includes('hop so') || key.includes('transmission')) {
+        } else if (key.includes('hộp số') || key.includes('hop so') || key.includes('transmission') || key.includes('truyền động') || key.includes('truyen dong')) {
           result.transmission = val;
         } else if (key.includes('dẫn động') || key.includes('dan dong') || key.includes('drivetrain')) {
           result.drivetrain = val;
@@ -50,7 +59,7 @@ const parseSpecsArray = (specsArray: any): Record<string, string> => {
           result.dimensions = val;
         } else if (key.includes('khoảng sáng gầm') || key.includes('khoang sang gam') || key.includes('clearance')) {
           result.clearance = val;
-        } else if (key.includes('tiêu hao nhiên liệu') || key.includes('tieu hao nhien lieu') || key.includes('nhiên liệu') || key.includes('fuel')) {
+        } else if (key.includes('tiêu hao nhiên liệu') || key.includes('tieu hao nhien lieu') || key.includes('nhiên liệu') || key.includes('fuel') || key.includes('quãng đường') || key.includes('quang duong') || key.includes('wltp')) {
           result.fuelEconomy = val;
         }
       }
@@ -59,6 +68,93 @@ const parseSpecsArray = (specsArray: any): Record<string, string> => {
 
   return result;
 };
+
+const MACHE_DETAILED_SPECS_FALLBACK = [
+  {
+    title: "Vận hành",
+    content: "<ul><li>Quãng đường vận hành (WLTP): 550km¹</li><li>Công suất cực đại: 395 Ps</li><li>Mô men xoắn cực đại: 676 Nm</li><li>Mức tiêu thụ năng lượng: 193 Wh/km</li><li>Dẫn động: 4 bánh</li><li>Dung lượng pin: 87 kWh</li><li>Chuẩn sạc: CCS2</li></ul>"
+  },
+  {
+    title: "Thiết kế bánh xe",
+    content: "<ul><li>Kích cỡ lốp: 225/55R19</li><li>Vành mâm xe: Mâm hợp kim 19 inch thiết kế thể thao</li></ul>"
+  },
+  {
+    title: "Ngoại thất",
+    content: "<ul><li>Đèn pha: LED Projector tự động bật tắt, tự động pha cốt</li><li>Đèn chạy ban ngày: LED đặc trưng Mustang</li><li>Đèn hậu: LED dạng 3 thanh đặc trưng Mustang</li><li>Gương chiếu hậu: Gập điện, chỉnh điện, tích hợp đèn báo rẽ, sấy gương và đèn chào mừng</li><li>Cửa cốp sau: Mở rảnh tay thông minh</li><li>Cốp trước (Frunk): Thể tích 139.5L tiện dụng</li></ul>"
+  },
+  {
+    title: "Nội thất",
+    content: "<ul><li>Chất liệu ghế: Da cao cấp sang trọng</li><li>Ghế lái: Chỉnh điện 8 hướng, nhớ vị trí ghế</li><li>Vô lăng: Bọc da cao cấp, tích hợp nút điều khiển âm thanh và hỗ trợ lái</li><li>Hệ thống điều hòa: Tự động 2 vùng độc lập, có cửa gió hàng ghế sau</li><li>Cửa sổ trời: Toàn cảnh Panorama kính Low-E chống nhiệt</li></ul>"
+  },
+  {
+    title: "Công nghệ",
+    content: "<ul><li>Màn hình trung tâm: Cảm ứng đặt dọc 15.5 inch kết hợp hệ thống SYNC 4A</li><li>Bảng đồng hồ: Kỹ thuật số 10.2 inch hiển thị đa thông tin</li><li>Hệ thống âm thanh: B&O Premium 10 loa chất lượng cao</li><li>Kết nối: Apple CarPlay và Android Auto không dây, sạc điện thoại không dây</li><li>Kết nối thông minh: Ứng dụng FordPass khởi động và làm mát xe từ xa</li></ul>"
+  },
+  {
+    title: "Hỗ trợ Người Lái & An toàn",
+    content: "<ul><li>Hệ thống camera: Camera 360 độ góc nhìn toàn cảnh</li><li>Kiểm soát hành trình: Thích ứng Adaptive Cruise Control (ACC) với Stop & Go</li><li>Hỗ trợ giữ làn: Hệ thống giữ làn đường và cảnh báo chệch làn LKA</li><li>Cảnh báo điểm mù: BLIS tích hợp cảnh báo phương tiện cắt ngang khi lùi</li><li>Hỗ trợ đỗ xe: Hỗ trợ đỗ xe tự động thông minh Active Park Assist 2.0</li><li>Hệ thống an toàn chủ động: Phanh tự động khẩn cấp AEB, Cảnh báo va chạm phía trước FCW</li></ul>"
+  }
+];
+
+function parseSpecs(specs: any, vehicleName: string): any[] {
+  const isMachE = vehicleName?.toLowerCase().includes("mustang") || vehicleName?.toLowerCase().includes("mach-e");
+  if (isMachE) {
+    return MACHE_DETAILED_SPECS_FALLBACK;
+  }
+
+  if (Array.isArray(specs)) {
+    return specs.map(item => ({
+      title: item.title ?? item.label ?? item.category ?? '',
+      content: item.content ?? item.value ?? ''
+    }));
+  }
+
+  if (specs && typeof specs === "object") {
+    if (specs.detailed_specs && Array.isArray(specs.detailed_specs)) {
+      return specs.detailed_specs.map((item: any) => ({
+        title: item.title ?? item.category ?? item.label ?? '',
+        content: item.content ?? item.value ?? ''
+      }));
+    }
+
+    const keyLabelMap: Record<string, string> = {
+      engine: 'Động cơ',
+      power: 'Công suất cực đại',
+      torque: 'Mô-men xoắn cực đại',
+      transmission: 'Hộp số',
+      drivetrain: 'Hệ dẫn động',
+      dimensions: 'Kích thước (DxRxC)',
+      clearance: 'Khoảng sáng gầm',
+      fuelEconomy: 'Tiêu hao nhiên liệu'
+    };
+    const knownKeys = ['engine', 'power', 'torque', 'transmission', 'drivetrain', 'dimensions', 'clearance', 'fuelEconomy'];
+
+    let contentHtml = '<ul class="list-disc pl-4 space-y-1">';
+    let hasContent = false;
+    knownKeys.forEach(key => {
+      const val = specs[key];
+      if (val != null && val !== '') {
+        contentHtml += `<li>${keyLabelMap[key]}: <strong>${val}</strong></li>`;
+        hasContent = true;
+      }
+    });
+    Object.keys(specs).forEach(key => {
+      if (!knownKeys.includes(key) && key !== 'detailed_specs') {
+        const val = specs[key];
+        if (val != null && val !== '') {
+          contentHtml += `<li>${key}: <strong>${val}</strong></li>`;
+          hasContent = true;
+        }
+      }
+    });
+    contentHtml += '</ul>';
+
+    if (hasContent) {
+      return [{ title: 'Thông số chung', content: contentHtml }];
+    }
+  }
+  return [];
+}
 
 const SPEC_LABELS: { key: keyof Specs; label: string }[] = [
   { key: "engine", label: "Động cơ" },
@@ -89,6 +185,7 @@ export default function ComparePage() {
           const mapped = items.map((v: any) => {
             const id = v.slug || v.id;
             const name = v.title || v.name;
+            const isMachE = name.toLowerCase().includes("mustang") || name.toLowerCase().includes("mach-e") || id.toLowerCase().includes("mach-e") || id.toLowerCase().includes("mustang");
             const image = v.image_thumbnail_url || v.image_url || v.images?.[0] || "";
             const price = typeof v.base_price === 'string' ? parseFloat(v.base_price) : (v.base_price || v.basePrice || 0);
             return {
@@ -99,11 +196,12 @@ export default function ComparePage() {
               images: [image],
               typeName: v.type_name || v.typeName || (v.type === 'suv' ? 'SUV' : v.type === 'pickup' ? 'Bán tải' : 'Thương mại'),
               versions: v.versions ? v.versions.map((ver: any) => {
-                const parsedSpecs = parseSpecsArray(ver.specs);
+                const parsedSpecs = parseSpecsArray(ver.specs, isMachE);
                 return {
                   id: ver.id,
                   name: ver.name,
                   price: typeof ver.price === 'string' ? parseFloat(ver.price) : (ver.price || 0),
+                  rawSpecs: ver.specs,
                   specs: {
                     engine: parsedSpecs.engine || ver.specs?.engine || ver.specs?.engine_type || '',
                     power: parsedSpecs.power || ver.specs?.power || '',
@@ -240,6 +338,42 @@ export default function ComparePage() {
     setHasClearedAll(true);
     window.dispatchEvent(new Event("compare-updated"));
   };
+
+  const repVersions = selectedVehicles.map(v => 
+    v ? (v.versions?.find((ver: any) => 
+      Object.values(ver.specs || {}).some(val => typeof val === 'string' && val.trim() !== '')
+    ) || v.versions?.[0]) : undefined
+  );
+
+  const isAnyElectric = selectedVehicles.some(v => {
+    if (!v) return false;
+    const name = (v.name || '').toLowerCase();
+    const slug = (v.id || v.slug || '').toLowerCase();
+    return name.includes("mach-e") || name.includes("mustang") || slug.includes("mach-e") || slug.includes("mustang");
+  });
+
+  const dynamicSpecLabels = [
+    { key: "engine" as const, label: isAnyElectric ? "Động cơ / Motor" : "Động cơ" },
+    { key: "power" as const, label: "Công suất cực đại" },
+    { key: "torque" as const, label: "Mô-men xoắn cực đại" },
+    { key: "transmission" as const, label: isAnyElectric ? "Hộp số / Truyền động" : "Hộp số" },
+    { key: "drivetrain" as const, label: "Hệ dẫn động" },
+    { key: "dimensions" as const, label: "Kích thước (DxRxC)" },
+    { key: "clearance" as const, label: "Khoảng sáng gầm xe" },
+    { key: "fuelEconomy" as const, label: isAnyElectric ? "Tiêu hao / Quãng đường" : "Tiêu hao nhiên liệu" },
+  ];
+
+  const detailedSpecsList = repVersions.map((ver, idx) => {
+    const v = selectedVehicles[idx];
+    if (!ver) return [];
+    return parseSpecs(ver.rawSpecs || ver.specs, v?.name || "");
+  });
+
+  const allCategoryTitles = Array.from(
+    new Set(
+      detailedSpecsList.flat().map(item => item.title).filter(Boolean)
+    )
+  );
 
   return (
     <div className="bg-[#fafafa] min-h-screen font-sans">
@@ -465,7 +599,7 @@ export default function ComparePage() {
                 </div>
 
                 {/* Spec Rows */}
-                {SPEC_LABELS.map((spec, specIdx) => (
+                {dynamicSpecLabels.map((spec, specIdx) => (
                   <div
                     key={spec.key}
                     className={`grid border-b border-gray-50 ${
@@ -479,12 +613,7 @@ export default function ComparePage() {
                       {spec.label}
                     </div>
                     {selectedIds.map((id, index) => {
-                      const v = selectedVehicles[index];
-                      // Find the first version that has any non-empty specs, fallback to the first version
-                      const representativeVersion = v?.versions?.find((ver: any) => 
-                        Object.values(ver.specs || {}).some(val => typeof val === 'string' && val.trim() !== '')
-                      ) || v?.versions?.[0];
-
+                      const representativeVersion = repVersions[index];
                       const specValue = representativeVersion?.specs?.[spec.key] || "—";
                       return (
                         <div
@@ -496,6 +625,51 @@ export default function ComparePage() {
                       );
                     })}
                   </div>
+                ))}
+
+                {/* Detailed Specs Sections (CMS group specs parsed and aligned) */}
+                {allCategoryTitles.map((title) => (
+                  <Fragment key={title}>
+                    {/* Category Header Row */}
+                    <div
+                      className="grid border-b border-gray-200 bg-gray-100 text-gray-800 font-bold"
+                      style={{
+                        gridTemplateColumns: `200px repeat(${selectedIds.length}, 1fr)`,
+                      }}
+                    >
+                      <div className="px-5 py-3 text-xs md:text-sm uppercase tracking-wider text-[#00095B] col-span-full font-bold">
+                        📂 {title}
+                      </div>
+                    </div>
+
+                    {/* Content Row */}
+                    <div
+                      className="grid border-b border-gray-150 bg-white items-start"
+                      style={{
+                        gridTemplateColumns: `200px repeat(${selectedIds.length}, 1fr)`,
+                      }}
+                    >
+                      <div className="px-5 py-4 text-xs font-semibold text-gray-500 italic bg-gray-50/20">
+                        Chi tiết
+                      </div>
+                      {selectedIds.map((id, index) => {
+                        const specs = detailedSpecsList[index];
+                        const groupSpec = specs?.find(s => s.title === title);
+                        return (
+                          <div
+                            key={index}
+                            className="px-5 py-4 text-xs md:text-sm text-gray-700 text-left border-l border-gray-100 font-normal [&_ul]:list-disc [&_ul]:pl-5 [&_li]:my-1 [&_strong]:font-semibold [&_strong]:text-gray-900"
+                          >
+                            {groupSpec?.content ? (
+                              <div dangerouslySetInnerHTML={{ __html: groupSpec.content }} />
+                            ) : (
+                              <span className="text-gray-400 italic text-xs">Không có thông tin</span>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </Fragment>
                 ))}
 
                 {/* CTA Row */}
