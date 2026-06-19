@@ -46,14 +46,16 @@ export default {
                 }
                 return this.staticUrl(this.file);
             }
-            if (this.file.path) {
-                if (this.file.path.startsWith('http') || this.file.path.startsWith('data:') || this.file.path.startsWith('/')) {
-                    return this.file.path;
+            if (typeof this.file === 'object') {
+                if (this.file.path && typeof this.file.path === 'string') {
+                    if (this.file.path.startsWith('http') || this.file.path.startsWith('data:') || this.file.path.startsWith('/')) {
+                        return this.file.path;
+                    }
+                    return this.staticUrl(this.file.path);
                 }
-                return this.staticUrl(this.file.path);
+                if (this.file.static_url && typeof this.file.static_url === 'string') return this.file.static_url;
+                if (this.file.url && typeof this.file.url === 'string') return this.file.url;
             }
-            if (this.file.static_url) return this.file.static_url;
-            if (this.file.url) return this.file.url;
             return '';
         }
     },

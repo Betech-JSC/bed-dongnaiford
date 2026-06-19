@@ -1160,11 +1160,13 @@ export default {
                 if (image.startsWith('http') || image.startsWith('data:')) return image
                 return this.staticUrl(image)
             }
-            if (image.path) {
-                if (image.path.startsWith('http') || image.path.startsWith('data:')) return image.path
-                return this.staticUrl(image.path)
+            if (typeof image === 'object') {
+                if (image.path && typeof image.path === 'string') {
+                    if (image.path.startsWith('http') || image.path.startsWith('data:')) return image.path
+                    return this.staticUrl(image.path)
+                }
+                if (image.url && typeof image.url === 'string') return image.url
             }
-            if (image.url) return image.url
             return ''
         },
         getBackgroundStyle(image) {
