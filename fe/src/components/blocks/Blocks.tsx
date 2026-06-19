@@ -483,12 +483,38 @@ const MACHE_DETAILED_SPECS_FALLBACK = [
 ];
 
 function parseSpecs(specs: any, vehicleName: string): any[] {
-  const isMachE = vehicleName?.toLowerCase().includes("mustang") || vehicleName?.toLowerCase().includes("mach-e");
-  if (isMachE) {
-    return MACHE_DETAILED_SPECS_FALLBACK;
-  }
+  const parseDetailedItem = (item: any) => {
+    if (item.content) {
+      return {
+        title: item.title ?? item.category ?? item.label ?? '',
+        content: item.content
+      };
+    }
+    if (Array.isArray(item.items)) {
+      let contentHtml = '<ul class="list-disc pl-4 space-y-1">';
+      item.items.forEach((subItem: any) => {
+        const name = subItem.name || subItem.title || '';
+        const value = subItem.value || subItem.content || '';
+        if (name || value) {
+          contentHtml += `<li>${name}: <strong>${value}</strong></li>`;
+        }
+      });
+      contentHtml += '</ul>';
+      return {
+        title: item.title ?? item.category ?? item.label ?? '',
+        content: contentHtml
+      };
+    }
+    return {
+      title: item.title ?? item.category ?? item.label ?? '',
+      content: item.value ?? ''
+    };
+  };
 
   if (Array.isArray(specs)) {
+    if (specs.length > 0 && (specs[0].items || specs[0].content)) {
+      return specs.map(parseDetailedItem);
+    }
     return specs.map(item => ({
       title: item.title ?? item.label ?? item.category ?? '',
       content: item.content ?? item.value ?? ''
@@ -497,10 +523,7 @@ function parseSpecs(specs: any, vehicleName: string): any[] {
 
   if (specs && typeof specs === "object") {
     if (specs.detailed_specs && Array.isArray(specs.detailed_specs)) {
-      return specs.detailed_specs.map((item: any) => ({
-        title: item.title ?? item.category ?? item.label ?? '',
-        content: item.content ?? item.value ?? ''
-      }));
+      return specs.detailed_specs.map(parseDetailedItem);
     }
 
     const keyLabelMap: Record<string, string> = {
@@ -539,6 +562,12 @@ function parseSpecs(specs: any, vehicleName: string): any[] {
       return [{ title: 'Thông số chung', content: contentHtml }];
     }
   }
+
+  const isMachE = vehicleName?.toLowerCase().includes("mustang") || vehicleName?.toLowerCase().includes("mach-e");
+  if (isMachE) {
+    return MACHE_DETAILED_SPECS_FALLBACK;
+  }
+
   return [];
 }
 

@@ -10,6 +10,34 @@ import { formatPriceShort } from "@/lib/rolling-cost";
 import BookingBanner from "@/components/services/BookingBanner";
 import { vehiclesAPI } from "@/lib/api";
 
+const mapSpecKey = (key: string, val: string, result: Record<string, string>) => {
+  const k = key.trim().toLowerCase();
+  const v = val.trim();
+  if (!k || !v) return;
+
+  if (k.includes('động cơ') || k.includes('dong co') || k.includes('engine') || k.includes('motor') || k.includes('pin')) {
+    if (k.includes('pin') && !result.engine.toLowerCase().includes('pin')) {
+      result.engine = result.engine ? `${result.engine} / Pin: ${v}` : `Pin: ${v}`;
+    } else {
+      result.engine = v;
+    }
+  } else if (k.includes('công suất') || k.includes('cong suat') || k.includes('power')) {
+    result.power = v;
+  } else if (k.includes('mô-men xoắn') || k.includes('mô men xoắn') || k.includes('mo-men xoan') || k.includes('torque')) {
+    result.torque = v;
+  } else if (k.includes('hộp số') || k.includes('hop so') || k.includes('transmission') || k.includes('truyền động') || k.includes('truyen dong')) {
+    result.transmission = v;
+  } else if (k.includes('dẫn động') || k.includes('dan dong') || k.includes('drivetrain')) {
+    result.drivetrain = v;
+  } else if (k.includes('kích thước') || k.includes('kich thuoc') || k.includes('dimensions')) {
+    result.dimensions = v;
+  } else if (k.includes('khoảng sáng gầm') || k.includes('khoang sang gam') || k.includes('clearance')) {
+    result.clearance = v;
+  } else if (k.includes('tiêu hao nhiên liệu') || k.includes('tieu hao nhien lieu') || k.includes('nhiên liệu') || k.includes('fuel') || k.includes('quãng đường') || k.includes('quang duong') || k.includes('wltp')) {
+    result.fuelEconomy = v;
+  }
+};
+
 const parseSpecsArray = (specsArray: any, isMachE: boolean = false): Record<string, string> => {
   const result: Record<string, string> = {
     engine: '',
@@ -23,47 +51,47 @@ const parseSpecsArray = (specsArray: any, isMachE: boolean = false): Record<stri
   };
 
   let actualArray = specsArray;
-  if (isMachE) {
+  
+  if (actualArray && typeof actualArray === 'object' && !Array.isArray(actualArray)) {
+    if (Array.isArray(actualArray.detailed_specs)) {
+      actualArray = actualArray.detailed_specs;
+    }
+  }
+
+  if (!Array.isArray(actualArray)) {
+    if (isMachE) {
+      actualArray = MACHE_DETAILED_SPECS_FALLBACK;
+    } else {
+      return result;
+    }
+  }
+
+  if (Array.isArray(actualArray) && actualArray.length === 0 && isMachE) {
     actualArray = MACHE_DETAILED_SPECS_FALLBACK;
   }
 
-  if (!Array.isArray(actualArray)) return result;
-
   actualArray.forEach((group: any) => {
+    if (Array.isArray(group.items)) {
+      group.items.forEach((item: any) => {
+        mapSpecKey(item.name || '', item.value || '', result);
+      });
+    }
+
     const htmlContent = group.content || '';
-    const items = htmlContent.split(/<\/li>|<li>|<br\s*\/?>|\n/).map((item: string) => {
-      return item.replace(/<[^>]*>/g, '').trim();
-    }).filter(Boolean);
+    if (htmlContent) {
+      const items = htmlContent.split(/<\/li>|<li>|<br\s*\/?>|\n/).map((item: string) => {
+        return item.replace(/<[^>]*>/g, '').trim();
+      }).filter(Boolean);
 
-    items.forEach((item: string) => {
-      const colonIndex = item.indexOf(':');
-      if (colonIndex > -1) {
-        const key = item.substring(0, colonIndex).trim().toLowerCase();
-        const val = item.substring(colonIndex + 1).trim();
-
-        if (key.includes('động cơ') || key.includes('dong co') || key.includes('engine') || key.includes('motor') || key.includes('pin')) {
-          if (key.includes('pin') && !result.engine.toLowerCase().includes('pin')) {
-            result.engine = result.engine ? `${result.engine} / Pin: ${val}` : `Pin: ${val}`;
-          } else {
-            result.engine = val;
-          }
-        } else if (key.includes('công suất') || key.includes('cong suat') || key.includes('power')) {
-          result.power = val;
-        } else if (key.includes('mô-men xoắn') || key.includes('mô men xoắn') || key.includes('mo-men xoan') || key.includes('torque')) {
-          result.torque = val;
-        } else if (key.includes('hộp số') || key.includes('hop so') || key.includes('transmission') || key.includes('truyền động') || key.includes('truyen dong')) {
-          result.transmission = val;
-        } else if (key.includes('dẫn động') || key.includes('dan dong') || key.includes('drivetrain')) {
-          result.drivetrain = val;
-        } else if (key.includes('kích thước') || key.includes('kich thuoc') || key.includes('dimensions')) {
-          result.dimensions = val;
-        } else if (key.includes('khoảng sáng gầm') || key.includes('khoang sang gam') || key.includes('clearance')) {
-          result.clearance = val;
-        } else if (key.includes('tiêu hao nhiên liệu') || key.includes('tieu hao nhien lieu') || key.includes('nhiên liệu') || key.includes('fuel') || key.includes('quãng đường') || key.includes('quang duong') || key.includes('wltp')) {
-          result.fuelEconomy = val;
+      items.forEach((item: string) => {
+        const colonIndex = item.indexOf(':');
+        if (colonIndex > -1) {
+          const key = item.substring(0, colonIndex).trim().toLowerCase();
+          const val = item.substring(colonIndex + 1).trim();
+          mapSpecKey(key, val, result);
         }
-      }
-    });
+      });
+    }
   });
 
   return result;
@@ -97,12 +125,38 @@ const MACHE_DETAILED_SPECS_FALLBACK = [
 ];
 
 function parseSpecs(specs: any, vehicleName: string): any[] {
-  const isMachE = vehicleName?.toLowerCase().includes("mustang") || vehicleName?.toLowerCase().includes("mach-e");
-  if (isMachE) {
-    return MACHE_DETAILED_SPECS_FALLBACK;
-  }
+  const parseDetailedItem = (item: any) => {
+    if (item.content) {
+      return {
+        title: item.title ?? item.category ?? item.label ?? '',
+        content: item.content
+      };
+    }
+    if (Array.isArray(item.items)) {
+      let contentHtml = '<ul class="list-disc pl-4 space-y-1">';
+      item.items.forEach((subItem: any) => {
+        const name = subItem.name || subItem.title || '';
+        const value = subItem.value || subItem.content || '';
+        if (name || value) {
+          contentHtml += `<li>${name}: <strong>${value}</strong></li>`;
+        }
+      });
+      contentHtml += '</ul>';
+      return {
+        title: item.title ?? item.category ?? item.label ?? '',
+        content: contentHtml
+      };
+    }
+    return {
+      title: item.title ?? item.category ?? item.label ?? '',
+      content: item.value ?? ''
+    };
+  };
 
   if (Array.isArray(specs)) {
+    if (specs.length > 0 && (specs[0].items || specs[0].content)) {
+      return specs.map(parseDetailedItem);
+    }
     return specs.map(item => ({
       title: item.title ?? item.label ?? item.category ?? '',
       content: item.content ?? item.value ?? ''
@@ -111,10 +165,7 @@ function parseSpecs(specs: any, vehicleName: string): any[] {
 
   if (specs && typeof specs === "object") {
     if (specs.detailed_specs && Array.isArray(specs.detailed_specs)) {
-      return specs.detailed_specs.map((item: any) => ({
-        title: item.title ?? item.category ?? item.label ?? '',
-        content: item.content ?? item.value ?? ''
-      }));
+      return specs.detailed_specs.map(parseDetailedItem);
     }
 
     const keyLabelMap: Record<string, string> = {
@@ -153,6 +204,12 @@ function parseSpecs(specs: any, vehicleName: string): any[] {
       return [{ title: 'Thông số chung', content: contentHtml }];
     }
   }
+
+  const isMachE = vehicleName?.toLowerCase().includes("mustang") || vehicleName?.toLowerCase().includes("mach-e");
+  if (isMachE) {
+    return MACHE_DETAILED_SPECS_FALLBACK;
+  }
+
   return [];
 }
 
