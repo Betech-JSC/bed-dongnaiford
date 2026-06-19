@@ -59,94 +59,110 @@
 
             <!-- Tab 2: Màu sắc & 360° -->
             <div v-show="activeFormTab === 'colors'">
-                <!-- Cấu hình 360° mặc định (Vehicle-level) -->
-                <div class="card mt-4 mb-4">
-                    <div class="card-header font-bold text-gray-700">Cấu hình 360° mặc định của dòng xe (Dùng làm Fallback)</div>
-                    <div class="card-body">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-xl border border-gray-200">
-                             <Field v-model="form.images_360_external" :field="{
-                                 type: 'file_upload',
-                                 name: 'images_360_external',
-                                 label: 'Bộ ảnh xoay 360° Ngoại thất mặc định (Chọn nhiều ảnh theo thứ tự xoay)',
-                                 multiple: true,
-                             }" />
-                             <Field v-model="form.images_360_internal" :field="{
-                                 type: 'file_upload',
-                                 name: 'images_360_internal',
-                                 label: 'Bộ ảnh xoay 360° Nội thất mặc định (Chọn nhiều ảnh theo thứ tự xoay)',
-                                 multiple: true,
-                             }" />
-                             <div class="col-span-1 md:col-span-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 p-3 rounded-lg mt-2">
-                                 💡 <b>Lưu ý khi tải lên ảnh 360°:</b> Để góc xoay hiển thị mượt mà, vui lòng đặt tên các tệp ảnh trên máy tính theo số thứ tự tăng dần (ví dụ: <code>01.jpg</code>, <code>02.jpg</code>, ..., <code>28.jpg</code>) trước khi tải lên. Hệ thống sẽ tự động sắp xếp đúng thứ tự xoay cho bạn.
-                             </div>
-                         </div>
-                        <div class="mt-3 bg-gray-50 p-4 rounded-xl border border-gray-200">
-                            <Field v-model="form.image_360_internal_url" :field="{
-                                type: 'text',
-                                name: 'image_360_internal_url',
-                                label: 'Đường dẫn ảnh Panorama 360° hoặc Iframe tour Nội thất mặc định',
-                                placeholder: 'vd: /storage/uploads/vehicles/panorama.jpg hoặc https://my.matterport.com/show/?m=...',
-                            }" />
-                        </div>
-                    </div>
-                </div>
 
                 <!-- Bảng màu xe (KHÔNG dịch) -->
                 <div class="card mt-4">
                     <div class="card-header font-bold text-gray-700">Bảng màu xe (Color Swatches) & Trải nghiệm 360°</div>
                     <div class="card-body">
-                        <div v-for="(color, index) in form.colors" :key="index" class="border rounded-xl mb-4 bg-white overflow-hidden shadow-xs border-gray-200 transition-all duration-200">
-                            <!-- Header of the Accordion -->
-                            <div class="flex items-center justify-between p-4 bg-gray-50 border-b border-gray-200 cursor-pointer select-none" @click="color.showDetails = !color.showDetails">
-                                <div class="flex items-center space-x-3">
-                                    <!-- Visual Color circle -->
-                                    <div class="w-8 h-8 rounded-full border border-gray-300 shadow-xs transition-transform duration-200 shrink-0"
-                                         :style="{ backgroundColor: color.color_code || '#cbd5e1' }"
-                                         :class="{ 'scale-110 ring-2 ring-indigo-500/20': color.showDetails }">
-                                    </div>
-                                    <!-- Name and code -->
-                                    <div>
-                                        <span class="font-bold text-gray-800 text-sm md:text-base">
-                                            {{ color.name || 'Màu sắc chưa đặt tên' }}
-                                        </span>
-                                        <span v-if="color.color_code" class="text-xs text-gray-500 font-mono ml-2">
-                                            ({{ color.color_code }})
-                                        </span>
-                                    </div>
+                        <div v-if="!form.colors || form.colors.length === 0" class="text-center py-8 bg-gray-50 rounded-xl border border-dashed border-gray-300">
+                            <span class="text-3xl">🎨</span>
+                            <p class="text-sm text-gray-500 mt-2 font-medium">Chưa cấu hình bảng màu xe nào</p>
+                            <button type="button" class="mt-4 btn btn-indigo btn-sm" @click="addColor">
+                                + Thêm màu xe đầu tiên
+                            </button>
+                        </div>
+                        <div v-else class="grid grid-cols-12 gap-6">
+                            <!-- SIDEBAR (3/12 cols) -->
+                            <div class="col-span-12 lg:col-span-4 xl:col-span-3 bg-gray-50/50 p-4 rounded-2xl border border-gray-200 flex flex-col gap-3">
+                                <div class="flex items-center justify-between pb-2 border-b border-gray-200">
+                                    <span class="font-bold text-xs uppercase text-gray-500 tracking-wider">Danh sách màu sắc</span>
+                                    <span class="bg-indigo-100 text-indigo-800 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                                        {{ form.colors.length }} màu
+                                    </span>
                                 </div>
-                                <div class="flex items-center space-x-2" @click.stop>
-                                    <button type="button" class="text-red-500 hover:text-red-700 font-bold text-xs border border-red-200 hover:border-red-400 bg-red-50 px-3 py-1.5 rounded-lg transition-colors cursor-pointer" @click="removeColor(index)">
-                                        ✕ Xóa màu
-                                    </button>
-                                    <button type="button" class="text-xs text-gray-500 hover:text-gray-700 font-bold bg-transparent border-0 cursor-pointer" @click="color.showDetails = !color.showDetails">
-                                        <span>{{ color.showDetails ? '▲ Thu gọn' : '▼ Chi tiết' }}</span>
-                                    </button>
-                                </div>
+
+                                <Draggable
+                                    v-model="form.colors"
+                                    item-key="name"
+                                    handle=".color-drag-handle"
+                                    :animation="200"
+                                    class="space-y-2 max-h-[500px] overflow-y-auto pr-1"
+                                >
+                                    <template #item="{ element, index }">
+                                        <div 
+                                            class="flex items-center justify-between p-3 rounded-xl border cursor-pointer transition duration-155 group"
+                                            :class="activeColorIndex === index 
+                                                ? 'bg-indigo-50/80 border-indigo-250 ring-2 ring-indigo-500/10' 
+                                                : 'bg-white hover:bg-gray-50 border-gray-200'"
+                                            @click="activeColorIndex = index"
+                                        >
+                                            <div class="flex items-center space-x-2.5 overflow-hidden">
+                                                <!-- Drag Handle -->
+                                                <div class="color-drag-handle cursor-grab text-gray-400 hover:text-gray-600 transition shrink-0">
+                                                    ☰
+                                                </div>
+                                                <!-- Visual Color Swatch -->
+                                                <div class="w-6 h-6 rounded-full border border-gray-300 shadow-2xs shrink-0"
+                                                     :style="{ backgroundColor: element.color_code || '#cbd5e1' }">
+                                                </div>
+                                                <!-- Swatch Name -->
+                                                <span class="text-xs font-bold text-gray-700 truncate">
+                                                    {{ element.name || 'Màu chưa đặt tên' }}
+                                                </span>
+                                            </div>
+                                            <!-- Delete Swatch Button -->
+                                            <button 
+                                                type="button" 
+                                                class="text-red-500 hover:text-red-700 text-xs bg-red-50 hover:bg-red-100 w-5 h-5 flex items-center justify-center rounded-md border-0 cursor-pointer shrink-0 transition"
+                                                @click.stop="removeColor(index)"
+                                                title="Xóa màu xe"
+                                            >
+                                                ✕
+                                            </button>
+                                        </div>
+                                    </template>
+                                </Draggable>
+
+                                <button type="button" class="btn btn-secondary btn-sm mt-2 w-full justify-center" @click="addColor">
+                                    + Thêm màu xe
+                                </button>
                             </div>
 
-                            <!-- Accordion Content -->
-                            <div v-show="color.showDetails" class="p-4 space-y-4 border-t border-gray-100 bg-white">
+                            <!-- DETAIL PANE (9/12 cols) -->
+                            <div class="col-span-12 lg:col-span-8 xl:col-span-9 space-y-5 bg-white p-5 rounded-2xl border border-gray-200" v-if="form.colors[activeColorIndex]">
+                                <div class="flex justify-between items-center pb-3 border-b border-gray-150">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-5 h-5 rounded-full border shadow-2xs" :style="{ backgroundColor: form.colors[activeColorIndex].color_code || '#cbd5e1' }"></div>
+                                        <h4 class="font-bold text-gray-800 text-sm md:text-base">
+                                            Cấu hình màu: {{ form.colors[activeColorIndex].name || 'Màu sắc chưa đặt tên' }}
+                                        </h4>
+                                    </div>
+                                    <button type="button" class="text-red-600 hover:text-red-800 font-bold text-xs bg-red-50 hover:bg-red-100 border border-red-200 px-3 py-1.5 rounded-lg transition cursor-pointer" @click="removeColor(activeColorIndex)">
+                                        ✕ Xóa màu này
+                                    </button>
+                                </div>
+
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <Field v-model="form.colors[index].name" :field="{
+                                    <Field v-model="form.colors[activeColorIndex].name" :field="{
                                         type: 'text',
-                                        name: 'color_name_' + index,
+                                        name: 'color_name_' + activeColorIndex,
                                         label: 'Tên màu sắc',
                                         placeholder: 'vd: Trắng Pearl / Đen Panther',
                                     }" />
                                     
                                     <div class="field">
                                         <label class="flex items-center label mb-1">
-                                            <span>Mã màu Hex & Chọn màu trực quan</span>
+                                            <span class="text-xs font-bold text-gray-700">Mã màu Hex & Chọn màu trực quan</span>
                                         </label>
                                         <div class="flex items-center gap-2">
                                             <input 
                                                 type="color" 
-                                                v-model="form.colors[index].color_code"
+                                                v-model="form.colors[activeColorIndex].color_code"
                                                 class="w-11 h-[38px] p-0.5 rounded-lg border border-gray-300 cursor-pointer bg-white shrink-0"
                                             />
                                             <InputText 
                                                 type="text" 
-                                                v-model="form.colors[index].color_code"
+                                                v-model="form.colors[activeColorIndex].color_code"
                                                 placeholder="vd: #ffffff"
                                                 class="w-full"
                                             />
@@ -159,50 +175,41 @@
                                         <span>📸</span>
                                         <span>Hình ảnh & Trải nghiệm 360°</span>
                                     </p>
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-xl border border-gray-200">
-                                        <Field v-model="form.colors[index].image" :field="{
+                                    
+                                    <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                                        <Field v-model="form.colors[activeColorIndex].image_360_internal" :field="{
                                             type: 'file_upload',
-                                            name: 'color_image_' + index,
-                                            label: 'Ảnh xe phẳng 2D (Ngoại thất)',
-                                        }" />
-                                        <Field v-model="form.colors[index].image_360_internal" :field="{
-                                            type: 'file_upload',
-                                            name: 'color_image_360_internal_' + index,
+                                            name: 'color_image_360_internal_' + activeColorIndex,
                                             label: 'Ảnh Panorama 360° (Nội thất)',
                                         }" />
                                     </div>
+
                                     <div class="mt-3 bg-gray-50 p-4 rounded-xl border border-gray-200">
-                                        <Field v-model="form.colors[index].images_360" :field="{
+                                        <Field v-model="form.colors[activeColorIndex].images_360" :field="{
                                             type: 'file_upload',
-                                            name: 'color_images_360_' + index,
+                                            name: 'color_images_360_' + activeColorIndex,
                                             label: 'Bộ ảnh xoay 360° Ngoại thất cho màu này (Chọn nhiều ảnh theo thứ tự xoay)',
                                             multiple: true,
                                         }" />
-                                        <div class="text-xs text-amber-700 mt-2">
+                                        <div class="text-xs text-amber-750 mt-2 font-medium">
                                             💡 <b>Mẹo:</b> Đặt tên tệp theo số thứ tự (ví dụ: <code>01.jpg</code>, <code>02.jpg</code>,...) để hệ thống tự động sắp xếp vị trí xoay chính xác.
                                         </div>
                                     </div>
+
                                     <div class="mt-3 bg-gray-50 p-4 rounded-xl border border-gray-200">
-                                        <Field v-model="form.colors[index].images_360_internal" :field="{
+                                        <Field v-model="form.colors[activeColorIndex].images_360_internal" :field="{
                                             type: 'file_upload',
-                                            name: 'color_images_360_internal_' + index,
+                                            name: 'color_images_360_internal_' + activeColorIndex,
                                             label: 'Bộ ảnh xoay 360° Nội thất cho màu này (Chọn nhiều ảnh theo thứ tự xoay)',
                                             multiple: true,
                                         }" />
-                                        <div class="text-xs text-amber-700 mt-2">
+                                        <div class="text-xs text-amber-750 mt-2 font-medium">
                                             💡 <b>Mẹo:</b> Đặt tên tệp theo số thứ tự để hệ thống tự động sắp xếp vị trí xoay chính xác.
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-
-                        <div v-if="!form.colors || form.colors.length === 0" class="text-sm text-gray-400 italic mb-3">
-                            Chưa cấu hình bảng màu xe nào
-                        </div>
-                        <button type="button" class="btn btn-secondary btn-sm" @click="addColor">
-                            + Thêm màu xe
-                        </button>
                     </div>
                 </div>
             </div>
@@ -213,121 +220,265 @@
                 <div class="card mt-4">
                     <div class="card-header font-bold text-gray-700">Phiên bản & Thông số kỹ thuật (Versions & Specs)</div>
                     <div class="card-body">
-                        <div v-for="(version, index) in form.versions" :key="index" class="border rounded p-4 mb-4 relative bg-gray-50">
-                            <button type="button" class="absolute top-2 right-2 text-red-500 text-sm font-semibold hover:underline" @click="removeVersion(index)">✕ Xóa phiên bản</button>
-                            <p class="font-bold text-gray-700 mb-3 text-lg">Phiên bản #{{ index + 1 }}</p>
-                            
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                <!-- Tên phiên bản bằng Tiếng Việt -->
-                                <Field v-model="form.versions[index].vi.name" :field="{
-                                    type: 'text',
-                                    name: 'version_name_vi_' + index,
-                                    label: 'Tên phiên bản',
-                                    placeholder: 'vd: Titanium 1.5L AT',
-                                }" />
-                                
-                                <!-- Giá phiên bản -->
-                                <Field v-model="form.versions[index].price" :field="{
-                                    type: 'money',
-                                    name: 'version_price_' + index,
-                                    label: 'Giá bán (VNĐ)',
-                                }" />
-                            </div>
+                        <div v-if="!form.versions || form.versions.length === 0" class="text-center py-8 bg-gray-50 rounded-xl border border-dashed border-gray-300">
+                            <span class="text-3xl">⚙️</span>
+                            <p class="text-sm text-gray-500 mt-2 font-medium">Chưa có phiên bản nào cho dòng xe này</p>
+                            <button type="button" class="mt-4 btn btn-indigo btn-sm" @click="addVersion">
+                                + Thêm phiên bản xe đầu tiên
+                            </button>
+                        </div>
+                        <div v-else class="grid grid-cols-12 gap-6">
+                            <!-- SIDEBAR (3/12 cols) -->
+                            <div class="col-span-12 lg:col-span-4 xl:col-span-3 bg-gray-50/50 p-4 rounded-2xl border border-gray-200 flex flex-col gap-3">
+                                <div class="flex items-center justify-between pb-2 border-b border-gray-200">
+                                    <span class="font-bold text-xs uppercase text-gray-500 tracking-wider">Danh sách phiên bản</span>
+                                    <span class="bg-indigo-100 text-indigo-800 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                                        {{ form.versions.length }} phiên bản
+                                    </span>
+                                </div>
 
-                            <div class="mb-4 bg-white p-4 rounded-xl border border-gray-200">
-                                <!-- Ảnh đặc trưng phiên bản -->
-                                <Field v-model="form.versions[index].image" :field="{
-                                    type: 'file_upload',
-                                    name: 'version_image_' + index,
-                                    label: 'Ảnh đặc trưng của phiên bản (Hiển thị ở trang chi tiết xe)',
-                                }" />
-                            </div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                <!-- Trạng thái hoạt động -->
-                                <Field v-model="form.versions[index].status" :field="{
-                                    type: 'radio_list',
-                                    name: 'version_status_' + index,
-                                    label: 'Trạng thái phiên bản',
-                                    options: [
-                                        { id: 'ACTIVE', label: 'Hoạt động' },
-                                        { id: 'INACTIVE', label: 'Tạm ẩn' },
-                                    ]
-                                }" />
-
-                                <!-- Thứ tự sắp xếp -->
-                                <Field v-model="form.versions[index].sort_order" :field="{
-                                    type: 'number',
-                                    name: 'version_sort_' + index,
-                                    label: 'Thứ tự sắp xếp',
-                                }" />
-                            </div>
-
-                            <!-- Toggle Button for Specs -->
-                            <div class="mt-4 flex items-center justify-between border-t border-gray-200 pt-3">
-                                <button type="button"
-                                    class="text-xs text-indigo-650 hover:text-indigo-805 font-bold flex items-center gap-1 bg-transparent border-0 cursor-pointer"
-                                    @click="version.showSpecs = !version.showSpecs"
+                                <Draggable
+                                    v-model="form.versions"
+                                    item-key="id"
+                                    handle=".version-drag-handle"
+                                    :animation="200"
+                                    class="space-y-2 max-h-[500px] overflow-y-auto pr-1"
                                 >
-                                    <span>{{ version.showSpecs ? '▲ Thu gọn thông số kỹ thuật' : '▼ Hiển thị danh sách thông số kỹ thuật chi tiết' }}</span>
+                                    <template #item="{ element, index }">
+                                        <div 
+                                            class="flex items-center justify-between p-3 rounded-xl border cursor-pointer transition duration-155 group"
+                                            :class="activeVersionIndex === index 
+                                                ? 'bg-indigo-50/80 border-indigo-250 ring-2 ring-indigo-500/10' 
+                                                : 'bg-white hover:bg-gray-50 border-gray-200'"
+                                            @click="activeVersionIndex = index"
+                                        >
+                                            <div class="flex items-center space-x-2.5 overflow-hidden">
+                                                <!-- Drag Handle -->
+                                                <div class="version-drag-handle cursor-grab text-gray-400 hover:text-gray-600 transition shrink-0">
+                                                    ☰
+                                                </div>
+                                                <!-- Status indicator dot -->
+                                                <span class="w-2.5 h-2.5 rounded-full shrink-0" 
+                                                      :class="element.status === 'ACTIVE' ? 'bg-emerald-500' : 'bg-gray-450'">
+                                                </span>
+                                                <!-- Version Name -->
+                                                <span class="text-xs font-bold text-gray-700 truncate">
+                                                    {{ element.vi?.name || 'Phiên bản chưa đặt tên' }}
+                                                </span>
+                                            </div>
+                                            <!-- Delete Version Button -->
+                                            <button 
+                                                type="button" 
+                                                class="text-red-500 hover:text-red-700 text-xs bg-red-50 hover:bg-red-100 w-5 h-5 flex items-center justify-center rounded-md border-0 cursor-pointer shrink-0 transition"
+                                                @click.stop="removeVersion(index)"
+                                                title="Xóa phiên bản"
+                                            >
+                                                ✕
+                                            </button>
+                                        </div>
+                                    </template>
+                                </Draggable>
+
+                                <button type="button" class="btn btn-secondary btn-sm mt-2 w-full justify-center" @click="addVersion">
+                                    + Thêm phiên bản xe
                                 </button>
                             </div>
 
-                            <!-- Dynamic Specifications List (Collapsible) -->
-                            <div v-show="version.showSpecs" class="border-t border-dashed border-gray-200 pt-3 mt-3">
-                                <div class="flex justify-between items-center mb-3">
-                                    <p class="text-sm font-bold text-indigo-700 uppercase">Thông số kỹ thuật chi tiết (Specs)</p>
-                                    <button type="button" class="text-xs text-indigo-650 hover:text-indigo-800 font-bold bg-transparent border-0 cursor-pointer" @click="addCustomSpec(index)">
-                                        + Thêm thông số mới
+                            <!-- DETAIL PANE (9/12 cols) -->
+                            <div class="col-span-12 lg:col-span-8 xl:col-span-9 space-y-5 bg-white p-5 rounded-2xl border border-gray-200" v-if="form.versions[activeVersionIndex]">
+                                <div class="flex justify-between items-center pb-3 border-b border-gray-150">
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-2.5 h-2.5 rounded-full" :class="form.versions[activeVersionIndex].status === 'ACTIVE' ? 'bg-emerald-500' : 'bg-gray-400'"></span>
+                                        <h4 class="font-bold text-gray-800 text-sm md:text-base">
+                                            Cấu hình: {{ form.versions[activeVersionIndex].vi?.name || 'Phiên bản chưa đặt tên' }}
+                                        </h4>
+                                    </div>
+                                    <button type="button" class="text-red-600 hover:text-red-800 font-bold text-xs bg-red-50 hover:bg-red-100 border border-red-200 px-3 py-1.5 rounded-lg transition cursor-pointer" @click="removeVersion(activeVersionIndex)">
+                                        ✕ Xóa phiên bản này
                                     </button>
                                 </div>
-                                
-                                <div class="space-y-2.5 max-w-4xl">
-                                    <div v-for="(spec, sIdx) in version.customSpecs" :key="sIdx" class="flex gap-3 items-center bg-gray-50 border border-gray-200 p-2.5 rounded-xl hover:shadow-xs transition duration-150">
-                                        <div class="flex-1 grid grid-cols-1 md:grid-cols-3 gap-3">
-                                            <!-- Spec Title / Label -->
-                                            <div class="md:col-span-1">
-                                                <input 
-                                                    v-model="spec.label" 
-                                                    type="text" 
-                                                    class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-xs font-semibold text-gray-800 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" 
-                                                    placeholder="Tên thông số (vd: Động cơ)" 
-                                                />
-                                            </div>
-                                            <!-- Spec Value -->
-                                            <div class="md:col-span-2">
-                                                <input 
-                                                    v-model="spec.value" 
-                                                    type="text" 
-                                                    class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-xs text-gray-800 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" 
-                                                    placeholder="Giá trị (vd: Bi-Turbo Diesel 2.0L i4)" 
-                                                />
-                                            </div>
-                                        </div>
-                                        <!-- Delete button -->
-                                        <button 
-                                            type="button" 
-                                            class="text-red-500 hover:text-red-700 font-bold text-xs bg-red-50 hover:bg-red-100 border border-red-200 w-8 h-8 flex items-center justify-center rounded-lg cursor-pointer shrink-0 transition" 
-                                            @click="removeCustomSpec(index, sIdx)"
-                                            title="Xóa thông số này"
-                                        >
-                                            ✕
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <!-- Tên phiên bản bằng Tiếng Việt -->
+                                    <Field v-model="form.versions[activeVersionIndex].vi.name" :field="{
+                                        type: 'text',
+                                        name: 'version_name_vi_' + activeVersionIndex,
+                                        label: 'Tên phiên bản',
+                                        placeholder: 'vd: Titanium 1.5L AT',
+                                    }" />
+                                    
+                                    <!-- Giá phiên bản -->
+                                    <Field v-model="form.versions[activeVersionIndex].price" :field="{
+                                        type: 'money',
+                                        name: 'version_price_' + activeVersionIndex,
+                                        label: 'Giá bán (VNĐ)',
+                                    }" />
+                                </div>
+
+                                <div class="mb-4 bg-white p-4 rounded-xl border border-gray-200">
+                                    <!-- Ảnh đặc trưng phiên bản -->
+                                    <Field v-model="form.versions[activeVersionIndex].image" :field="{
+                                        type: 'file_upload',
+                                        name: 'version_image_' + activeVersionIndex,
+                                        label: 'Ảnh đặc trưng của phiên bản (Hiển thị ở trang chi tiết xe)',
+                                    }" />
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                    <!-- Trạng thái hoạt động -->
+                                    <Field v-model="form.versions[activeVersionIndex].status" :field="{
+                                        type: 'radio_list',
+                                        name: 'version_status_' + activeVersionIndex,
+                                        label: 'Trạng thái phiên bản',
+                                        options: [
+                                            { id: 'ACTIVE', label: 'Hoạt động' },
+                                            { id: 'INACTIVE', label: 'Tạm ẩn' },
+                                        ]
+                                    }" />
+
+                                    <!-- Thứ tự sắp xếp -->
+                                    <Field v-model="form.versions[activeVersionIndex].sort_order" :field="{
+                                        type: 'number',
+                                        name: 'version_sort_' + activeVersionIndex,
+                                        label: 'Thứ tự sắp xếp',
+                                    }" />
+                                </div>
+
+                                <!-- Version Colors List -->
+                                <div class="border-t border-gray-150 pt-5 mt-5">
+                                    <div class="flex justify-between items-center mb-3">
+                                        <p class="text-sm font-bold text-emerald-750 uppercase flex items-center gap-1">
+                                            <span>🎨</span>
+                                            <span>Màu sắc riêng của phiên bản này (Colors)</span>
+                                        </p>
+                                        <button type="button" class="text-xs text-emerald-600 hover:text-emerald-800 font-bold bg-transparent border-0 cursor-pointer" @click="addVersionColor(activeVersionIndex)">
+                                            ＋ Thêm màu mới cho phiên bản
                                         </button>
                                     </div>
-                                    <div v-if="!version.customSpecs || version.customSpecs.length === 0" class="text-xs text-gray-400 italic py-2">
-                                        Chưa cấu hình thông số kỹ thuật nào cho phiên bản này. Hãy bấm "Thêm thông số mới".
+
+                                    <div class="space-y-4">
+                                        <div v-for="(color, cIdx) in form.versions[activeVersionIndex].colors" :key="cIdx" class="bg-gray-50 border border-gray-200 p-4 rounded-xl hover:shadow-xs transition duration-150 relative">
+                                            <button 
+                                                type="button" 
+                                                class="absolute top-3 right-3 text-red-500 hover:text-red-700 font-bold text-xs bg-red-50 hover:bg-red-100 border border-red-200 w-8 h-8 flex items-center justify-center rounded-lg cursor-pointer transition" 
+                                                @click="removeVersionColor(activeVersionIndex, cIdx)"
+                                                title="Xóa màu này"
+                                            >
+                                                ✕
+                                            </button>
+
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <Field v-model="form.versions[activeVersionIndex].colors[cIdx].name" :field="{
+                                                    type: 'text',
+                                                    name: 'ver_' + activeVersionIndex + '_color_name_' + cIdx,
+                                                    label: 'Tên màu sắc',
+                                                    placeholder: 'vd: Trắng Pearl / Đen Panther',
+                                                }" />
+                                                
+                                                <div class="field">
+                                                    <label class="flex items-center label mb-1">
+                                                        <span class="text-xs font-bold text-gray-700">Mã màu Hex & Chọn màu trực quan</span>
+                                                    </label>
+                                                    <div class="flex items-center gap-2">
+                                                        <input 
+                                                            type="color" 
+                                                            v-model="form.versions[activeVersionIndex].colors[cIdx].color_code"
+                                                            class="w-11 h-[38px] p-0.5 rounded-lg border border-gray-300 cursor-pointer bg-white shrink-0"
+                                                        />
+                                                        <InputText 
+                                                            type="text" 
+                                                            v-model="form.versions[activeVersionIndex].colors[cIdx].color_code"
+                                                            placeholder="vd: #ffffff"
+                                                            class="w-full"
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="border-t border-gray-200 pt-3 mt-3 space-y-3">
+                                                <p class="text-[11px] font-bold text-indigo-750 uppercase tracking-wider">Hình ảnh 360° phiên bản</p>
+                                                
+                                                <div class="bg-white p-3 rounded-lg border border-gray-150">
+                                                    <Field v-model="form.versions[activeVersionIndex].colors[cIdx].image_360_internal" :field="{
+                                                        type: 'file_upload',
+                                                        name: 'ver_' + activeVersionIndex + '_color_image_360_internal_' + cIdx,
+                                                        label: 'Ảnh Panorama 360° (Nội thất)',
+                                                    }" />
+                                                </div>
+
+                                                <div class="bg-white p-3 rounded-lg border border-gray-150">
+                                                    <Field v-model="form.versions[activeVersionIndex].colors[cIdx].images_360" :field="{
+                                                        type: 'file_upload',
+                                                        name: 'ver_' + activeVersionIndex + '_color_images_360_' + cIdx,
+                                                        label: 'Bộ ảnh xoay 360° Ngoại thất cho màu này (Chọn nhiều ảnh theo thứ tự xoay)',
+                                                        multiple: true,
+                                                    }" />
+                                                </div>
+
+                                                <div class="bg-white p-3 rounded-lg border border-gray-150">
+                                                    <Field v-model="form.versions[activeVersionIndex].colors[cIdx].images_360_internal" :field="{
+                                                        type: 'file_upload',
+                                                        name: 'ver_' + activeVersionIndex + '_color_images_360_internal_' + cIdx,
+                                                        label: 'Bộ ảnh xoay 360° Nội thất cho màu này (Chọn nhiều ảnh theo thứ tự xoay)',
+                                                        multiple: true,
+                                                    }" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div v-if="!form.versions[activeVersionIndex].colors || form.versions[activeVersionIndex].colors.length === 0" class="text-xs text-gray-400 italic py-2">
+                                            Chưa cấu hình màu sắc riêng nào cho phiên bản này. Phiên bản này sẽ kế thừa bảng màu chung của dòng xe.
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Dynamic Specifications List -->
+                                <div class="border-t border-gray-150 pt-5 mt-5">
+                                    <div class="flex justify-between items-center mb-3">
+                                        <p class="text-sm font-bold text-indigo-700 uppercase">📋 Nhóm thông số kỹ thuật chi tiết (Specs)</p>
+                                        <button type="button" class="text-xs text-indigo-650 hover:text-indigo-850 font-bold bg-transparent border-0 cursor-pointer" @click="addCustomSpec(activeVersionIndex)">
+                                            ＋ Thêm nhóm thông số mới
+                                        </button>
+                                    </div>
+                                    
+                                    <div class="space-y-4">
+                                        <div v-for="(spec, sIdx) in form.versions[activeVersionIndex].customSpecs" :key="sIdx" class="bg-gray-50 border border-gray-200 p-4 rounded-xl hover:shadow-xs transition duration-150 relative">
+                                            <button 
+                                                type="button" 
+                                                class="absolute top-3 right-3 text-red-500 hover:text-red-700 font-bold text-xs bg-red-50 hover:bg-red-100 border border-red-200 w-8 h-8 flex items-center justify-center rounded-lg cursor-pointer transition" 
+                                                @click="removeCustomSpec(activeVersionIndex, sIdx)"
+                                                title="Xóa nhóm thông số này"
+                                            >
+                                                ✕
+                                            </button>
+
+                                            <div class="grid grid-cols-1 gap-4">
+                                                <div>
+                                                    <label class="block text-xs font-bold text-gray-700 mb-1">Tiêu đề nhóm thông số</label>
+                                                    <input 
+                                                        v-model="spec.title" 
+                                                        type="text" 
+                                                        class="w-full max-w-md bg-white border border-gray-300 rounded-lg px-3 py-2 text-xs font-semibold text-gray-800 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" 
+                                                        placeholder="Tên nhóm (vd: Vận hành, Ngoại thất...)" 
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label class="block text-xs font-bold text-gray-700 mb-1">Nội dung chi tiết (RichText)</label>
+                                                    <div class="border rounded-lg bg-white overflow-hidden">
+                                                        <CustomEditor 
+                                                            :modelValue="spec.content" 
+                                                            @change="spec.content = $event" 
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div v-if="!form.versions[activeVersionIndex].customSpecs || form.versions[activeVersionIndex].customSpecs.length === 0" class="text-xs text-gray-400 italic py-2">
+                                            Chưa cấu hình nhóm thông số nào cho phiên bản này. Hãy bấm "＋ Thêm nhóm thông số mới".
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        
-                        <div v-if="!form.versions || form.versions.length === 0" class="text-sm text-gray-400 italic mb-3">
-                            Chưa có phiên bản nào cho dòng xe này.
-                        </div>
-                        
-                        <button type="button" class="btn btn-secondary btn-sm" @click="addVersion">
-                            + Thêm phiên bản xe
-                        </button>
                     </div>
                 </div>
             </div>
@@ -456,13 +607,20 @@
 </template>
 
 <script>
+import draggable from 'vuedraggable'
+
 export default {
+    components: {
+        Draggable: draggable
+    },
     props: ['item', 'schema', 'data'],
 
     data() {
         return {
             currentTab: 'vi',
             activeFormTab: 'general',
+            activeColorIndex: 0,
+            activeVersionIndex: 0,
             tabs: [
                 { id: 'general', name: 'ℹ️ Thông tin chung & Ảnh' },
                 { id: 'colors', name: '🎨 Màu xe & 360°' },
@@ -484,35 +642,14 @@ export default {
             handler(newVersions) {
                 if (!newVersions) return;
                 newVersions.forEach(ver => {
-                    const specs = {};
-                    const labelKeyMap = {
-                        'động cơ': 'engine',
-                        'động cơ ': 'engine',
-                        'công suất cực đại': 'power',
-                        'công suất': 'power',
-                        'mô-men xoắn cực đại': 'torque',
-                        'mô-men xoắn': 'torque',
-                        'hộp số': 'transmission',
-                        'hệ dẫn động': 'drivetrain',
-                        'kích thước (dxrxc)': 'dimensions',
-                        'kích thước': 'dimensions',
-                        'khoảng sáng gầm': 'clearance',
-                        'gầm xe': 'clearance',
-                        'tiêu hao nhiên liệu': 'fuelEconomy',
-                        'tiêu thụ nhiên liệu': 'fuelEconomy'
-                    };
-
                     if (ver.customSpecs && Array.isArray(ver.customSpecs)) {
-                        ver.customSpecs.forEach(item => {
-                            if (item.label && item.label.trim()) {
-                                const cleanLabel = item.label.trim().toLowerCase();
-                                const dbKey = labelKeyMap[cleanLabel] || item.label.trim();
-                                specs[dbKey] = item.value || '';
-                            }
-                        });
-                    }
-                    if (JSON.stringify(ver.specs) !== JSON.stringify(specs)) {
-                        ver.specs = specs;
+                        const mappedSpecs = ver.customSpecs.map(s => ({
+                            title: s.title ?? '',
+                            content: s.content ?? ''
+                        }));
+                        if (JSON.stringify(ver.specs) !== JSON.stringify(mappedSpecs)) {
+                            ver.specs = mappedSpecs;
+                        }
                     }
                 });
             }
@@ -596,72 +733,67 @@ export default {
 
             // Parse existing versions with locales & default empty specs
             data.versions = (data.versions || []).map(ver => {
-                const verSpecs = ver.specs || {};
+                let customSpecs = [];
+                let rawSpecs = ver.specs;
+                if (typeof rawSpecs === 'string') {
+                    try {
+                        rawSpecs = JSON.parse(rawSpecs);
+                    } catch (e) {
+                        rawSpecs = null;
+                    }
+                }
                 
-                // Predefined mapping of English keys to Vietnamese labels
-                const keyLabelMap = {
-                    engine: 'Động cơ',
-                    power: 'Công suất cực đại',
-                    torque: 'Mô-men xoắn cực đại',
-                    transmission: 'Hộp số',
-                    drivetrain: 'Hệ dẫn động',
-                    dimensions: 'Kích thước (DxRxC)',
-                    clearance: 'Khoảng sáng gầm',
-                    fuelEconomy: 'Tiêu hao nhiên liệu'
-                };
-                
-                // Extract specs in order
-                const customSpecs = [];
-                const knownKeys = ['engine', 'power', 'torque', 'transmission', 'drivetrain', 'dimensions', 'clearance', 'fuelEconomy'];
-                
-                // First, load standard keys
-                knownKeys.forEach(key => {
-                    const label = keyLabelMap[key];
-                    const val = verSpecs[key] ?? '';
-                    customSpecs.push({
-                        label: label,
-                        value: val
-                    });
-                });
-
-                // Then, load any other custom keys that are not standard
-                Object.keys(verSpecs).forEach(key => {
-                    if (!knownKeys.includes(key)) {
-                        const vietnameseLabelMatched = Object.values(keyLabelMap).some(l => l.toLowerCase() === key.toLowerCase());
-                        if (!vietnameseLabelMatched) {
-                            customSpecs.push({
-                                label: key,
-                                value: verSpecs[key]
-                            });
+                if (Array.isArray(rawSpecs)) {
+                    // New format: Array of { title, content }
+                    customSpecs = rawSpecs.map(s => ({
+                        title: s.title ?? s.category ?? '',
+                        content: s.content ?? ''
+                    }));
+                } else if (rawSpecs && typeof rawSpecs === 'object') {
+                    if (Array.isArray(rawSpecs.detailed_specs)) {
+                        // Crawled format
+                        customSpecs = rawSpecs.detailed_specs.map(s => ({
+                            title: s.title ?? s.category ?? '',
+                            content: s.content ?? ''
+                        }));
+                    } else {
+                        // Old flat key-value pairs
+                        const oldKeyLabels = {
+                            engine: 'Động cơ',
+                            power: 'Công suất cực đại',
+                            torque: 'Mô-men xoắn cực đại',
+                            transmission: 'Hộp số',
+                            drivetrain: 'Hệ dẫn động',
+                            dimensions: 'Kích thước (DxRxC)',
+                            clearance: 'Khoảng sáng gầm',
+                            fuelEconomy: 'Tiêu hao nhiên liệu'
+                        };
+                        let listItems = [];
+                        Object.entries(rawSpecs).forEach(([key, val]) => {
+                            if (val && typeof val === 'string') {
+                                const label = oldKeyLabels[key] || key;
+                                listItems.push(`<li><strong>${label}</strong>: ${val}</li>`);
+                            }
+                        });
+                        const content = listItems.length > 0 ? `<ul>${listItems.join('')}</ul>` : '';
+                        if (content) {
+                            customSpecs = [
+                                { title: 'Thông số chung', content: content }
+                            ];
                         }
                     }
-                });
+                }
 
-                const labelKeyMap = {
-                    'động cơ': 'engine',
-                    'động cơ ': 'engine',
-                    'công suất cực đại': 'power',
-                    'công suất': 'power',
-                    'mô-men xoắn cực đại': 'torque',
-                    'mô-men xoắn': 'torque',
-                    'hộp số': 'transmission',
-                    'hệ dẫn động': 'drivetrain',
-                    'kích thước (dxrxc)': 'dimensions',
-                    'kích thước': 'dimensions',
-                    'khoảng sáng gầm': 'clearance',
-                    'gầm xe': 'clearance',
-                    'tiêu hao nhiên liệu': 'fuelEconomy',
-                    'tiêu thụ nhiên liệu': 'fuelEconomy'
-                };
-
-                const initialSpecs = {};
-                customSpecs.forEach(item => {
-                    if (item.label && item.label.trim()) {
-                        const cleanLabel = item.label.trim().toLowerCase();
-                        const dbKey = labelKeyMap[cleanLabel] || item.label.trim();
-                        initialSpecs[dbKey] = item.value || '';
-                    }
-                });
+                if (customSpecs.length === 0) {
+                    customSpecs = [
+                        { title: 'Vận hành', content: '' },
+                        { title: 'Thiết kế bánh xe', content: '' },
+                        { title: 'Ngoại thất', content: '' },
+                        { title: 'Nội thất', content: '' },
+                        { title: 'Công nghệ', content: '' },
+                        { title: 'Hỗ trợ Người Lái & An toàn', content: '' }
+                    ];
+                }
 
                 const verData = {
                     id: ver.id,
@@ -671,7 +803,20 @@ export default {
                     image: ver.image ?? null,
                     showSpecs: false,
                     customSpecs: customSpecs,
-                    specs: initialSpecs
+                    specs: customSpecs,
+                    colors: (ver.colors || []).map(col => {
+                        let code = col.color_code ?? col.hex ?? '';
+                        if (code && !code.startsWith('#')) {
+                            code = '#' + code;
+                        }
+                        return {
+                            name: col.name ?? col.color_name ?? '',
+                            color_code: code || '#cbd5e1',
+                            images_360: col.images_360 ?? [],
+                            image_360_internal: col.image_360_internal ?? null,
+                            images_360_internal: col.images_360_internal ?? [],
+                        };
+                    })
                 }
                 locales.forEach(loc => {
                     let trans = null
@@ -694,17 +839,19 @@ export default {
             this.formData.colors.push({ 
                 name: '', 
                 color_code: '#cbd5e1', 
-                image: null,
                 images_360: [],
                 image_360_internal: null,
                 images_360_internal: [],
-                showDetails: true
             })
+            this.activeColorIndex = this.formData.colors.length - 1
         },
 
         removeColor(index) {
             if (this.formData.colors) {
                 this.formData.colors.splice(index, 1)
+                if (this.activeColorIndex >= this.formData.colors.length) {
+                    this.activeColorIndex = Math.max(0, this.formData.colors.length - 1)
+                }
             }
         },
 
@@ -712,14 +859,12 @@ export default {
             if (!this.formData.versions) this.formData.versions = []
             
             const defaultSpecs = [
-                { label: 'Động cơ', value: '' },
-                { label: 'Công suất cực đại', value: '' },
-                { label: 'Mô-men xoắn cực đại', value: '' },
-                { label: 'Hộp số', value: '' },
-                { label: 'Hệ dẫn động', value: '' },
-                { label: 'Kích thước (DxRxC)', value: '' },
-                { label: 'Khoảng sáng gầm', value: '' },
-                { label: 'Tiêu hao nhiên liệu', value: '' }
+                { title: 'Vận hành', content: '' },
+                { title: 'Thiết kế bánh xe', content: '' },
+                { title: 'Ngoại thất', content: '' },
+                { title: 'Nội thất', content: '' },
+                { title: 'Công nghệ', content: '' },
+                { title: 'Hỗ trợ Người Lái & An toàn', content: '' }
             ];
 
             this.formData.versions.push({
@@ -729,24 +874,19 @@ export default {
                 image: null,
                 showSpecs: true,
                 customSpecs: defaultSpecs,
-                specs: {
-                    engine: '',
-                    power: '',
-                    torque: '',
-                    transmission: '',
-                    drivetrain: '',
-                    dimensions: '',
-                    clearance: '',
-                    fuelEconomy: ''
-                },
+                specs: defaultSpecs,
                 vi: { name: '' },
                 en: { name: '' }
             })
+            this.activeVersionIndex = this.formData.versions.length - 1
         },
 
         removeVersion(index) {
             if (this.formData.versions) {
                 this.formData.versions.splice(index, 1)
+                if (this.activeVersionIndex >= this.formData.versions.length) {
+                    this.activeVersionIndex = Math.max(0, this.formData.versions.length - 1)
+                }
             }
         },
 
@@ -755,13 +895,34 @@ export default {
             if (!ver.customSpecs) {
                 ver.customSpecs = [];
             }
-            ver.customSpecs.push({ label: '', value: '' });
+            ver.customSpecs.push({ title: '', content: '' });
         },
 
         removeCustomSpec(versionIndex, specIndex) {
             const ver = this.formData.versions[versionIndex];
             if (ver.customSpecs) {
                 ver.customSpecs.splice(specIndex, 1);
+            }
+        },
+
+        addVersionColor(versionIndex) {
+            const ver = this.formData.versions[versionIndex];
+            if (!ver.colors) {
+                ver.colors = [];
+            }
+            ver.colors.push({
+                name: '',
+                color_code: '#cbd5e1',
+                images_360: [],
+                image_360_internal: null,
+                images_360_internal: [],
+            });
+        },
+
+        removeVersionColor(versionIndex, colorIndex) {
+            const ver = this.formData.versions[versionIndex];
+            if (ver && ver.colors) {
+                ver.colors.splice(colorIndex, 1);
             }
         },
     },

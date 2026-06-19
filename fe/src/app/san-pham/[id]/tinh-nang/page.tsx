@@ -3,14 +3,14 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { useVehicle } from "../layout";
 import BookingBanner from "@/components/services/BookingBanner";
-import { Cpu, Sparkles, Info, Shield, Calendar, Calculator, ChevronRight } from "lucide-react";
+import { Cpu, Sparkles, Info, Shield, Calendar, Calculator, ChevronLeft, ChevronRight } from "lucide-react";
 import { VehicleTabBar } from "../layout";
 
 interface FeatureItem {
   title: string;
   desc: string;
   image: string;
-  category: "performance" | "design" | "tech" | "safety";
+  category: string;
 }
 
 // ----------------------------------------------------------------------
@@ -293,6 +293,199 @@ const resolveFileUrl = (file: any): string => {
   return "";
 };
 
+interface FeatureSectionSliderProps {
+  sec: {
+    id: string;
+    label: string;
+    subLabel: string;
+    title: string;
+    desc: string;
+    features: FeatureItem[];
+  };
+  openDriveDrawer: () => void;
+}
+
+function FeatureSectionSlider({ sec, openDriveDrawer }: FeatureSectionSliderProps) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [showLeftArrow, setShowLeftArrow] = useState(false);
+  const [showRightArrow, setShowRightArrow] = useState(true);
+
+  const updateArrows = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setShowLeftArrow(el.scrollLeft > 10);
+    setShowRightArrow(el.scrollLeft + el.clientWidth < el.scrollWidth - 10);
+  };
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    updateArrows();
+    el.addEventListener("scroll", updateArrows);
+    window.addEventListener("resize", updateArrows);
+    return () => {
+      el.removeEventListener("scroll", updateArrows);
+      window.removeEventListener("resize", updateArrows);
+    };
+  }, [sec.features]);
+
+  const scroll = (direction: "left" | "right") => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const scrollAmount = el.clientWidth * 0.8;
+    el.scrollBy({
+      left: direction === "left" ? -scrollAmount : scrollAmount,
+      behavior: "smooth"
+    });
+  };
+
+  // Drag to scroll functionality
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    
+    const target = e.target as HTMLElement;
+    if (target.closest("button") || target.closest("a")) return;
+
+    e.preventDefault();
+    const startX = e.pageX - el.offsetLeft;
+    const scrollLeft = el.scrollLeft;
+    let isDragging = false;
+
+    const handleMouseMove = (moveEvent: MouseEvent) => {
+      isDragging = true;
+      const x = moveEvent.pageX - el.offsetLeft;
+      const walk = (x - startX) * 1.5;
+      el.scrollLeft = scrollLeft - walk;
+    };
+
+    const handleMouseUp = () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
+
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+  };
+
+  return (
+    <section
+      key={sec.id}
+      id={sec.id}
+      className="w-full py-16 border-b border-[#e5e5e5] bg-white transition-colors duration-300 relative group/slider"
+    >
+      <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full">
+        
+        {/* Section Header with "Bắt đầu mua xe" on the right */}
+        <div className="flex flex-row justify-between items-center border-b border-gray-150 pb-4 mb-8">
+          <h2 className="font-['Ford_Antenna',sans-serif] font-extrabold text-2xl md:text-3xl text-[#00095b] tracking-tight">
+            {sec.label}
+          </h2>
+          <div className="flex items-center gap-3.5">
+            {/* Scroll navigation arrows */}
+            {sec.features.length > 5 && (
+              <div className="hidden md:flex gap-2">
+                <button
+                  onClick={() => scroll("left")}
+                  disabled={!showLeftArrow}
+                  className={`w-8 h-8 rounded-full border flex items-center justify-center transition-all cursor-pointer bg-white shadow-xs
+                    ${showLeftArrow 
+                      ? "border-gray-300 text-gray-700 hover:bg-gray-50 active:scale-95" 
+                      : "border-gray-200 text-gray-300 cursor-not-allowed opacity-50"}`}
+                  aria-label="Previous features"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => scroll("right")}
+                  disabled={!showRightArrow}
+                  className={`w-8 h-8 rounded-full border flex items-center justify-center transition-all cursor-pointer bg-white shadow-xs
+                    ${showRightArrow 
+                      ? "border-gray-300 text-gray-700 hover:bg-gray-50 active:scale-95" 
+                      : "border-gray-200 text-gray-300 cursor-not-allowed opacity-50"}`}
+                  aria-label="Next features"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+
+            <button
+              onClick={() => openDriveDrawer()}
+              className="flex items-center gap-1 border border-[#0562d2]/70 hover:border-[#0562d2] text-[#0562d2] hover:bg-[#0562d2] hover:text-white bg-transparent font-bold px-4 py-1.5 rounded-full text-[10px] md:text-[11px] uppercase tracking-wider transition-all duration-200 cursor-pointer active:scale-95 shadow-xs"
+            >
+              <span>Bắt đầu mua xe</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Slider Layout for Cards */}
+        {sec.features.length > 0 ? (
+          <div className="relative w-full">
+            <div 
+              ref={scrollRef}
+              onMouseDown={handleMouseDown}
+              className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth scrollbar-none gap-6 cursor-grab active:cursor-grabbing pb-4"
+            >
+              {sec.features.map((feat) => (
+                <div 
+                  key={feat.title}
+                  className="group flex flex-col items-start text-left bg-white rounded-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-lg p-1.5 shrink-0 snap-start
+                    w-[85vw] sm:w-[45vw] md:w-[calc((100%-48px)/3)] xl:w-[calc((100%-96px)/5)]"
+                >
+                  {/* Image container with scale effect on hover */}
+                  <div className="w-full aspect-[4/3] rounded-xl overflow-hidden bg-gray-50 border border-gray-100 relative">
+                    <img
+                      src={feat.image}
+                      alt={feat.title}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      loading="lazy"
+                      draggable={false}
+                    />
+                  </div>
+                  
+                  {/* Text details */}
+                  <h3 className="font-['Ford_Antenna',sans-serif] font-bold text-sm md:text-[15px] text-[#1a1a1a] mt-4 mb-2 line-clamp-2 min-h-[40px] md:min-h-[44px]">
+                    {feat.title}
+                  </h3>
+                  <p className="text-[#616161] text-xs md:text-[13px] leading-relaxed font-normal line-clamp-4 hover:line-clamp-none transition-all duration-300">
+                    {feat.desc}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            {/* Hover Side Navigation Arrows for Desktop Overlay */}
+            {sec.features.length > 5 && (
+              <>
+                <button
+                  onClick={() => scroll("left")}
+                  className={`absolute left-[-20px] top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white border border-gray-200 shadow-md flex items-center justify-center text-gray-700 transition-all duration-300 cursor-pointer z-10 hover:bg-gray-50 active:scale-95 md:flex hidden
+                    ${showLeftArrow ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
+                  aria-label="Previous features scroll overlay"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() => scroll("right")}
+                  className={`absolute right-[-20px] top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white border border-gray-200 shadow-md flex items-center justify-center text-gray-700 transition-all duration-300 cursor-pointer z-10 hover:bg-gray-50 active:scale-95 md:flex hidden
+                    ${showRightArrow ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
+                  aria-label="Next features scroll overlay"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </>
+            )}
+          </div>
+        ) : (
+          <p className="text-center text-gray-400 italic py-8">Chưa có tính năng nào trong mục này.</p>
+        )}
+
+      </div>
+    </section>
+  );
+}
+
 export default function VehicleFeaturesPage() {
   const {
     vehicle,
@@ -300,7 +493,6 @@ export default function VehicleFeaturesPage() {
     openQuoteDrawer
   } = useVehicle();
 
-  const [activeSection, setActiveSection] = useState<string>("performance");
 
   // Get vehicle type identifier
   const vehicleKey = useMemo(() => {
@@ -317,7 +509,7 @@ export default function VehicleFeaturesPage() {
   const parsedCMSFeatures = useMemo<FeatureItem[]>(() => {
     if (!vehicle) return [];
 
-    const rawFeatures: { title: string; desc: string; image: string }[] = [];
+    const rawFeatures: { title: string; desc: string; image: string; category?: any }[] = [];
 
     // Parse from FeaturesList block
     const listBlock = vehicle.layout_blocks?.find((b: any) => b.type === "FeaturesList");
@@ -326,7 +518,8 @@ export default function VehicleFeaturesPage() {
         rawFeatures.push({
           title: f.title || "",
           desc: f.description || f.desc || "",
-          image: resolveFileUrl(f.image || vehicle.image_url || "")
+          image: resolveFileUrl(f.image || vehicle.image_url || ""),
+          category: f.category || undefined
         });
       });
     }
@@ -343,47 +536,49 @@ export default function VehicleFeaturesPage() {
     // Dynamic Categorization based on keywords (matching performance, design, tech, safety)
     return rawFeatures.map((f) => {
       const text = (f.title + " " + f.desc).toLowerCase();
-      let category: "performance" | "design" | "tech" | "safety" = "design";
+      let category = f.category || "Thiết kế";
 
-      if (
-        text.includes("động cơ") ||
-        text.includes("vận hành") ||
-        text.includes("hộp số") ||
-        text.includes("ecoboost") ||
-        text.includes("mã lực") ||
-        text.includes("dẫn động") ||
-        text.includes("4wd") ||
-        text.includes("4x4") ||
-        text.includes("treo") ||
-        text.includes("cầu")
-      ) {
-        category = "performance";
-      } else if (
-        text.includes("an toàn") ||
-        text.includes("phanh") ||
-        text.includes("túi khí") ||
-        text.includes("cảnh báo") ||
-        text.includes("kiểm soát") ||
-        text.includes("bám đường") ||
-        text.includes("hỗ trợ lái") ||
-        text.includes("giữ làn") ||
-        text.includes("va chạm") ||
-        text.includes("điểm mù")
-      ) {
-        category = "safety";
-      } else if (
-        text.includes("công nghệ") ||
-        text.includes("sync") ||
-        text.includes("kết nối") ||
-        text.includes("màn hình") ||
-        text.includes("sạc không dây") ||
-        text.includes("apple") ||
-        text.includes("android") ||
-        text.includes("usb") ||
-        text.includes("bluetooth") ||
-        text.includes("âm thanh")
-      ) {
-        category = "tech";
+      if (!f.category) {
+        if (
+          text.includes("động cơ") ||
+          text.includes("vận hành") ||
+          text.includes("hộp số") ||
+          text.includes("ecoboost") ||
+          text.includes("mã lực") ||
+          text.includes("dẫn động") ||
+          text.includes("4wd") ||
+          text.includes("4x4") ||
+          text.includes("treo") ||
+          text.includes("cầu")
+        ) {
+          category = "Vận hành";
+        } else if (
+          text.includes("an toàn") ||
+          text.includes("phanh") ||
+          text.includes("túi khí") ||
+          text.includes("cảnh báo") ||
+          text.includes("kiểm soát") ||
+          text.includes("bám đường") ||
+          text.includes("hỗ trợ lái") ||
+          text.includes("giữ làn") ||
+          text.includes("va chạm") ||
+          text.includes("điểm mù")
+        ) {
+          category = "An toàn";
+        } else if (
+          text.includes("công nghệ") ||
+          text.includes("sync") ||
+          text.includes("kết nối") ||
+          text.includes("màn hình") ||
+          text.includes("sạc không dây") ||
+          text.includes("apple") ||
+          text.includes("android") ||
+          text.includes("usb") ||
+          text.includes("bluetooth") ||
+          text.includes("âm thanh")
+        ) {
+          category = "Công nghệ";
+        }
       }
 
       return {
@@ -401,49 +596,81 @@ export default function VehicleFeaturesPage() {
       if (!vehicle?.images || vehicle.images.length === 0) return vehicle?.image_url || "";
       const imgs = vehicle.images;
       // Distribute images across categories with offsets to ensure variety
-      if (cat === "performance") return imgs[(index + 2) % imgs.length];
-      if (cat === "design") return imgs[(index + 1) % imgs.length];
-      if (cat === "tech") return imgs[(index + 4) % imgs.length];
-      if (cat === "safety") return imgs[(index + 3) % imgs.length];
+      if (cat === "performance" || cat === "Vận hành") return imgs[(index + 2) % imgs.length];
+      if (cat === "design" || cat === "Thiết kế") return imgs[(index + 1) % imgs.length];
+      if (cat === "tech" || cat === "Công nghệ") return imgs[(index + 4) % imgs.length];
+      if (cat === "safety" || cat === "An toàn") return imgs[(index + 3) % imgs.length];
       return imgs[index % imgs.length];
     };
 
-    const categoriesList = [
-      {
-        id: "performance" as const,
-        label: "Vận hành",
-        subLabel: "HIỆU NĂNG & VẬN HÀNH",
-        title: "Sức Mạnh Cơ Bắp & Khả Năng Vận Hành Ưu Việt",
-        desc: "Khám phá thế hệ động cơ mạnh mẽ cùng hệ truyền động tiên tiến, giúp xe chinh phục mọi cung đường một cách êm ái và đầy hứng khởi."
-      },
-      {
-        id: "design" as const,
-        label: "Thiết kế",
+    const getCategoryKey = (catName: string): string => {
+      const c = catName.trim().toLowerCase();
+      if (c === "thiết kế" || c === "design") return "design";
+      if (c === "vận hành" || c === "performance") return "performance";
+      if (c === "công nghệ" || c === "tech") return "tech";
+      if (c === "an toàn" || c === "safety") return "safety";
+      return catName; // custom category name
+    };
+
+    // Load custom categories list from CMS, fallback to the default 4
+    let cmsCategories: string[] = ["Thiết kế", "Vận hành", "Công nghệ", "An toàn"];
+    const listBlock = vehicle.layout_blocks?.find((b: any) => b.type === "FeaturesList");
+    if (listBlock && listBlock.data?.categories && Array.isArray(listBlock.data.categories)) {
+      cmsCategories = listBlock.data.categories;
+    }
+
+    const standardMeta: Record<string, { subLabel: string; title: string; desc: string }> = {
+      design: {
         subLabel: "THIẾT KẾ & TIỆN NGHI",
         title: "Diện Mạo Kiêu Hãnh & Không Gian Sang Trọng",
         desc: "Sự kết hợp hoàn hảo giữa kiểu dáng hầm hố, tinh tế bên ngoài cùng khoang cabin rộng rãi, tiện ích cao cấp bên trong."
       },
-      {
-        id: "tech" as const,
-        label: "Công nghệ",
+      performance: {
+        subLabel: "HIỆU NĂNG & VẬN HÀNH",
+        title: "Sức Mạnh Cơ Bắp & Khả Năng Vận Hành Ưu Việt",
+        desc: "Khám phá thế hệ động cơ mạnh mẽ cùng hệ truyền động tiên tiến, giúp xe chinh phục mọi cung đường một cách êm ái và đầy hứng khởi."
+      },
+      tech: {
         subLabel: "CÔNG NGHỆ THÔNG MINH",
         title: "Kết Nối Không Giới Hạn & Trải Nghiệm Tiện Nghi",
         desc: "Những trang bị công nghệ đỉnh cao giúp tối ưu hóa sự kết nối giữa người lái và xe, mang lại hành trình thoải mái và thông minh hơn."
       },
-      {
-        id: "safety" as const,
-        label: "An toàn",
+      safety: {
         subLabel: "AN TOÀN VƯỢT TRỘI",
         title: "Hỗ Trợ Lái Thông Minh & Bảo Vệ Toàn Diện",
         desc: "Hệ thống hỗ trợ người lái tiên tiến Co-Pilot360 chủ động bảo vệ bạn và gia đình trước mọi tình huống giao thông phức tạp."
       }
-    ];
+    };
 
-    return categoriesList.map((cat) => {
-      let catFeatures = parsedCMSFeatures.filter((f) => f.category === cat.id);
+    const categoriesList = cmsCategories.map((catName) => {
+      const key = getCategoryKey(catName);
+      const isStandard = ["design", "performance", "tech", "safety"].includes(key);
+      const meta = isStandard 
+        ? standardMeta[key] 
+        : {
+            subLabel: `${catName.toUpperCase()} & TIỆN NGHI`,
+            title: `Trang Bị ${catName} & Tiện Nghi Nổi Bật`,
+            desc: `Khám phá các tính năng và trang bị nổi bật thuộc nhóm ${catName} của dòng xe.`
+          };
 
-      // If category features are empty, use default mock data and map real images
-      if (catFeatures.length === 0) {
+      return {
+        id: key,
+        label: catName,
+        ...meta
+      };
+    });
+
+    const result: { id: string; label: string; subLabel: string; title: string; desc: string; features: FeatureItem[] }[] = [];
+
+    categoriesList.forEach((cat) => {
+      let catFeatures = parsedCMSFeatures.filter(
+        (f) => getCategoryKey(f.category) === cat.id
+      );
+
+      const isStandard = ["design", "performance", "tech", "safety"].includes(cat.id);
+
+      // If category features are empty and it is standard, use default mock data
+      if (catFeatures.length === 0 && isStandard) {
         const defaultList = defaults[cat.id] || [];
         catFeatures = defaultList.map((df, idx) => ({
           ...df,
@@ -451,53 +678,19 @@ export default function VehicleFeaturesPage() {
         })) as FeatureItem[];
       }
 
-      return {
-        ...cat,
-        features: catFeatures
-      };
+      // For custom categories, only render if there are active features configured
+      if (catFeatures.length > 0) {
+        result.push({
+          ...cat,
+          features: catFeatures
+        });
+      }
     });
+
+    return result;
   }, [vehicle, parsedCMSFeatures, vehicleKey]);
 
-  // 3. Smooth scroll handling
-  const scrollToSection = (id: string) => {
-    const element = document.getElementById(id);
-    if (element) {
-      const offset = window.innerWidth >= 1024 ? 220 : 180;
-      const elementPosition = element.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.scrollY - offset;
 
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: "smooth"
-      });
-    }
-  };
-
-  // 4. Scroll Spy: Track which section is in view
-  useEffect(() => {
-    const handleScroll = () => {
-      const offset = window.innerWidth >= 1024 ? 230 : 190;
-      const scrollPos = window.scrollY + offset;
-      const sectionIds = ["performance", "design", "tech", "safety"];
-
-      for (const id of sectionIds) {
-        const el = document.getElementById(id);
-        if (el) {
-          const top = el.offsetTop;
-          const height = el.offsetHeight;
-          if (scrollPos >= top && scrollPos < top + height) {
-            setActiveSection(id);
-            break;
-          }
-        }
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    // Initial check
-    setTimeout(handleScroll, 100);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   if (!vehicle) return null;
 
@@ -548,101 +741,15 @@ export default function VehicleFeaturesPage() {
       {/* Vehicle Secondary Navigation Tab Bar */}
       <VehicleTabBar />
 
-      {/* 2. Sticky Category sub-navigation bar */}
-      <section className="sticky top-[128px] lg:top-[160px] z-20 bg-white border-b border-[#e5e5e5] shadow-xs select-none py-1">
-        <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full">
-          <div className="flex items-center justify-start md:justify-center overflow-x-auto scrollbar-none gap-[24px] md:gap-[40px] py-1">
-            {sections.map((sec) => {
-              const isActive = activeSection === sec.id;
-              return (
-                <button
-                  key={sec.id}
-                  onClick={() => scrollToSection(sec.id)}
-                  className={`relative py-3 px-1 text-xs md:text-sm font-extrabold cursor-pointer transition-colors border-0 bg-transparent shrink-0 active:scale-98 text-left uppercase tracking-widest
-                    ${isActive ? "text-[#0562d2]" : "text-[#616161] hover:text-[#0562d2]"}`}
-                >
-                  <span>{sec.label}</span>
-                  {isActive && (
-                    <div className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-[#0562d2] rounded-full" />
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* 3. Alternating Feature Sections Content */}
-      {sections.map((sec, idx) => {
-        const isOdd = idx % 2 === 1;
-        return (
-          <section
-            key={sec.id}
-            id={sec.id}
-            className={`w-full py-16 md:py-24 border-b border-[#e5e5e5] transition-colors duration-300 ${
-              isOdd ? "bg-[#fafafa]" : "bg-white"
-            }`}
-          >
-            <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full">
-              
-              {/* Section Header */}
-              <div className="max-w-3xl mb-16 md:mb-20 text-left">
-                <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-[#0562d2] bg-[#0562d2]/10 px-3 py-1 rounded-full mb-3 inline-block">
-                  {sec.subLabel}
-                </span>
-                <h2 className="font-['Ford_Antenna',sans-serif] font-extrabold text-2xl md:text-[36px] text-[#00095b] leading-tight tracking-tight mb-3">
-                  {sec.title}
-                </h2>
-                <p className="text-gray-500 text-xs md:text-[15px] leading-relaxed">
-                  {sec.desc}
-                </p>
-              </div>
-
-              {/* Features List */}
-              <div className="space-y-20 md:space-y-28">
-                {sec.features.map((feat, fidx) => {
-                  const isEven = fidx % 2 === 0;
-                  return (
-                    <div
-                      key={feat.title}
-                      className={`flex flex-col lg:flex-row gap-8 lg:gap-16 items-center justify-between ${
-                        isEven ? "lg:flex-row" : "lg:flex-row-reverse"
-                      }`}
-                    >
-                      {/* Image panel */}
-                      <div className="flex-1 w-full aspect-[16/10] relative rounded-2xl overflow-hidden bg-gray-100 border border-gray-200/80 shadow-md group">
-                        <img
-                          src={feat.image}
-                          alt={feat.title}
-                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-103"
-                          loading="lazy"
-                        />
-                        {/* Glass overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-tr from-black/5 via-transparent to-white/5 pointer-events-none" />
-                      </div>
-
-                      {/* Content panel */}
-                      <div className="flex-1 w-full flex flex-col items-start gap-4 text-left lg:px-4">
-                        <span className="text-[9px] font-extrabold uppercase tracking-widest text-[#0562d2] bg-white border border-blue-100 px-3 py-1 rounded-full shadow-2xs">
-                          {sec.label}
-                        </span>
-                        <h3 className="font-['Ford_Antenna',sans-serif] font-bold text-xl md:text-2xl lg:text-[28px] text-[#1a1a1a] leading-snug tracking-tight">
-                          {feat.title}
-                        </h3>
-                        <p className="text-gray-600 text-xs md:text-[15px] leading-relaxed">
-                          {feat.desc}
-                        </p>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-            </div>
-          </section>
-        );
-      })}
-
+      {/* 3. Feature Sections Content (Slider/Carousel) */}
+      {sections.map((sec) => (
+        <FeatureSectionSlider 
+          key={sec.id} 
+          sec={sec} 
+          openDriveDrawer={openDriveDrawer} 
+        />
+      ))}
+      
       {/* 4. Shared Booking Call To Action Banner */}
       <div className="mt-16">
         <BookingBanner />

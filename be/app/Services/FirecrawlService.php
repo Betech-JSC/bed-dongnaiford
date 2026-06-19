@@ -40,11 +40,11 @@ class FirecrawlService
             ->timeout(120) // Scrapes with JS and LLM can take up to 2 minutes
             ->post("{$this->baseUrl}/scrape", [
                 'url' => $url,
-                'formats' => ['extract'],
+                'formats' => ['extract', 'html'],
                 'extract' => [
                     'schema' => $schema,
-                ],
-                'onlyMainContent' => true,
+                    'prompt' => 'Extract the real vehicle data from the page. Do NOT make up or hallucinate URLs. All image and video URLs must be real URLs from the page, typically hosted on www.ford.com.vn under /content/dam/Ford/. If an image or video is not found, leave the field empty or null instead of providing dummy example.com URLs.'
+                ]
             ]);
 
             if ($response->failed()) {
@@ -58,7 +58,10 @@ class FirecrawlService
             $result = $response->json();
 
             if (isset($result['success']) && $result['success'] === true && isset($result['data']['extract'])) {
-                return $result['data']['extract'];
+                return [
+                    'extract' => $result['data']['extract'],
+                    'html' => $result['data']['html'] ?? null,
+                ];
             }
 
             Log::error('Firecrawl returned unsuccessful response', ['response' => $result]);
@@ -216,6 +219,10 @@ class FirecrawlService
                 'video_url' => [
                     'type' => 'string',
                     'description' => 'The direct URL of the main introduction video or YouTube video for the vehicle, if available.',
+                ],
+                'hero_video_url' => [
+                    'type' => 'string',
+                    'description' => 'The direct URL of the background/hero looping video (.mp4 or .webm) for the vehicle header banner, if available.',
                 ],
                 'gallery_images' => [
                     'type' => 'array',

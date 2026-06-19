@@ -302,6 +302,7 @@ function HeroBannerBlock({ data, vehicle, openQuoteDrawer, openDriveModal, isEdi
   const btnText = data.button_text || "Book Lái thử";
   const btnLink = data.button_link || "#drive";
   const bgImg = resolveImageUrl(data.background_image || vehicle.images?.[0] || "/assets/territory-hero.png");
+  const bgVideo = data.background_video || null;
 
   // Alignment classes
   const alignClass = data.align === 'left' ? 'items-start text-left' 
@@ -358,17 +359,39 @@ function HeroBannerBlock({ data, vehicle, openQuoteDrawer, openDriveModal, isEdi
           className="object-cover object-center pointer-events-none"
           priority
         />
+        {bgVideo && (
+          <video
+            src={bgVideo}
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none z-5"
+          />
+        )}
         <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent h-[250px] z-10" />
         
         {isEditMode && (
-          <div className="absolute top-24 left-4 z-30 bg-white/95 backdrop-blur-xs p-3 rounded-lg border border-gray-200 text-xs text-gray-800 shadow-md">
-            <span className="block mb-2 font-bold text-[10px] uppercase tracking-wider text-gray-500">Ảnh nền Banner:</span>
-            <input 
-              type="file" 
-              accept="image/*" 
-              onChange={handleUploadImage}
-              className="block w-full text-xs text-gray-500 file:mr-2.5 file:py-1 file:px-2 file:rounded-md file:border file:border-gray-300 file:text-[10px] file:font-semibold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100 cursor-pointer"
-            />
+          <div className="absolute top-24 left-4 z-30 bg-white/95 backdrop-blur-xs p-3 rounded-lg border border-gray-200 text-xs text-gray-800 shadow-md flex flex-col gap-2.5 max-w-[240px]">
+            <div>
+              <span className="block mb-1 font-bold text-[10px] uppercase tracking-wider text-gray-500">Ảnh nền Banner:</span>
+              <input 
+                type="file" 
+                accept="image/*" 
+                onChange={handleUploadImage}
+                className="block w-full text-xs text-gray-500 file:mr-2.5 file:py-1 file:px-2 file:rounded-md file:border file:border-gray-300 file:text-[10px] file:font-semibold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100 cursor-pointer"
+              />
+            </div>
+            <div className="border-t border-gray-100 pt-2.5">
+              <span className="block mb-1 font-bold text-[10px] uppercase tracking-wider text-gray-500">Video nền (URL MP4):</span>
+              <input 
+                type="text" 
+                placeholder="https://example.com/video.mp4" 
+                value={data.background_video || ""}
+                onChange={(e) => onChangeData({ ...data, background_video: e.target.value })}
+                className="block w-full text-xs text-gray-800 px-2.5 py-1 border border-gray-300 rounded-md bg-white focus:outline-none focus:border-[#008060] w-full"
+              />
+            </div>
           </div>
         )}
       </div>
@@ -417,6 +440,132 @@ function HeroBannerBlock({ data, vehicle, openQuoteDrawer, openDriveModal, isEdi
 /* ==========================================================================
    2. SPECS COMPARISON BLOCK
    ========================================================================== */
+const MACHE_DETAILED_SPECS_FALLBACK = [
+  {
+    title: "Vận hành",
+    content: "<ul><li>Quãng đường vận hành (WLTP): 550km¹</li><li>Công suất cực đại: 395 Ps</li><li>Mô men xoắn cực đại: 676 Nm</li><li>Mức tiêu thụ năng lượng 193 Wh/km</li><li>Dẫn động 4 bánh</li><li>Dung lượng pin: 87 kWh</li><li>Chuẩn sạc CCS2</li></ul>"
+  },
+  {
+    title: "Thiết kế bánh xe",
+    content: "<ul><li>Kích cỡ lốp: 225/55R19</li><li>Vành mâm xe: Mâm hợp kim 19 inch thiết kế thể thao</li></ul>"
+  },
+  {
+    title: "Ngoại thất",
+    content: "<ul><li>Đèn pha: LED Projector tự động bật tắt, tự động pha cốt</li><li>Đèn chạy ban ngày: LED đặc trưng Mustang</li><li>Đèn hậu: LED dạng 3 thanh đặc trưng Mustang</li><li>Gương chiếu hậu: Gập điện, chỉnh điện, tích hợp đèn báo rẽ, sấy gương và đèn chào mừng</li><li>Cửa cốp sau: Mở rảnh tay thông minh</li><li>Cốp trước (Frunk): Thể tích 139.5L tiện dụng</li></ul>"
+  },
+  {
+    title: "Nội thất",
+    content: "<ul><li>Chất liệu ghế: Da cao cấp sang trọng</li><li>Ghế lái: Chỉnh điện 8 hướng, nhớ vị trí ghế</li><li>Vô lăng: Bọc da cao cấp, tích hợp nút điều khiển âm thanh và hỗ trợ lái</li><li>Hệ thống điều hòa: Tự động 2 vùng độc lập, có cửa gió hàng ghế sau</li><li>Cửa sổ trời: Toàn cảnh Panorama kính Low-E chống nhiệt</li></ul>"
+  },
+  {
+    title: "Công nghệ",
+    content: "<ul><li>Màn hình trung tâm: Cảm ứng đặt dọc 15.5 inch kết hợp hệ thống SYNC 4A</li><li>Bảng đồng hồ: Kỹ thuật số 10.2 inch hiển thị đa thông tin</li><li>Hệ thống âm thanh: B&O Premium 10 loa chất lượng cao</li><li>Kết nối: Apple CarPlay và Android Auto không dây, sạc điện thoại không dây</li><li>Kết nối thông minh: Ứng dụng FordPass khởi động và làm mát xe từ xa</li></ul>"
+  },
+  {
+    title: "Hỗ trợ Người Lái & An toàn",
+    content: "<ul><li>Hệ thống camera: Camera 360 độ góc nhìn toàn cảnh</li><li>Kiểm soát hành trình: Thích ứng Adaptive Cruise Control (ACC) với Stop & Go</li><li>Hỗ trợ giữ làn: Hệ thống giữ làn đường và cảnh báo chệch làn LKA</li><li>Cảnh báo điểm mù: BLIS tích hợp cảnh báo phương tiện cắt ngang khi lùi</li><li>Hỗ trợ đỗ xe: Hỗ trợ đỗ xe tự động thông minh Active Park Assist 2.0</li><li>Hệ thống an toàn chủ động: Phanh tự động khẩn cấp AEB, Cảnh báo va chạm phía trước FCW</li></ul>"
+  }
+];
+
+function parseSpecs(specs: any, vehicleName: string): any[] {
+  const isMachE = vehicleName?.toLowerCase().includes("mustang") || vehicleName?.toLowerCase().includes("mach-e");
+  if (isMachE) {
+    return MACHE_DETAILED_SPECS_FALLBACK;
+  }
+  
+  if (Array.isArray(specs)) {
+    return specs.map(item => ({
+      title: item.title ?? item.label ?? item.category ?? '',
+      content: item.content ?? item.value ?? ''
+    }));
+  }
+  
+  if (specs && typeof specs === "object") {
+    if (specs.detailed_specs && Array.isArray(specs.detailed_specs)) {
+      return specs.detailed_specs.map((item: any) => ({
+        title: item.title ?? item.category ?? item.label ?? '',
+        content: item.content ?? item.value ?? ''
+      }));
+    }
+
+    const keyLabelMap: Record<string, string> = {
+      engine: 'Động cơ',
+      power: 'Công suất cực đại',
+      torque: 'Mô-men xoắn cực đại',
+      transmission: 'Hộp số',
+      drivetrain: 'Hệ dẫn động',
+      dimensions: 'Kích thước (DxRxC)',
+      clearance: 'Khoảng sáng gầm',
+      fuelEconomy: 'Tiêu hao nhiên liệu'
+    };
+    const knownKeys = ['engine', 'power', 'torque', 'transmission', 'drivetrain', 'dimensions', 'clearance', 'fuelEconomy'];
+
+    let contentHtml = '<ul class="list-disc pl-4 space-y-1">';
+    let hasContent = false;
+    knownKeys.forEach(key => {
+      const val = specs[key];
+      if (val != null && val !== '') {
+        contentHtml += `<li>${keyLabelMap[key]}: <strong>${val}</strong></li>`;
+        hasContent = true;
+      }
+    });
+    Object.keys(specs).forEach(key => {
+      if (!knownKeys.includes(key) && key !== 'detailed_specs') {
+        const val = specs[key];
+        if (val != null && val !== '') {
+          contentHtml += `<li>${key}: <strong>${val}</strong></li>`;
+          hasContent = true;
+        }
+      }
+    });
+    contentHtml += '</ul>';
+
+    if (hasContent) {
+      return [{ title: 'Thông số chung', content: contentHtml }];
+    }
+  }
+  return [];
+}
+
+function VersionSpecsAccordion({ specs }: { specs: any[] }) {
+  const [openIndex, setOpenIndex] = React.useState<number | null>(0);
+
+  if (!specs || specs.length === 0) {
+    return <div className="p-4 text-xs text-gray-400 italic text-center w-full">Chưa có thông số kỹ thuật.</div>;
+  }
+
+  return (
+    <div className="w-full flex flex-col bg-white border-t border-gray-100">
+      {specs.map((item: any, idx: number) => {
+        const isOpen = openIndex === idx;
+        return (
+          <div key={idx} className="border-b border-gray-100 w-full">
+            <button
+              onClick={() => setOpenIndex(isOpen ? null : idx)}
+              className="w-full py-4 px-4 flex items-center justify-between text-left font-semibold text-[#00095b] hover:text-[#0562d2] transition-colors duration-200 focus:outline-none cursor-pointer bg-white"
+            >
+              <span className="text-[14px] leading-tight font-medium">{item.title}</span>
+              <span className="text-[#0562d2] font-normal text-lg select-none">
+                {isOpen ? '−' : '+'}
+              </span>
+            </button>
+            <div
+              className={`transition-all duration-300 overflow-hidden ${
+                isOpen ? 'max-h-[800px] opacity-100 pb-4' : 'max-h-0 opacity-0'
+              }`}
+            >
+              <div 
+                className="px-4 text-[13px] text-gray-600 leading-relaxed font-normal whitespace-pre-line prose prose-sm max-w-none [&_p]:mb-1 [&_strong]:text-black"
+                dangerouslySetInnerHTML={{ __html: item.content }}
+              />
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 function SpecsGridBlock({ data, vehicle, isEditMode, onChangeData, openQuoteDrawer, anchorId }: any) {
   const versions = vehicle.versions || [];
   
@@ -477,53 +626,7 @@ function SpecsGridBlock({ data, vehicle, isEditMode, onChangeData, openQuoteDraw
               </div>
               
               {/* specs */}
-              <div className="p-[16px] flex flex-col gap-[12px] items-start relative bg-white border-b border-gray-100/50">
-                <div className="font-['Ford_Antenna',sans-serif] font-semibold text-[#00095b] text-[14px]">
-                  <p>Động cơ & Hộp số</p>
-                </div>
-                <div className="font-['Ford_Antenna',sans-serif] font-normal text-[#1a1a1a] text-[12px]">
-                  <ul className="list-disc pl-4 space-y-1 text-gray-700">
-                    <li>Động cơ: <strong className="text-black font-semibold">{item.specs.engine || "Đang cập nhật"}</strong></li>
-                    <li>Công suất: <strong className="text-black font-semibold">{item.specs.power || "Đang cập nhật"}</strong></li>
-                    <li>Mô-men xoắn: <strong className="text-black font-semibold">{item.specs.torque || "Đang cập nhật"}</strong></li>
-                    <li>Hộp số: <strong className="text-black font-semibold">{item.specs.transmission || "Đang cập nhật"}</strong></li>
-                  </ul>
-                </div>
-              </div>
-
-              <div className="p-[16px] flex flex-col gap-[12px] items-start relative bg-[#f0f0f0]/50 border-b border-gray-100/50">
-                <div className="font-['Ford_Antenna',sans-serif] font-semibold text-[#00095b] text-[14px]">
-                  <p>Kích thước & Trọng lượng</p>
-                </div>
-                <div className="font-['Ford_Antenna',sans-serif] font-normal text-[#1a1a1a] text-[12px]">
-                  <ul className="list-disc pl-4 space-y-1 text-gray-700">
-                    <li>Kích thước: <strong className="text-black font-semibold">{item.specs.dimensions || "Đang cập nhật"}</strong></li>
-                    <li>Gầm xe: <strong className="text-black font-semibold">{item.specs.clearance || "Đang cập nhật"}</strong></li>
-                  </ul>
-                </div>
-              </div>
-
-              <div className="p-[16px] flex flex-col gap-[12px] items-start relative bg-white border-b border-gray-100/50">
-                <div className="font-['Ford_Antenna',sans-serif] font-semibold text-[#00095b] text-[14px]">
-                  <p>Hệ thống dẫn động</p>
-                </div>
-                <div className="font-['Ford_Antenna',sans-serif] font-normal text-[#1a1a1a] text-[12px]">
-                  <ul className="list-disc pl-4 space-y-1 text-gray-700">
-                    <li>Hệ dẫn động: <strong className="text-black font-semibold">{item.specs.drivetrain || "Đang cập nhật"}</strong></li>
-                  </ul>
-                </div>
-              </div>
-
-              <div className="p-[16px] flex flex-col gap-[12px] items-start relative bg-[#f0f0f0]/50 border-b border-gray-100/50 flex-grow">
-                <div className="font-['Ford_Antenna',sans-serif] font-semibold text-[#00095b] text-[14px]">
-                  <p>Tiêu thụ nhiên liệu</p>
-                </div>
-                <div className="font-['Ford_Antenna',sans-serif] font-normal text-[#1a1a1a] text-[12px]">
-                  <ul className="list-disc pl-4 space-y-1 text-gray-700">
-                    <li>Kết hợp: <strong className="text-black font-semibold">{item.specs.fuelEconomy || "Đang cập nhật"}</strong></li>
-                  </ul>
-                </div>
-              </div>
+              <VersionSpecsAccordion specs={parseSpecs(item.specs, vehicle.name)} />
 
               <div className="p-4 bg-white flex flex-col items-center justify-center shrink-0 w-full border-t border-gray-100/50">
                 <button 
@@ -955,7 +1058,9 @@ function ThreeSixtyViewerBlock({ data, vehicle, isEditMode, onChangeData, threeS
     media
   } = threeSixtyProps;
 
-  const currentColor = vehicle?.colors?.[selectedColorIndex];
+  const activeVersion = vehicle?.versions?.[activeVersionIndex];
+  const colors = (activeVersion?.colors && activeVersion.colors.length > 0) ? activeVersion.colors : (vehicle?.colors || []);
+  const currentColor = colors[selectedColorIndex];
   const hasInteriorSequence = (currentColor && currentColor.images_360_internal && currentColor.images_360_internal.length > 0)
     || (vehicle && (vehicle as any).images_360_internal && (vehicle as any).images_360_internal.length > 0);
 
@@ -1050,7 +1155,7 @@ function ThreeSixtyViewerBlock({ data, vehicle, isEditMode, onChangeData, threeS
                   <div className="exteriorPaint">
                     <div className="color-selector-container">
                       <div className="color-selector" role="radiogroup">
-                        {vehicle.colors.map((color: any, idx: number) => (
+                        {colors.map((color: any, idx: number) => (
                           <div 
                             key={color.name}
                             className={`color-container ${selectedColorIndex === idx ? "selected" : ""}`}
@@ -1063,7 +1168,7 @@ function ThreeSixtyViewerBlock({ data, vehicle, isEditMode, onChangeData, threeS
                       </div>
                     </div>
                     <div className="paint-color">
-                      Paint Color: <span className="uppercase text-[#0562D2]">{vehicle.colors[selectedColorIndex]?.name}</span>
+                      Paint Color: <span className="uppercase text-[#0562D2]">{colors[selectedColorIndex]?.name}</span>
                     </div>
                   </div>
                 </div>
@@ -1145,7 +1250,7 @@ function ThreeSixtyViewerBlock({ data, vehicle, isEditMode, onChangeData, threeS
                           ? (viewType === "exterior" ? "/assets/territory-3d.png" : "/assets/territory-interior.png")
                           : (viewType === "exterior"
                               ? (() => {
-                                  const colorImg = (vehicle.colors?.[selectedColorIndex] || vehicle.colors?.[0])?.image;
+                                  const colorImg = (colors?.[selectedColorIndex] || colors?.[0])?.image;
                                   if (colorImg) {
                                     return colorImg;
                                   }

@@ -24,6 +24,70 @@ const getVersionDisplayName = (verName: string, vehicleName: string) => {
   return verName;
 };
 
+const MACHE_DETAILED_SPECS_FALLBACK = [
+  {
+    category: "Vận hành",
+    items: [
+      "Quãng đường vận hành (WLTP): 550km¹",
+      "Công suất cực đại: 395 Ps",
+      "Mô men xoắn cực đại: 676 Nm",
+      "Mức tiêu thụ năng lượng 193 Wh/km",
+      "Dẫn động 4 bánh",
+      "Dung lượng pin: 87 kWh",
+      "Chuẩn sạc CCS2"
+    ]
+  },
+  {
+    category: "Thiết kế bánh xe",
+    items: [
+      "Kích cỡ lốp: 225/55R19",
+      "Vành mâm xe: Mâm hợp kim 19 inch thiết kế thể thao"
+    ]
+  },
+  {
+    category: "Ngoại thất",
+    items: [
+      "Đèn pha: LED Projector tự động bật tắt, tự động pha cốt",
+      "Đèn chạy ban ngày: LED đặc trưng Mustang",
+      "Đèn hậu: LED dạng 3 thanh đặc trưng Mustang",
+      "Gương chiếu hậu: Gập điện, chỉnh điện, tích hợp đèn báo rẽ, sấy gương và đèn chào mừng",
+      "Cửa cốp sau: Mở rảnh tay thông minh",
+      "Cốp trước (Frunk): Thể tích 139.5L tiện dụng"
+    ]
+  },
+  {
+    category: "Nội thất",
+    items: [
+      "Chất liệu ghế: Da cao cấp sang trọng",
+      "Ghế lái: Chỉnh điện 8 hướng, nhớ vị trí ghế",
+      "Vô lăng: Bọc da cao cấp, tích hợp nút điều khiển âm thanh và hỗ trợ lái",
+      "Hệ thống điều hòa: Tự động 2 vùng độc lập, có cửa gió hàng ghế sau",
+      "Cửa sổ trời: Toàn cảnh Panorama kính Low-E chống nhiệt"
+    ]
+  },
+  {
+    category: "Công nghệ",
+    items: [
+      "Màn hình trung tâm: Cảm ứng đặt dọc 15.5 inch kết hợp hệ thống SYNC 4A",
+      "Bảng đồng hồ: Kỹ thuật số 10.2 inch hiển thị đa thông tin",
+      "Hệ thống âm thanh: B&O Premium 10 loa chất lượng cao",
+      "Kết nối: Apple CarPlay và Android Auto không dây, sạc điện thoại không dây",
+      "Kết nối thông minh: Ứng dụng FordPass khởi động và làm mát xe từ xa"
+    ]
+  },
+  {
+    category: "Hỗ trợ Người Lái",
+    items: [
+      "Hệ thống camera: Camera 360 độ góc nhìn toàn cảnh",
+      "Kiểm soát hành trình: Thích ứng Adaptive Cruise Control (ACC) với Stop & Go",
+      "Hỗ trợ giữ làn: Hệ thống giữ làn đường và cảnh báo chệch làn LKA",
+      "Cảnh báo điểm mù: BLIS tích hợp cảnh báo phương tiện cắt ngang khi lùi",
+      "Hỗ trợ đỗ xe: Hỗ trợ đỗ xe tự động thông minh Active Park Assist 2.0",
+      "Hệ thống an toàn chủ động: Phanh tự động khẩn cấp AEB, Cảnh báo va chạm phía trước FCW"
+    ]
+  }
+];
+
 export default function VehicleVersionDetailPage() {
   const {
     vehicle,
@@ -72,8 +136,94 @@ export default function VehicleVersionDetailPage() {
   const [rotation, setRotation] = useState(0); // in degrees
   const [tilt, setTilt] = useState(0); // in degrees
   const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [showAllSpecs, setShowAllSpecs] = useState(false);
+  const [openSpecsGroup, setOpenSpecsGroup] = useState<string | null>("Vận hành");
 
-  const currentColor = vehicle?.colors?.[selectedColorIndex] || vehicle?.colors?.[0];
+  const getDetailedSpecs = () => {
+    let rawSpecs = selectedVersion?.specs;
+    if (typeof rawSpecs === 'string') {
+      try {
+        rawSpecs = JSON.parse(rawSpecs);
+      } catch (e) {
+        rawSpecs = null;
+      }
+    }
+
+    const isMachE = vehicle.name?.toLowerCase().includes("mustang") || vehicle.name?.toLowerCase().includes("mach-e");
+    
+    if (isMachE) {
+      return MACHE_DETAILED_SPECS_FALLBACK.map(cat => ({
+        category: cat.category,
+        content: `<ul class="list-disc pl-4 space-y-1">${cat.items.map(item => `<li>${item}</li>`).join('')}</ul>`
+      }));
+    }
+
+    if (Array.isArray(rawSpecs)) {
+      return rawSpecs.map(s => ({
+        category: s.title ?? s.category ?? '',
+        content: s.content ?? ''
+      }));
+    }
+
+    if (rawSpecs && typeof rawSpecs === 'object') {
+      if (rawSpecs.detailed_specs && Array.isArray(rawSpecs.detailed_specs)) {
+        return rawSpecs.detailed_specs.map((cat: any) => {
+          const title = cat.title ?? cat.category ?? '';
+          if (cat.content) {
+            return { category: title, content: cat.content };
+          }
+          const items = cat.items || [];
+          const listHtml = `<ul class="list-disc pl-4 space-y-1">${items.map((item: any) => {
+            if (typeof item === 'string') return `<li>${item}</li>`;
+            if (item.name && item.value) return `<li>${item.name.trim()}: <strong>${item.value.trim()}</strong></li>`;
+            return `<li>${item.value || item.name || ''}</li>`;
+          }).join('')}</ul>`;
+          return { category: title, content: listHtml };
+        });
+      }
+
+      const keyLabelMap: Record<string, string> = {
+        engine: 'Động cơ',
+        power: 'Công suất cực đại',
+        torque: 'Mô-men xoắn cực đại',
+        transmission: 'Hộp số',
+        drivetrain: 'Hệ dẫn động',
+        dimensions: 'Kích thước (DxRxC)',
+        clearance: 'Khoảng sáng gầm',
+        fuelEconomy: 'Tiêu hao nhiên liệu'
+      };
+      const knownKeys = ['engine', 'power', 'torque', 'transmission', 'drivetrain', 'dimensions', 'clearance', 'fuelEconomy'];
+
+      let contentHtml = '<ul class="list-disc pl-4 space-y-1">';
+      let hasContent = false;
+      knownKeys.forEach(key => {
+        const val = rawSpecs[key];
+        if (val != null && val !== '') {
+          contentHtml += `<li>${keyLabelMap[key]}: <strong>${val}</strong></li>`;
+          hasContent = true;
+        }
+      });
+      Object.keys(rawSpecs).forEach(key => {
+        if (!knownKeys.includes(key) && key !== 'detailed_specs') {
+          const val = rawSpecs[key];
+          if (val != null && val !== '') {
+            contentHtml += `<li>${key}: <strong>${val}</strong></li>`;
+            hasContent = true;
+          }
+        }
+      });
+      contentHtml += '</ul>';
+
+      if (hasContent) {
+        return [{ category: 'Thông số chung', content: contentHtml }];
+      }
+    }
+
+    return [];
+  };
+
+  const colors = (selectedVersion?.colors && selectedVersion.colors.length > 0) ? selectedVersion.colors : (vehicle?.colors || []);
+  const currentColor = colors[selectedColorIndex] || colors[0];
 
   // Detect if external or internal image sequence exists
   const hasExteriorSeq = (currentColor && currentColor.images_360 && currentColor.images_360.length > 0)
@@ -179,7 +329,7 @@ export default function VehicleVersionDetailPage() {
               key={idx}
               src={imgUrl}
               alt={`${currentColor?.name || vehicle.name} exterior 360 view`}
-              className="max-h-[380px] md:max-h-[440px] w-auto object-contain select-none pointer-events-none transition-opacity duration-75"
+              className="w-full h-full object-cover select-none pointer-events-none transition-opacity duration-75"
               style={{
                 opacity: isActive ? 1 : 0,
                 position: isActive ? "relative" : "absolute",
@@ -211,7 +361,7 @@ export default function VehicleVersionDetailPage() {
               key={idx}
               src={imgUrl}
               alt={`${currentColor?.name || vehicle.name} interior 360 view`}
-              className="max-h-[380px] md:max-h-[440px] w-auto object-contain select-none pointer-events-none transition-opacity duration-75"
+              className="w-full h-full object-cover select-none pointer-events-none transition-opacity duration-75"
               style={{
                 opacity: isActive ? 1 : 0,
                 position: isActive ? "relative" : "absolute",
@@ -333,7 +483,15 @@ export default function VehicleVersionDetailPage() {
             {/* Version Title & Short Description */}
             <div className="space-y-4 w-full text-left mt-2">
               <h1 className="font-['Ford_Antenna',sans-serif] font-bold text-[32px] sm:text-[38px] text-[#1a1a1a] leading-[1.1] tracking-tight">
-                {vehicle.name}
+                {vehicle.name === "Ford Mustang Mach-E" ? (
+                  <>
+                    Ford Mustang
+                    <br />
+                    Mach-E
+                  </>
+                ) : (
+                  vehicle.name
+                )}
                 <br />
                 {getVersionDisplayName(selectedVersion?.name || "", vehicle.name)}
               </h1>
@@ -343,19 +501,15 @@ export default function VehicleVersionDetailPage() {
             </div>
 
             {/* Spec Sheets Details */}
-            <div className="flex flex-col gap-5 text-left w-full mt-6">
+            <div className="flex flex-col gap-6 text-left w-full mt-6">
               <div className="space-y-1">
-                <span className="text-xs text-gray-500 font-normal">Giá niêm yết từ</span>
-                <span className="text-xl sm:text-2xl font-bold text-gray-900 block leading-tight">
+                <span className="text-[11px] text-gray-500 font-bold uppercase tracking-wider block">Giá niêm yết từ</span>
+                <span className="text-[28px] sm:text-[32px] font-extrabold text-[#00095b] block leading-none">
                   {selectedVersion ? formatPrice(selectedVersion.price) : formatPrice(vehicle.basePrice)}
                 </span>
               </div>
-              <div className="space-y-1">
-                <span className="text-xs text-gray-500 font-normal">Động cơ</span>
-                <span className="text-xl sm:text-2xl font-bold text-gray-900 block leading-tight">
-                  {selectedVersion?.specs?.engine || "1.5L Ecoboost"}
-                </span>
-              </div>
+
+
             </div>
 
             {/* CTA Button */}
@@ -397,9 +551,9 @@ export default function VehicleVersionDetailPage() {
               ) : (
                 <div className="relative w-full h-full flex items-center justify-center">
                   <img
-                    src={currentColor?.image || selectedVersion?.image_url || vehicle.image_url}
+                    src={(currentColor?.images_360 && currentColor.images_360.length > 0) ? currentColor.images_360[0] : (currentColor?.image || selectedVersion?.image_url || vehicle.image_url)}
                     alt={currentColor?.name || selectedVersion?.name || vehicle.name}
-                    className="max-h-[380px] md:max-h-[440px] w-auto object-contain select-none pointer-events-none"
+                    className="w-full h-full object-cover select-none pointer-events-none"
                   />
                   {isImageSequence && (
                     <button
@@ -438,8 +592,8 @@ export default function VehicleVersionDetailPage() {
               <div className="flex flex-col gap-2 items-start text-left">
                 <span className="text-sm font-bold text-gray-800">Bảng màu</span>
                 <div className="flex gap-2">
-                  {viewType === "exterior" && vehicle.colors && vehicle.colors.length > 0 ? (
-                    vehicle.colors.map((color: any, idx: number) => {
+                  {viewType === "exterior" && colors && colors.length > 0 ? (
+                    colors.map((color: any, idx: number) => {
                       const isSelected = selectedColorIndex === idx;
                       return (
                         <button
@@ -549,6 +703,47 @@ export default function VehicleVersionDetailPage() {
           </div>
         </section>
       )}
+
+      {/* 4. Detailed Technical Specifications Section */}
+      <section className="bg-white py-16 md:py-24 border-t border-[#e5e5e5]">
+        <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full flex flex-col gap-8 md:gap-10">
+          <div className="space-y-1 text-left border-b border-gray-150 pb-5">
+            <h2 className="font-['Ford_Antenna',sans-serif] font-bold text-2xl md:text-[32px] text-[#00095b] leading-tight tracking-tight">
+              Thông số kỹ thuật của {vehicle.name === "Ford Mustang Mach-E" ? "Mach-E" : vehicle.name} {getVersionDisplayName(selectedVersion?.name || "", vehicle.name)}
+            </h2>
+          </div>
+
+          <div className="flex flex-col w-full border-t border-[#e5e5e5]">
+            {getDetailedSpecs().map((catGroup: any) => {
+              const isOpen = openSpecsGroup === catGroup.category;
+              return (
+                <div key={catGroup.category} className="border-b border-[#e5e5e5] w-full">
+                  <button
+                    onClick={() => setOpenSpecsGroup(isOpen ? null : catGroup.category)}
+                    className={`flex justify-between items-center w-full text-left font-['Ford_Antenna',sans-serif] font-bold text-base md:text-[18px] py-6 transition-colors cursor-pointer bg-transparent border-0 p-0 focus:outline-none ${
+                      isOpen ? "text-[#0562d2]" : "text-[#424242] hover:text-[#0562d2]"
+                    }`}
+                  >
+                    <span>{catGroup.category}</span>
+                    <span className="text-xl font-medium leading-none text-[#0562d2]">{isOpen ? "−" : "+"}</span>
+                  </button>
+
+                  <div
+                    className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                      isOpen ? "max-h-[1200px] opacity-100" : "max-h-0 opacity-0"
+                    }`}
+                  >
+                    <div 
+                      className="px-0 pr-4 pb-8 text-[14px] md:text-[15px] text-[#424242] leading-relaxed font-normal whitespace-pre-line prose prose-sm max-w-none [&_ul]:list-disc [&_ul]:pl-4 [&_ul]:space-y-1 [&_p]:mb-1 [&_strong]:text-black"
+                      dangerouslySetInnerHTML={{ __html: catGroup.content }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

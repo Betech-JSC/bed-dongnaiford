@@ -196,6 +196,7 @@ export default function VehicleDetailLayout({
                 name: ver.name,
                 price: typeof ver.price === 'string' ? parseFloat(ver.price) : (ver.price || 0),
                 specs: {
+                  ...(ver.specs || {}),
                   engine: ver.specs?.engine || ver.specs?.engine_type || '',
                   power: ver.specs?.power || '',
                   torque: ver.specs?.torque || '',
@@ -273,6 +274,7 @@ export default function VehicleDetailLayout({
           price: typeof v.price === 'string' ? parseFloat(v.price) : v.price,
           image_url: v.image_url || resolveFileUrl(v.image) || null,
           specs: {
+            ...(v.specs || {}),
             engine: v.specs?.engine || '',
             power: v.specs?.power || '',
             torque: v.specs?.torque || '',

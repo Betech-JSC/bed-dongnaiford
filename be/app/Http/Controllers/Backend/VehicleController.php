@@ -147,6 +147,25 @@ class VehicleController extends Controller
             }
         }
 
+        if ($request->has('versions')) {
+            $versions = $request->input('versions', []);
+            if (is_array($versions)) {
+                foreach ($versions as $vIdx => $ver) {
+                    if (isset($ver['colors']) && is_array($ver['colors'])) {
+                        foreach ($ver['colors'] as $cIdx => $color) {
+                            if (isset($color['images_360']) && is_array($color['images_360'])) {
+                                $versions[$vIdx]['colors'][$cIdx]['images_360'] = $this->sort360Images($color['images_360']);
+                            }
+                            if (isset($color['images_360_internal']) && is_array($color['images_360_internal'])) {
+                                $versions[$vIdx]['colors'][$cIdx]['images_360_internal'] = $this->sort360Images($color['images_360_internal']);
+                            }
+                        }
+                    }
+                }
+                $request->merge(['versions' => $versions]);
+            }
+        }
+
         return $rules;
     }
 
@@ -165,6 +184,7 @@ class VehicleController extends Controller
                     'sort_order' => $data['sort_order'] ?? ($index + 1),
                     'specs'      => $data['specs'] ?? null,
                     'image'      => $data['image'] ?? null,
+                    'colors'     => $data['colors'] ?? null,
                 ];
 
                 // Map translations for locales 'vi' and 'en'

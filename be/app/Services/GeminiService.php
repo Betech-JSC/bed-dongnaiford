@@ -158,10 +158,27 @@ class GeminiService
                             $specs = $version->specs;
                             if (is_array($specs) && !empty($specs)) {
                                 $specLines = [];
-                                foreach ($specs as $key => $val) {
-                                    if (empty($val)) continue;
-                                    $label = $specLabels[$key] ?? ucfirst($key);
-                                    $specLines[] = "{$label}: {$val}";
+                                $isNewFormat = false;
+                                if (isset($specs[0]) && is_array($specs[0]) && (isset($specs[0]['title']) || isset($specs[0]['category']))) {
+                                    $isNewFormat = true;
+                                }
+
+                                if ($isNewFormat) {
+                                    foreach ($specs as $item) {
+                                        $title = $item['title'] ?? $item['category'] ?? '';
+                                        $content = $item['content'] ?? '';
+                                        if (empty($title) && empty($content)) continue;
+                                        $cleanContent = trim(html_entity_decode(strip_tags($content)));
+                                        if (!empty($cleanContent)) {
+                                            $specLines[] = "{$title}: {$cleanContent}";
+                                        }
+                                    }
+                                } else {
+                                    foreach ($specs as $key => $val) {
+                                        if (empty($val) || is_array($val)) continue;
+                                        $label = $specLabels[$key] ?? ucfirst($key);
+                                        $specLines[] = "{$label}: {$val}";
+                                    }
                                 }
                                 if (!empty($specLines)) {
                                     $vehiclesText .= "    * Thông số: " . implode(' | ', $specLines) . "\n";

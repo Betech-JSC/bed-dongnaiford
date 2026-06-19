@@ -27,6 +27,7 @@ class VehicleVersion extends BaseModel
         'price',
         'specs',
         'image',
+        'colors',
         'status',
         'sort_order',
     ];
@@ -46,6 +47,7 @@ class VehicleVersion extends BaseModel
             'price'       => 'required|numeric|min:0',
             'specs'       => 'nullable|array',
             'image'       => 'nullable|array',
+            'colors'      => 'nullable|array',
             'status'      => 'required|string|in:ACTIVE,INACTIVE',
             'sort_order'  => 'nullable|integer',
         ];
@@ -75,6 +77,19 @@ class VehicleVersion extends BaseModel
     }
 
     public function getSpecsAttribute($value): ?array
+    {
+        if (is_string($value) && !empty($value)) {
+            return json_decode($value, true);
+        }
+        return is_array($value) ? $value : null;
+    }
+
+    public function setColorsAttribute($value): void
+    {
+        $this->attributes['colors'] = is_array($value) ? json_encode($value) : $value;
+    }
+
+    public function getColorsAttribute($value): ?array
     {
         if (is_string($value) && !empty($value)) {
             return json_decode($value, true);
