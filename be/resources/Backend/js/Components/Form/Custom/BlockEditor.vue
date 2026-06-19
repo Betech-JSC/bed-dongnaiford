@@ -697,6 +697,13 @@ export default {
         }
     },
     watch: {
+        modelValue: {
+            handler(newVal) {
+                this.ensureBlockIds();
+            },
+            immediate: true,
+            deep: true
+        },
         blocks: {
             handler(newVal) {
                 // Keep active index in bounds if list size shrinks
@@ -724,6 +731,23 @@ export default {
         window.removeEventListener('message', this.handleIframeMessage);
     },
     methods: {
+        ensureBlockIds() {
+            let changed = false;
+            const currentBlocks = this.modelValue || [];
+            const updated = currentBlocks.map(block => {
+                if (!block.id) {
+                    changed = true;
+                    return {
+                        ...block,
+                        id: 'block_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now()
+                    };
+                }
+                return block;
+            });
+            if (changed) {
+                this.$emit('update:modelValue', updated);
+            }
+        },
         onSelectMedia(files) {
             if (files && files.length > 0 && this.mediaTarget) {
                 const file = files[0];
@@ -910,6 +934,7 @@ export default {
         },
         addBlockType(type) {
             const newBlock = {
+                id: 'block_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now(),
                 type: type,
                 is_collapsed: false,
                 data: {}
@@ -1024,6 +1049,7 @@ export default {
         },
         duplicateBlock(index) {
             const blockCopy = JSON.parse(JSON.stringify(this.blocks[index]))
+            blockCopy.id = 'block_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now()
             this.blocks.splice(index + 1, 0, blockCopy)
             this.$emit('update:modelValue', this.blocks)
             this.activeIndex = index + 1

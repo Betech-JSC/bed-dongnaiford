@@ -230,7 +230,7 @@ export default function Blocks({
 
           return (
             <div
-              key={`edit-wrapper-${index}`}
+              key={block.id || `edit-wrapper-${index}`}
               draggable
               onDragStart={(e) => onDragStart && onDragStart(e, startIndex + index)}
               onDragOver={(e) => onDragOver && onDragOver(e, startIndex + index)}
@@ -296,7 +296,7 @@ export default function Blocks({
         }
 
         return (
-          <div key={`wrapper-${index}`}>
+          <div key={block.id || `wrapper-${index}`}>
             {blockComponent}
           </div>
         );

@@ -371,7 +371,7 @@ export default function VehicleDetailPage() {
                   <div className="space-y-2.5">
                     {currentBlocks.map((block, idx) => (
                       <div
-                        key={idx}
+                        key={block.id || idx}
                         draggable
                         onDragStart={(e) => handleDragStart(e, idx)}
                         onDragOver={(e) => handleDragOver(e, idx)}
