@@ -98,7 +98,7 @@
                         </div>
 
                         <!-- Select all button -->
-                        <Button v-if="searchFiles.length" @click="toggleSelectAll" class="space-x-1.5 btn-outline-secondary btn-xs flex items-center">
+                        <Button v-if="(!selectable || canSelectMultiple) && searchFiles.length" @click="toggleSelectAll" class="space-x-1.5 btn-outline-secondary btn-xs flex items-center">
                             <component :is="isAllSelected ? 'ph-minus-square-light' : 'ph-check-square-light'" class="w-3.5 h-3.5 mr-1" />
                             <span>{{ isAllSelected ? 'Bỏ chọn hết' : 'Chọn tất cả' }}</span>
                         </Button>
@@ -437,11 +437,12 @@ export default {
     computed: {
         searchFiles() {
             if (!this.data || !this.data.files) return []
-            return this.data.files
+            return Array.isArray(this.data.files) ? this.data.files : Object.values(this.data.files)
         },
         canDeleteFolder() {
             if (!this.data) return false
-            const fileCount = Array.isArray(this.data.files) ? this.data.files.length : Object.keys(this.data.files || {}).length
+            const files = Array.isArray(this.data.files) ? this.data.files : Object.values(this.data.files || {})
+            const fileCount = files.length
             const dirCount = Array.isArray(this.data.directories) ? this.data.directories.length : Object.keys(this.data.directories || {}).length
 
             return fileCount === 0 && dirCount === 0 && this.currentPath !== '/'
@@ -450,8 +451,7 @@ export default {
             return this.multiple || this.selectMultiple
         },
         previewableFiles() {
-            if (!this.data || !this.data.files) return []
-            return this.data.files
+            return this.searchFiles
         },
         hasMultiplePreviewItems() {
             return this.previewableFiles.length > 1
@@ -854,6 +854,15 @@ export default {
                             life: 3000,
                         })
                     }
+                })
+                .catch((error) => {
+                    const msg = error.response?.data?.message || 'Tải file lên thất bại. Vui lòng kiểm tra lại cấu hình upload PHP hoặc định dạng file.';
+                    this.$toast.add({
+                        severity: 'error',
+                        summary: 'Lỗi tải tệp',
+                        detail: msg,
+                        life: 5000,
+                    })
                 })
                 .finally(() => {
                     this.loading = false
