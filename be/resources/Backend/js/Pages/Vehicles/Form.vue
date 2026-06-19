@@ -53,6 +53,18 @@
                             name: 'image_featured',
                             label: 'Ảnh Thumbnail hiển thị ở slider homepage',
                         }" />
+                        <Field v-model="form.video_url" :field="{
+                            type: 'text',
+                            name: 'video_url',
+                            label: 'Đường dẫn Video (YouTube hoặc link MP4 trực tiếp)',
+                            placeholder: 'vd: https://www.youtube.com/watch?v=... hoặc /uploads/video.mp4',
+                        }" />
+                        <Field v-model="form.video" :field="{
+                            type: 'file_upload',
+                            name: 'video',
+                            label: 'Tải lên Video nền dòng xe (MP4)',
+                            accept: 'video/mp4, video/x-m4v, video/*',
+                        }" />
                     </div>
                 </div>
             </div>
@@ -740,6 +752,8 @@ export default {
                 image: null,
                 image_thumbnail: null,
                 image_featured: null,
+                video_url: '',
+                video: null,
                 images: [],
                 images_360_external: [],
                 images_360_internal: [],

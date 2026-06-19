@@ -40,6 +40,8 @@ class Vehicle extends BaseModel
         'image',
         'image_thumbnail',
         'image_featured',
+        'video_url',
+        'video',
         'images',
         'colors',
         'images_360_external',
@@ -67,6 +69,8 @@ class Vehicle extends BaseModel
             'image'          => 'nullable|array',
             'image_thumbnail' => 'nullable|array',
             'image_featured'  => 'nullable|array',
+            'video_url'      => 'nullable|string|max:500',
+            'video'          => 'nullable|array',
             'images'         => 'nullable|array',
             'colors'         => 'nullable|array',
             'images_360_external' => 'nullable|array',
@@ -103,6 +107,21 @@ class Vehicle extends BaseModel
     }
 
     public function getImageAttribute($value): ?array
+    {
+        if (is_null($value) || $value === '') return null;
+        $decoded = $this->decodeJsonField($value);
+        if (is_null($decoded) && is_string($value)) {
+            return ['path' => $value];
+        }
+        return $decoded;
+    }
+
+    public function setVideoAttribute($value): void
+    {
+        $this->attributes['video'] = $this->encodeJsonField($value);
+    }
+
+    public function getVideoAttribute($value): ?array
     {
         if (is_null($value) || $value === '') return null;
         $decoded = $this->decodeJsonField($value);

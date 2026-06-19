@@ -35,6 +35,13 @@ export const resolveImageUrl = (img: any): string => {
   return `${baseDomain}/static/${cleanPath}`;
 };
 
+export const getYoutubeId = (url: string | null | undefined): string | null => {
+  if (!url) return null;
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+  const match = url.match(regExp);
+  return (match && match[2].length === 11) ? match[2] : null;
+};
+
 
 interface BlocksProps {
   layout?: any[];
@@ -302,7 +309,16 @@ function HeroBannerBlock({ data, vehicle, openQuoteDrawer, openDriveModal, isEdi
   const btnText = data.button_text || "Book Lái thử";
   const btnLink = data.button_link || "#drive";
   const bgImg = resolveImageUrl(data.background_image || vehicle.images?.[0] || "/assets/territory-hero.png");
-  const bgVideo = data.background_video || null;
+  const youtubeId = getYoutubeId(data.background_video || vehicle.video_url);
+  const hasVehicleVideo = vehicle.video && (
+    (typeof vehicle.video === 'string' && vehicle.video.trim() !== '') || 
+    (typeof vehicle.video === 'object' && (vehicle.video.url || vehicle.video.path))
+  );
+  const bgVideo = youtubeId ? null : (
+    data.background_video || 
+    vehicle.video_url || 
+    (hasVehicleVideo ? resolveImageUrl(vehicle.video) : null)
+  );
 
   // Alignment classes
   const alignClass = data.align === 'left' ? 'items-start text-left' 
@@ -359,7 +375,15 @@ function HeroBannerBlock({ data, vehicle, openQuoteDrawer, openDriveModal, isEdi
           className="object-cover object-center pointer-events-none"
           priority
         />
-        {bgVideo && (
+        {youtubeId ? (
+          <iframe
+            src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=1&loop=1&playlist=${youtubeId}&controls=0&showinfo=0&rel=0&playsinline=1&enablejsapi=1`}
+            className="absolute inset-0 w-full h-full object-cover pointer-events-none z-5 scale-110"
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          />
+        ) : bgVideo ? (
           <video
             src={bgVideo}
             autoPlay
@@ -368,7 +392,7 @@ function HeroBannerBlock({ data, vehicle, openQuoteDrawer, openDriveModal, isEdi
             playsInline
             className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none z-5"
           />
-        )}
+        ) : null}
         <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent h-[250px] z-10" />
         
         {isEditMode && (

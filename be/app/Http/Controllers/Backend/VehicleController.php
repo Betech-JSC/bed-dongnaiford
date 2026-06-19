@@ -155,6 +155,7 @@ class VehicleController extends Controller
             'image',
             'image_thumbnail',
             'image_featured',
+            'video',
             'versions',
             'layout_blocks',
             'accessories',

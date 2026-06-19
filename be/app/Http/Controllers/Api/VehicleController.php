@@ -27,6 +27,8 @@ class VehicleController extends Controller
             'image_url'           => $v->image_url,
             'image_thumbnail_url' => $v->image_thumbnail_url,
             'image_featured_url'  => $v->image_featured_url,
+            'video_url'           => $v->video_url,
+            'video'               => $v->video ? $this->resolveFileUrl($v->video) : null,
             'type'                => $v->type,
             'base_price'          => $v->base_price,
             'is_best_seller'      => $v->is_best_seller,
@@ -115,6 +117,8 @@ class VehicleController extends Controller
             'tagline'                => $vehicle->tagline,
             'description'            => $vehicle->description,
             'image_url'              => $vehicle->image_url,
+            'video_url'              => $vehicle->video_url,
+            'video'                  => $this->resolveFileUrl($vehicle->video),
             'images'                 => collect($vehicle->images)->map(fn($img) => isset($img['path']) ? static_url($img['path']) : $img),
             'colors'                 => collect($vehicle->colors)->map(function ($color) {
                 $imagePath = null;
