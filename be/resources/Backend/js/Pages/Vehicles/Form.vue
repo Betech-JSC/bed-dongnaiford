@@ -111,15 +111,25 @@
                                                     {{ element.vi?.name || 'Phiên bản chưa đặt tên' }}
                                                 </span>
                                             </div>
-                                            <!-- Delete Version Button -->
-                                            <button 
-                                                type="button" 
-                                                class="text-red-500 hover:text-red-700 text-xs bg-red-50 hover:bg-red-100 w-5 h-5 flex items-center justify-center rounded-md border-0 cursor-pointer shrink-0 transition"
-                                                @click.stop="removeVersion(index)"
-                                                title="Xóa phiên bản"
-                                            >
-                                                ✕
-                                            </button>
+                                            <!-- Version Actions -->
+                                            <div class="flex items-center gap-1 shrink-0">
+                                                <button 
+                                                    type="button" 
+                                                    class="text-indigo-600 hover:text-indigo-800 text-xs bg-indigo-50 hover:bg-indigo-100 w-5 h-5 flex items-center justify-center rounded-md border-0 cursor-pointer shrink-0 transition"
+                                                    @click.stop="duplicateVersion(index)"
+                                                    title="Nhân bản phiên bản này"
+                                                >
+                                                    📋
+                                                </button>
+                                                <button 
+                                                    type="button" 
+                                                    class="text-red-500 hover:text-red-700 text-xs bg-red-50 hover:bg-red-100 w-5 h-5 flex items-center justify-center rounded-md border-0 cursor-pointer shrink-0 transition"
+                                                    @click.stop="removeVersion(index)"
+                                                    title="Xóa phiên bản"
+                                                >
+                                                    ✕
+                                                </button>
+                                            </div>
                                         </div>
                                     </template>
                                 </Draggable>
@@ -141,6 +151,63 @@
                                     <button type="button" class="text-red-600 hover:text-red-800 font-bold text-xs bg-red-50 hover:bg-red-100 border border-red-200 px-3 py-1.5 rounded-lg transition cursor-pointer" @click="removeVersion(activeVersionIndex)">
                                         ✕ Xóa phiên bản này
                                     </button>
+                                </div>
+
+                                <!-- Quick Tools Panel -->
+                                <div class="flex flex-wrap items-center gap-3 bg-indigo-50/40 p-3.5 rounded-xl border border-indigo-150/60">
+                                    <span class="text-xs font-bold text-indigo-900 flex items-center gap-1">
+                                        <span>⚡</span>
+                                        <span>Công cụ nhanh:</span>
+                                    </span>
+                                    
+                                    <button 
+                                        type="button" 
+                                        @click="showSpecsImportModal = !showSpecsImportModal" 
+                                        class="text-xs bg-white hover:bg-gray-50 text-indigo-700 font-bold px-3 py-1.5 rounded-lg border border-indigo-200 transition cursor-pointer"
+                                    >
+                                        📥 Nhập specs nhanh từ text
+                                    </button>
+
+                                    <!-- Clone Colors from other version -->
+                                    <select 
+                                        v-if="form.versions && form.versions.length > 1" 
+                                        @change="handleCloneColorsFromVersion($event)" 
+                                        class="bg-white border border-gray-300 rounded-lg px-2.5 py-1.5 text-xs font-bold text-gray-750 cursor-pointer focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                                    >
+                                        <option value="">🎨 Sao chép màu từ phiên bản khác...</option>
+                                        <option v-for="(v, idx) in form.versions" :key="idx" :value="idx" v-show="idx !== activeVersionIndex">
+                                            {{ v.vi?.name || `Phiên bản #${idx + 1}` }}
+                                        </option>
+                                    </select>
+
+                                    <!-- Clone Specs from other version -->
+                                    <select 
+                                        v-if="form.versions && form.versions.length > 1" 
+                                        @change="handleCloneSpecsFromVersion($event)" 
+                                        class="bg-white border border-gray-300 rounded-lg px-2.5 py-1.5 text-xs font-bold text-gray-750 cursor-pointer focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                                    >
+                                        <option value="">📋 Sao chép specs từ phiên bản khác...</option>
+                                        <option v-for="(v, idx) in form.versions" :key="idx" :value="idx" v-show="idx !== activeVersionIndex">
+                                            {{ v.vi?.name || `Phiên bản #${idx + 1}` }}
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <!-- Collapsible Text Importer -->
+                                <div v-if="showSpecsImportModal" class="bg-gray-50 border border-gray-200 p-4 rounded-xl space-y-3">
+                                    <div class="flex justify-between items-center">
+                                        <h5 class="text-xs font-bold text-gray-700">Dán danh sách thông số kỹ thuật (dán trực tiếp từ web/brochure/Excel)</h5>
+                                        <button type="button" @click="showSpecsImportModal = false" class="text-gray-450 hover:text-gray-600 text-xs bg-transparent border-0 cursor-pointer">Đóng</button>
+                                    </div>
+                                    <textarea 
+                                        v-model="specsImportText" 
+                                        rows="8" 
+                                        class="w-full text-xs p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-indigo-500 text-gray-900 bg-white"
+                                        placeholder="Vận hành&#10;Động cơ: Xăng EcoBoost 1.5L&#10;Công suất cực đại: 160 mã lực&#10;&#10;Ngoại thất&#10;Đèn pha: LED Matrix&#10;Mâm xe: Hợp kim 18 inch"
+                                    ></textarea>
+                                    <div class="flex justify-end gap-2">
+                                        <button type="button" @click="executeSpecsImport" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2 rounded-lg cursor-pointer transition border-0">Xử lý & Nhập thông số</button>
+                                    </div>
                                 </div>
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -599,6 +666,8 @@ export default {
             activeVersionIndex: 0,
             accessorySearch: '',
             accessoryFilterCategory: 'all',
+            showSpecsImportModal: false,
+            specsImportText: '',
             tabs: [
                 { id: 'general', name: 'ℹ️ Thông tin chung & Ảnh' },
                 { id: 'versions', name: '⚙️ Phiên bản & Thông số' },
@@ -850,6 +919,171 @@ export default {
                     this.activeVersionIndex = Math.max(0, this.formData.versions.length - 1)
                 }
             }
+        },
+
+        duplicateVersion(index) {
+            const ver = this.formData.versions[index];
+            if (!ver) return;
+
+            const cloneObject = (obj) => {
+                if (obj === null || typeof obj !== 'object') return obj;
+                if (obj instanceof File) return obj;
+                if (obj instanceof Date) return new Date(obj.getTime());
+                if (Array.isArray(obj)) return obj.map(item => cloneObject(item));
+                const cloned = {};
+                for (const key in obj) {
+                    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+                        cloned[key] = cloneObject(obj[key]);
+                    }
+                }
+                return cloned;
+            };
+
+            const clonedVersion = cloneObject(ver);
+            
+            // Adjust properties to indicate a copy
+            if (clonedVersion.vi && clonedVersion.vi.name) {
+                clonedVersion.vi.name = `${clonedVersion.vi.name} (Bản sao)`;
+            }
+            if (clonedVersion.en && clonedVersion.en.name) {
+                clonedVersion.en.name = `${clonedVersion.en.name} (Copy)`;
+            }
+            clonedVersion.id = undefined; // Force backend to treat it as a new version
+            clonedVersion.sort_order = this.formData.versions.length + 1;
+
+            this.formData.versions.push(clonedVersion);
+            this.activeVersionIndex = this.formData.versions.length - 1;
+        },
+
+        handleCloneColorsFromVersion(event) {
+            const sourceIndex = event.target.value;
+            if (sourceIndex === "" || sourceIndex === undefined || sourceIndex === null) return;
+            
+            const sourceVer = this.formData.versions[sourceIndex];
+            const targetVer = this.formData.versions[this.activeVersionIndex];
+            
+            if (sourceVer && targetVer && sourceVer.colors && sourceVer.colors.length > 0) {
+                if (confirm(`Bạn có chắc chắn muốn sao chép toàn bộ bảng màu từ phiên bản "${sourceVer.vi?.name || 'này'}" không? Bảng màu cũ của phiên bản hiện tại sẽ bị xóa.`)) {
+                    const cloneObject = (obj) => {
+                        if (obj === null || typeof obj !== 'object') return obj;
+                        if (obj instanceof File) return obj;
+                        if (Array.isArray(obj)) return obj.map(item => cloneObject(item));
+                        const cloned = {};
+                        for (const key in obj) {
+                            if (Object.prototype.hasOwnProperty.call(obj, key)) {
+                                cloned[key] = cloneObject(obj[key]);
+                            }
+                        }
+                        return cloned;
+                    };
+                    targetVer.colors = cloneObject(sourceVer.colors);
+                }
+            } else {
+                alert("Phiên bản được chọn không có cấu hình màu sắc nào.");
+            }
+            // Reset dropdown
+            event.target.value = "";
+        },
+
+        handleCloneSpecsFromVersion(event) {
+            const sourceIndex = event.target.value;
+            if (sourceIndex === "" || sourceIndex === undefined || sourceIndex === null) return;
+            
+            const sourceVer = this.formData.versions[sourceIndex];
+            const targetVer = this.formData.versions[this.activeVersionIndex];
+            
+            if (sourceVer && targetVer && sourceVer.customSpecs && sourceVer.customSpecs.length > 0) {
+                if (confirm(`Bạn có chắc chắn muốn sao chép thông số kỹ thuật từ phiên bản "${sourceVer.vi?.name || 'này'}" không? Thông số cũ của phiên bản hiện tại sẽ bị ghi đè.`)) {
+                    const cloneObject = (obj) => {
+                        if (obj === null || typeof obj !== 'object') return obj;
+                        if (obj instanceof File) return obj;
+                        if (Array.isArray(obj)) return obj.map(item => cloneObject(item));
+                        const cloned = {};
+                        for (const key in obj) {
+                            if (Object.prototype.hasOwnProperty.call(obj, key)) {
+                                cloned[key] = cloneObject(obj[key]);
+                            }
+                        }
+                        return cloned;
+                    };
+                    targetVer.customSpecs = cloneObject(sourceVer.customSpecs);
+                }
+            } else {
+                alert("Phiên bản được chọn không có thông số kỹ thuật nào.");
+            }
+            // Reset dropdown
+            event.target.value = "";
+        },
+
+        executeSpecsImport() {
+            if (!this.specsImportText || !this.specsImportText.trim()) {
+                alert("Vui lòng dán nội dung thông số kỹ thuật trước khi bấm xử lý.");
+                return;
+            }
+
+            const lines = this.specsImportText.split('\n').map(l => l.trim()).filter(Boolean);
+            const parsedGroups = [];
+            let currentGroup = null;
+
+            const knownCategories = [
+                'vận hành', 'thiết kế bánh xe', 'ngoại thất', 'nội thất', 'công nghệ', 
+                'hỗ trợ người lái & an toàn', 'an toàn', 'kích thước', 'động cơ & hộp số',
+                'hệ thống treo', 'tiêu hao nhiên liệu', 'trang bị'
+            ];
+
+            lines.forEach(line => {
+                const lowerLine = line.toLowerCase();
+                const isHeader = knownCategories.includes(lowerLine) || 
+                                 (line.length < 40 && !line.includes(':') && !line.startsWith('-') && !line.match(/^\d+\./));
+
+                if (isHeader) {
+                    currentGroup = {
+                        title: line,
+                        items: []
+                    };
+                    parsedGroups.push(currentGroup);
+                } else {
+                    if (!currentGroup) {
+                        currentGroup = {
+                            title: 'Thông số chung',
+                            items: []
+                        };
+                        parsedGroups.push(currentGroup);
+                    }
+                    currentGroup.items.push(line);
+                }
+            });
+
+            const ver = this.formData.versions[this.activeVersionIndex];
+            if (!ver.customSpecs) ver.customSpecs = [];
+
+            parsedGroups.forEach(g => {
+                const contentHtml = `<ul class="list-disc pl-4 space-y-1">\n` + 
+                    g.items.map(item => {
+                        const colonIndex = item.indexOf(':');
+                        if (colonIndex > -1) {
+                            const key = item.substring(0, colonIndex).trim();
+                            const val = item.substring(colonIndex + 1).trim();
+                            return `  <li>${key}: <strong>${val}</strong></li>`;
+                        }
+                        return `  <li>${item}</li>`;
+                    }).join('\n') + 
+                    `\n</ul>`;
+
+                const existing = ver.customSpecs.find(s => s.title.toLowerCase() === g.title.toLowerCase());
+                if (existing) {
+                    existing.content = existing.content ? (existing.content + '<br/>' + contentHtml) : contentHtml;
+                } else {
+                    ver.customSpecs.push({
+                        title: g.title,
+                        content: contentHtml
+                    });
+                }
+            });
+
+            this.specsImportText = '';
+            this.showSpecsImportModal = false;
+            alert("Đã nhập thông số thành công!");
         },
 
         addCustomSpec(versionIndex) {
