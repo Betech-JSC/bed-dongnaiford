@@ -109,7 +109,7 @@
 </template>
 
 <script>
-import FileManager from "@Core/Components/FileManager.vue";
+import FileManager from "@/Components/FileManager.vue";
 import Thumbnail from "@Core/Components/Thumbnail.vue";
 
 export default {

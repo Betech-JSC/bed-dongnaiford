@@ -624,7 +624,7 @@
 
 <script>
 import Draggable from 'vuedraggable'
-import FileManager from '@Core/Components/FileManager.vue'
+import FileManager from '@/Components/FileManager.vue'
 
 export default {
     name: 'BlockEditor',
