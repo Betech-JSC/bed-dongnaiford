@@ -592,29 +592,60 @@ function SpecsGridBlock({ data, vehicle, isEditMode, onChangeData, openQuoteDraw
     isExternal: false
   }));
 
-  const align = data.align || 'center';
-  const alignClass = align === 'left' ? 'text-left mr-auto ml-0'
-    : align === 'right' ? 'text-right ml-auto mr-0'
-      : 'text-center mx-auto';
+  const scrollContainerRef = React.useRef<HTMLDivElement>(null);
+
+  const scroll = (direction: 'left' | 'right') => {
+    if (scrollContainerRef.current) {
+      const offset = direction === 'left' ? -392 : 392; // card width (368) + gap (24)
+      scrollContainerRef.current.scrollBy({ left: offset, behavior: 'smooth' });
+    }
+  };
+
+  const justifyClass = compareItems.length <= 3 ? 'lg:justify-center' : 'lg:justify-start';
 
   return (
     <section id={anchorId || undefined} className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full pt-16 pb-12">
       <div className="space-y-12">
-        <div className={`max-w-xl space-y-2 ${alignClass}`}>
-          <span className="text-xs font-bold uppercase tracking-wider text-[#0562d2] block">So sánh trực quan</span>
-          <h2 className="font-['Ford_Antenna',sans-serif] font-semibold text-[#00095b] text-[32px] sm:text-[40px] uppercase tracking-[-0.96px] leading-[1.2]">
-            So sánh các phiên bản {vehicle.name.replace("NEW ", "")}
-          </h2>
-          <p className="text-xs text-gray-500 font-medium">
-            Bảng đối chiếu thông số kỹ thuật và trang bị trực quan giữa các phiên bản xe
-          </p>
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 w-full">
+          <div className="space-y-2 text-left">
+            <span className="text-xs font-bold uppercase tracking-wider text-[#0562d2] block">So sánh trực quan</span>
+            <h2 className="font-['Ford_Antenna',sans-serif] font-semibold text-[#00095b] text-[32px] sm:text-[40px] uppercase tracking-[-0.96px] leading-[1.2]">
+              So sánh các phiên bản {vehicle.name.replace("NEW ", "")}
+            </h2>
+            <p className="text-xs text-gray-500 font-medium">
+              Bảng đối chiếu thông số kỹ thuật và trang bị trực quan giữa các phiên bản xe
+            </p>
+          </div>
+          {compareItems.length > 3 && (
+            <div className="flex gap-2 self-start sm:self-auto shrink-0">
+              <button
+                type="button"
+                onClick={() => scroll('left')}
+                className="p-2.5 border border-gray-200 rounded-full bg-white hover:bg-gray-100 transition shadow-sm cursor-pointer focus:outline-none flex items-center justify-center"
+                aria-label="Scroll left"
+              >
+                <ChevronLeft className="w-4.5 h-4.5 text-gray-600" />
+              </button>
+              <button
+                type="button"
+                onClick={() => scroll('right')}
+                className="p-2.5 border border-gray-200 rounded-full bg-white hover:bg-gray-100 transition shadow-sm cursor-pointer focus:outline-none flex items-center justify-center"
+                aria-label="Scroll right"
+              >
+                <ChevronRight className="w-4.5 h-4.5 text-gray-600" />
+              </button>
+            </div>
+          )}
         </div>
 
-        <div className="flex flex-col md:flex-row gap-6 justify-center items-stretch w-full overflow-x-auto pb-4 scrollbar-none">
+        <div
+          ref={scrollContainerRef}
+          className={`flex flex-row gap-6 justify-start ${justifyClass} items-stretch w-full overflow-x-auto pb-4 scroll-smooth snap-x snap-mandatory scrollbar-none`}
+        >
           {compareItems.map((item: any) => (
             <div
               key={item.id}
-              className="bg-white border border-gray-200/60 drop-shadow-[0px_4px_4px_rgba(16,24,40,0.06)] flex flex-col items-stretch relative w-full md:w-[368px] min-w-[280px] md:min-w-[320px] rounded-[12px] overflow-hidden transition-all duration-300 hover:scale-[1.01] hover:shadow-lg"
+              className="bg-white border border-gray-200/60 drop-shadow-[0px_4px_4px_rgba(16,24,40,0.06)] flex flex-col items-stretch relative w-[280px] sm:w-[320px] md:w-[368px] shrink-0 rounded-[12px] overflow-hidden transition-all duration-300 hover:scale-[1.01] hover:shadow-lg snap-start"
             >
               <div className="content-stretch flex flex-col items-start relative shrink-0 w-full">
                 <div className="aspect-[800/550] relative shrink-0 w-full bg-gray-50 overflow-hidden">
