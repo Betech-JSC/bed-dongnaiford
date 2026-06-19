@@ -35,6 +35,9 @@ Route::localized(function () {
         Route::get('consultants', [SalesConsultantController::class, 'index'])->name('consultants.index');
         Route::get('consultants/{slug}', [SalesConsultantController::class, 'show'])->name('consultants.show');
 
+        // AI Generate Block Content
+        Route::post('ai/generate-block-content', [VehicleController::class, 'generateBlockContent'])->name('generateBlockContent');
+
         // Chi tiết xe (Đặt ở dưới cùng để tránh tranh chấp wildcard {slug})
         Route::get('{slug}', [VehicleController::class, 'show'])->name('show');
         Route::put('{slug}/layout', [VehicleController::class, 'updateLayout'])->name('updateLayout');

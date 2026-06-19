@@ -72,18 +72,28 @@
                     <div class="space-y-4">
                         <!-- 1. HeroBanner Edit Form -->
                         <div v-if="blocks[activeIndex].type === 'HeroBanner'" class="space-y-4">
-                            <Field v-model="blocks[activeIndex].data.title" :field="{
-                                type: 'text',
-                                name: 'hb_title_' + activeIndex,
-                                label: 'Tiêu đề lớn (Title)',
-                                placeholder: 'vd: FORD EVEREST MỚI',
-                            }" />
-                            <Field v-model="blocks[activeIndex].data.tagline" :field="{
-                                type: 'text',
-                                name: 'hb_tag_' + activeIndex,
-                                label: 'Tagline / Slogan',
-                                placeholder: 'vd: Dấn bước. Dẫn đầu.',
-                            }" />
+                            <div class="relative">
+                                <button type="button" @click="openAIModal('HeroBanner', 'title', activeIndex)" class="absolute top-0 right-0 z-10 text-[10px] text-blue-400 hover:text-blue-300 bg-transparent border-0 p-1 flex items-center gap-1 font-semibold" title="Viết bằng AI">
+                                    ✨ AI viết
+                                </button>
+                                <Field v-model="blocks[activeIndex].data.title" :field="{
+                                    type: 'text',
+                                    name: 'hb_title_' + activeIndex,
+                                    label: 'Tiêu đề lớn (Title)',
+                                    placeholder: 'vd: FORD EVEREST MỚI',
+                                }" />
+                            </div>
+                            <div class="relative">
+                                <button type="button" @click="openAIModal('HeroBanner', 'tagline', activeIndex)" class="absolute top-0 right-0 z-10 text-[10px] text-blue-400 hover:text-blue-300 bg-transparent border-0 p-1 flex items-center gap-1 font-semibold" title="Viết bằng AI">
+                                    ✨ AI viết
+                                </button>
+                                <Field v-model="blocks[activeIndex].data.tagline" :field="{
+                                    type: 'text',
+                                    name: 'hb_tag_' + activeIndex,
+                                    label: 'Tagline / Slogan',
+                                    placeholder: 'vd: Dấn bước. Dẫn đầu.',
+                                }" />
+                            </div>
                             <div class="grid grid-cols-2 gap-3">
                                 <Field v-model="blocks[activeIndex].data.button_text" :field="{
                                     type: 'text',
@@ -106,17 +116,27 @@
 
                         <!-- 2. Promotions Edit Form -->
                         <div v-else-if="blocks[activeIndex].type === 'Promotions'" class="space-y-4">
-                            <Field v-model="blocks[activeIndex].data.title" :field="{
-                                type: 'text',
-                                name: 'pr_title_' + activeIndex,
-                                label: 'Tiêu đề khuyến mãi',
-                                placeholder: 'vd: Chương trình khuyến mãi đặc biệt',
-                            }" />
-                            <Field v-model="blocks[activeIndex].data.description" :field="{
-                                type: 'textarea',
-                                name: 'pr_desc_' + activeIndex,
-                                label: 'Nội dung ngắn khuyến mãi',
-                            }" />
+                            <div class="relative">
+                                <button type="button" @click="openAIModal('Promotions', 'title', activeIndex)" class="absolute top-0 right-0 z-10 text-[10px] text-blue-400 hover:text-blue-300 bg-transparent border-0 p-1 flex items-center gap-1 font-semibold" title="Viết bằng AI">
+                                    ✨ AI viết
+                                </button>
+                                <Field v-model="blocks[activeIndex].data.title" :field="{
+                                    type: 'text',
+                                    name: 'pr_title_' + activeIndex,
+                                    label: 'Tiêu đề khuyến mãi',
+                                    placeholder: 'vd: Chương trình khuyến mãi đặc biệt',
+                                }" />
+                            </div>
+                            <div class="relative">
+                                <button type="button" @click="openAIModal('Promotions', 'description', activeIndex)" class="absolute top-0 right-0 z-10 text-[10px] text-blue-400 hover:text-blue-300 bg-transparent border-0 p-1 flex items-center gap-1 font-semibold" title="Viết bằng AI">
+                                    ✨ AI viết
+                                </button>
+                                <Field v-model="blocks[activeIndex].data.description" :field="{
+                                    type: 'textarea',
+                                    name: 'pr_desc_' + activeIndex,
+                                    label: 'Nội dung ngắn khuyến mãi',
+                                }" />
+                            </div>
                             <div class="grid grid-cols-2 gap-3">
                                 <Field v-model="blocks[activeIndex].data.button_text" :field="{
                                     type: 'text',
@@ -134,16 +154,26 @@
 
                         <!-- 3. ThreeSixtyViewer Edit Form -->
                         <div v-else-if="blocks[activeIndex].type === 'ThreeSixtyViewer'" class="space-y-4">
-                            <Field v-model="blocks[activeIndex].data.title" :field="{
-                                type: 'text',
-                                name: 'tsv_title_' + activeIndex,
-                                label: 'Tiêu đề khối 360',
-                            }" />
-                            <Field v-model="blocks[activeIndex].data.description" :field="{
-                                type: 'textarea',
-                                name: 'tsv_desc_' + activeIndex,
-                                label: 'Mô tả ngắn',
-                            }" />
+                            <div class="relative">
+                                <button type="button" @click="openAIModal('ThreeSixtyViewer', 'title', activeIndex)" class="absolute top-0 right-0 z-10 text-[10px] text-blue-400 hover:text-blue-300 bg-transparent border-0 p-1 flex items-center gap-1 font-semibold" title="Viết bằng AI">
+                                    ✨ AI viết
+                                </button>
+                                <Field v-model="blocks[activeIndex].data.title" :field="{
+                                    type: 'text',
+                                    name: 'tsv_title_' + activeIndex,
+                                    label: 'Tiêu đề khối 360',
+                                }" />
+                            </div>
+                            <div class="relative">
+                                <button type="button" @click="openAIModal('ThreeSixtyViewer', 'description', activeIndex)" class="absolute top-0 right-0 z-10 text-[10px] text-blue-400 hover:text-blue-300 bg-transparent border-0 p-1 flex items-center gap-1 font-semibold" title="Viết bằng AI">
+                                    ✨ AI viết
+                                </button>
+                                <Field v-model="blocks[activeIndex].data.description" :field="{
+                                    type: 'textarea',
+                                    name: 'tsv_desc_' + activeIndex,
+                                    label: 'Mô tả ngắn',
+                                }" />
+                            </div>
                         </div>
 
                         <!-- 4. FeaturesGrid Edit Form -->
@@ -151,11 +181,16 @@
                             <div class="border-b border-slate-800 pb-3 mb-3">
                                 <span class="text-xs font-bold text-blue-400"># PHẦN 1: THIẾT KẾ</span>
                                 <div class="mt-2 space-y-3">
-                                    <Field v-model="blocks[activeIndex].data.title_1" :field="{
-                                        type: 'text',
-                                        name: 'fg_t1_' + activeIndex,
-                                        label: 'Tiêu đề nhóm 1',
-                                    }" />
+                                    <div class="relative">
+                                        <button type="button" @click="openAIModal('FeaturesGrid', 'title_1', activeIndex)" class="absolute top-0 right-0 z-10 text-[10px] text-blue-400 hover:text-blue-300 bg-transparent border-0 p-1 flex items-center gap-1 font-semibold" title="Viết bằng AI">
+                                            ✨ AI viết
+                                        </button>
+                                        <Field v-model="blocks[activeIndex].data.title_1" :field="{
+                                            type: 'text',
+                                            name: 'fg_t1_' + activeIndex,
+                                            label: 'Tiêu đề nhóm 1',
+                                        }" />
+                                    </div>
                                     <Field v-model="blocks[activeIndex].data.image_1" :field="{
                                         type: 'file_upload',
                                         name: 'fg_img1_' + activeIndex,
@@ -182,11 +217,16 @@
                             <div class="border-b border-slate-800 pb-3 mb-3">
                                 <span class="text-xs font-bold text-blue-400"># PHẦN 2: NỘI THẤT</span>
                                 <div class="mt-2 space-y-3">
-                                    <Field v-model="blocks[activeIndex].data.title_2" :field="{
-                                        type: 'text',
-                                        name: 'fg_t2_' + activeIndex,
-                                        label: 'Tiêu đề nhóm 2',
-                                    }" />
+                                    <div class="relative">
+                                        <button type="button" @click="openAIModal('FeaturesGrid', 'title_2', activeIndex)" class="absolute top-0 right-0 z-10 text-[10px] text-blue-400 hover:text-blue-300 bg-transparent border-0 p-1 flex items-center gap-1 font-semibold" title="Viết bằng AI">
+                                            ✨ AI viết
+                                        </button>
+                                        <Field v-model="blocks[activeIndex].data.title_2" :field="{
+                                            type: 'text',
+                                            name: 'fg_t2_' + activeIndex,
+                                            label: 'Tiêu đề nhóm 2',
+                                        }" />
+                                    </div>
                                     <Field v-model="blocks[activeIndex].data.image_large" :field="{
                                         type: 'file_upload',
                                         name: 'fg_img_l_' + activeIndex,
@@ -213,22 +253,32 @@
                             <div>
                                 <span class="text-xs font-bold text-blue-400"># PHẦN 3: CÔNG NGHỆ VÀ THÔNG SỐ NỔI BẬT</span>
                                 <div class="mt-2 space-y-3">
-                                    <Field v-model="blocks[activeIndex].data.title_3" :field="{
-                                        type: 'text',
-                                        name: 'fg_t3_' + activeIndex,
-                                        label: 'Tiêu đề nhóm 3',
-                                    }" />
+                                    <div class="relative">
+                                        <button type="button" @click="openAIModal('FeaturesGrid', 'title_3', activeIndex)" class="absolute top-0 right-0 z-10 text-[10px] text-blue-400 hover:text-blue-300 bg-transparent border-0 p-1 flex items-center gap-1 font-semibold" title="Viết bằng AI">
+                                            ✨ AI viết
+                                        </button>
+                                        <Field v-model="blocks[activeIndex].data.title_3" :field="{
+                                            type: 'text',
+                                            name: 'fg_t3_' + activeIndex,
+                                            label: 'Tiêu đề nhóm 3',
+                                        }" />
+                                    </div>
                                     <Field v-model="blocks[activeIndex].data.split_image" :field="{
                                         type: 'file_upload',
                                         name: 'fg_img_s_' + activeIndex,
                                         label: 'Ảnh công nghệ (Trái)',
                                         urlOnly: true,
                                     }" />
-                                    <Field v-model="blocks[activeIndex].data.split_title" :field="{
-                                        type: 'text',
-                                        name: 'fg_split_title_' + activeIndex,
-                                        label: 'Tiêu đề cột thông số (Phải)',
-                                    }" />
+                                    <div class="relative">
+                                        <button type="button" @click="openAIModal('FeaturesGrid', 'split_title', activeIndex)" class="absolute top-0 right-0 z-10 text-[10px] text-blue-400 hover:text-blue-300 bg-transparent border-0 p-1 flex items-center gap-1 font-semibold" title="Viết bằng AI">
+                                            ✨ AI viết
+                                        </button>
+                                        <Field v-model="blocks[activeIndex].data.split_title" :field="{
+                                            type: 'text',
+                                            name: 'fg_split_title_' + activeIndex,
+                                            label: 'Tiêu đề cột thông số (Phải)',
+                                        }" />
+                                    </div>
                                     
                                     <div class="space-y-2">
                                         <label class="text-xs font-semibold text-slate-300">Các chỉ số nổi bật:</label>
@@ -282,16 +332,26 @@
                                 <button type="button" class="absolute top-2.5 right-2.5 text-red-400 hover:text-red-500 font-bold text-xs" @click="removeFeature(activeIndex, fIndex)">✕ Xóa</button>
                                 <span class="text-[9px] uppercase font-bold text-slate-400 bg-slate-950 px-2 py-0.5 rounded border border-slate-800">Tính năng #{{ fIndex + 1 }}</span>
                                 
-                                <Field v-model="blocks[activeIndex].data.features[fIndex].title" :field="{
-                                    type: 'text',
-                                    name: 'fl_t_' + activeIndex + '_' + fIndex,
-                                    label: 'Tên tính năng',
-                                }" />
-                                <Field v-model="blocks[activeIndex].data.features[fIndex].description" :field="{
-                                    type: 'textarea',
-                                    name: 'fl_d_' + activeIndex + '_' + fIndex,
-                                    label: 'Mô tả ngắn',
-                                }" />
+                                <div class="relative">
+                                    <button type="button" @click="openAIModal('FeaturesList', 'title', activeIndex, fIndex)" class="absolute top-0 right-0 z-10 text-[10px] text-blue-400 hover:text-blue-300 bg-transparent border-0 p-1 flex items-center gap-1 font-semibold" title="Viết bằng AI">
+                                        ✨ AI viết
+                                    </button>
+                                    <Field v-model="blocks[activeIndex].data.features[fIndex].title" :field="{
+                                        type: 'text',
+                                        name: 'fl_t_' + activeIndex + '_' + fIndex,
+                                        label: 'Tên tính năng',
+                                    }" />
+                                </div>
+                                <div class="relative">
+                                    <button type="button" @click="openAIModal('FeaturesList', 'description', activeIndex, fIndex)" class="absolute top-0 right-0 z-10 text-[10px] text-blue-400 hover:text-blue-300 bg-transparent border-0 p-1 flex items-center gap-1 font-semibold" title="Viết bằng AI">
+                                        ✨ AI viết
+                                    </button>
+                                    <Field v-model="blocks[activeIndex].data.features[fIndex].description" :field="{
+                                        type: 'textarea',
+                                        name: 'fl_d_' + activeIndex + '_' + fIndex,
+                                        label: 'Mô tả ngắn',
+                                    }" />
+                                </div>
                                 <Field v-model="blocks[activeIndex].data.features[fIndex].image" :field="{
                                     type: 'file_upload',
                                     name: 'fl_img_' + activeIndex + '_' + fIndex,
@@ -313,27 +373,42 @@
                                 <button type="button" class="absolute top-2.5 right-2.5 text-red-400 hover:text-red-500 font-bold text-xs" @click="removeFaq(activeIndex, faqIndex)">✕ Xóa</button>
                                 <span class="text-[9px] uppercase font-bold text-slate-400 bg-slate-950 px-2 py-0.5 rounded border border-slate-800">Câu hỏi #{{ faqIndex + 1 }}</span>
                                 
-                                <Field v-model="blocks[activeIndex].data.faqs[faqIndex].q" :field="{
-                                    type: 'text',
-                                    name: 'faq_q_' + activeIndex + '_' + faqIndex,
-                                    label: 'Câu hỏi (Question)',
-                                    placeholder: 'vd: Xe bảo hành bao lâu?',
-                                }" />
-                                <Field v-model="blocks[activeIndex].data.faqs[faqIndex].a" :field="{
-                                    type: 'textarea',
-                                    name: 'faq_a_' + activeIndex + '_' + faqIndex,
-                                    label: 'Câu trả lời (Answer)',
-                                }" />
+                                <div class="relative">
+                                    <button type="button" @click="openAIModal('AccordionFAQs', 'q', activeIndex, faqIndex)" class="absolute top-0 right-0 z-10 text-[10px] text-blue-400 hover:text-blue-300 bg-transparent border-0 p-1 flex items-center gap-1 font-semibold" title="Viết bằng AI">
+                                        ✨ AI viết
+                                    </button>
+                                    <Field v-model="blocks[activeIndex].data.faqs[faqIndex].q" :field="{
+                                        type: 'text',
+                                        name: 'faq_q_' + activeIndex + '_' + faqIndex,
+                                        label: 'Câu hỏi (Question)',
+                                        placeholder: 'vd: Xe bảo hành bao lâu?',
+                                    }" />
+                                </div>
+                                <div class="relative">
+                                    <button type="button" @click="openAIModal('AccordionFAQs', 'a', activeIndex, faqIndex)" class="absolute top-0 right-0 z-10 text-[10px] text-blue-400 hover:text-blue-300 bg-transparent border-0 p-1 flex items-center gap-1 font-semibold" title="Viết bằng AI">
+                                        ✨ AI viết
+                                    </button>
+                                    <Field v-model="blocks[activeIndex].data.faqs[faqIndex].a" :field="{
+                                        type: 'textarea',
+                                        name: 'faq_a_' + activeIndex + '_' + faqIndex,
+                                        label: 'Câu trả lời (Answer)',
+                                    }" />
+                                </div>
                             </div>
                         </div>
 
                         <!-- 9. BookingBanner Edit Form -->
                         <div v-else-if="blocks[activeIndex].type === 'BookingBanner'" class="space-y-4">
-                            <Field v-model="blocks[activeIndex].data.title" :field="{
-                                type: 'text',
-                                name: 'bb_title_' + activeIndex,
-                                label: 'Tiêu đề Banner',
-                            }" />
+                            <div class="relative">
+                                <button type="button" @click="openAIModal('BookingBanner', 'title', activeIndex)" class="absolute top-0 right-0 z-10 text-[10px] text-blue-400 hover:text-blue-300 bg-transparent border-0 p-1 flex items-center gap-1 font-semibold" title="Viết bằng AI">
+                                    ✨ AI viết
+                                </button>
+                                <Field v-model="blocks[activeIndex].data.title" :field="{
+                                    type: 'text',
+                                    name: 'bb_title_' + activeIndex,
+                                    label: 'Tiêu đề Banner',
+                                }" />
+                            </div>
                             <div class="grid grid-cols-2 gap-3">
                                 <Field v-model="blocks[activeIndex].data.phone" :field="{
                                     type: 'text',
@@ -619,6 +694,30 @@
             @onSelect="onSelectMedia"
             :multiple="false"
         />
+
+        <Dialog header="Viết nội dung bằng AI (Gemini)" v-model:visible="showAIPromptModal" :style="{ width: '400px' }" :draggable="false" :modal="true">
+            <div class="space-y-4 pt-2">
+                <p class="text-xs text-gray-400">
+                    AI sẽ tự động viết nội dung phù hợp cho dòng xe <strong>{{ vehicleData.title || (vehicleData.vi && vehicleData.vi.title) || 'Xe Ford' }}</strong> tại phần <strong>{{ aiTarget.sectionName }}</strong>.
+                </p>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 mb-1">Yêu cầu đặc biệt (tùy chọn):</label>
+                    <textarea 
+                        v-model="aiUserPrompt" 
+                        placeholder="Ví dụ: viết ngắn gọn, nhấn mạnh về tính an toàn, có icon biểu tượng cảm xúc..." 
+                        class="w-full text-xs p-2 border border-slate-700 bg-slate-950 text-white rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        rows="3"
+                    ></textarea>
+                </div>
+            </div>
+            <template #footer>
+                <Button variant="white" @click="showAIPromptModal = false" label="Hủy" class="btn-xs" />
+                <Button type="button" class="ml-2 btn-primary btn-xs" @click="generateAIContent" :loading="aiLoading">
+                    <span v-if="aiLoading">Đang tạo...</span>
+                    <span v-else>Tạo nội dung</span>
+                </Button>
+            </template>
+        </Dialog>
     </div>
 </template>
 
@@ -650,6 +749,16 @@ export default {
     emits: ['update:modelValue'],
     data() {
         return {
+            showAIPromptModal: false,
+            aiLoading: false,
+            aiUserPrompt: '',
+            aiTarget: {
+                sectionType: '',
+                sectionName: '',
+                fieldType: '',
+                blockIndex: -1,
+                subIndex: null
+            },
             activeTab: 'sections', // 'sections' or 'library'
             activeIndex: null, // Index of the block being edited in Left Panel
             iframeLoaded: false,
@@ -754,21 +863,20 @@ export default {
                 const fileUrl = file.static_url || file.path;
 
                 const { index, field, subIndex } = this.mediaTarget;
-                if (this.blocks[index]) {
+                const list = JSON.parse(JSON.stringify(this.blocks));
+                if (list[index]) {
                     if (field === 'features' && subIndex !== undefined) {
-                        if (!this.blocks[index].data.features) {
-                            this.blocks[index].data.features = [];
+                        if (!list[index].data.features) {
+                            list[index].data.features = [];
                         }
-                        if (this.blocks[index].data.features[subIndex]) {
-                            this.blocks[index].data.features[subIndex].image = fileUrl;
+                        if (list[index].data.features[subIndex]) {
+                            list[index].data.features[subIndex].image = fileUrl;
                         }
                     } else {
-                        this.blocks[index].data[field] = fileUrl;
+                        list[index].data[field] = fileUrl;
                     }
                     
-                    // Force reactivity update
-                    this.blocks = [...this.blocks];
-                    this.$emit('update:modelValue', this.blocks);
+                    this.$emit('update:modelValue', list);
                     this.syncToIframe();
                 }
             }
@@ -1031,15 +1139,16 @@ export default {
                 }
             }
 
-            this.blocks.push(newBlock)
-            this.$emit('update:modelValue', this.blocks)
+            const list = [...this.blocks, newBlock]
+            this.$emit('update:modelValue', list)
             this.activeTab = 'sections'
-            this.activeIndex = this.blocks.length - 1
+            this.activeIndex = list.length - 1
         },
         removeBlock(index) {
             if (confirm('Bạn có chắc chắn muốn xóa khối nội dung này không?')) {
-                this.blocks.splice(index, 1)
-                this.$emit('update:modelValue', this.blocks)
+                const list = [...this.blocks]
+                list.splice(index, 1)
+                this.$emit('update:modelValue', list)
                 if (this.activeIndex === index) {
                     this.activeIndex = null
                 } else if (this.activeIndex > index) {
@@ -1048,10 +1157,11 @@ export default {
             }
         },
         duplicateBlock(index) {
-            const blockCopy = JSON.parse(JSON.stringify(this.blocks[index]))
+            const list = [...this.blocks]
+            const blockCopy = JSON.parse(JSON.stringify(list[index]))
             blockCopy.id = 'block_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now()
-            this.blocks.splice(index + 1, 0, blockCopy)
-            this.$emit('update:modelValue', this.blocks)
+            list.splice(index + 1, 0, blockCopy)
+            this.$emit('update:modelValue', list)
             this.activeIndex = index + 1
         },
         moveUp(index) {
@@ -1075,8 +1185,7 @@ export default {
                 this.activeIndex = i
             }
             
-            this.blocks = list
-            this.$emit('update:modelValue', this.blocks)
+            this.$emit('update:modelValue', list)
         },
         moveBlockToPosition(currentIndex, targetIndex) {
             if (currentIndex === targetIndex) return
@@ -1097,8 +1206,7 @@ export default {
                 }
             }
             
-            this.blocks = list
-            this.$emit('update:modelValue', this.blocks)
+            this.$emit('update:modelValue', list)
         },
         getAlignValue(block) {
             if (!block || !block.data) return 'center'
@@ -1111,46 +1219,53 @@ export default {
 
         // Helper methods for FeaturesGrid
         addSplitFeature(blockIndex) {
-            if (!this.blocks[blockIndex].data.split_features) {
-                this.blocks[blockIndex].data.split_features = []
+            const list = JSON.parse(JSON.stringify(this.blocks))
+            if (!list[blockIndex].data.split_features) {
+                list[blockIndex].data.split_features = []
             }
-            this.blocks[blockIndex].data.split_features.push({ value: '', label: '' })
-            this.blocks = [...this.blocks]
+            list[blockIndex].data.split_features.push({ value: '', label: '' })
+            this.$emit('update:modelValue', list)
         },
         removeSplitFeature(blockIndex, featIndex) {
-            this.blocks[blockIndex].data.split_features.splice(featIndex, 1)
-            this.blocks = [...this.blocks]
+            const list = JSON.parse(JSON.stringify(this.blocks))
+            list[blockIndex].data.split_features.splice(featIndex, 1)
+            this.$emit('update:modelValue', list)
         },
 
         // Helper methods for FeaturesList
         addFeature(blockIndex) {
-            if (!this.blocks[blockIndex].data.features) {
-                this.blocks[blockIndex].data.features = []
+            const list = JSON.parse(JSON.stringify(this.blocks))
+            if (!list[blockIndex].data.features) {
+                list[blockIndex].data.features = []
             }
-            this.blocks[blockIndex].data.features.push({ title: '', description: '', image: null })
-            this.blocks = [...this.blocks]
+            list[blockIndex].data.features.push({ title: '', description: '', image: null })
+            this.$emit('update:modelValue', list)
         },
         removeFeature(blockIndex, fIndex) {
-            this.blocks[blockIndex].data.features.splice(fIndex, 1)
-            this.blocks = [...this.blocks]
+            const list = JSON.parse(JSON.stringify(this.blocks))
+            list[blockIndex].data.features.splice(fIndex, 1)
+            this.$emit('update:modelValue', list)
         },
 
         // Helper methods for AccordionFAQs
         addFaq(blockIndex) {
-            if (!this.blocks[blockIndex].data.faqs) {
-                this.blocks[blockIndex].data.faqs = []
+            const list = JSON.parse(JSON.stringify(this.blocks))
+            if (!list[blockIndex].data.faqs) {
+                list[blockIndex].data.faqs = []
             }
-            this.blocks[blockIndex].data.faqs.push({ q: '', a: '', is_open: true })
-            this.blocks = [...this.blocks]
+            list[blockIndex].data.faqs.push({ q: '', a: '', is_open: true })
+            this.$emit('update:modelValue', list)
         },
         removeFaq(blockIndex, faqIndex) {
-            this.blocks[blockIndex].data.faqs.splice(faqIndex, 1)
-            this.blocks = [...this.blocks]
+            const list = JSON.parse(JSON.stringify(this.blocks))
+            list[blockIndex].data.faqs.splice(faqIndex, 1)
+            this.$emit('update:modelValue', list)
         },
         toggleFaqOpen(blockIndex, faqIndex) {
-            const faq = this.blocks[blockIndex].data.faqs[faqIndex]
+            const list = JSON.parse(JSON.stringify(this.blocks))
+            const faq = list[blockIndex].data.faqs[faqIndex]
             faq.is_open = !faq.is_open
-            this.blocks = [...this.blocks]
+            this.$emit('update:modelValue', list)
         },
 
         // Image URL helpers
@@ -1181,6 +1296,70 @@ export default {
                 return { backgroundImage: `url(${url})` }
             }
             return {}
+        },
+        openAIModal(sectionType, fieldType, blockIndex, subIndex = null) {
+            const sectionNames = {
+                HeroBanner: 'Banner lớn (Hero)',
+                Promotions: 'Khuyến mãi (Promotions)',
+                ThreeSixtyViewer: 'Khám phá 360 độ',
+                FeaturesGrid: 'Lưới tính năng (FeaturesGrid)',
+                FeaturesList: 'Danh sách tính năng (FeaturesList)',
+                AccordionFAQs: 'Hỏi đáp (AccordionFAQs)',
+                BookingBanner: 'Banner đặt lịch (BookingBanner)',
+            };
+            this.aiTarget = {
+                sectionType,
+                sectionName: sectionNames[sectionType] || sectionType,
+                fieldType,
+                blockIndex,
+                subIndex
+            };
+            this.aiUserPrompt = '';
+            this.showAIPromptModal = true;
+        },
+        generateAIContent() {
+            if (this.aiLoading) return;
+            this.aiLoading = true;
+
+            const vehicleTitle = this.vehicleData.title || (this.vehicleData.vi && this.vehicleData.vi.title) || 'Xe Ford';
+
+            this.$axios.post(this.route('api.vehicles.generateBlockContent'), {
+                vehicle_title: vehicleTitle,
+                section_type: this.aiTarget.sectionType,
+                field_type: this.aiTarget.fieldType,
+                user_prompt: this.aiUserPrompt
+            })
+            .then(res => {
+                if (res.data && res.data.success) {
+                    const content = res.data.content;
+                    const list = JSON.parse(JSON.stringify(this.blocks));
+                    const targetBlock = list[this.aiTarget.blockIndex];
+                    if (targetBlock) {
+                        if (this.aiTarget.subIndex !== null && this.aiTarget.subIndex !== undefined) {
+                            if (this.aiTarget.sectionType === 'FeaturesList' && targetBlock.data.features) {
+                                targetBlock.data.features[this.aiTarget.subIndex][this.aiTarget.fieldType] = content;
+                            } else if (this.aiTarget.sectionType === 'AccordionFAQs' && targetBlock.data.faqs) {
+                                targetBlock.data.faqs[this.aiTarget.subIndex][this.aiTarget.fieldType] = content;
+                            }
+                        } else {
+                            targetBlock.data[this.aiTarget.fieldType] = content;
+                        }
+                        this.$emit('update:modelValue', list);
+                        this.syncToIframe();
+                    }
+                    this.showAIPromptModal = false;
+                } else {
+                    alert(res.data.message || 'Lỗi sinh nội dung AI');
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                const msg = err.response?.data?.message || 'Có lỗi xảy ra khi kết nối tới AI API';
+                alert(msg);
+            })
+            .finally(() => {
+                this.aiLoading = false;
+            });
         }
     }
 }

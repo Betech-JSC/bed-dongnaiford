@@ -438,4 +438,83 @@ PROMPT;
             ];
         }
     }
+
+    /**
+     * Sinh nội dung cho các section layout trong trang thiết kế xe
+     */
+    public function generateBlockContent(array $params): array
+    {
+        if (empty($this->apiKey)) {
+            return [
+                'success' => false,
+                'message' => 'API Key Gemini chưa được cấu hình.',
+            ];
+        }
+
+        $vehicleTitle = $params['vehicle_title'] ?? 'xe Ford';
+        $sectionType = $params['section_type'] ?? '';
+        $fieldType = $params['field_type'] ?? '';
+        $userPrompt = $params['user_prompt'] ?? '';
+
+        $prompt = "Bạn là chuyên gia marketing chuyên viết nội dung quảng cáo xe hơi cho thương hiệu Ford Đồng Nai.\n";
+        $prompt .= "Hãy viết nội dung cho trường \"{$fieldType}\" thuộc phần \"{$sectionType}\" của xe \"{$vehicleTitle}\".\n";
+        if (!empty($userPrompt)) {
+            $prompt .= "Yêu cầu đặc biệt từ khách hàng: \"{$userPrompt}\".\n";
+        }
+        $prompt .= "\n### Yêu Cầu Về Nội Dung:\n";
+        $prompt .= "- Phải phù hợp hoàn toàn với dòng xe {$vehicleTitle} và mục đích hiển thị của {$sectionType} (ví dụ: Promotions thì tập trung vào chương trình khuyến mãi, ưu đãi; FeaturesGrid thì tập trung vào thiết kế, tính năng kỹ thuật nổi bật; HeroBanner thì là slogan/tiêu đề chính cực kỳ hấp dẫn).\n";
+        $prompt .= "- Ngắn gọn, súc tích, văn phong chuyên nghiệp, cuốn hút người đọc.\n";
+        $prompt .= "- CHỈ trả về đúng chuỗi ký tự nội dung kết quả cuối cùng bằng tiếng Việt (không thêm lời dẫn, không thêm nhãn, không bọc trong dấu ngoặc kép hay markdown, không thêm ký tự đặc biệt thừa).\n";
+
+        try {
+            $response = Http::timeout(30)->post(
+                "{$this->baseUrl}/models/{$this->model}:generateContent?key={$this->apiKey}",
+                [
+                    'contents' => [
+                        [
+                            'role' => 'user',
+                            'parts' => [['text' => $prompt]],
+                        ]
+                    ],
+                    'generationConfig' => [
+                        'temperature' => 0.7,
+                        'maxOutputTokens' => 500,
+                    ],
+                ]
+            );
+
+            if (!$response->successful()) {
+                Log::error('Gemini Block Content generation failed', [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ]);
+                return [
+                    'success' => false,
+                    'message' => 'Lỗi kết nối Gemini API: ' . $response->status(),
+                ];
+            }
+
+            $data = $response->json();
+            $text = $data['candidates'][0]['content']['parts'][0]['text'] ?? '';
+            $text = trim($text);
+            
+            // Clean quotes if AI wrapped them
+            $text = preg_replace('/^["\'\s]+|["\'\s]+$/u', '', $text);
+
+            return [
+                'success' => true,
+                'content' => $text,
+            ];
+        } catch (\Throwable $e) {
+            Log::error('generateBlockContent exception', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return [
+                'success' => false,
+                'message' => 'Có lỗi xảy ra: ' . $e->getMessage(),
+            ];
+        }
+    }
 }

@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\Vehicle\Vehicle;
 use App\Models\Vehicle\VehicleCategory;
 use JamstackVietnam\Core\Traits\ApiResponse;
+use App\Services\GeminiService;
 
 class VehicleController extends Controller
 {
@@ -323,5 +324,34 @@ class VehicleController extends Controller
             'success' => false,
             'message' => 'No file uploaded'
         ], 400);
+    }
+
+    public function generateBlockContent(Request $request, GeminiService $gemini): JsonResponse
+    {
+        $request->validate([
+            'vehicle_title' => 'required|string',
+            'section_type' => 'required|string',
+            'field_type' => 'required|string',
+            'user_prompt' => 'nullable|string',
+        ]);
+
+        $result = $gemini->generateBlockContent([
+            'vehicle_title' => $request->input('vehicle_title'),
+            'section_type' => $request->input('section_type'),
+            'field_type' => $request->input('field_type'),
+            'user_prompt' => $request->input('user_prompt'),
+        ]);
+
+        if (isset($result['success']) && !$result['success']) {
+            return response()->json([
+                'success' => false,
+                'message' => $result['message'],
+            ], 400);
+        }
+
+        return response()->json([
+            'success' => true,
+            'content' => $result['content'],
+        ]);
     }
 }
