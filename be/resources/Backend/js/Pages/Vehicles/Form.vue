@@ -761,7 +761,7 @@
                             />
                             <button 
                                 type="button" 
-                                class="bg-indigo-650 hover:bg-indigo-700 text-white text-xs font-bold py-2 px-4 rounded-xl border-0 cursor-pointer transition whitespace-nowrap focus:outline-none"
+                                class="btn btn-indigo text-xs py-2 px-4 whitespace-nowrap"
                                 @click="addFeatureCategory"
                             >
                                 + Thêm nhóm
