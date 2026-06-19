@@ -483,6 +483,126 @@
                     </div>
                 </div>
             </teleport>
+            
+            <!-- Modal Tạo Phụ Kiện Nhanh -->
+            <teleport to="body">
+                <div v-if="showCreateAccessoryModal" class="fixed inset-0 z-[9999] flex items-center justify-center overflow-x-hidden overflow-y-auto outline-none focus:outline-none">
+                    <!-- Backdrop overlay -->
+                    <div class="fixed inset-0 bg-black/50 transition-opacity" @click="closeCreateAccessoryModal"></div>
+
+                    <!-- Modal content card -->
+                    <div class="relative w-full max-w-2xl mx-auto my-6 bg-white rounded-xl shadow-xl flex flex-col max-h-[90vh] z-10 border border-gray-200">
+                        <!-- Header -->
+                        <div class="flex items-center justify-between p-5 border-b border-gray-200 rounded-t shrink-0">
+                            <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                                🎒 Tạo Phụ Kiện Mới
+                            </h3>
+                            <button
+                                type="button"
+                                class="text-gray-400 hover:text-gray-600 bg-transparent border-0 text-xl font-semibold leading-none outline-none focus:outline-none cursor-pointer"
+                                @click="closeCreateAccessoryModal"
+                            >
+                                ×
+                            </button>
+                        </div>
+
+                        <!-- Body (Scrollable) -->
+                        <div class="flex-1 p-6 overflow-y-auto space-y-5 text-gray-700">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <!-- Title -->
+                                <div class="col-span-2">
+                                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Tên phụ kiện (Tiếng Việt) <span class="text-red-500">*</span></label>
+                                    <input 
+                                        v-model="newAccessoryForm.title" 
+                                        type="text" 
+                                        placeholder="Ví dụ: Nắp thùng cuộn điện Ford Ranger Wildtrak"
+                                        class="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900"
+                                        required
+                                    />
+                                </div>
+
+                                <!-- Code -->
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Mã sản phẩm</label>
+                                    <input 
+                                        v-model="newAccessoryForm.code" 
+                                        type="text" 
+                                        placeholder="Ví dụ: RANGER-EXT-001"
+                                        class="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900"
+                                    />
+                                </div>
+
+                                <!-- Price -->
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Giá bán (VNĐ)</label>
+                                    <input 
+                                        v-model.number="newAccessoryForm.price" 
+                                        type="number" 
+                                        placeholder="Ví dụ: 15000000"
+                                        min="0"
+                                        class="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900"
+                                    />
+                                </div>
+
+                                <!-- Category -->
+                                <div class="col-span-2">
+                                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Danh mục phụ kiện</label>
+                                    <select 
+                                        v-model="newAccessoryForm.category" 
+                                        class="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 cursor-pointer"
+                                    >
+                                        <option value="interior">Nội thất (Interior)</option>
+                                        <option value="exterior">Ngoại thất (Exterior)</option>
+                                        <option value="tech">Công nghệ (Tech)</option>
+                                        <option value="wheels">Mâm &amp; Lốp (Wheels)</option>
+                                        <option value="performance">Hiệu suất (Performance)</option>
+                                    </select>
+                                </div>
+
+                                <!-- Description -->
+                                <div class="col-span-2">
+                                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Mô tả ngắn</label>
+                                    <textarea 
+                                        v-model="newAccessoryForm.description" 
+                                        rows="3"
+                                        placeholder="Mô tả tóm tắt tính năng hoặc tác dụng của phụ kiện..."
+                                        class="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900"
+                                    ></textarea>
+                                </div>
+
+                                <!-- Image Thumbnail -->
+                                <div class="col-span-2">
+                                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Ảnh đại diện phụ kiện</label>
+                                    <Field v-model="newAccessoryForm.image" :field="{
+                                        type: 'file_upload',
+                                        name: 'new_accessory_image',
+                                        label: false,
+                                    }" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="flex items-center justify-end p-4 border-t border-gray-200 rounded-b shrink-0 gap-3">
+                            <button
+                                type="button"
+                                class="bg-white hover:bg-gray-50 text-gray-700 text-xs font-bold px-4 py-2 rounded-lg cursor-pointer transition border border-gray-300 h-9 flex items-center justify-center focus:outline-none"
+                                @click="closeCreateAccessoryModal"
+                            >
+                                Hủy bỏ
+                            </button>
+                            <button
+                                type="button"
+                                class="bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-300 text-white text-xs font-bold px-5 py-2 rounded-lg cursor-pointer transition shadow-sm border-0 h-9 flex items-center justify-center focus:outline-none"
+                                @click="saveNewAccessory"
+                                :disabled="isSavingAccessory"
+                            >
+                                {{ isSavingAccessory ? 'Đang tạo...' : 'Tạo phụ kiện' }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </teleport>
 
             <!-- Tab 4: Phụ kiện xe -->
             <div v-show="activeFormTab === 'accessories'" class="space-y-6">
@@ -502,6 +622,13 @@
                                 class="text-xs text-red-600 hover:text-red-800 font-semibold transition-colors cursor-pointer focus:outline-none"
                             >
                                 Xóa tất cả
+                            </button>
+                            <button 
+                                type="button"
+                                @click="openCreateAccessoryModal"
+                                class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-1.5 px-3 rounded-lg shadow-sm transition cursor-pointer focus:outline-none flex items-center gap-1"
+                            >
+                                <span>➕</span> Tạo phụ kiện mới
                             </button>
                         </div>
                     </div>
@@ -820,6 +947,16 @@ export default {
             showColorsSection: true,
             showSpecsSection: true,
             newCategoryName: '',
+            showCreateAccessoryModal: false,
+            isSavingAccessory: false,
+            newAccessoryForm: {
+                title: '',
+                code: '',
+                price: 0,
+                category: 'exterior',
+                image: null,
+                description: '',
+            },
             tabs: [
                 { id: 'general', name: 'ℹ️ Thông tin chung & Ảnh' },
                 { id: 'versions', name: '⚙️ Phiên bản & Thông số' },
@@ -1318,6 +1455,91 @@ export default {
             const vehicleTitle = this.formData.vi?.title || this.formData.title;
             if (!vehicleTitle || !acc.fit_vehicles) return false;
             return acc.fit_vehicles.some(v => v.toLowerCase().trim() === vehicleTitle.toLowerCase().trim());
+        },
+
+        openCreateAccessoryModal() {
+            this.newAccessoryForm = {
+                title: '',
+                code: '',
+                price: 0,
+                category: 'exterior',
+                image: null,
+                description: '',
+            };
+            this.showCreateAccessoryModal = true;
+        },
+
+        closeCreateAccessoryModal() {
+            this.showCreateAccessoryModal = false;
+        },
+
+        async saveNewAccessory() {
+            if (!this.newAccessoryForm.title || !this.newAccessoryForm.title.trim()) {
+                alert('Vui lòng nhập tên phụ kiện!');
+                return;
+            }
+
+            try {
+                this.isSavingAccessory = true;
+                
+                const categoryMap = {
+                    interior: 1,
+                    exterior: 2,
+                    tech: 3,
+                    wheels: 4,
+                    performance: 5
+                };
+                const categoryId = categoryMap[this.newAccessoryForm.category] || 2;
+                const vehicleTitle = this.formData.vi?.title || this.formData.title;
+
+                const payload = {
+                    status: 'ACTIVE',
+                    code: this.newAccessoryForm.code || '',
+                    price: this.newAccessoryForm.price || 0,
+                    image: this.newAccessoryForm.image || null,
+                    categories: [{ id: categoryId }],
+                    fit_vehicles: vehicleTitle ? [vehicleTitle] : [],
+                    vi: {
+                        title: this.newAccessoryForm.title,
+                        description: this.newAccessoryForm.description || '',
+                    }
+                };
+
+                const response = await this.$axios.post(this.route('admin.accessories.store'), payload);
+                
+                if (response.data && response.data.id) {
+                    const newAcc = {
+                        id: response.data.id,
+                        title: payload.vi.title,
+                        code: payload.code,
+                        category: this.newAccessoryForm.category,
+                        fit_vehicles: payload.fit_vehicles,
+                    };
+
+                    // Add to local accessories list options
+                    if (!this.data.accessories) {
+                        this.data.accessories = [];
+                    }
+                    this.data.accessories.unshift(newAcc);
+
+                    // Auto-select the newly created accessory
+                    if (!this.formData.accessories) {
+                        this.formData.accessories = [];
+                    }
+                    this.formData.accessories.push(newAcc.id);
+
+                    this.closeCreateAccessoryModal();
+                    alert('Tạo phụ kiện mới thành công!');
+                } else {
+                    throw new Error('Không nhận được dữ liệu phản hồi hợp lệ từ server.');
+                }
+            } catch (error) {
+                console.error(error);
+                const errorMsg = error.response?.data?.message || error.message || 'Có lỗi xảy ra khi tạo phụ kiện.';
+                alert('Lỗi: ' + errorMsg);
+            } finally {
+                this.isSavingAccessory = false;
+            }
         },
         addFeatureCategory() {
             if (!this.newCategoryName || !this.newCategoryName.trim()) return;

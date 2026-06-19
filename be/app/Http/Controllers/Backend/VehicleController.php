@@ -87,7 +87,7 @@ class VehicleController extends Controller
         // Load all active accessories for selection in the form
         $data['accessories'] = Accessory::query()
             ->where('status', Accessory::STATUS_ACTIVE)
-            ->with(['translations'])
+            ->with(['translations', 'categories'])
             ->orderBy('sort_order')
             ->get()
             ->map(fn($acc) => [

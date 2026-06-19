@@ -15,7 +15,7 @@ class Accessory extends BaseModel
     public $translationModel = AccessoryTranslation::class;
     public $translationForeignKey = 'accessory_id';
     public $with = ['translations'];
-    protected $appends = ['url'];
+    protected $appends = ['url', 'category'];
 
 
 
@@ -199,6 +199,35 @@ class Accessory extends BaseModel
             }
         }
         return $urls;
+    }
+
+    public function getCategoryAttribute(): ?string
+    {
+        $firstCategory = $this->categories->first();
+        if (!$firstCategory) return null;
+
+        $map = [
+            1 => 'interior',
+            2 => 'exterior',
+            3 => 'tech',
+            4 => 'wheels',
+            5 => 'performance',
+        ];
+
+        if (isset($map[$firstCategory->id])) {
+            return $map[$firstCategory->id];
+        }
+
+        $slug = $firstCategory->slug;
+        if ($slug) {
+            if (str_contains($slug, 'noi-that') || str_contains($slug, 'interior')) return 'interior';
+            if (str_contains($slug, 'ngoai-that') || str_contains($slug, 'exterior')) return 'exterior';
+            if (str_contains($slug, 'cong-nghe') || str_contains($slug, 'tech')) return 'tech';
+            if (str_contains($slug, 'mam-lop') || str_contains($slug, 'wheels')) return 'wheels';
+            if (str_contains($slug, 'hieu-suat') || str_contains($slug, 'performance')) return 'performance';
+        }
+
+        return null;
     }
 
     public function scopeSortByPosition($query)
