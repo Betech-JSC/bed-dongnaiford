@@ -598,7 +598,7 @@ export default function VehicleVersionDetailPage() {
                     <button
                       type="button"
                       onClick={() => setIs360Active(true)}
-                      className="absolute right-[35%] top-[50%] -translate-y-1/2 bg-black/15 hover:bg-black/35 transition-all p-3 rounded-full border border-white/20 cursor-pointer flex items-center justify-center size-[72px] z-10 text-white shadow-lg hover:scale-105 active:scale-95"
+                      className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-black/15 hover:bg-black/35 transition-all p-3 rounded-full border border-white/20 cursor-pointer flex items-center justify-center size-[72px] z-10 text-white shadow-lg hover:scale-105 active:scale-95"
                     >
                       <svg className="w-10 h-10 text-white" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="4">
                         <path d="M 82,50 A 32,32 0 1,1 72,28" strokeLinecap="round" />
