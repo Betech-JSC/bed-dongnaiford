@@ -1088,10 +1088,30 @@ export default {
                 return matchesSearch && matchesCategory;
             });
         },
-        featureCategories() {
-            if (!this.formData.layout_blocks) return ["Thiết kế", "Vận hành", "Công nghệ", "An toàn"];
-            const block = this.formData.layout_blocks.find(b => b.type === 'FeaturesList');
-            return block?.data?.categories || ["Thiết kế", "Vận hành", "Công nghệ", "An toàn"];
+        featureCategories: {
+            get() {
+                if (!this.formData.layout_blocks) return ["Thiết kế", "Vận hành", "Công nghệ", "An toàn"];
+                const block = this.formData.layout_blocks.find(b => b.type === 'FeaturesList');
+                return block?.data?.categories || ["Thiết kế", "Vận hành", "Công nghệ", "An toàn"];
+            },
+            set(val) {
+                if (!this.formData.layout_blocks) this.formData.layout_blocks = [];
+                let block = this.formData.layout_blocks.find(b => b.type === 'FeaturesList');
+                if (!block) {
+                    block = {
+                        type: 'FeaturesList',
+                        data: {
+                            features: [],
+                            categories: ["Thiết kế", "Vận hành", "Công nghệ", "An toàn"]
+                        }
+                    };
+                    this.formData.layout_blocks.push(block);
+                }
+                if (!block.data) {
+                    block.data = { features: [], categories: ["Thiết kế", "Vận hành", "Công nghệ", "An toàn"] };
+                }
+                block.data.categories = val;
+            }
         },
         features: {
             get() {
@@ -1643,35 +1663,13 @@ export default {
         addFeatureCategory() {
             if (!this.newCategoryName || !this.newCategoryName.trim()) return;
             const name = this.newCategoryName.trim();
-            if (!this.formData.layout_blocks) this.formData.layout_blocks = [];
-            let block = this.formData.layout_blocks.find(b => b.type === 'FeaturesList');
-            if (!block) {
-                block = {
-                    type: 'FeaturesList',
-                    data: {
-                        features: [],
-                        categories: ["Thiết kế", "Vận hành", "Công nghệ", "An toàn"]
-                    }
-                };
-                this.formData.layout_blocks.push(block);
-            }
-            if (!block.data) {
-                block.data = { features: [], categories: ["Thiết kế", "Vận hành", "Công nghệ", "An toàn"] };
-            }
-            if (!block.data.categories) {
-                block.data.categories = ["Thiết kế", "Vận hành", "Công nghệ", "An toàn"];
-            }
-            if (!block.data.categories.includes(name)) {
-                block.data.categories.push(name);
+            if (!this.featureCategories.includes(name)) {
+                this.featureCategories = [...this.featureCategories, name];
             }
             this.newCategoryName = '';
         },
         removeFeatureCategory(idx) {
-            if (!this.formData.layout_blocks) return;
-            let block = this.formData.layout_blocks.find(b => b.type === 'FeaturesList');
-            if (block && block.data && block.data.categories) {
-                block.data.categories.splice(idx, 1);
-            }
+            this.featureCategories = this.featureCategories.filter((_, i) => i !== idx);
         },
         getFeatureImage(image) {
             if (!image) return null;
