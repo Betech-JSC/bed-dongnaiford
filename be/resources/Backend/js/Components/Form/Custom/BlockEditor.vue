@@ -541,97 +541,6 @@
                                 />
                             </div>
                         </div>
-
-                        <!-- Image Layout Toggles for various blocks -->
-                        <div v-if="['FeaturesGrid', 'Promotions', 'FeaturesList', 'BookingBanner'].includes(blocks[activeIndex].type)" class="space-y-3 pt-3 border-t border-gray-200">
-                            <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider">Tùy chọn hiển thị ảnh</label>
-                            
-                            <!-- FeaturesGrid Part 1 -->
-                            <div v-if="blocks[activeIndex].type === 'FeaturesGrid'" class="space-y-2">
-                                <div class="flex items-center justify-between bg-white border border-gray-200 p-2.5 rounded-lg shadow-2xs">
-                                    <span class="text-xs font-semibold text-gray-700">Phần 1: Hiển thị ảnh phụ 2 & 3</span>
-                                    <label class="relative inline-flex items-center cursor-pointer">
-                                        <input 
-                                            type="checkbox" 
-                                            :checked="blocks[activeIndex].data.show_design_sub_images !== false" 
-                                            @change="toggleBlockDataField(activeIndex, 'show_design_sub_images')"
-                                            class="sr-only peer"
-                                        />
-                                        <div class="w-9 h-5 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
-                                    </label>
-                                </div>
-                                
-                                <!-- FeaturesGrid Part 2 -->
-                                <div class="flex items-center justify-between bg-white border border-gray-200 p-2.5 rounded-lg shadow-2xs">
-                                    <span class="text-xs font-semibold text-gray-700">Phần 2: Hiển thị ảnh phụ 2 & 3 (phải)</span>
-                                    <label class="relative inline-flex items-center cursor-pointer">
-                                        <input 
-                                            type="checkbox" 
-                                            :checked="blocks[activeIndex].data.show_interior_sub_images !== false" 
-                                            @change="toggleBlockDataField(activeIndex, 'show_interior_sub_images')"
-                                            class="sr-only peer"
-                                        />
-                                        <div class="w-9 h-5 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
-                                    </label>
-                                </div>
-                                
-                                <!-- FeaturesGrid Part 3 -->
-                                <div class="flex items-center justify-between bg-white border border-gray-200 p-2.5 rounded-lg shadow-2xs">
-                                    <span class="text-xs font-semibold text-gray-700">Phần 3: Hiển thị ảnh trái</span>
-                                    <label class="relative inline-flex items-center cursor-pointer">
-                                        <input 
-                                            type="checkbox" 
-                                            :checked="blocks[activeIndex].data.show_tech_image !== false" 
-                                            @change="toggleBlockDataField(activeIndex, 'show_tech_image')"
-                                            class="sr-only peer"
-                                        />
-                                        <div class="w-9 h-5 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
-                                    </label>
-                                </div>
-                            </div>
-
-                            <!-- Promotions -->
-                            <div v-if="blocks[activeIndex].type === 'Promotions'" class="flex items-center justify-between bg-white border border-gray-200 p-2.5 rounded-lg shadow-2xs">
-                                <span class="text-xs font-semibold text-gray-700">Hiển thị ảnh khuyến mãi</span>
-                                <label class="relative inline-flex items-center cursor-pointer">
-                                    <input 
-                                        type="checkbox" 
-                                        :checked="blocks[activeIndex].data.show_promo_image !== false" 
-                                        @change="toggleBlockDataField(activeIndex, 'show_promo_image')"
-                                        class="sr-only peer"
-                                    />
-                                    <div class="w-9 h-5 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
-                                </label>
-                            </div>
-
-                            <!-- FeaturesList -->
-                            <div v-if="blocks[activeIndex].type === 'FeaturesList'" class="flex items-center justify-between bg-white border border-gray-200 p-2.5 rounded-lg shadow-2xs">
-                                <span class="text-xs font-semibold text-gray-700">Hiển thị ảnh các tính năng</span>
-                                <label class="relative inline-flex items-center cursor-pointer">
-                                    <input 
-                                        type="checkbox" 
-                                        :checked="blocks[activeIndex].data.show_feature_images !== false" 
-                                        @change="toggleBlockDataField(activeIndex, 'show_feature_images')"
-                                        class="sr-only peer"
-                                    />
-                                    <div class="w-9 h-5 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
-                                </label>
-                            </div>
-
-                            <!-- BookingBanner -->
-                            <div v-if="blocks[activeIndex].type === 'BookingBanner'" class="flex items-center justify-between bg-white border border-gray-200 p-2.5 rounded-lg shadow-2xs">
-                                <span class="text-xs font-semibold text-gray-700">Hiển thị hình ảnh xe đè</span>
-                                <label class="relative inline-flex items-center cursor-pointer">
-                                    <input 
-                                        type="checkbox" 
-                                        :checked="blocks[activeIndex].data.show_car_image !== false" 
-                                        @change="toggleBlockDataField(activeIndex, 'show_car_image')"
-                                        class="sr-only peer"
-                                    />
-                                    <div class="w-9 h-5 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
-                                </label>
-                            </div>
-                        </div>
                     </div>
                 </div>
 
@@ -1306,15 +1215,6 @@ export default {
                 return 'left'
             }
             return 'center'
-        },
-        toggleBlockDataField(blockIndex, fieldName) {
-            const list = JSON.parse(JSON.stringify(this.blocks))
-            if (list[blockIndex]) {
-                const currentVal = list[blockIndex].data[fieldName];
-                list[blockIndex].data[fieldName] = currentVal === false ? true : false;
-                this.$emit('update:modelValue', list)
-                this.syncToIframe()
-            }
         },
 
         // Helper methods for FeaturesGrid

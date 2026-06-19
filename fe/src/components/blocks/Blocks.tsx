@@ -38,6 +38,17 @@ export const resolveImageUrl = (img: any): string => {
   return `${baseDomain}/static/${cleanPath}`;
 };
 
+export const hasImageField = (img: any): boolean => {
+  if (!img) return false;
+  let path = "";
+  if (typeof img === "string") {
+    path = img;
+  } else if (typeof img === "object") {
+    path = img.url || img.path || "";
+  }
+  return typeof path === "string" && path.trim() !== "";
+};
+
 export const getYoutubeId = (url: string | null | undefined): string | null => {
   if (!url) return null;
   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
@@ -316,7 +327,8 @@ function HeroBannerBlock({ blockIndex, data, vehicle, openQuoteDrawer, openDrive
   const tagline = data.tagline || vehicle.tagline;
   const btnText = data.button_text || "Book Lái thử";
   const btnLink = data.button_link || "#drive";
-  const bgImg = resolveImageUrl(data.background_image || vehicle.images?.[0] || "/assets/territory-hero.png");
+  const hasBgImg = hasImageField(data.background_image);
+  const bgImg = hasBgImg ? resolveImageUrl(data.background_image) : "";
   const youtubeId = getYoutubeId(data.background_video || vehicle.video_url);
   const hasVehicleVideo = vehicle.video && (
     (typeof vehicle.video === 'string' && vehicle.video.trim() !== '') ||
@@ -375,14 +387,16 @@ function HeroBannerBlock({ blockIndex, data, vehicle, openQuoteDrawer, openDrive
   return (
     <section id={anchorId || undefined} className="relative h-[550px] sm:h-[650px] flex items-end overflow-hidden bg-black text-white pb-[68px] w-full">
       <div className="absolute inset-0 z-0">
-        <Image
-          src={bgImg}
-          alt={title}
-          fill
-          sizes="100vw"
-          className="object-cover object-center pointer-events-none"
-          priority
-        />
+        {hasBgImg && (
+          <Image
+            src={bgImg}
+            alt={title}
+            fill
+            sizes="100vw"
+            className="object-cover object-center pointer-events-none"
+            priority
+          />
+        )}
         {youtubeId ? (
           <iframe
             src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=1&loop=1&playlist=${youtubeId}&controls=0&showinfo=0&rel=0&playsinline=1&enablejsapi=1`}
@@ -711,7 +725,6 @@ function SpecsGridBlock({ data, vehicle, isEditMode, onChangeData, openQuoteDraw
    ========================================================================== */
 function FeaturesListBlock({ blockIndex, data, vehicle, isEditMode, onChangeData, anchorId }: any) {
   const features = data.features || [];
-  const show_feature_images = data.show_feature_images !== false;
 
   const handleFeatureTextChange = (idx: number, key: string, val: string) => {
     const newFeatures = [...features];
@@ -738,7 +751,7 @@ function FeaturesListBlock({ blockIndex, data, vehicle, isEditMode, onChangeData
     const newFeatures = [...features, {
       title: "TÍNH NĂNG MỚI",
       description: "Nhập mô tả tính năng ở đây để thu hút khách hàng.",
-      image: vehicle?.images?.[0] || "/assets/territory-hero.png"
+      image: ""
     }];
     onChangeData({ ...data, features: newFeatures });
   };
@@ -768,7 +781,8 @@ function FeaturesListBlock({ blockIndex, data, vehicle, isEditMode, onChangeData
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.map((feat: any, idx: number) => {
-            const featImg = resolveImageUrl(feat.image || vehicle?.images?.[0] || "/assets/territory-hero.png");
+            const hasImg = hasImageField(feat.image);
+            const featImg = hasImg ? resolveImageUrl(feat.image) : "";
             return (
               <div
                 key={idx}
@@ -784,18 +798,24 @@ function FeaturesListBlock({ blockIndex, data, vehicle, isEditMode, onChangeData
                   </button>
                 )}
 
-                {show_feature_images && (
+                {(hasImg || isEditMode) && (
                   <div className="relative aspect-[16/10] w-full bg-gray-50 overflow-hidden mb-5 rounded-xl">
-                    <Image
-                      src={featImg}
-                      alt={feat.title || `Tính năng ${idx + 1}`}
-                      fill
-                      sizes="(max-width: 768px) 100vw, 33vw"
-                      className="object-cover group-hover:scale-105 transition-transform duration-500 pointer-events-none"
-                    />
+                    {hasImg ? (
+                      <Image
+                        src={featImg}
+                        alt={feat.title || `Tính năng ${idx + 1}`}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                        className="object-cover group-hover:scale-105 transition-transform duration-500 pointer-events-none"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gray-100 border border-dashed border-gray-300 flex items-center justify-center text-xs text-gray-400">
+                        Chưa chọn ảnh
+                      </div>
+                    )}
                     {isEditMode && (
                       <div className="absolute inset-0 bg-white/90 flex flex-col items-center justify-center p-3 z-20">
-                        <span className="text-[10px] font-bold text-gray-750 mb-2">Đổi ảnh:</span>
+                        <span className="text-[10px] font-bold text-gray-755 mb-2">Đổi ảnh:</span>
                         <input
                           type="file"
                           accept="image/*"
@@ -981,9 +1001,9 @@ function AccordionFAQsBlock({ data, vehicle, isEditMode, onChangeData, anchorId 
 function PromotionsBlock({ blockIndex, data, isEditMode, onChangeData, openQuoteDrawer, vehicle, anchorId }: any) {
   const title = data.title || "Ưu Đãi Đặc Biệt";
   const desc = data.description || "Nhập chương trình khuyến mãi tháng...";
-  const bgImg = resolveImageUrl(data.image || "/assets/img-gradient-2.png");
+  const hasImage = hasImageField(data.image);
+  const bgImg = hasImage ? resolveImageUrl(data.image) : "";
   const btnText = data.button_text || "Báo giá";
-  const show_promo_image = data.show_promo_image !== false;
 
   const handleUploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -1052,13 +1072,20 @@ function PromotionsBlock({ blockIndex, data, isEditMode, onChangeData, openQuote
           </button>
         </div>
 
-        {show_promo_image && (
+        {(hasImage || isEditMode) && (
           <div className="w-full mt-4 relative">
-            <img
-              src={bgImg}
-              alt="Promotion Banner"
-              className="object-cover rounded-[12px] w-full h-auto shadow-xs max-h-[500px]"
-            />
+            {hasImage ? (
+              <img
+                src={bgImg}
+                alt="Promotion Banner"
+                className="object-cover rounded-[12px] w-full h-auto shadow-xs max-h-[500px]"
+              />
+            ) : (
+              <div className="w-full h-[250px] bg-gray-50 border border-dashed border-gray-350 rounded-[12px] flex flex-col items-center justify-center text-xs text-gray-400">
+                <span className="font-semibold text-gray-500 mb-1">Chưa chọn ảnh khuyến mãi</span>
+                <span className="text-[10px] text-gray-400">Ảnh sẽ ẩn trên giao diện thực tế</span>
+              </div>
+            )}
             {isEditMode && (
               <div className="absolute top-4 left-4 z-20 bg-white/95 backdrop-blur-xs p-3 rounded-lg border border-gray-200 text-xs text-gray-800 shadow-md">
                 <span className="block mb-2 font-bold text-[10px] uppercase tracking-wider text-gray-500">Ảnh khuyến mãi:</span>
@@ -1399,23 +1426,34 @@ function ThreeSixtyViewerBlock({ data, vehicle, isEditMode, onChangeData, threeS
    ========================================================================== */
 function FeaturesGridBlock({ blockIndex, data, vehicle, isEditMode, onChangeData, anchorId }: any) {
   const title_1 = data.title_1 || "Thiết kế hiện đại, sắc sảo, đầy cuốn hút";
-  const image_1 = resolveImageUrl(data.image_1 || vehicle?.images?.[2] || vehicle?.images?.[0] || "/assets/territory-hero.png");
-  const image_2 = resolveImageUrl(data.image_2 || vehicle?.images?.[3] || vehicle?.images?.[1] || "/assets/territory-tech-split.png");
-  const image_3 = resolveImageUrl(data.image_3 || vehicle?.images?.[4] || vehicle?.images?.[2] || "/assets/territory-promo.png");
+  
+  const hasImg1 = hasImageField(data.image_1);
+  const image_1 = hasImg1 ? resolveImageUrl(data.image_1) : "";
+
+  const hasImg2 = hasImageField(data.image_2);
+  const image_2 = hasImg2 ? resolveImageUrl(data.image_2) : "";
+
+  const hasImg3 = hasImageField(data.image_3);
+  const image_3 = hasImg3 ? resolveImageUrl(data.image_3) : "";
 
   const title_2 = data.title_2 || "Không gian nội thất rộng rãi, tiện nghi";
-  const image_large = resolveImageUrl(data.image_large || vehicle?.images?.[5] || vehicle?.images?.[1] || "/assets/territory-interior.png");
-  const image_large_2 = resolveImageUrl(data.image_large_2 || vehicle?.images?.[6] || vehicle?.images?.[2] || "/assets/territory-interior.png");
-  const image_large_3 = resolveImageUrl(data.image_large_3 || vehicle?.images?.[7] || vehicle?.images?.[3] || "/assets/territory-interior.png");
+  
+  const hasImgLarge = hasImageField(data.image_large);
+  const image_large = hasImgLarge ? resolveImageUrl(data.image_large) : "";
+
+  const hasImgLarge2 = hasImageField(data.image_large_2);
+  const image_large_2 = hasImgLarge2 ? resolveImageUrl(data.image_large_2) : "";
+
+  const hasImgLarge3 = hasImageField(data.image_large_3);
+  const image_large_3 = hasImgLarge3 ? resolveImageUrl(data.image_large_3) : "";
 
   const title_3 = data.title_3 || "Nâng tầm công nghệ và tiện nghi Tận hưởng trên mọi hành trình";
-  const split_image = resolveImageUrl(data.split_image || vehicle?.images?.[6] || vehicle?.images?.[0] || "/assets/territory-tech-split.png");
+  
+  const hasSplitImg = hasImageField(data.split_image);
+  const split_image = hasSplitImg ? resolveImageUrl(data.split_image) : "";
+
   const split_title = data.split_title || "Tiện nghi thông minh";
   const split_features = data.split_features || [];
-
-  const show_design_sub_images = data.show_design_sub_images !== false;
-  const show_interior_sub_images = data.show_interior_sub_images !== false;
-  const show_tech_image = data.show_tech_image !== false;
 
   const handleUploadImage = async (key: string, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -1462,84 +1500,111 @@ function FeaturesGridBlock({ blockIndex, data, vehicle, isEditMode, onChangeData
           </h2>
         </div>
 
-        <div className="flex flex-col gap-[24px] items-start w-full">
-          <div className="aspect-[1100/600] relative rounded-[12px] overflow-hidden w-full bg-gray-150 shadow-xs">
-            <img src={image_1} alt="Grid 1" className="w-full h-full object-cover" />
-            {isEditMode && (
-              <div className="absolute top-4 left-4 z-20 bg-white/95 backdrop-blur-xs p-3 rounded-lg border border-gray-200 text-xs text-gray-800 shadow-md">
-                <span className="block mb-2 font-bold text-[10px] uppercase tracking-wider text-gray-500">Thay thế ảnh 1:</span>
-                <input type="file" accept="image/*" onChange={(e) => handleUploadImage("image_1", e)} className="block w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border file:border-gray-300 file:text-[10px] file:font-semibold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100 cursor-pointer" />
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (typeof window !== "undefined") {
-                      window.parent.postMessage({
-                        type: "OPEN_FILE_MANAGER",
-                        index: blockIndex,
-                        field: "image_1"
-                      }, "*");
-                    }
-                  }}
-                  className="w-full mt-1.5 py-1 px-2.5 bg-[#008060] hover:bg-[#006e52] text-white text-[10px] font-bold rounded cursor-pointer border-0 transition-colors"
-                >
-                  📁 Chọn từ Quản lý file
-                </button>
+        {(hasImg1 || hasImg2 || hasImg3 || isEditMode) && (
+          <div className="flex flex-col gap-[24px] items-start w-full">
+            {(hasImg1 || isEditMode) && (
+              <div className="aspect-[1100/600] relative rounded-[12px] overflow-hidden w-full bg-gray-150 shadow-xs">
+                {hasImg1 ? (
+                  <img src={image_1} alt="Grid 1" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full bg-gray-50 border border-dashed border-gray-300 flex items-center justify-center text-xs text-gray-400 min-h-[300px]">
+                    Chưa chọn ảnh 1
+                  </div>
+                )}
+                {isEditMode && (
+                  <div className="absolute top-4 left-4 z-20 bg-white/95 backdrop-blur-xs p-3 rounded-lg border border-gray-200 text-xs text-gray-800 shadow-md">
+                    <span className="block mb-2 font-bold text-[10px] uppercase tracking-wider text-gray-500">Thay thế ảnh 1:</span>
+                    <input type="file" accept="image/*" onChange={(e) => handleUploadImage("image_1", e)} className="block w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border file:border-gray-300 file:text-[10px] file:font-semibold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100 cursor-pointer" />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (typeof window !== "undefined") {
+                          window.parent.postMessage({
+                            type: "OPEN_FILE_MANAGER",
+                            index: blockIndex,
+                            field: "image_1"
+                          }, "*");
+                        }
+                      }}
+                      className="w-full mt-1.5 py-1 px-2.5 bg-[#008060] hover:bg-[#006e52] text-white text-[10px] font-bold rounded cursor-pointer border-0 transition-colors"
+                    >
+                      📁 Chọn từ Quản lý file
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+            
+            {(hasImg2 || hasImg3 || isEditMode) && (
+              <div className="flex gap-[24px] items-start w-full flex-col sm:flex-row">
+                {(hasImg2 || isEditMode) && (
+                  <div className="aspect-[1100/600] flex-1 relative rounded-[12px] overflow-hidden bg-gray-150 shadow-xs w-full">
+                    {hasImg2 ? (
+                      <img src={image_2} alt="Grid 2" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full bg-gray-50 border border-dashed border-gray-300 flex items-center justify-center text-xs text-gray-400 min-h-[150px]">
+                        Chưa chọn ảnh 2
+                      </div>
+                    )}
+                    {isEditMode && (
+                      <div className="absolute top-4 left-4 z-20 bg-white/95 backdrop-blur-xs p-3 rounded-lg border border-gray-200 text-xs text-gray-800 shadow-md">
+                        <span className="block mb-2 font-bold text-[10px] uppercase tracking-wider text-gray-500">Thay thế ảnh 2:</span>
+                        <input type="file" accept="image/*" onChange={(e) => handleUploadImage("image_2", e)} className="block w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border file:border-gray-300 file:text-[10px] file:font-semibold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100 cursor-pointer" />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (typeof window !== "undefined") {
+                              window.parent.postMessage({
+                                type: "OPEN_FILE_MANAGER",
+                                index: blockIndex,
+                                field: "image_2"
+                              }, "*");
+                            }
+                          }}
+                          className="w-full mt-1.5 py-1 px-2.5 bg-[#008060] hover:bg-[#006e52] text-white text-[10px] font-bold rounded cursor-pointer border-0 transition-colors"
+                        >
+                          📁 Chọn từ Quản lý file
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+                {(hasImg3 || isEditMode) && (
+                  <div className="aspect-[1100/600] flex-1 relative rounded-[12px] overflow-hidden bg-gray-150 shadow-xs w-full">
+                    {hasImg3 ? (
+                      <img src={image_3} alt="Grid 3" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full bg-gray-50 border border-dashed border-gray-300 flex items-center justify-center text-xs text-gray-400 min-h-[150px]">
+                        Chưa chọn ảnh 3
+                      </div>
+                    )}
+                    {isEditMode && (
+                      <div className="absolute top-4 left-4 z-20 bg-white/95 backdrop-blur-xs p-3 rounded-lg border border-gray-200 text-xs text-gray-800 shadow-md">
+                        <span className="block mb-2 font-bold text-[10px] uppercase tracking-wider text-gray-500">Thay thế ảnh 3:</span>
+                        <input type="file" accept="image/*" onChange={(e) => handleUploadImage("image_3", e)} className="block w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border file:border-gray-300 file:text-[10px] file:font-semibold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100 cursor-pointer" />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (typeof window !== "undefined") {
+                              window.parent.postMessage({
+                                type: "OPEN_FILE_MANAGER",
+                                index: blockIndex,
+                                field: "image_3"
+                              }, "*");
+                            }
+                          }}
+                          className="w-full mt-1.5 py-1 px-2.5 bg-[#008060] hover:bg-[#006e52] text-white text-[10px] font-bold rounded cursor-pointer border-0 transition-colors"
+                        >
+                          📁 Chọn từ Quản lý file
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )}
           </div>
-          {show_design_sub_images && (
-            <div className="flex gap-[24px] items-start w-full flex-col sm:flex-row">
-              <div className="aspect-[1100/600] flex-1 relative rounded-[12px] overflow-hidden bg-gray-150 shadow-xs w-full">
-                <img src={image_2} alt="Grid 2" className="w-full h-full object-cover" />
-                {isEditMode && (
-                  <div className="absolute top-4 left-4 z-20 bg-white/95 backdrop-blur-xs p-3 rounded-lg border border-gray-200 text-xs text-gray-800 shadow-md">
-                    <span className="block mb-2 font-bold text-[10px] uppercase tracking-wider text-gray-500">Thay thế ảnh 2:</span>
-                    <input type="file" accept="image/*" onChange={(e) => handleUploadImage("image_2", e)} className="block w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border file:border-gray-300 file:text-[10px] file:font-semibold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100 cursor-pointer" />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (typeof window !== "undefined") {
-                          window.parent.postMessage({
-                            type: "OPEN_FILE_MANAGER",
-                            index: blockIndex,
-                            field: "image_2"
-                          }, "*");
-                        }
-                      }}
-                      className="w-full mt-1.5 py-1 px-2.5 bg-[#008060] hover:bg-[#006e52] text-white text-[10px] font-bold rounded cursor-pointer border-0 transition-colors"
-                    >
-                      📁 Chọn từ Quản lý file
-                    </button>
-                  </div>
-                )}
-              </div>
-              <div className="aspect-[1100/600] flex-1 relative rounded-[12px] overflow-hidden bg-gray-150 shadow-xs w-full">
-                <img src={image_3} alt="Grid 3" className="w-full h-full object-cover" />
-                {isEditMode && (
-                  <div className="absolute top-4 left-4 z-20 bg-white/95 backdrop-blur-xs p-3 rounded-lg border border-gray-200 text-xs text-gray-800 shadow-md">
-                    <span className="block mb-2 font-bold text-[10px] uppercase tracking-wider text-gray-500">Thay thế ảnh 3:</span>
-                    <input type="file" accept="image/*" onChange={(e) => handleUploadImage("image_3", e)} className="block w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border file:border-gray-300 file:text-[10px] file:font-semibold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100 cursor-pointer" />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (typeof window !== "undefined") {
-                          window.parent.postMessage({
-                            type: "OPEN_FILE_MANAGER",
-                            index: blockIndex,
-                            field: "image_3"
-                          }, "*");
-                        }
-                      }}
-                      className="w-full mt-1.5 py-1 px-2.5 bg-[#008060] hover:bg-[#006e52] text-white text-[10px] font-bold rounded cursor-pointer border-0 transition-colors"
-                    >
-                      📁 Chọn từ Quản lý file
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
+        )}
 
         <div className={`flex flex-col pt-[32px] px-[48px] w-full max-w-[1152px] mt-8 text-black ${alignClass}`}>
           <h2 className={`font-['Ford_Antenna',sans-serif] font-semibold text-[#00095b] text-[36px] sm:text-[48px] tracking-[-0.96px] leading-[1.2] w-full
@@ -1548,86 +1613,114 @@ function FeaturesGridBlock({ blockIndex, data, vehicle, isEditMode, onChangeData
           </h2>
         </div>
 
-        <div className="flex gap-0 items-stretch w-full flex-col lg:flex-row min-h-[400px] lg:h-[600px] rounded-[12px] overflow-hidden shadow-xs">
-          {/* Left large image */}
-          <div className={`flex-1 relative bg-gray-150 w-full min-h-[300px] ${show_interior_sub_images ? 'lg:flex-[2] aspect-[16/10] sm:aspect-auto' : 'lg:flex-1 sm:aspect-video lg:aspect-auto'}`}>
-            <img src={image_large} alt="Interior Large" className="w-full h-full object-cover" />
-            {isEditMode && (
-              <div className="absolute top-4 left-4 z-20 bg-white/95 backdrop-blur-xs p-3 rounded-lg border border-gray-200 text-xs text-gray-800 shadow-md">
-                <span className="block mb-2 font-bold text-[10px] uppercase tracking-wider text-gray-500">Thay thế ảnh lớn (Trái):</span>
-                <input type="file" accept="image/*" onChange={(e) => handleUploadImage("image_large", e)} className="block w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border file:border-gray-300 file:text-[10px] file:font-semibold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100 cursor-pointer" />
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (typeof window !== "undefined") {
-                      window.parent.postMessage({
-                        type: "OPEN_FILE_MANAGER",
-                        index: blockIndex,
-                        field: "image_large"
-                      }, "*");
-                    }
-                  }}
-                  className="w-full mt-1.5 py-1 px-2.5 bg-[#008060] hover:bg-[#006e52] text-white text-[10px] font-bold rounded cursor-pointer border-0 transition-colors"
-                >
-                  📁 Chọn từ Quản lý file
-                </button>
+        {(hasImgLarge || hasImgLarge2 || hasImgLarge3 || isEditMode) && (
+          <div className="flex gap-0 items-stretch w-full flex-col lg:flex-row min-h-[400px] lg:h-[600px] rounded-[12px] overflow-hidden shadow-xs">
+            {/* Left large image */}
+            {(hasImgLarge || isEditMode) && (
+              <div className={`aspect-[16/10] sm:aspect-auto relative bg-gray-150 w-full min-h-[300px]
+                ${(hasImgLarge2 || hasImgLarge3 || isEditMode) ? "flex-1 lg:flex-[2]" : "w-full flex-1"}`}>
+                {hasImgLarge ? (
+                  <img src={image_large} alt="Interior Large" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full bg-gray-50 border border-dashed border-gray-300 flex items-center justify-center text-xs text-gray-400">
+                    Chưa chọn ảnh nội thất lớn
+                  </div>
+                )}
+                {isEditMode && (
+                  <div className="absolute top-4 left-4 z-20 bg-white/95 backdrop-blur-xs p-3 rounded-lg border border-gray-200 text-xs text-gray-800 shadow-md">
+                    <span className="block mb-2 font-bold text-[10px] uppercase tracking-wider text-gray-500">Thay thế ảnh lớn (Trái):</span>
+                    <input type="file" accept="image/*" onChange={(e) => handleUploadImage("image_large", e)} className="block w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border file:border-gray-300 file:text-[10px] file:font-semibold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100 cursor-pointer" />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (typeof window !== "undefined") {
+                          window.parent.postMessage({
+                            type: "OPEN_FILE_MANAGER",
+                            index: blockIndex,
+                            field: "image_large"
+                          }, "*");
+                        }
+                      }}
+                      className="w-full mt-1.5 py-1 px-2.5 bg-[#008060] hover:bg-[#006e52] text-white text-[10px] font-bold rounded cursor-pointer border-0 transition-colors"
+                    >
+                      📁 Chọn từ Quản lý file
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+            {/* Right stacked images */}
+            {(hasImgLarge2 || hasImgLarge3 || isEditMode) && (
+              <div className={`flex flex-col gap-0 w-full min-h-[300px]
+                ${(hasImgLarge || isEditMode) ? "flex-1" : "w-full flex-1"}`}>
+                {(hasImgLarge2 || isEditMode) && (
+                  <div className="flex-1 aspect-[16/10] sm:aspect-auto relative bg-gray-150 w-full min-h-[140px]">
+                    {hasImgLarge2 ? (
+                      <img src={image_large_2} alt="Interior Small 1" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full bg-gray-50 border border-dashed border-gray-300 flex items-center justify-center text-xs text-gray-400">
+                        Chưa chọn ảnh phụ 1
+                      </div>
+                    )}
+                    {isEditMode && (
+                      <div className="absolute top-4 left-4 z-20 bg-white/95 backdrop-blur-xs p-3 rounded-lg border border-gray-200 text-xs text-gray-800 shadow-md">
+                        <span className="block mb-2 font-bold text-[10px] uppercase tracking-wider text-gray-500">Thay thế ảnh phụ 1 (Phải trên):</span>
+                        <input type="file" accept="image/*" onChange={(e) => handleUploadImage("image_large_2", e)} className="block w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border file:border-gray-300 file:text-[10px] file:font-semibold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100 cursor-pointer" />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (typeof window !== "undefined") {
+                              window.parent.postMessage({
+                                type: "OPEN_FILE_MANAGER",
+                                index: blockIndex,
+                                field: "image_large_2"
+                              }, "*");
+                            }
+                          }}
+                          className="w-full mt-1.5 py-1 px-2.5 bg-[#008060] hover:bg-[#006e52] text-white text-[10px] font-bold rounded cursor-pointer border-0 transition-colors"
+                        >
+                          📁 Chọn từ Quản lý file
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+                {(hasImgLarge3 || isEditMode) && (
+                  <div className="flex-1 aspect-[16/10] sm:aspect-auto relative bg-gray-150 w-full min-h-[140px]">
+                    {hasImgLarge3 ? (
+                      <img src={image_large_3} alt="Interior Small 2" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full bg-gray-50 border border-dashed border-gray-300 flex items-center justify-center text-xs text-gray-400">
+                        Chưa chọn ảnh phụ 2
+                      </div>
+                    )}
+                    {isEditMode && (
+                      <div className="absolute top-4 left-4 z-20 bg-white/95 backdrop-blur-xs p-3 rounded-lg border border-gray-200 text-xs text-gray-800 shadow-md">
+                        <span className="block mb-2 font-bold text-[10px] uppercase tracking-wider text-gray-500">Thay thế ảnh phụ 2 (Phải dưới):</span>
+                        <input type="file" accept="image/*" onChange={(e) => handleUploadImage("image_large_3", e)} className="block w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border file:border-gray-300 file:text-[10px] file:font-semibold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100 cursor-pointer" />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (typeof window !== "undefined") {
+                              window.parent.postMessage({
+                                type: "OPEN_FILE_MANAGER",
+                                index: blockIndex,
+                                field: "image_large_3"
+                              }, "*");
+                            }
+                          }}
+                          className="w-full mt-1.5 py-1 px-2.5 bg-[#008060] hover:bg-[#006e52] text-white text-[10px] font-bold rounded cursor-pointer border-0 transition-colors"
+                        >
+                          📁 Chọn từ Quản lý file
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )}
           </div>
-          {/* Right stacked images */}
-          {show_interior_sub_images && (
-            <div className="flex-1 flex flex-col gap-0 w-full min-h-[300px]">
-              <div className="flex-1 aspect-[16/10] sm:aspect-auto relative bg-gray-150 w-full min-h-[140px]">
-                <img src={image_large_2} alt="Interior Small 1" className="w-full h-full object-cover" />
-                {isEditMode && (
-                  <div className="absolute top-4 left-4 z-20 bg-white/95 backdrop-blur-xs p-3 rounded-lg border border-gray-200 text-xs text-gray-800 shadow-md">
-                    <span className="block mb-2 font-bold text-[10px] uppercase tracking-wider text-gray-500">Thay thế ảnh phụ 1 (Phải trên):</span>
-                    <input type="file" accept="image/*" onChange={(e) => handleUploadImage("image_large_2", e)} className="block w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border file:border-gray-300 file:text-[10px] file:font-semibold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100 cursor-pointer" />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (typeof window !== "undefined") {
-                          window.parent.postMessage({
-                            type: "OPEN_FILE_MANAGER",
-                            index: blockIndex,
-                            field: "image_large_2"
-                          }, "*");
-                        }
-                      }}
-                      className="w-full mt-1.5 py-1 px-2.5 bg-[#008060] hover:bg-[#006e52] text-white text-[10px] font-bold rounded cursor-pointer border-0 transition-colors"
-                    >
-                      📁 Chọn từ Quản lý file
-                    </button>
-                  </div>
-                )}
-              </div>
-              <div className="flex-1 aspect-[16/10] sm:aspect-auto relative bg-gray-150 w-full min-h-[140px]">
-                <img src={image_large_3} alt="Interior Small 2" className="w-full h-full object-cover" />
-                {isEditMode && (
-                  <div className="absolute top-4 left-4 z-20 bg-white/95 backdrop-blur-xs p-3 rounded-lg border border-gray-200 text-xs text-gray-800 shadow-md">
-                    <span className="block mb-2 font-bold text-[10px] uppercase tracking-wider text-gray-500">Thay thế ảnh phụ 2 (Phải dưới):</span>
-                    <input type="file" accept="image/*" onChange={(e) => handleUploadImage("image_large_3", e)} className="block w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border file:border-gray-300 file:text-[10px] file:font-semibold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100 cursor-pointer" />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (typeof window !== "undefined") {
-                          window.parent.postMessage({
-                            type: "OPEN_FILE_MANAGER",
-                            index: blockIndex,
-                            field: "image_large_3"
-                          }, "*");
-                        }
-                      }}
-                      className="w-full mt-1.5 py-1 px-2.5 bg-[#008060] hover:bg-[#006e52] text-white text-[10px] font-bold rounded cursor-pointer border-0 transition-colors"
-                    >
-                      📁 Chọn từ Quản lý file
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
+        )}
 
         <div className={`flex flex-col pt-[32px] px-[48px] w-full max-w-[1152px] mt-8 text-black ${alignClass}`}>
           <h2 className={`font-['Ford_Antenna',sans-serif] font-semibold text-[#00095b] text-[36px] sm:text-[48px] tracking-[-0.96px] leading-[1.2] w-full
@@ -1637,9 +1730,15 @@ function FeaturesGridBlock({ blockIndex, data, vehicle, isEditMode, onChangeData
         </div>
 
         <div className="flex flex-col lg:flex-row gap-[4px] h-auto lg:h-[660px] items-stretch justify-center w-full">
-          {show_tech_image && (
+          {(hasSplitImg || isEditMode) && (
             <div className="flex-1 min-h-[350px] relative rounded-t-[12px] lg:rounded-t-none lg:rounded-l-[12px] overflow-hidden bg-gray-150 shadow-xs">
-              <img src={split_image} alt="Split Detail" className="w-full h-full object-cover" />
+              {hasSplitImg ? (
+                <img src={split_image} alt="Split Detail" className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full bg-gray-50 border border-dashed border-gray-300 flex items-center justify-center text-xs text-gray-400">
+                  Chưa chọn ảnh công nghệ
+                </div>
+              )}
               {isEditMode && (
                 <div className="absolute top-4 left-4 z-20 bg-white/95 backdrop-blur-xs p-3 rounded-lg border border-gray-200 text-xs text-gray-800 shadow-md">
                   <span className="block mb-2 font-bold text-[10px] uppercase tracking-wider text-gray-500">Thay thế ảnh trái:</span>
@@ -1664,7 +1763,8 @@ function FeaturesGridBlock({ blockIndex, data, vehicle, isEditMode, onChangeData
             </div>
           )}
 
-          <div className={`bg-[#0562d2] flex flex-col h-full items-start px-[24px] py-[32px] rounded-b-[12px] lg:rounded-b-none lg:rounded-r-[12px] shrink-0 w-full text-white ${show_tech_image ? 'lg:w-[480px]' : 'lg:w-full lg:rounded-[12px]'}`}>
+          <div className={`bg-[#0562d2] flex flex-col h-full items-start px-[24px] py-[32px] rounded-b-[12px] lg:rounded-b-none lg:rounded-r-[12px] shrink-0 w-full text-white
+            ${(hasSplitImg || isEditMode) ? "lg:w-[480px]" : "flex-grow"}`}>
             <div className="flex flex-col justify-between h-full w-full min-h-[400px]">
               <h3 className={`font-['Ford_Antenna',sans-serif] font-semibold text-[32px] sm:text-[36px] leading-[1.32] pb-6 border-b border-white/20 w-full
                 ${isEditMode ? 'outline-[1px] outline-dashed outline-white/50 hover:outline-white outline-offset-2 cursor-pointer transition-all' : ''}`}>
@@ -1862,8 +1962,8 @@ function BookingBannerBlock({ blockIndex, data, vehicle, isEditMode, onChangeDat
   const phone = data.phone || "1800 55 68 58";
   const btnText = data.btn_text || "Đặt lịch hẹn";
   const btnLink = data.btn_link || "/lien-he?reason=Đặt hẹn dịch vụ";
-  const carImage = resolveImageUrl(data.car_image || vehicle.image_url || "/assets/booking-car.png");
-  const show_car_image = data.show_car_image !== false;
+  const hasCarImage = hasImageField(data.car_image);
+  const carImage = hasCarImage ? resolveImageUrl(data.car_image) : "";
 
   const handleUploadCarImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -1902,9 +2002,10 @@ function BookingBannerBlock({ blockIndex, data, vehicle, isEditMode, onChangeDat
     <section id={anchorId || undefined} className="w-full bg-[#00095b] py-[32px] px-4 md:px-[144px] flex justify-center overflow-visible">
       <div className="max-w-[1152px] w-full relative flex flex-col lg:flex-row items-center overflow-visible">
         {/* Inner Rounded Banner */}
-        <div className={`w-full bg-gradient-to-r from-[#00095B] via-[#02337A] to-[#0562D2] rounded-[12px] p-8 lg:p-[32px] h-auto lg:h-[320px] flex items-center relative overflow-hidden lg:overflow-visible shadow-xl ${show_car_image ? 'lg:w-[913px]' : 'lg:w-full'}`}>
+        <div className="w-full lg:w-[913px] bg-gradient-to-r from-[#00095B] via-[#02337A] to-[#0562D2] rounded-[12px] p-8 lg:p-[32px] h-auto lg:h-[320px] flex items-center relative overflow-hidden lg:overflow-visible shadow-xl">
           {/* Content */}
-          <div className={`flex flex-col gap-6 max-w-full lg:max-w-[505px] relative z-10 text-white w-full ${alignClass}`}>
+          <div className={`flex flex-col gap-6 max-w-full relative z-10 text-white w-full ${alignClass}
+            ${(hasCarImage || isEditMode) ? "lg:max-w-[505px]" : "lg:max-w-full"}`}>
             <>
               <h3
                 className={`font-bold font-display leading-[1.32] ${titleSizeClass} w-full
@@ -1935,13 +2036,19 @@ function BookingBannerBlock({ blockIndex, data, vehicle, isEditMode, onChangeDat
         </div>
 
         {/* Overlapping Car Image */}
-        {show_car_image && (
+        {(hasCarImage || isEditMode) && (
           <div className="relative lg:absolute h-[250px] lg:h-[420px] w-full lg:w-[587px] lg:left-[576px] lg:top-[-50px] pointer-events-none z-20 mt-6 lg:mt-0 flex justify-center">
-            <img
-              src={carImage}
-              alt="Ford Booking Vehicle"
-              className="object-contain max-h-full lg:max-h-none"
-            />
+            {hasCarImage ? (
+              <img
+                src={carImage}
+                alt="Ford Booking Vehicle"
+                className="object-contain max-h-full lg:max-h-none"
+              />
+            ) : (
+              <div className="w-full h-full bg-gray-900/50 border border-dashed border-gray-700 rounded-lg flex items-center justify-center text-xs text-gray-500 pointer-events-auto min-h-[150px] p-4">
+                Chưa chọn ảnh xe đè (Sẽ ẩn trên giao diện thực tế)
+              </div>
+            )}
             {isEditMode && (
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 bg-white/95 backdrop-blur-xs p-3 rounded-lg border border-gray-200 text-xs text-gray-800 pointer-events-auto shadow-md">
                 <span className="block mb-2 font-bold text-[10px] uppercase tracking-wider text-gray-500 text-center">Ảnh xe đè:</span>
