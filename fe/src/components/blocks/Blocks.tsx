@@ -387,7 +387,7 @@ function HeroBannerBlock({ blockIndex, data, vehicle, openQuoteDrawer, openDrive
   return (
     <section id={anchorId || undefined} className="relative h-[550px] sm:h-[650px] flex items-end overflow-hidden bg-black text-white pb-[68px] w-full">
       <div className="absolute inset-0 z-0">
-        {hasBgImg && (
+        {hasBgImg && !(youtubeId || bgVideo) && (
           <Image
             src={bgImg}
             alt={title}
@@ -408,6 +408,7 @@ function HeroBannerBlock({ blockIndex, data, vehicle, openQuoteDrawer, openDrive
         ) : bgVideo ? (
           <video
             src={bgVideo}
+            poster={hasBgImg ? bgImg : undefined}
             autoPlay
             loop
             muted
