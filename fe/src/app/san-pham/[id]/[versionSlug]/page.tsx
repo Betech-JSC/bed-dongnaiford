@@ -234,6 +234,17 @@ export default function VehicleVersionDetailPage() {
 
   const isImageSequence = (viewType === "exterior" && hasExteriorSeq) || (viewType === "interior" && hasInteriorSeq);
 
+  const fallbackImageSrc = useMemo(() => {
+    if (viewType === "interior") {
+      return (currentColor?.images_360_internal && currentColor.images_360_internal.length > 0)
+        ? currentColor.images_360_internal[0]
+        : (currentColor?.image_360_internal || currentColor?.image || selectedVersion?.image_url || vehicle?.image_url || "");
+    }
+    return (currentColor?.images_360 && currentColor.images_360.length > 0)
+      ? currentColor.images_360[0]
+      : (currentColor?.image || selectedVersion?.image_url || vehicle?.image_url || "");
+  }, [viewType, currentColor, selectedVersion, vehicle]);
+
   // Reset 360 active state when color or version changes
   useEffect(() => {
     setIs360Active(false);
@@ -560,7 +571,7 @@ export default function VehicleVersionDetailPage() {
               ) : (
                 <div className="relative w-full h-full flex items-center justify-center">
                   <img
-                    src={(currentColor?.images_360 && currentColor.images_360.length > 0) ? currentColor.images_360[0] : (currentColor?.image || selectedVersion?.image_url || vehicle.image_url)}
+                    src={fallbackImageSrc}
                     alt={currentColor?.name || selectedVersion?.name || vehicle.name}
                     className="w-full h-full object-cover select-none pointer-events-none"
                   />
@@ -601,7 +612,7 @@ export default function VehicleVersionDetailPage() {
               <div className="flex flex-col gap-2 items-start text-left">
                 <span className="text-sm font-bold text-gray-800">Bảng màu</span>
                 <div className="flex gap-2">
-                  {viewType === "exterior" && colors && colors.length > 0 ? (
+                  {colors && colors.length > 0 ? (
                     colors.map((color: any, idx: number) => {
                       const isSelected = selectedColorIndex === idx || (selectedColorIndex === null && idx === 0 && !selectedVersion?.image_url);
                       return (
