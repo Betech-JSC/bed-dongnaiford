@@ -16,253 +16,7 @@ interface FeatureItem {
 // ----------------------------------------------------------------------
 // 1. Vehicle-Specific Premium Features Dataset
 // ----------------------------------------------------------------------
-const DEFAULT_FEATURES_BY_MODEL: Record<string, Record<string, Omit<FeatureItem, "image">[]>> = {
-  everest: {
-    performance: [
-      {
-        title: "Động cơ Diesel Bi-Turbo 2.0L mạnh mẽ",
-        desc: "Động cơ diesel Bi-Turbo 2.0L trên các bản cao cấp cung cấp mô-men xoắn cực đại 500Nm và công suất 210 mã lực, kết hợp cùng hộp số tự động 10 cấp số êm ái, tối ưu hóa công suất vận hành và hiệu quả tiết kiệm nhiên liệu vượt trội.",
-        category: "performance"
-      },
-      {
-        title: "Hệ thống kiểm soát đường địa hình (TMS)",
-        desc: "Lựa chọn chế độ lái dễ dàng qua nút xoay chuyển tiện lợi. Xe hỗ trợ lên tới 6 chế độ lái tùy chọn (Normal, Eco, Tow/Haul, Slippery, Mud/Ruts, Sand) giúp bạn tự tin vượt qua mọi loại địa hình phức tạp nhất.",
-        category: "performance"
-      }
-    ],
-    design: [
-      {
-        title: "Thiết kế ngoại thất bề thế chuẩn Mỹ",
-        desc: "Cụm đèn pha LED hình chữ C đặc trưng kết hợp thanh lưới tản nhiệt mạ chrome to bản tạo nên diện mạo vững chãi, nam tính và vô cùng sang trọng của Everest thế hệ mới.",
-        category: "design"
-      },
-      {
-        title: "Cửa sổ trời toàn cảnh Panorama cao cấp",
-        desc: "Không gian nội thất tràn ngập ánh sáng tự nhiên với thiết kế cửa sổ trời toàn cảnh mở rộng đến hàng ghế thứ hai, tạo cảm giác thoáng đạt và thời thượng vượt mong đợi.",
-        category: "design"
-      },
-      {
-        title: "Khoang cabin 7 chỗ rộng rãi & Sang trọng",
-        desc: "Cả 3 hàng ghế bọc da cao cấp được bố trí thông minh. Hàng ghế thứ ba gập điện 50:50 bằng một nút bấm tiện lợi, tối ưu hóa không gian hành lý khi cần mang nhiều đồ đạc cồng kềnh.",
-        category: "design"
-      }
-    ],
-    tech: [
-      {
-        title: "Màn hình cảm ứng trung tâm 12 inch SYNC 4A",
-        desc: "Màn hình giải trí cảm ứng cỡ lớn đặt dọc hiện đại hỗ trợ kết nối Apple CarPlay và Android Auto không dây, hiển thị đa thông tin cùng thao tác phản hồi mượt mà.",
-        category: "tech"
-      },
-      {
-        title: "Kết nối thông minh ứng dụng FordPass",
-        desc: "Ứng dụng giúp bạn kiểm soát xe mọi lúc mọi nơi ngay trên điện thoại di động: khởi động xe để làm mát cabin trước khi lên xe, định vị xe, kiểm tra áp suất lốp và tình trạng sức khỏe xe.",
-        category: "tech"
-      }
-    ],
-    safety: [
-      {
-        title: "Hệ thống Hỗ trợ đỗ xe tự động 2.0",
-        desc: "Đỗ xe chưa bao giờ dễ dàng đến thế. Chỉ cần giữ nút kích hoạt, xe sẽ tự điều khiển vô lăng, chuyển số, tăng ga và phanh để đưa xe vào chỗ đỗ song song hoặc vuông góc an toàn.",
-        category: "safety"
-      },
-      {
-        title: "Kiểm soát hành trình thích ứng (Adaptive Cruise Control)",
-        desc: "Hệ thống tự động duy trì khoảng cách an toàn với xe phía trước, có khả năng bám đuôi Stop & Go và hỗ trợ giữ xe luôn di chuyển ở tâm làn đường.",
-        category: "safety"
-      },
-      {
-        title: "Hệ thống Camera 360 độ góc nhìn rộng",
-        desc: "Cung cấp cái nhìn toàn cảnh xung quanh xe từ trên cao giúp bạn dễ dàng xoay xở trong không gian chật hẹp, tích hợp camera trước hiển thị mặt đường khi đi off-road.",
-        category: "safety"
-      }
-    ]
-  },
-  ranger: {
-    performance: [
-      {
-        title: "Khả năng kéo tải và off-road vô song",
-        desc: "Động cơ 2.0L Bi-Turbo cùng hộp số tự động 10 cấp mang lại sức mạnh kéo tải lên đến 3.5 tấn. Hệ thống dẫn động 2 cầu chủ động giúp Ranger dễ dàng đương đầu với mọi cung đường hiểm trở.",
-        category: "performance"
-      },
-      {
-        title: "Khóa vi sai cầu sau điện tử",
-        desc: "Giúp tối đa hóa lực kéo trên các địa hình trơn trượt, bùn lầy bằng cách khóa cứng hai bánh xe trục sau quay cùng tốc độ, hỗ trợ đắc lực khi xe vượt lầy.",
-        category: "performance"
-      }
-    ],
-    design: [
-      {
-        title: "Thiết kế hầm hố, đậm chất bán tải Mỹ",
-        desc: "Thiết kế đầu xe nổi bật với cụm đèn LED chữ C độc bản và mặt ca-lăng cơ bắp. Khoảng cách hai trục bánh được mở rộng giúp tăng góc tiếp cận và góc thoát khi đi địa hình.",
-        category: "design"
-      },
-      {
-        title: "Thùng hàng đa năng & Tiện ích bệ bước chân",
-        desc: "Thùng hàng lớn hơn tích hợp các điểm neo buộc đồ tiện lợi và ổ cắm nguồn điện 230V/400W. Bệ bước chân bên hông thùng xe giúp bạn bốc xếp hàng hóa lên xuống dễ dàng hơn bao giờ hết.",
-        category: "design"
-      }
-    ],
-    tech: [
-      {
-        title: "Hệ thống thông tin giải trí SYNC 4A",
-        desc: "Màn hình cảm ứng 12 inch kết hợp bảng đồng hồ kỹ thuật số sắc nét mang lại trải nghiệm buồng lái thông minh vượt trội, tương thích Apple CarPlay & Android Auto không dây.",
-        category: "tech"
-      },
-      {
-        title: "Sạc không dây & Tiện nghi cao cấp",
-        desc: "Trang bị khay sạc không dây hiện đại giúp cabin gọn gàng hơn, cùng hệ thống điều hòa tự động và các cổng sạc USB-A, USB-C được bố trí xung quanh cabin.",
-        category: "tech"
-      }
-    ],
-    safety: [
-      {
-        title: "Hệ thống hỗ trợ phanh tự động khẩn cấp (AEB)",
-        desc: "Sử dụng camera và radar quét phía trước xe để phát hiện nguy cơ va chạm với phương tiện hoặc người đi bộ, tự động tác động lực phanh nếu người lái không kịp phản ứng.",
-        category: "safety"
-      },
-      {
-        title: "Hệ thống cảnh báo điểm mù tích hợp quét rơ-moóc",
-        desc: "Công nghệ cảnh báo điểm mù thông minh BLIS giúp giám sát cả vùng mù của xe và rơ-moóc phía sau, đảm bảo an toàn tuyệt đối khi chuyển làn.",
-        category: "safety"
-      }
-    ]
-  },
-  territory: {
-    performance: [
-      {
-        title: "Động cơ Ecoboost 1.5L mạnh mẽ & Tiết kiệm",
-        desc: "Công nghệ EcoBoost danh tiếng của Ford giúp sản sinh công suất 160 mã lực cùng mô-men xoắn 248Nm, kết hợp hộp số tự động 7 cấp ly hợp kép ướt êm ái, vận hành mượt mà và tiết kiệm.",
-        category: "performance"
-      },
-      {
-        title: "4 Chế độ lái tùy chọn linh hoạt",
-        desc: "Bốn chế độ lái gồm Normal, Eco, Sport và Mountain giúp xe tối ưu hóa phản hồi chân ga, độ nhạy vô lăng để thích ứng hoàn hảo với từng điều kiện hành trình.",
-        category: "performance"
-      }
-    ],
-    design: [
-      {
-        title: "Ngôn ngữ thiết kế năng động và hiện đại",
-        desc: "Lưới tản nhiệt bát giác mở rộng cùng cụm đèn LED Matrix tinh xảo tạo vẻ ngoài thời thượng, nổi bật và vô cùng phong cách giữa lòng đô thị sầm uất.",
-        category: "design"
-      },
-      {
-        title: "Khoang cabin rộng rãi hàng đầu phân khúc",
-        desc: "Không gian ghế sau cực kỳ rộng rãi với sàn phẳng hoàn toàn, mang lại sự thoải mái tuyệt đối cho cả 5 người lớn cùng hành lý trong những chuyến đi xa.",
-        category: "design"
-      }
-    ],
-    tech: [
-      {
-        title: "Màn hình đôi kỹ thuật số 12.3 inch cực đại",
-        desc: "Bảng đồng hồ kỹ thuật số liền mạch với màn hình giải trí trung tâm sắc nét, mang lại không gian công nghệ tương lai hiện đại và sang trọng bậc nhất.",
-        category: "tech"
-      },
-      {
-        title: "Cửa cốp mở rảnh tay thông minh",
-        desc: "Chỉ cần đá nhẹ chân dưới cản sau, cốp xe sẽ tự động mở ra hoặc đóng lại vô cùng tiện lợi khi hai tay bạn đang bận xách đồ đạc.",
-        category: "tech"
-      }
-    ],
-    safety: [
-      {
-        title: "Hỗ trợ đỗ xe tự động thông minh",
-        desc: "Hệ thống tự động tìm chỗ đỗ và đưa xe vào vị trí ghép song song hoặc vuông góc mà bạn không cần phải chạm tay vào vô-lăng hay đạp chân ga.",
-        category: "safety"
-      },
-      {
-        title: "Hệ thống kiểm soát hành trình thích ứng (ACC)",
-        desc: "Hệ thống tự động bám đuôi xe phía trước và điều chỉnh tốc độ, kết hợp phanh tự động khẩn cấp giúp bạn thư thái và an toàn hơn trên đường cao tốc.",
-        category: "safety"
-      }
-    ]
-  },
-  transit: {
-    performance: [
-      {
-        title: "Động cơ Turbo Diesel 2.3L Duratorq bền bỉ",
-        desc: "Động cơ diesel 2.3L thế hệ mới cung cấp sức kéo mạnh mẽ ở dải vòng tua thấp, kết hợp hộp số sàn 6 cấp vận hành êm ái, bền bỉ và tối ưu hóa chi phí nhiên liệu tối đa.",
-        category: "performance"
-      },
-      {
-        title: "Hệ thống treo được nâng cấp êm ái hơn",
-        desc: "Sự kết hợp giữa treo trước độc lập MacPherson và treo sau lá nhíp giúp giảm chấn tối đa cho khoang cabin, đem lại sự dễ chịu nhất cho hành khách trên mọi cung đường.",
-        category: "performance"
-      }
-    ],
-    design: [
-      {
-        title: "Diện mạo mới chuyên nghiệp & Sang trọng",
-        desc: "Thiết kế đầu xe mạnh mẽ với cụm đèn LED hiện đại và lưới tản nhiệt mới. Cửa trượt bên hông mở rộng tối đa giúp hành khách lên xuống xe dễ dàng và nhanh chóng.",
-        category: "design"
-      },
-      {
-        title: "Khoang hành khách 16 chỗ tối ưu tiện nghi",
-        desc: "Ghế ngồi bọc nỉ cao cấp, thiết kế ôm sát cơ thể mang lại sự thoải mái. Hệ thống điều hòa độc lập với các cửa gió tại từng hàng ghế giúp làm mát nhanh toàn bộ cabin.",
-        category: "design"
-      }
-    ],
-    tech: [
-      {
-        title: "Màn hình giải trí đa chức năng 10 inch",
-        desc: "Màn hình cảm ứng trung tâm hỗ trợ kết nối Bluetooth, đàm thoại rảnh tay và cổng USB giúp tài xế dễ dàng dẫn đường, quản lý hành trình và thư giãn khi lái xe.",
-        category: "tech"
-      },
-      {
-        title: "Cổng sạc USB tiện lợi tại mỗi hàng ghế",
-        desc: "Các hàng ghế sau đều được trang bị cổng sạc USB tiện dụng, giúp hành khách luôn giữ kết nối cho các thiết bị di động trong suốt hành trình dài.",
-        category: "tech"
-      }
-    ],
-    safety: [
-      {
-        title: "Hệ thống cân bằng điện tử ESP thế hệ mới",
-        desc: "Hệ thống ESP liên tục giám sát quỹ đạo di chuyển của xe và can thiệp phanh độc lập tại từng bánh xe để giữ xe thăng bằng, tránh lật bánh khi vào cua gấp.",
-        category: "safety"
-      },
-      {
-        title: "Hệ thống phanh ABS và EBD an toàn vượt trội",
-        desc: "Chống khóa cứng bánh xe khi phanh gấp và phân bổ lực phanh tối ưu giữa bánh trước/sau tùy theo tải trọng thực tế, giúp tài xế kiểm soát tay lái tốt nhất.",
-        category: "safety"
-      }
-    ]
-  },
-  generic: {
-    performance: [
-      {
-        title: "Động cơ tăng áp vượt trội",
-        desc: "Vận hành mạnh mẽ, tối ưu hóa công suất chân ga cùng hộp số thông minh giúp xe di chuyển êm ái, bền bỉ trên mọi loại địa hình phức tạp.",
-        category: "performance"
-      }
-    ],
-    design: [
-      {
-        title: "Kiểu dáng thể thao khỏe khoắn",
-        desc: "Thiết kế mạnh mẽ chuẩn Mỹ với lưới tản nhiệt cỡ lớn, cụm đèn LED sắc sảo cùng những đường dập nổi cơ bắp chạy dọc thân xe.",
-        category: "design"
-      },
-      {
-        title: "Khoang lái hiện đại, cao cấp",
-        desc: "Nội thất sử dụng vật liệu cao cấp, các chi tiết được hoàn thiện tinh xảo tạo cảm giác sang trọng và tiện nghi tối đa cho người sử dụng.",
-        category: "design"
-      }
-    ],
-    tech: [
-      {
-        title: "Hệ thống kết nối thông minh",
-        desc: "Màn hình cảm ứng trung tâm cỡ lớn, tương thích Apple CarPlay và Android Auto giúp bạn kết nối dễ dàng không giới hạn.",
-        category: "tech"
-      }
-    ],
-    safety: [
-      {
-        title: "Công nghệ hỗ trợ lái thông minh",
-        desc: "Trang bị các camera và cảm biến xung quanh xe giúp phát hiện chướng ngại vật, phanh khẩn cấp tự động và bảo vệ tối ưu.",
-        category: "safety"
-      }
-    ]
-  }
-};
+
 
 const resolveFileUrl = (file: any): string => {
   if (!file) return "";
@@ -494,16 +248,7 @@ export default function VehicleFeaturesPage() {
   } = useVehicle();
 
 
-  // Get vehicle type identifier
-  const vehicleKey = useMemo(() => {
-    if (!vehicle || !vehicle.name) return "generic";
-    const n = vehicle.name.toLowerCase();
-    if (n.includes("everest")) return "everest";
-    if (n.includes("ranger")) return "ranger";
-    if (n.includes("territory")) return "territory";
-    if (n.includes("transit")) return "transit";
-    return "generic";
-  }, [vehicle]);
+
 
   // 1. Parse raw features from CMS API
   const parsedCMSFeatures = useMemo<FeatureItem[]>(() => {
@@ -588,21 +333,8 @@ export default function VehicleFeaturesPage() {
     });
   }, [vehicle]);
 
-  // 2. Assemble sections (CMS + Fallbacks mapped to real images)
+  // 2. Assemble sections (CMS only)
   const sections = useMemo(() => {
-    const defaults = DEFAULT_FEATURES_BY_MODEL[vehicleKey] || DEFAULT_FEATURES_BY_MODEL.generic;
-
-    const getFallbackImage = (cat: string, index: number) => {
-      if (!vehicle?.images || vehicle.images.length === 0) return vehicle?.image_url || "";
-      const imgs = vehicle.images;
-      // Distribute images across categories with offsets to ensure variety
-      if (cat === "performance" || cat === "Vận hành") return imgs[(index + 2) % imgs.length];
-      if (cat === "design" || cat === "Thiết kế") return imgs[(index + 1) % imgs.length];
-      if (cat === "tech" || cat === "Công nghệ") return imgs[(index + 4) % imgs.length];
-      if (cat === "safety" || cat === "An toàn") return imgs[(index + 3) % imgs.length];
-      return imgs[index % imgs.length];
-    };
-
     const getCategoryKey = (catName: string): string => {
       const c = catName.trim().toLowerCase();
       if (c === "thiết kế" || c === "design") return "design";
@@ -663,22 +395,11 @@ export default function VehicleFeaturesPage() {
     const result: { id: string; label: string; subLabel: string; title: string; desc: string; features: FeatureItem[] }[] = [];
 
     categoriesList.forEach((cat) => {
-      let catFeatures = parsedCMSFeatures.filter(
+      const catFeatures = parsedCMSFeatures.filter(
         (f) => getCategoryKey(f.category) === cat.id
       );
 
-      const isStandard = ["design", "performance", "tech", "safety"].includes(cat.id);
-
-      // If category features are empty and it is standard, use default mock data
-      if (catFeatures.length === 0 && isStandard) {
-        const defaultList = defaults[cat.id] || [];
-        catFeatures = defaultList.map((df, idx) => ({
-          ...df,
-          image: getFallbackImage(cat.id, idx) || ""
-        })) as FeatureItem[];
-      }
-
-      // For custom categories, only render if there are active features configured
+      // Only render if there are active features configured
       if (catFeatures.length > 0) {
         result.push({
           ...cat,
@@ -688,7 +409,7 @@ export default function VehicleFeaturesPage() {
     });
 
     return result;
-  }, [vehicle, parsedCMSFeatures, vehicleKey]);
+  }, [vehicle, parsedCMSFeatures]);
 
 
 
