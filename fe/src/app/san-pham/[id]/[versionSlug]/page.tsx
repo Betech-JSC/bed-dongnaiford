@@ -4,10 +4,12 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { useVehicle, VehicleTabBar } from "../layout";
 import { useParams, useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight, RotateCcw } from "lucide-react";
+import { resolveImageUrl } from "@/components/blocks/Blocks";
 
 // Vietnamese-accent-safe URL slug generator
 const getVersionSlug = (verName: string) => {
   return verName.toLowerCase()
+    .replace(/\+/g, "-plus")
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/đ/g, "d").replace(/Đ/g, "d")
@@ -297,7 +299,7 @@ export default function VehicleVersionDetailPage() {
           return (
             <img
               key={idx}
-              src={imgUrl}
+              src={resolveImageUrl(imgUrl)}
               alt={`${currentColor?.name || vehicle.name} exterior 360 view`}
               className="absolute inset-0 w-full h-full object-cover select-none pointer-events-none"
               style={{
@@ -328,7 +330,7 @@ export default function VehicleVersionDetailPage() {
           return (
             <img
               key={idx}
-              src={imgUrl}
+              src={resolveImageUrl(imgUrl)}
               alt={`${currentColor?.name || vehicle.name} interior 360 view`}
               className="absolute inset-0 w-full h-full object-cover select-none pointer-events-none"
               style={{
@@ -423,7 +425,7 @@ export default function VehicleVersionDetailPage() {
                 >
                   <div className="w-[100px] aspect-[16/10] relative">
                     <img
-                      src={imgUrl}
+                      src={resolveImageUrl(imgUrl)}
                       alt={ver.name}
                       className="w-full h-full object-contain"
                     />
@@ -519,7 +521,7 @@ export default function VehicleVersionDetailPage() {
               ) : (
                 <div className="relative w-full h-full flex items-center justify-center">
                   <img
-                    src={fallbackImageSrc}
+                    src={resolveImageUrl(fallbackImageSrc)}
                     alt={currentColor?.name || selectedVersion?.name || vehicle.name}
                     className="w-full h-full object-cover select-none pointer-events-none"
                   />
@@ -657,7 +659,7 @@ export default function VehicleVersionDetailPage() {
                 >
                   <div className="aspect-[4/3] relative overflow-hidden bg-gray-50 shrink-0">
                     <img
-                      src={feat.image}
+                      src={resolveImageUrl(feat.image)}
                       alt={feat.title}
                       className="w-full h-full object-cover"
                     />

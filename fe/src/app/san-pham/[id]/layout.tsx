@@ -83,6 +83,7 @@ const safeArray = (arr: any) => {
 
 const getVersionSlug = (verName: string) => {
   return verName.toLowerCase()
+    .replace(/\+/g, "-plus")
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/đ/g, "d").replace(/Đ/g, "d")
