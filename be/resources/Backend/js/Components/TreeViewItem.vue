@@ -9,14 +9,14 @@
         group="category"
         :disabled="!draggable"
         ghostClass="ghost"
-        class="text-lg tree-view-list"
+        class="text-sm tree-view-list"
     >
         <template #item="{ element }">
             <li class="flex-col w-full select-none tree-view-item-wrapper">
                 <div
-                    class="flex items-center w-full px-2 mt-1 space-x-1 rounded cursor-pointer group handle tree-view-item"
+                    class="flex items-center w-full px-2 mt-0.5 space-x-1.5 rounded cursor-pointer group handle tree-view-item"
                     :class="{
-                        'text-blue-500':
+                        'text-emerald-700':
                             selectable &&
                             modelValue !== undefined &&
                             modelValue.some((x) => x[keyBy] === element[keyBy]),
@@ -25,13 +25,16 @@
                     <div
                         v-if="element[childrenBy] && element[childrenBy].length > 0"
                         @click="onClickIcon(element)"
-                        class="p-1 rounded-sm hover:bg-gray-200"
+                        class="p-1 rounded-md hover:bg-gray-200 flex items-center justify-center shrink-0"
                     >
-                        <ph:caret-right-fill v-if="!elementIsActive(element)" />
-                        <ph:caret-down-fill v-else />
+                        <ph:caret-right-fill v-if="!elementIsActive(element)" class="w-3 h-3 text-gray-400" />
+                        <ph:caret-down-fill v-else class="w-3 h-3 text-gray-400" />
                     </div>
+                    <div v-else class="w-5 h-5 flex items-center justify-center shrink-0"></div>
+                    <ph:folder-light v-if="!elementIsActive(element)" class="w-4 h-4 text-emerald-600 mr-1 shrink-0" />
+                    <ph:folder-open-light v-else class="w-4 h-4 text-emerald-600 mr-1 shrink-0" />
                     <label
-                        class="flex-1 py-2"
+                        class="flex-1 py-1.5 truncate text-gray-700 group-hover:text-gray-900"
                         @click="onClickName($event.target, element)"
                     >
                         {{ element[labelBy] }}
@@ -47,7 +50,7 @@
                             'max-h-0 overflow-hidden':
                                 !elementIsActive(element),
                         },
-                        selectable ? 'ml-2' : 'ml-6',
+                        selectable ? 'ml-2' : 'ml-4',
                     ]"
                     :active="!elementIsActive(element)"
                     :field="field"
@@ -180,11 +183,12 @@ export default {
     @apply flex-col;
 }
 .tree-view-item {
+    @apply rounded-lg transition-all duration-150;
     &.is-selected {
-        @apply bg-gray-100 text-primary;
+        @apply bg-emerald-50 text-emerald-700 font-medium;
     }
     &:not(.is-selected):hover {
-        @apply bg-gray-100;
+        @apply bg-gray-50;
     }
 }
 </style>

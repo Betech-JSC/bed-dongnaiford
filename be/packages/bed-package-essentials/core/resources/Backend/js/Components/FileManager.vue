@@ -48,7 +48,7 @@
                 @drop.prevent="; (isDragging = false), (dragCounter = 0), drop($event)"></div>
 
             <!-- Details sidebar -->
-            <aside class="hidden p-8 pb-16 overflow-y-auto bg-white border-l border-r border-gray-200 w-80 md:block">
+            <aside class="hidden p-4 pb-16 overflow-y-auto bg-white border-l border-r border-gray-200 w-72 md:block">
                 <template v-if="embed">
                     <Button @click.prevent="browse" class="w-full space-x-2 btn-primary">
                         <ph:upload-simple />
@@ -61,7 +61,7 @@
                     label: false,
                     type: 'tree',
                     maxLevel: 10,
-                    expandDefaultLevel: 2,
+                    expandDefaultLevel: 10,
                     keyBy: 'slug',
                     labelBy: 'name',
                     childrenBy: 'children',
