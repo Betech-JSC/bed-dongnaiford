@@ -653,7 +653,7 @@
                                             type: 'select_single',
                                             name: 'new_accessory_brand_id',
                                             label: false,
-                                            options: (data.brands || []).map(b => ({ value: b.id, label: b.title }))
+                                            options: (data.brands || []).map(b => ({ id: b.id, label: b.title }))
                                         }" />
                                     </div>
 
@@ -664,7 +664,7 @@
                                             type: 'select_multiple',
                                             name: 'new_accessory_categories',
                                             label: false,
-                                            options: (data.accessory_categories || []).map(c => ({ value: c.id, label: c.title }))
+                                            options: (data.accessory_categories || []).map(c => ({ id: c.id, label: c.title }))
                                         }" />
                                     </div>
 
