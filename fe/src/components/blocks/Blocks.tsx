@@ -324,14 +324,11 @@ export default function Blocks({
    ========================================================================== */
 function HeroBannerBlock({ blockIndex, data, vehicle, openQuoteDrawer, openDriveModal, isEditMode, onChangeData, anchorId }: any) {
   const [isVideoReady, setIsVideoReady] = React.useState(false);
-  const [isTimeoutFallback, setIsTimeoutFallback] = React.useState(false);
 
   const title = data.title || vehicle.name;
   const tagline = data.tagline || vehicle.tagline;
   const btnText = data.button_text || "Book Lái thử";
   const btnLink = data.button_link || "#drive";
-  const hasBgImg = hasImageField(data.background_image);
-  const bgImg = hasBgImg ? resolveImageUrl(data.background_image) : "";
   const youtubeId = getYoutubeId(data.background_video || vehicle.video_url);
   const hasVehicleVideo = vehicle.video && (
     (typeof vehicle.video === 'string' && vehicle.video.trim() !== '') ||
@@ -342,19 +339,6 @@ function HeroBannerBlock({ blockIndex, data, vehicle, openQuoteDrawer, openDrive
     vehicle.video_url ||
     (hasVehicleVideo ? resolveImageUrl(vehicle.video) : null)
   );
-
-  const hasVideo = !!(youtubeId || bgVideo);
-
-  React.useEffect(() => {
-    if (!hasVideo) return;
-    
-    // Safety timeout: if video is not ready in 3 seconds, fallback to static background image
-    const timer = setTimeout(() => {
-      setIsTimeoutFallback(true);
-    }, 3000);
-
-    return () => clearTimeout(timer);
-  }, [hasVideo]);
 
   // Alignment classes
   const alignClass = data.align === 'left' ? 'items-start text-left'
@@ -377,19 +361,6 @@ function HeroBannerBlock({ blockIndex, data, vehicle, openQuoteDrawer, openDrive
   const titleStyle = data.title_color ? { color: data.title_color } : {};
   const taglineStyle = data.tagline_color ? { color: data.tagline_color } : {};
 
-  const handleUploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    try {
-      const res = await mediaAPI.upload(file);
-      if (res && res.url) {
-        onChangeData({ ...data, background_image: res.url });
-      }
-    } catch (err) {
-      alert("Lỗi tải ảnh lên: " + formatUploadError(err));
-    }
-  };
-
   const handleBtnClick = (e: React.MouseEvent) => {
     if (btnLink === "#drive" || btnText.toLowerCase().includes("lái thử")) {
       e.preventDefault();
@@ -403,22 +374,11 @@ function HeroBannerBlock({ blockIndex, data, vehicle, openQuoteDrawer, openDrive
   return (
     <section id={anchorId || undefined} className="relative h-[550px] sm:h-[650px] flex items-end overflow-hidden bg-black text-white pb-[68px] w-full">
       <div className="absolute inset-0 z-0">
-        {hasBgImg && (
-          <Image
-            src={bgImg}
-            alt={title}
-            fill
-            sizes="100vw"
-            className="object-cover object-center pointer-events-none z-0"
-            priority={!hasVideo}
-            {...(hasVideo ? { loading: "lazy" } : {})}
-          />
-        )}
         {youtubeId ? (
           <iframe
             src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=1&loop=1&playlist=${youtubeId}&controls=0&showinfo=0&rel=0&playsinline=1&enablejsapi=1`}
             className={`absolute inset-0 w-full h-full object-cover pointer-events-none z-5 scale-110 transition-opacity duration-1000 ${
-              isVideoReady && !isTimeoutFallback ? "opacity-100" : "opacity-0"
+              isVideoReady ? "opacity-100" : "opacity-0"
             }`}
             frameBorder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -434,7 +394,7 @@ function HeroBannerBlock({ blockIndex, data, vehicle, openQuoteDrawer, openDrive
             muted
             playsInline
             className={`absolute inset-0 w-full h-full object-cover object-center pointer-events-none z-5 transition-opacity duration-1000 ${
-              isVideoReady && !isTimeoutFallback ? "opacity-100" : "opacity-0"
+              isVideoReady ? "opacity-100" : "opacity-0"
             }`}
             onPlay={() => setIsVideoReady(true)}
             onPlaying={() => setIsVideoReady(true)}
@@ -446,30 +406,6 @@ function HeroBannerBlock({ blockIndex, data, vehicle, openQuoteDrawer, openDrive
         {isEditMode && (
           <div className="absolute top-24 left-4 z-30 bg-white/95 backdrop-blur-xs p-3 rounded-lg border border-gray-200 text-xs text-gray-800 shadow-md flex flex-col gap-2.5 max-w-[240px]">
             <div>
-              <span className="block mb-1 font-bold text-[10px] uppercase tracking-wider text-gray-500">Ảnh nền Banner:</span>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleUploadImage}
-                className="block w-full text-xs text-gray-500 file:mr-2.5 file:py-1 file:px-2 file:rounded-md file:border file:border-gray-300 file:text-[10px] file:font-semibold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100 cursor-pointer"
-              />
-              <button
-                type="button"
-                onClick={() => {
-                  if (typeof window !== "undefined") {
-                    window.parent.postMessage({
-                      type: "OPEN_FILE_MANAGER",
-                      index: blockIndex,
-                      field: "background_image"
-                    }, "*");
-                  }
-                }}
-                className="w-full mt-1.5 py-1 px-2.5 bg-[#008060] hover:bg-[#006e52] text-white text-[10px] font-bold rounded cursor-pointer border-0 transition-colors"
-              >
-                📁 Chọn từ Quản lý file
-              </button>
-            </div>
-            <div className="border-t border-gray-100 pt-2.5">
               <span className="block mb-1 font-bold text-[10px] uppercase tracking-wider text-gray-500">Video nền (URL MP4):</span>
               <input
                 type="text"
