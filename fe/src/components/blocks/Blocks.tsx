@@ -727,6 +727,66 @@ function SpecsGridBlock({ data, vehicle, isEditMode, onChangeData, openQuoteDraw
 function FeaturesListBlock({ blockIndex, data, vehicle, isEditMode, onChangeData, anchorId }: any) {
   const features = data.features || [];
 
+  const scrollRef = React.useRef<HTMLDivElement>(null);
+  const [showLeftArrow, setShowLeftArrow] = React.useState(false);
+  const [showRightArrow, setShowRightArrow] = React.useState(true);
+
+  const updateArrows = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setShowLeftArrow(el.scrollLeft > 10);
+    setShowRightArrow(el.scrollLeft + el.clientWidth < el.scrollWidth - 10);
+  };
+
+  React.useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    updateArrows();
+    el.addEventListener("scroll", updateArrows);
+    window.addEventListener("resize", updateArrows);
+    return () => {
+      el.removeEventListener("scroll", updateArrows);
+      window.removeEventListener("resize", updateArrows);
+    };
+  }, [features]);
+
+  const scroll = (direction: "left" | "right") => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const scrollAmount = el.clientWidth * 0.8;
+    el.scrollBy({
+      left: direction === "left" ? -scrollAmount : scrollAmount,
+      behavior: "smooth"
+    });
+  };
+
+  // Drag to scroll functionality
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const target = e.target as HTMLElement;
+    if (target.closest("button") || target.closest("input") || target.closest("a")) return;
+
+    e.preventDefault();
+    const startX = e.pageX - el.offsetLeft;
+    const scrollLeft = el.scrollLeft;
+
+    const handleMouseMove = (moveEvent: MouseEvent) => {
+      const x = moveEvent.pageX - el.offsetLeft;
+      const walk = (x - startX) * 1.5;
+      el.scrollLeft = scrollLeft - walk;
+    };
+
+    const handleMouseUp = () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
+
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+  };
+
   const handleFeatureTextChange = (idx: number, key: string, val: string) => {
     const newFeatures = [...features];
     newFeatures[idx] = { ...newFeatures[idx], [key]: val };
@@ -770,95 +830,156 @@ function FeaturesListBlock({ blockIndex, data, vehicle, isEditMode, onChangeData
   return (
     <section id={anchorId || undefined} className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full py-16">
       <div className="space-y-12">
-        <div className={`max-w-xl space-y-2 ${alignClass}`}>
-          <span className="text-xs font-bold uppercase tracking-wider text-[#0562d2] block">Tính năng vượt trội</span>
-          <h2 className="font-['Ford_Antenna',sans-serif] font-semibold text-[#00095b] text-[32px] sm:text-[40px] uppercase tracking-[-0.96px] leading-[1.2]">
-            Trang Bị & Tiện Nghi
-          </h2>
-          <p className="text-xs text-gray-500 font-medium">
-            Khám phá các trang bị công nghệ hiện đại và tiện ích đỉnh cao trên xe
-          </p>
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-gray-150 pb-4">
+          <div className="space-y-2 text-left">
+            <span className="text-xs font-bold uppercase tracking-wider text-[#0562d2] block">Tính năng vượt trội</span>
+            <h2 className="font-['Ford_Antenna',sans-serif] font-semibold text-[#00095b] text-[32px] sm:text-[40px] uppercase tracking-[-0.96px] leading-[1.2]">
+              Trang Bị & Tiện Nghi
+            </h2>
+            <p className="text-xs text-gray-500 font-medium">
+              Khám phá các trang bị công nghệ hiện đại và tiện ích đỉnh cao trên xe
+            </p>
+          </div>
+          {features.length > 3 && (
+            <div className="flex gap-2 self-start md:self-auto shrink-0">
+              <button
+                type="button"
+                onClick={() => scroll("left")}
+                disabled={!showLeftArrow}
+                className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all cursor-pointer bg-white shadow-xs
+                  ${showLeftArrow
+                    ? "border-gray-300 text-gray-700 hover:bg-gray-50 active:scale-95"
+                    : "border-gray-200 text-gray-300 cursor-not-allowed opacity-50"}`}
+                aria-label="Previous features"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => scroll("right")}
+                disabled={!showRightArrow}
+                className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all cursor-pointer bg-white shadow-xs
+                  ${showRightArrow
+                    ? "border-gray-300 text-gray-700 hover:bg-gray-50 active:scale-95"
+                    : "border-gray-200 text-gray-300 cursor-not-allowed opacity-50"}`}
+                aria-label="Next features"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </div>
+          )}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {features.map((feat: any, idx: number) => {
-            const hasImg = hasImageField(feat.image);
-            const featImg = hasImg ? resolveImageUrl(feat.image) : "";
-            return (
-              <div
-                key={idx}
-                className="bg-white border border-[#EAECF0] rounded-2xl p-5 flex flex-col hover:shadow-lg hover:border-[#0562d2]/40 transition-all duration-300 group relative"
-              >
-                {isEditMode && (
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveFeature(idx)}
-                    className="absolute top-2 right-2 z-25 bg-red-100 hover:bg-red-200 text-red-700 text-xs px-2.5 py-1 rounded-full border-0 cursor-pointer font-semibold shadow-xs"
-                  >
-                    ✕ Xóa
-                  </button>
-                )}
+        <div className="relative w-full">
+          <div
+            ref={scrollRef}
+            onMouseDown={handleMouseDown}
+            className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth scrollbar-none gap-6 cursor-grab active:cursor-grabbing pb-4 w-full"
+          >
+            {features.map((feat: any, idx: number) => {
+              const hasImg = hasImageField(feat.image);
+              const featImg = hasImg ? resolveImageUrl(feat.image) : "";
+              return (
+                <div
+                  key={idx}
+                  className="bg-white border border-[#EAECF0] rounded-2xl p-5 flex flex-col hover:shadow-lg hover:border-[#0562d2]/40 transition-all duration-300 group relative shrink-0 snap-start
+                    w-[85vw] sm:w-[45vw] md:w-[calc((100%-48px)/3)] lg:w-[calc((100%-72px)/4)]"
+                >
+                  {isEditMode && (
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveFeature(idx)}
+                      className="absolute top-2 right-2 z-25 bg-red-100 hover:bg-red-200 text-red-700 text-xs px-2.5 py-1 rounded-full border-0 cursor-pointer font-semibold shadow-xs"
+                    >
+                      ✕ Xóa
+                    </button>
+                  )}
 
-                {(hasImg || isEditMode) && (
-                  <div className="relative aspect-[16/10] w-full bg-gray-50 overflow-hidden mb-5 rounded-xl">
-                    {hasImg ? (
-                      <Image
-                        src={featImg}
-                        alt={feat.title || `Tính năng ${idx + 1}`}
-                        fill
-                        sizes="(max-width: 768px) 100vw, 33vw"
-                        className="object-cover group-hover:scale-105 transition-transform duration-500 pointer-events-none"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gray-100 border border-dashed border-gray-300 flex items-center justify-center text-xs text-gray-400">
-                        Chưa chọn ảnh
-                      </div>
-                    )}
-                    {isEditMode && (
-                      <div className="absolute inset-0 bg-white/90 flex flex-col items-center justify-center p-3 z-20">
-                        <span className="text-[10px] font-bold text-gray-755 mb-2">Đổi ảnh:</span>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => handleUploadFeatureImage(idx, e)}
-                          className="block w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border file:border-gray-300 file:text-[10px] file:font-semibold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100 cursor-pointer"
+                  {(hasImg || isEditMode) && (
+                    <div className="relative aspect-[16/10] w-full bg-gray-50 overflow-hidden mb-5 rounded-xl">
+                      {hasImg ? (
+                        <Image
+                          src={featImg}
+                          alt={feat.title || `Tính năng ${idx + 1}`}
+                          fill
+                          sizes="(max-width: 768px) 100vw, 25vw"
+                          className="object-cover group-hover:scale-105 transition-transform duration-500 pointer-events-none"
                         />
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (typeof window !== "undefined") {
-                              window.parent.postMessage({
-                                type: "OPEN_FILE_MANAGER",
-                                index: blockIndex,
-                                field: "features",
-                                subIndex: idx
-                              }, "*");
-                            }
-                          }}
-                          className="w-full mt-1.5 py-1 px-2.5 bg-[#008060] hover:bg-[#006e52] text-white text-[10px] font-bold rounded cursor-pointer border-0 transition-colors"
-                        >
-                          📁 Chọn từ Quản lý file
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                )}
+                      ) : (
+                        <div className="w-full h-full bg-gray-100 border border-dashed border-gray-300 flex items-center justify-center text-xs text-gray-400">
+                          Chưa chọn ảnh
+                        </div>
+                      )}
+                      {isEditMode && (
+                        <div className="absolute inset-0 bg-white/90 flex flex-col items-center justify-center p-3 z-20">
+                          <span className="text-[10px] font-bold text-gray-755 mb-2">Đổi ảnh:</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => handleUploadFeatureImage(idx, e)}
+                            className="block w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border file:border-gray-300 file:text-[10px] file:font-semibold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100 cursor-pointer"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (typeof window !== "undefined") {
+                                window.parent.postMessage({
+                                  type: "OPEN_FILE_MANAGER",
+                                  index: blockIndex,
+                                  field: "features",
+                                  subIndex: idx
+                                }, "*");
+                              }
+                            }}
+                            className="w-full mt-1.5 py-1 px-2.5 bg-[#008060] hover:bg-[#006e52] text-white text-[10px] font-bold rounded cursor-pointer border-0 transition-colors"
+                          >
+                            📁 Chọn từ Quản lý file
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
 
-                <span className="inline-block text-xs font-bold text-[#0562D2] bg-blue-50 px-3 py-1 rounded-full mb-3 w-fit">
-                  Nổi bật
-                </span>
+                  <span className="inline-block text-xs font-bold text-[#0562D2] bg-blue-50 px-3 py-1 rounded-full mb-3 w-fit">
+                    Nổi bật
+                  </span>
 
-                <h3 className={`text-lg font-bold tracking-tight text-[#1A1A1A] mb-2 font-display uppercase group-hover:text-[#0562d2] transition-colors w-full
-                  ${isEditMode ? 'outline-[1px] outline-dashed outline-[#008060]/70 hover:outline-[#008060] outline-offset-2 cursor-pointer transition-all' : ''}`}>
-                  {feat.title || "Tính năng mới"}
-                </h3>
-                <p className={`text-sm text-gray-600 leading-relaxed w-full
-                  ${isEditMode ? 'outline-[1px] outline-dashed outline-[#008060]/70 hover:outline-[#008060] outline-offset-2 cursor-pointer transition-all' : ''}`}>
-                  {feat.description || "Mô tả tính năng vượt trội."}
-                </p>
-              </div>
-            );
-          })}
+                  <h3 className={`text-lg font-bold tracking-tight text-[#1A1A1A] mb-2 font-display uppercase group-hover:text-[#0562d2] transition-colors w-full
+                    ${isEditMode ? 'outline-[1px] outline-dashed outline-[#008060]/70 hover:outline-[#008060] outline-offset-2 cursor-pointer transition-all' : ''}`}>
+                    {feat.title || "Tính năng mới"}
+                  </h3>
+                  <p className={`text-sm text-gray-600 leading-relaxed w-full
+                    ${isEditMode ? 'outline-[1px] outline-dashed outline-[#008060]/70 hover:outline-[#008060] outline-offset-2 cursor-pointer transition-all' : ''}`}>
+                    {feat.description || "Mô tả tính năng vượt trội."}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Hover Side Navigation Arrows for Desktop Overlay */}
+          {features.length > 3 && (
+            <>
+              <button
+                type="button"
+                onClick={() => scroll("left")}
+                className={`absolute left-[-20px] top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white border border-gray-200 shadow-md flex items-center justify-center text-gray-700 transition-all duration-300 cursor-pointer z-10 hover:bg-gray-50 active:scale-95 md:flex hidden
+                  ${showLeftArrow ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
+                aria-label="Previous features scroll overlay"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => scroll("right")}
+                className={`absolute right-[-20px] top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white border border-gray-200 shadow-md flex items-center justify-center text-gray-700 transition-all duration-300 cursor-pointer z-10 hover:bg-gray-50 active:scale-95 md:flex hidden
+                  ${showRightArrow ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
+                aria-label="Next features scroll overlay"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </>
+          )}
         </div>
 
         {isEditMode && (
