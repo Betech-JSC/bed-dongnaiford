@@ -654,7 +654,7 @@
                                             name: 'new_accessory_brand_id',
                                             label: false,
                                             placeholder: 'Chọn thương hiệu',
-                                            options: ($props.data?.brands || []).map(b => ({ id: b.id, label: b.title }))
+                                            options: (brandsList || []).map(b => ({ id: b.id, label: b.title }))
                                         }" />
                                     </div>
 
@@ -666,7 +666,7 @@
                                             name: 'new_accessory_categories',
                                             label: false,
                                             placeholder: 'Chọn danh mục',
-                                            options: ($props.data?.accessory_categories || []).map(c => ({ id: c.id, label: c.title }))
+                                            options: (accessoryCategoriesList || []).map(c => ({ id: c.id, label: c.title }))
                                         }" />
                                     </div>
 
@@ -1218,6 +1218,12 @@ export default {
     },
 
     computed: {
+        brandsList() {
+            return this.data?.brands || [];
+        },
+        accessoryCategoriesList() {
+            return this.data?.accessory_categories || [];
+        },
         filteredAccessoriesList() {
             const list = this.data?.accessories ?? [];
             const search = (this.accessorySearch || '').toLowerCase().trim();
