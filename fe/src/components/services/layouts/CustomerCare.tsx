@@ -55,8 +55,8 @@ export default function CustomerCareLayout({ service }: { service?: any }) {
 
       {/* Core Detailed Columns */}
       <div className="max-w-[1440px] w-full mx-auto px-4 lg:px-[128px] py-16 grid grid-cols-1 md:grid-cols-3 gap-12">
-        {service?.benefits && Array.isArray(service.benefits) && service.benefits.length > 0 ? (
-          service.benefits.map((benefit: any, bidx: number) => (
+        {service?.benefits && Array.isArray(service.benefits) && service.benefits.length > 0 && service.benefits.some((b: any) => b && (b.title || b.description)) ? (
+          service.benefits.filter((b: any) => b && (b.title || b.description)).map((benefit: any, bidx: number) => (
             <div key={bidx} className="flex flex-col gap-5">
               <h3 className="font-['Ford_Antenna',sans-serif] font-bold text-lg text-gray-900 border-b border-gray-200 pb-3">
                 {benefit.title}

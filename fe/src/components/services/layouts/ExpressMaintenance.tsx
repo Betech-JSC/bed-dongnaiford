@@ -52,8 +52,8 @@ export default function ExpressMaintenanceLayout({ service }: { service?: any })
             {service?.benefit_title || "Ưu Điểm Chính"}
           </h3>
           <ul className="space-y-4 text-lg text-gray-700 leading-relaxed font-normal">
-            {service?.benefits && Array.isArray(service.benefits) && service.benefits.length > 0 ? (
-              service.benefits.map((benefit: any, bidx: number) => (
+            {service?.benefits && Array.isArray(service.benefits) && service.benefits.length > 0 && service.benefits.some((b: any) => b && (b.title || b.description)) ? (
+              service.benefits.filter((b: any) => b && (b.title || b.description)).map((benefit: any, bidx: number) => (
                 <li key={bidx} className="flex items-start gap-2.5">
                   <span className="text-[#0562d2] mt-1.5 shrink-0 size-2 bg-[#0562d2] rounded-full" />
                   <div>
