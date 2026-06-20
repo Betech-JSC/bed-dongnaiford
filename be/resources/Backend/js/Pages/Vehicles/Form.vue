@@ -652,8 +652,7 @@
                                         <Field v-model="newAccessoryForm.brand_id" :field="{
                                             type: 'select_single',
                                             name: 'new_accessory_brand_id',
-                                            label: 'thương hiệu',
-                                            placeholder: 'Vui lòng chọn thương hiệu',
+                                            label: false,
                                             options: (brands || []).map(b => ({ id: b.id, label: b.title }))
                                         }" />
                                     </div>
@@ -664,8 +663,7 @@
                                         <Field v-model="newAccessoryForm.categories" :field="{
                                             type: 'select_multiple',
                                             name: 'new_accessory_categories',
-                                            label: 'danh mục',
-                                            placeholder: 'Chọn danh mục phụ kiện',
+                                            label: false,
                                             options: (accessoryCategories || []).map(c => ({ id: c.id, label: c.title }))
                                         }" />
                                     </div>
