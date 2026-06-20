@@ -97,7 +97,7 @@ export default function ProductsPage() {
     const fetchData = async () => {
       try {
         const [vehiclesData, categoriesData] = await Promise.all([
-          vehiclesAPI.getAll().catch(() => null),
+          vehiclesAPI.getAll({ with_versions: true }).catch(() => null),
           vehiclesAPI.getCategories().catch(() => null),
         ]);
 
