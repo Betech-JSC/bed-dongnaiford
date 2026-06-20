@@ -7,6 +7,7 @@ import AIChatWidget from "@/components/shared/AIChatWidget";
 import CompareDrawer from "@/components/shared/CompareDrawer";
 import QuickAccessToolbar from "@/components/shared/QuickAccessToolbar";
 import PageTransitionLoader from "@/components/shared/PageTransitionLoader";
+import CookieConsent from "@/components/shared/CookieConsent";
 import "./globals.css";
 
 const inter = Inter({
@@ -104,6 +105,7 @@ export default function RootLayout({
         <AIChatWidget />
         <CompareDrawer />
         <QuickAccessToolbar />
+        <CookieConsent />
       </body>
     </html>
   );
