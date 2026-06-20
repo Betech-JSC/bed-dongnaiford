@@ -50,7 +50,7 @@ export default function QuickAccessToolbar() {
       href: "/cong-cu/uoc-tinh-lan-banh",
     },
     {
-      label: "Ướn tính vay ngân hàng",
+      label: "Ước tính vay ngân hàng",
       icon: <PiggyBank className="w-5 h-5" />,
       href: "/cong-cu/uoc-tinh-tra-gop",
     },
@@ -75,7 +75,7 @@ export default function QuickAccessToolbar() {
   return (
     <div className="fixed right-6 bottom-8 z-50 flex flex-col items-center gap-3 select-none">
       {/* Action pill container */}
-      <div className="bg-white/95 backdrop-blur-xs border border-gray-200 rounded-[28px] shadow-lg flex flex-col py-2.5 w-12">
+      <div className="bg-white/80 backdrop-blur-md border border-gray-200/50 rounded-[28px] shadow-[0_12px_40px_-12px_rgba(0,9,91,0.15)] flex flex-col py-2 w-12 transition-all duration-300 hover:shadow-[0_12px_40px_-6px_rgba(5,98,210,0.2)]">
         {menuItems.map((item, idx) => {
           const isExternal = item.target === "_blank";
           return (
@@ -84,13 +84,18 @@ export default function QuickAccessToolbar() {
               href={item.href}
               target={item.target}
               rel={isExternal ? "noopener noreferrer" : undefined}
-              className="w-12 h-12 flex items-center justify-center relative group text-gray-650 hover:text-[#001c7f] hover:bg-gray-50/50 transition-all duration-200"
+              className="w-12 h-12 flex items-center justify-center relative group text-gray-650 hover:text-[#0562D2] transition-all duration-300 rounded-full"
             >
-              {/* Icon */}
-              {item.icon}
+              {/* Hover glow background */}
+              <div className="absolute inset-1.5 rounded-full bg-[#0562D2]/0 group-hover:bg-[#0562D2]/8 group-hover:scale-105 transition-all duration-300 ease-out" />
+              
+              {/* Icon with micro scale */}
+              <div className="relative z-10 transition-transform duration-300 ease-out group-hover:scale-115">
+                {item.icon}
+              </div>
 
-              {/* Hover Tooltip Label */}
-              <span className="absolute right-14 top-1/2 -translate-y-1/2 opacity-0 scale-95 pointer-events-none group-hover:opacity-100 group-hover:scale-100 transition-all duration-200 bg-[#001c7f] text-white text-[11px] font-bold py-1.5 px-3.5 rounded-full whitespace-nowrap shadow-md z-50">
+              {/* Hover Tooltip Label with Arrow & Slide Effect */}
+              <span className="absolute right-12 top-1/2 -translate-y-1/2 opacity-0 translate-x-2 pointer-events-none group-hover:opacity-100 group-hover:translate-x-0 group-hover:right-15 transition-all duration-300 bg-[#00095B] text-white text-[11px] font-bold py-1.5 px-4 rounded-full whitespace-nowrap shadow-md z-50 after:content-[''] after:absolute after:top-1/2 after:-translate-y-1/2 after:left-full after:border-[5px] after:border-transparent after:border-l-[#00095B]">
                 {item.label}
               </span>
             </Link>
@@ -104,14 +109,16 @@ export default function QuickAccessToolbar() {
           <button
             onClick={scrollToTop}
             type="button"
-            className="w-12 h-12 flex items-center justify-center rounded-full bg-white shadow-md border border-gray-200 text-gray-650 hover:text-[#001c7f] hover:bg-gray-50 transition-all hover:-translate-y-0.5 active:translate-y-0 duration-200 cursor-pointer"
+            className="w-12 h-12 flex items-center justify-center rounded-full bg-white/80 backdrop-blur-md shadow-md border border-gray-200/50 text-gray-650 hover:text-[#0562D2] transition-all hover:-translate-y-1 active:translate-y-0 duration-300 cursor-pointer relative overflow-hidden"
             aria-label="Scroll to top"
           >
-            <ArrowUp className="w-5 h-5" />
+            {/* Hover glow background */}
+            <div className="absolute inset-0 rounded-full bg-[#0562D2]/0 hover:bg-[#0562D2]/8 transition-all duration-300 ease-out" />
+            <ArrowUp className="w-5 h-5 relative z-10 transition-transform duration-300 group-hover:-translate-y-0.5" />
           </button>
           
           {/* Tooltip */}
-          <span className="absolute right-14 top-1/2 -translate-y-1/2 opacity-0 scale-95 pointer-events-none group-hover:opacity-100 group-hover:scale-100 transition-all duration-200 bg-[#001c7f] text-white text-[11px] font-bold py-1.5 px-3.5 rounded-full whitespace-nowrap shadow-md z-50">
+          <span className="absolute right-12 top-1/2 -translate-y-1/2 opacity-0 translate-x-2 pointer-events-none group-hover:opacity-100 group-hover:translate-x-0 group-hover:right-15 transition-all duration-300 bg-[#00095B] text-white text-[11px] font-bold py-1.5 px-4 rounded-full whitespace-nowrap shadow-md z-50 after:content-[''] after:absolute after:top-1/2 after:-translate-y-1/2 after:left-full after:border-[5px] after:border-transparent after:border-l-[#00095B]">
             Cuộn lên đầu trang
           </span>
         </div>
