@@ -103,31 +103,9 @@ class VehicleController extends Controller
 
     private function afterForm($item)
     {
-        // Find accessories associated with this vehicle by name matching
-        $vehicleTitle = null;
-        if (is_object($item)) {
-            $vehicleTitle = $item->translate('vi')->title ?? $item->title;
-        } elseif (is_array($item)) {
-            $vehicleTitle = $item['vi']['title'] ?? ($item['title'] ?? null);
-        }
-
         $selectedAccessoryIds = [];
-        if ($vehicleTitle) {
-            $selectedAccessoryIds = Accessory::query()
-                ->where('status', Accessory::STATUS_ACTIVE)
-                ->get()
-                ->filter(function ($acc) use ($vehicleTitle) {
-                    $fit = $acc->fit_vehicles ?? [];
-                    if (!is_array($fit)) return false;
-                    foreach ($fit as $v) {
-                        if (strtolower(trim($v)) === strtolower(trim($vehicleTitle))) {
-                            return true;
-                        }
-                    }
-                    return false;
-                })
-                ->pluck('id')
-                ->toArray();
+        if (is_object($item) && $item->id) {
+            $selectedAccessoryIds = $item->accessories()->pluck('accessories.id')->toArray();
         }
 
         if (is_object($item)) {
@@ -290,67 +268,12 @@ class VehicleController extends Controller
 
             $resource->versions()->whereNotIn('id', $keepIds)->delete();
 
-            // Sync accessories fit_vehicles list
+            // Sync accessories Many-to-Many
             $selectedIds = $request->input('accessories', []);
             if (!is_array($selectedIds)) {
                 $selectedIds = [];
             }
-
-            $vehicleTitle = $resource->translate('vi')->title ?? $resource->title;
-
-            if ($vehicleTitle) {
-                // If title was changed, clean up original title first
-                if ($this->originalVehicleTitle && strtolower(trim($this->originalVehicleTitle)) !== strtolower(trim($vehicleTitle))) {
-                    $allAccs = Accessory::all();
-                    foreach ($allAccs as $acc) {
-                        $fit = $acc->fit_vehicles ?? [];
-                        if (is_array($fit)) {
-                            $newFit = [];
-                            foreach ($fit as $v) {
-                                if (strtolower(trim($v)) !== strtolower(trim($this->originalVehicleTitle))) {
-                                    $newFit[] = $v;
-                                }
-                            }
-                            if (count($newFit) !== count($fit)) {
-                                $acc->update(['fit_vehicles' => $newFit]);
-                            }
-                        }
-                    }
-                }
-
-                // Sync new vehicleTitle to the selected accessories
-                $allAccessories = Accessory::all();
-                foreach ($allAccessories as $acc) {
-                    $fitVehicles = $acc->fit_vehicles ?? [];
-                    if (!is_array($fitVehicles)) {
-                        $fitVehicles = [];
-                    }
-
-                    $hasVehicle = false;
-                    $matchingIndex = -1;
-
-                    foreach ($fitVehicles as $idx => $v) {
-                        if (strtolower(trim($v)) === strtolower(trim($vehicleTitle))) {
-                            $hasVehicle = true;
-                            $matchingIndex = $idx;
-                            break;
-                        }
-                    }
-
-                    $shouldHave = in_array($acc->id, $selectedIds);
-
-                    if ($shouldHave && !$hasVehicle) {
-                        $fitVehicles[] = $vehicleTitle;
-                        $acc->update(['fit_vehicles' => $fitVehicles]);
-                    } elseif (!$shouldHave && $hasVehicle) {
-                        if ($matchingIndex !== -1) {
-                            unset($fitVehicles[$matchingIndex]);
-                            $fitVehicles = array_values($fitVehicles);
-                            $acc->update(['fit_vehicles' => $fitVehicles]);
-                        }
-                    }
-                }
-            }
+            $resource->accessories()->sync($selectedIds);
         });
     }
 

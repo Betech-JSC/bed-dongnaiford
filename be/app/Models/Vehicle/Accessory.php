@@ -86,13 +86,20 @@ class Accessory extends BaseModel
         static::saved(function (self $model) {
             if (request()->route() === null) return;
             $model->saveCategories($model);
+            $model->saveVehicles($model);
         });
     }
 
     public function saveCategories($model)
     {
         $categories = array_column(request()->input('categories', []), 'id');
-        $model->categories()->sync($categories, 'id');
+        $model->categories()->sync($categories);
+    }
+
+    public function saveVehicles($model)
+    {
+        $vehicles = array_column(request()->input('vehicles', []), 'id');
+        $model->vehicles()->sync($vehicles);
     }
 
     // ── JSON field accessors (same pattern as Vehicle) ──
@@ -185,6 +192,16 @@ class Accessory extends BaseModel
             'accessory_ref_categories',
             'accessory_id',
             'accessory_category_id'
+        );
+    }
+
+    public function vehicles()
+    {
+        return $this->belongsToMany(
+            Vehicle::class,
+            'accessory_ref_vehicles',
+            'accessory_id',
+            'vehicle_id'
         );
     }
 
@@ -289,6 +306,11 @@ class Accessory extends BaseModel
             'image'         => array_merge($this->getImageDetail($this->image ?? []), ['path' => $this->image['path'] ?? null]),
             'images'        => collect($this->images)->map(fn($item) => $this->getImageDetail($item)),
             'fit_vehicles'  => $this->fit_vehicles ?? [],
+            'vehicles'      => $this->vehicles->map(fn($item) => [
+                'id' => $item->id,
+                'title' => $item->translate('vi')->title ?? $item->title,
+                'slug' => $item->translate('vi')->slug ?? $item->slug,
+            ]),
             'features'      => $this->features ?? [],
         ];
     }

@@ -61,6 +61,7 @@ const mapAPIAccessoryToItem = (apiAcc: any): any => {
       ? apiAcc.images.map((img: any) => img?.url ? resolveFileUrl(img.url) : "").filter(Boolean)
       : (apiAcc.image?.url ? [resolveFileUrl(apiAcc.image.url)] : []),
     fitVehicles: apiAcc.fit_vehicles || [],
+    vehicles: apiAcc.vehicles || [],
     features: apiAcc.features || [],
     compatibilityText: apiAcc.compatibility_text,
     safetyText: apiAcc.safety_text,
@@ -160,17 +161,28 @@ export default function VehicleAccessoriesSubPage() {
 
   // Filter Logic: Filter accessories matching the current vehicle
   const filteredAccessories = accessories.filter((item) => {
-    // Check if this accessory fits the current vehicle name
-    const vehicleName = vehicle?.name || "";
-    const cleanVehName = vehicleName.toLowerCase().replace("new ", "").trim();
-    
-    const matchesVehicle = item.fitVehicles.some((v: any) => {
-      if (typeof v !== 'string') return false;
-      const cleanV = v.toLowerCase().replace("new ", "").trim();
-      return cleanV.includes(cleanVehName) || cleanVehName.includes(cleanV);
-    });
+    // 1. Check via Many-to-Many vehicles relation
+    const matchesPivot = Array.isArray(item.vehicles) && item.vehicles.some((v: any) => 
+      String(v.id) === String(vehicle?.id) || 
+      (v.slug && String(v.slug).toLowerCase() === String(vehicle?.slug).toLowerCase())
+    );
 
-    if (!matchesVehicle && item.fitVehicles.length > 0) return false;
+    // 2. Fallback to raw fitVehicles matching
+    let matchesVehicle = matchesPivot;
+    if (!matchesVehicle) {
+      const vehicleName = vehicle?.name || "";
+      const cleanVehName = vehicleName.toLowerCase().replace("new ", "").trim();
+      matchesVehicle = item.fitVehicles.some((v: any) => {
+        if (typeof v !== 'string') return false;
+        const cleanV = v.toLowerCase().replace("new ", "").trim();
+        return cleanV.includes(cleanVehName) || cleanVehName.includes(cleanV);
+      });
+    }
+
+    // If there are compatible vehicles defined, but none matched, filter it out
+    const hasCompatibilities = (Array.isArray(item.vehicles) && item.vehicles.length > 0) || 
+                               (Array.isArray(item.fitVehicles) && item.fitVehicles.length > 0);
+    if (!matchesVehicle && hasCompatibilities) return false;
 
     const matchesCategory = activeCategory === "all" || item.category === activeCategory;
     const matchesSearch =

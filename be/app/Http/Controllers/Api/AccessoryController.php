@@ -41,7 +41,7 @@ class AccessoryController extends Controller
     {
         $query = Accessory::query()
             ->where('status', 'ACTIVE')
-            ->with(['translations', 'categories', 'brand'])
+            ->with(['translations', 'categories', 'brand', 'vehicles', 'vehicles.translations'])
             ->sortByPosition();
 
         // Filter by category (supports: interior, exterior, tech, wheels, performance, or category ID, or slug)
@@ -80,10 +80,16 @@ class AccessoryController extends Controller
             });
         }
 
-        // Filter by vehicle name/slug compatibility
+        // Filter by vehicle ID or slug compatibility (Many-to-Many)
         if ($vehicle = $request->query('vehicle')) {
-            $query->where(function ($q) use ($vehicle) {
-                $q->where('fit_vehicles', 'like', "%{$vehicle}%");
+            $query->whereHas('vehicles', function ($q) use ($vehicle) {
+                if (is_numeric($vehicle)) {
+                    $q->where('vehicles.id', $vehicle);
+                } else {
+                    $q->whereHas('translations', function ($t) use ($vehicle) {
+                        $t->where('slug', $vehicle)->orWhere('seo_slug', $vehicle);
+                    });
+                }
             });
         }
 
@@ -112,7 +118,7 @@ class AccessoryController extends Controller
     {
         $query = Accessory::query()
             ->where('status', 'ACTIVE')
-            ->with(['translations', 'categories', 'brand']);
+            ->with(['translations', 'categories', 'brand', 'vehicles', 'vehicles.translations']);
 
         if (is_numeric($slugOrId)) {
             $accessory = $query->find($slugOrId);

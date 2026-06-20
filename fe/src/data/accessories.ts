@@ -17,7 +17,13 @@ export interface AccessoryItem {
     title: string;
     slug: string;
   } | null;
+  vehicles?: {
+    id: number;
+    title: string;
+    slug: string;
+  }[];
 }
+
 
 export const accessoriesData: AccessoryItem[] = [
   {

@@ -79,25 +79,21 @@
                 </div>
             </div>
 
-            <!-- Xe tương thích (Dynamic List) -->
+            <!-- Dòng xe tương thích (Many-to-Many Select) -->
             <div class="card mt-4">
-                <div class="card-header">Xe tương thích</div>
+                <div class="card-header">Dòng xe tương thích</div>
                 <div class="card-body">
-                    <div v-for="(vehicle, index) in form.fit_vehicles" :key="index" class="flex gap-2 items-center mb-2">
-                        <Field v-model="form.fit_vehicles[index]" :field="{
-                            type: 'text',
-                            name: 'fit_vehicle_' + index,
-                            label: false,
-                            placeholder: 'vd: Ford Everest, Ford Ranger XLS/XLT...',
-                        }" class="flex-1" />
-                        <button type="button" class="text-red-500 text-sm font-semibold hover:underline shrink-0" @click="removeFitVehicle(index)">✕</button>
-                    </div>
-                    <div v-if="!form.fit_vehicles || form.fit_vehicles.length === 0" class="text-sm text-gray-400 italic mb-3">
-                        Chưa cấu hình xe tương thích nào
-                    </div>
-                    <button type="button" class="btn btn-secondary btn-sm" @click="addFitVehicle">
-                        + Thêm dòng xe
-                    </button>
+                    <Field v-model="form.vehicles" :field="{
+                        type: 'select_multiple',
+                        name: 'vehicles',
+                        label: false,
+                        labelBy: 'title',
+                        source: {
+                            model: 'App\\Models\\Vehicle\\Vehicle',
+                            method: 'get',
+                            only: ['id', 'title'],
+                        },
+                    }" />
                 </div>
             </div>
 
@@ -215,12 +211,14 @@ export default {
                 image: null,
                 images: [],
                 fit_vehicles: [],
+                vehicles: [],
                 features: [],
                 ...item,
             }
 
             // Ensure arrays
             if (!Array.isArray(data.fit_vehicles)) data.fit_vehicles = []
+            if (!Array.isArray(data.vehicles)) data.vehicles = []
             if (!Array.isArray(data.features)) data.features = []
             if (!Array.isArray(data.images)) data.images = []
 

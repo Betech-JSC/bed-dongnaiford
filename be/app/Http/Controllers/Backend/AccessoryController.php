@@ -14,7 +14,7 @@ class AccessoryController extends Controller
     public $model = Accessory::class;
 
     public $with = [
-        'form' => ['translations', 'categories', 'brand'],
+        'form' => ['translations', 'categories', 'brand', 'vehicles'],
     ];
 
     /**

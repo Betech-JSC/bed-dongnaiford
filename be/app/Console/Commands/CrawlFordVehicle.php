@@ -635,6 +635,11 @@ class CrawlFordVehicle extends Command
                     $accTranslation->slug = Str::slug($accTitle);
                     $accTranslation->description = $accData['description'] ?? null;
                     $accessory->save();
+
+                    // Sync vehicle to accessory Many-to-Many
+                    if (isset($vehicle->id)) {
+                        $accessory->vehicles()->syncWithoutDetaching([$vehicle->id]);
+                    }
                 }
             });
 

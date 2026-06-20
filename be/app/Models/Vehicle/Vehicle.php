@@ -230,6 +230,16 @@ class Vehicle extends BaseModel
         return $this->belongsToMany(VehicleCategory::class, 'vehicle_ref_categories', 'vehicle_id', 'vehicle_category_id');
     }
 
+    public function accessories()
+    {
+        return $this->belongsToMany(
+            Accessory::class,
+            'accessory_ref_vehicles',
+            'vehicle_id',
+            'accessory_id'
+        );
+    }
+
     public function getCategoryIdAttribute(): ?int
     {
         return $this->categories->first()?->id;

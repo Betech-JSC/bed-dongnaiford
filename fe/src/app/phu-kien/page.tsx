@@ -53,7 +53,8 @@ const mapAPIAccessoryToItem = (apiAcc: any): AccessoryItem => {
       id: apiAcc.brand.id,
       title: apiAcc.brand.title,
       slug: apiAcc.brand.slug
-    } : null
+    } : null,
+    vehicles: apiAcc.vehicles || []
   };
 };
 
@@ -201,9 +202,22 @@ export default function AccessoriesPage() {
       item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.code.toLowerCase().includes(searchQuery.toLowerCase());
 
-    const matchesVehicle = !selectedVehicle ||
-      item.fitVehicles.some(v => typeof v === 'string' && (v.toLowerCase().includes(selectedVehicle.toLowerCase()) ||
+    const matchesPivot = Array.isArray(item.vehicles) && item.vehicles.some(v => {
+      const vTitle = String(v.title || "").toLowerCase();
+      const vSlug = String(v.slug || "").toLowerCase();
+      const selVal = String(selectedVehicle).toLowerCase();
+      return String(v.id) === selVal || 
+        vSlug === selVal || 
+        vTitle === selVal ||
+        vTitle.includes(selVal) ||
+        selVal.includes(vTitle);
+    });
+
+    let matchesVehicle = !selectedVehicle || matchesPivot;
+    if (selectedVehicle && !matchesPivot) {
+      matchesVehicle = item.fitVehicles.some(v => typeof v === 'string' && (v.toLowerCase().includes(selectedVehicle.toLowerCase()) ||
         selectedVehicle.toLowerCase().includes(v.toLowerCase())));
+    }
 
     const matchesBrand = !selectedBrand || (item.brand?.slug === selectedBrand);
 
