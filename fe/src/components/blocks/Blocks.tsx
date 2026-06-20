@@ -323,6 +323,9 @@ export default function Blocks({
    1. HERO BANNER BLOCK
    ========================================================================== */
 function HeroBannerBlock({ blockIndex, data, vehicle, openQuoteDrawer, openDriveModal, isEditMode, onChangeData, anchorId }: any) {
+  const [isVideoReady, setIsVideoReady] = React.useState(false);
+  const [isTimeoutFallback, setIsTimeoutFallback] = React.useState(false);
+
   const title = data.title || vehicle.name;
   const tagline = data.tagline || vehicle.tagline;
   const btnText = data.button_text || "Book Lái thử";
@@ -339,6 +342,19 @@ function HeroBannerBlock({ blockIndex, data, vehicle, openQuoteDrawer, openDrive
     vehicle.video_url ||
     (hasVehicleVideo ? resolveImageUrl(vehicle.video) : null)
   );
+
+  const hasVideo = !!(youtubeId || bgVideo);
+
+  React.useEffect(() => {
+    if (!hasVideo) return;
+    
+    // Safety timeout: if video is not ready in 3 seconds, fallback to static background image
+    const timer = setTimeout(() => {
+      setIsTimeoutFallback(true);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [hasVideo]);
 
   // Alignment classes
   const alignClass = data.align === 'left' ? 'items-start text-left'
@@ -387,33 +403,42 @@ function HeroBannerBlock({ blockIndex, data, vehicle, openQuoteDrawer, openDrive
   return (
     <section id={anchorId || undefined} className="relative h-[550px] sm:h-[650px] flex items-end overflow-hidden bg-black text-white pb-[68px] w-full">
       <div className="absolute inset-0 z-0">
-        {hasBgImg && !(youtubeId || bgVideo) && (
+        {hasBgImg && (
           <Image
             src={bgImg}
             alt={title}
             fill
             sizes="100vw"
-            className="object-cover object-center pointer-events-none"
-            priority
+            className="object-cover object-center pointer-events-none z-0"
+            priority={!hasVideo}
+            {...(hasVideo ? { loading: "lazy" } : {})}
           />
         )}
         {youtubeId ? (
           <iframe
             src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=1&loop=1&playlist=${youtubeId}&controls=0&showinfo=0&rel=0&playsinline=1&enablejsapi=1`}
-            className="absolute inset-0 w-full h-full object-cover pointer-events-none z-5 scale-110"
+            className={`absolute inset-0 w-full h-full object-cover pointer-events-none z-5 scale-110 transition-opacity duration-1000 ${
+              isVideoReady && !isTimeoutFallback ? "opacity-100" : "opacity-0"
+            }`}
             frameBorder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
+            onLoad={() => setIsVideoReady(true)}
           />
         ) : bgVideo ? (
           <video
             src={bgVideo}
-            poster={hasBgImg ? bgImg : undefined}
+            preload="auto"
             autoPlay
             loop
             muted
             playsInline
-            className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none z-5"
+            className={`absolute inset-0 w-full h-full object-cover object-center pointer-events-none z-5 transition-opacity duration-1000 ${
+              isVideoReady && !isTimeoutFallback ? "opacity-100" : "opacity-0"
+            }`}
+            onPlay={() => setIsVideoReady(true)}
+            onPlaying={() => setIsVideoReady(true)}
+            onLoadedData={() => setIsVideoReady(true)}
           />
         ) : null}
         <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent h-[250px] z-10" />
