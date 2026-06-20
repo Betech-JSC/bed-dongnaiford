@@ -10,6 +10,19 @@ trait Translatable
 {
     use AstrotomicTranslatable {
         saveTranslations as parentSaveTranslations;
+        fill as astrotomicFill;
+    }
+
+    public function fill(array $attributes)
+    {
+        if (isset($this->translatedAttributes) && is_array($this->translatedAttributes)) {
+            foreach ($this->translatedAttributes as $key) {
+                if (array_key_exists($key, $attributes) && ($attributes[$key] === null || $attributes[$key] === '')) {
+                    unset($attributes[$key]);
+                }
+            }
+        }
+        return $this->astrotomicFill($attributes);
     }
 
     protected function saveTranslations(): bool
