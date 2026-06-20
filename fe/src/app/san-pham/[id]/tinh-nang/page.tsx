@@ -137,7 +137,7 @@ function FeatureSectionSlider({ sec, openDriveDrawer }: FeatureSectionSliderProp
           </h2>
           <div className="flex items-center gap-3.5">
             {/* Scroll navigation arrows */}
-            {sec.features.length > 5 && (
+            {sec.features.length > 4 && (
               <div className="hidden md:flex gap-2">
                 <button
                   onClick={() => scroll("left")}
@@ -185,7 +185,7 @@ function FeatureSectionSlider({ sec, openDriveDrawer }: FeatureSectionSliderProp
                 <div
                   key={feat.title}
                   className="group flex flex-col items-start text-left bg-white rounded-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-lg p-1.5 shrink-0 snap-start
-                    w-[85vw] sm:w-[45vw] md:w-[calc((100%-48px)/3)] xl:w-[calc((100%-96px)/5)]"
+                    w-[85vw] sm:w-[45vw] md:w-[calc((100%-48px)/3)] xl:w-[calc((100%-72px)/4)]"
                 >
                   {/* Image container with scale effect on hover */}
                   <div className="w-full aspect-[4/3] rounded-xl overflow-hidden bg-gray-50 border border-gray-100 relative">
@@ -210,7 +210,7 @@ function FeatureSectionSlider({ sec, openDriveDrawer }: FeatureSectionSliderProp
             </div>
 
             {/* Hover Side Navigation Arrows for Desktop Overlay */}
-            {sec.features.length > 5 && (
+            {sec.features.length > 4 && (
               <>
                 <button
                   onClick={() => scroll("left")}
