@@ -100,12 +100,12 @@ class VehicleController extends Controller
             ]);
 
         $data['accessory_categories'] = \App\Models\Vehicle\AccessoryCategory::where('status', 'ACTIVE')
-            ->orderBy('sort_order')
+            ->sortByPosition()
             ->get()
             ->map(fn($cat) => ['id' => $cat->id, 'title' => $cat->title]);
 
         $data['brands'] = \App\Models\Brand\Brand::where('status', 'ACTIVE')
-            ->orderBy('sort_order')
+            ->sortByPosition()
             ->get()
             ->map(fn($b) => ['id' => $b->id, 'title' => $b->title]);
 
