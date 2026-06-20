@@ -51,7 +51,7 @@ const mapAPIAccessoryToItem = (apiAcc: any): any => {
 
   return {
     id: apiAcc.slug || String(apiAcc.id),
-    name: apiAcc.title,
+    name: apiAcc.title || "",
     code: apiAcc.code || "",
     category: categoryKey,
     categoryName: apiAcc.category_name || apiAcc.categories?.[0]?.title || "Phụ Kiện Ngoại Thất",
@@ -164,7 +164,8 @@ export default function VehicleAccessoriesSubPage() {
     const vehicleName = vehicle?.name || "";
     const cleanVehName = vehicleName.toLowerCase().replace("new ", "").trim();
     
-    const matchesVehicle = item.fitVehicles.some((v: string) => {
+    const matchesVehicle = item.fitVehicles.some((v: any) => {
+      if (typeof v !== 'string') return false;
       const cleanV = v.toLowerCase().replace("new ", "").trim();
       return cleanV.includes(cleanVehName) || cleanVehName.includes(cleanV);
     });

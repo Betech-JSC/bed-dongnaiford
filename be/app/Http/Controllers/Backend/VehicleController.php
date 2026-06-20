@@ -115,7 +115,17 @@ class VehicleController extends Controller
         if ($vehicleTitle) {
             $selectedAccessoryIds = Accessory::query()
                 ->where('status', Accessory::STATUS_ACTIVE)
-                ->whereJsonContains('fit_vehicles', $vehicleTitle)
+                ->get()
+                ->filter(function ($acc) use ($vehicleTitle) {
+                    $fit = $acc->fit_vehicles ?? [];
+                    if (!is_array($fit)) return false;
+                    foreach ($fit as $v) {
+                        if (strtolower(trim($v)) === strtolower(trim($vehicleTitle))) {
+                            return true;
+                        }
+                    }
+                    return false;
+                })
                 ->pluck('id')
                 ->toArray();
         }

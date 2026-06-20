@@ -35,7 +35,7 @@ const mapAPIAccessoryToItem = (apiAcc: any): AccessoryItem => {
 
   return {
     id: apiAcc.slug || String(apiAcc.id),
-    name: apiAcc.title,
+    name: apiAcc.title || "",
     code: apiAcc.code || "",
     category: categoryKey,
     categoryName: apiAcc.category_name || apiAcc.categories?.[0]?.title || "Phụ Kiện Ngoại Thất",
@@ -202,8 +202,8 @@ export default function AccessoriesPage() {
       item.code.toLowerCase().includes(searchQuery.toLowerCase());
 
     const matchesVehicle = !selectedVehicle ||
-      item.fitVehicles.some(v => v.toLowerCase().includes(selectedVehicle.toLowerCase()) ||
-        selectedVehicle.toLowerCase().includes(v.toLowerCase()));
+      item.fitVehicles.some(v => typeof v === 'string' && (v.toLowerCase().includes(selectedVehicle.toLowerCase()) ||
+        selectedVehicle.toLowerCase().includes(v.toLowerCase())));
 
     const matchesBrand = !selectedBrand || (item.brand?.slug === selectedBrand);
 
