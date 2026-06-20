@@ -1573,7 +1573,7 @@ export default {
         isInitiallyFit(acc) {
             const vehicleTitle = this.formData.vi?.title || this.formData.title;
             if (!vehicleTitle || !acc.fit_vehicles) return false;
-            return acc.fit_vehicles.some(v => v.toLowerCase().trim() === vehicleTitle.toLowerCase().trim());
+            return acc.fit_vehicles.some(v => typeof v === 'string' && v.toLowerCase().trim() === vehicleTitle.toLowerCase().trim());
         },
 
         openCreateAccessoryModal() {

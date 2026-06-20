@@ -138,6 +138,11 @@ class Accessory extends BaseModel
 
     public function setFitVehiclesAttribute($value): void
     {
+        if (is_array($value)) {
+            $value = array_values(array_filter($value, function($item) {
+                return !is_null($item) && trim((string) $item) !== '';
+            }));
+        }
         $this->attributes['fit_vehicles'] = $this->encodeJsonField($value);
     }
 
