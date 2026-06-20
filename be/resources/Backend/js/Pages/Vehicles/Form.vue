@@ -1078,8 +1078,8 @@ export default {
             const category = this.accessoryFilterCategory || 'all';
 
             return list.filter(acc => {
-                // Chỉ hiển thị phụ kiện đã gán cho xe hiện tại (có ID nằm trong mảng accessories)
-                const isSelected = (this.formData.accessories || []).includes(acc.id);
+                // Chỉ hiển thị phụ kiện đã gán cho xe hiện tại (so sánh an toàn kiểu dữ liệu)
+                const isSelected = (this.formData.accessories || []).some(id => String(id) === String(acc.id));
                 if (!isSelected) return false;
 
                 const matchesSearch = !search || 
@@ -1551,7 +1551,7 @@ export default {
             if (!this.formData.accessories) {
                 this.formData.accessories = [];
             }
-            const idx = this.formData.accessories.indexOf(id);
+            const idx = this.formData.accessories.findIndex(item => String(item) === String(id));
             if (idx > -1) {
                 this.formData.accessories.splice(idx, 1);
             } else {
@@ -1560,7 +1560,7 @@ export default {
         },
 
         isAccessorySelected(id) {
-            return (this.formData.accessories || []).includes(id);
+            return (this.formData.accessories || []).some(item => String(item) === String(id));
         },
 
         getCategoryLabel(category) {
@@ -1622,6 +1622,7 @@ export default {
                     image: this.newAccessoryForm.image || null,
                     categories: [{ id: categoryId }],
                     fit_vehicles: vehicleTitle ? [vehicleTitle] : [],
+                    vehicles: this.formData.id ? [{ id: this.formData.id }] : [],
                     vi: {
                         title: this.newAccessoryForm.title,
                         description: this.newAccessoryForm.description || '',
