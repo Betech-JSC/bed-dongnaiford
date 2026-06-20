@@ -139,9 +139,24 @@ class Accessory extends BaseModel
     public function setFitVehiclesAttribute($value): void
     {
         if (is_array($value)) {
-            $value = array_values(array_filter($value, function($item) {
-                return !is_null($item) && trim((string) $item) !== '';
-            }));
+            // Trim each element and filter out nulls/empties
+            $trimmed = array_map(function($item) {
+                return is_null($item) ? null : trim((string) $item);
+            }, $value);
+
+            $filtered = array_filter($trimmed, function($item) {
+                return !is_null($item) && $item !== '';
+            });
+
+            // Remove case-insensitive duplicates
+            $uniqueValues = [];
+            foreach ($filtered as $item) {
+                $lowerItem = strtolower($item);
+                if (!isset($uniqueValues[$lowerItem])) {
+                    $uniqueValues[$lowerItem] = $item;
+                }
+            }
+            $value = array_values($uniqueValues);
         }
         $this->attributes['fit_vehicles'] = $this->encodeJsonField($value);
     }
