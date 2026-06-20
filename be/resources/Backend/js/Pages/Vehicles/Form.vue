@@ -652,8 +652,9 @@
                                         <Field v-model="newAccessoryForm.brand_id" :field="{
                                             type: 'select_single',
                                             name: 'new_accessory_brand_id',
-                                            label: false,
-                                            options: (data.brands || []).map(b => ({ id: b.id, label: b.title }))
+                                            label: 'thương hiệu',
+                                            placeholder: 'Vui lòng chọn thương hiệu',
+                                            options: (brands || []).map(b => ({ id: b.id, label: b.title }))
                                         }" />
                                     </div>
 
@@ -663,8 +664,9 @@
                                         <Field v-model="newAccessoryForm.categories" :field="{
                                             type: 'select_multiple',
                                             name: 'new_accessory_categories',
-                                            label: false,
-                                            options: (data.accessory_categories || []).map(c => ({ id: c.id, label: c.title }))
+                                            label: 'danh mục',
+                                            placeholder: 'Chọn danh mục phụ kiện',
+                                            options: (accessoryCategories || []).map(c => ({ id: c.id, label: c.title }))
                                         }" />
                                     </div>
 
@@ -1188,6 +1190,8 @@ export default {
                 { id: 'seo', name: '🔍 Cấu hình SEO' }
             ],
             categories: this.data?.categories ?? [],
+            brands: this.data?.brands ?? [],
+            accessoryCategories: this.data?.accessory_categories ?? [],
             formData: this.initFormData(this.item),
         }
     },
