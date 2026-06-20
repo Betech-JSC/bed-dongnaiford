@@ -213,11 +213,7 @@ export default function AccessoriesPage() {
         selVal.includes(vTitle);
     });
 
-    let matchesVehicle = !selectedVehicle || matchesPivot;
-    if (selectedVehicle && !matchesPivot) {
-      matchesVehicle = item.fitVehicles.some(v => typeof v === 'string' && (v.toLowerCase().includes(selectedVehicle.toLowerCase()) ||
-        selectedVehicle.toLowerCase().includes(v.toLowerCase())));
-    }
+    const matchesVehicle = !selectedVehicle || matchesPivot;
 
     const matchesBrand = !selectedBrand || (item.brand?.slug === selectedBrand);
 
