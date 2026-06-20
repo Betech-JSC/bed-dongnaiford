@@ -547,8 +547,9 @@ export default function AIChatWidget() {
     const isRightSide = bubbleCenterX > window.innerWidth / 2;
 
     // Horizontal: align to right edge if bubble is on right, left edge if on left
+    // We adjust the right boundary limit to leave 84px space for the QuickAccessToolbar
     const chatX = isRightSide
-      ? Math.max(EDGE_MARGIN, position.x + BUBBLE_SIZE - CHAT_WIDTH)
+      ? Math.max(EDGE_MARGIN, Math.min(position.x + BUBBLE_SIZE, window.innerWidth - 84) - CHAT_WIDTH)
       : Math.min(position.x, window.innerWidth - CHAT_WIDTH - EDGE_MARGIN);
 
     // Vertical: place above the bubble, fall below if not enough space
@@ -781,7 +782,7 @@ export default function AIChatWidget() {
           top: `${position.y}px`,
           touchAction: "none",
         }}
-        className={`fixed z-50 w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-colors duration-200 cursor-grab active:cursor-grabbing select-none ${
+        className={`fixed z-[60] w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-colors duration-200 cursor-grab active:cursor-grabbing select-none ${
           isOpen
             ? "bg-[#333] hover:bg-[#1a1a1a]"
             : "bg-[#0562d2] hover:bg-[#044ea7]"
@@ -815,7 +816,7 @@ export default function AIChatWidget() {
           ...getChatPosition(),
           width: `${CHAT_WIDTH}px`,
         }}
-        className={`fixed z-50 max-w-[calc(100vw-32px)] transition-all duration-300 origin-bottom-right ${
+        className={`fixed z-[60] max-w-[calc(100vw-32px)] transition-all duration-300 origin-bottom-right ${
           isOpen
             ? "opacity-100 scale-100 pointer-events-auto"
             : "opacity-0 scale-95 pointer-events-none"
