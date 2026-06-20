@@ -96,6 +96,7 @@ class VehicleController extends Controller
                 'code'         => $acc->code,
                 'category'     => $acc->category,
                 'fit_vehicles' => $acc->fit_vehicles ?? [],
+                'image'        => $acc->image,
             ]);
 
         return $data;
