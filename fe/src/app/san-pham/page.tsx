@@ -164,25 +164,137 @@ export default function ProductsPage() {
     );
     const seatsCount = seats.toLowerCase().includes("16") ? "16" : seats.toLowerCase().includes("7") ? "7" : "5";
     
-    let fuel = "Xăng";
     const firstVersionSpecs = v.versions?.[0]?.specs;
-    if (firstVersionSpecs?.engine) {
-      const eng = firstVersionSpecs.engine.toLowerCase();
-      if (eng.includes("diesel") || eng.includes("dầu")) {
-        fuel = "Diesel";
+    
+    // Parse real specifications from database
+    let parsedSpecs = { engine: "", transmission: "", drivetrain: "" };
+    if (Array.isArray(firstVersionSpecs)) {
+      firstVersionSpecs.forEach((item: any) => {
+        const title = (item.title || "").toLowerCase();
+        const content = (item.content || "");
+        
+        // Strip HTML tags and normalize spacing
+        const cleanText = content
+          .replace(/<[^>]*>/g, " ")
+          .replace(/\s+/g, " ")
+          .trim();
+        const lowerText = cleanText.toLowerCase();
+
+        // 1. Engine
+        if (
+          title.includes("động cơ") ||
+          title.includes("vận hành") ||
+          title.includes("hiệu năng") ||
+          title.includes("thông số kỹ thuật")
+        ) {
+          if (lowerText.includes("3.0l") && (lowerText.includes("v6") || lowerText.includes("raptor") || lowerText.includes("lion"))) {
+            if (lowerText.includes("xăng") || lowerText.includes("ecoboost")) {
+              parsedSpecs.engine = "EcoBoost 3.0L V6";
+            } else {
+              parsedSpecs.engine = "Diesel 3.0L V6";
+            }
+          } else if (lowerText.includes("2.3l")) {
+            if (lowerText.includes("xăng") || lowerText.includes("ecoboost")) {
+              parsedSpecs.engine = "EcoBoost 2.3L";
+            } else {
+              parsedSpecs.engine = "Turbo Diesel 2.3L";
+            }
+          } else if (lowerText.includes("2.0l") || lowerText.includes("1996 cc") || lowerText.includes("1996cc")) {
+            if (lowerText.includes("bi-turbo") || lowerText.includes("tăng áp kép") || lowerText.includes("210") || lowerText.includes("154.5")) {
+              parsedSpecs.engine = "Bi-Turbo Diesel 2.0L";
+            } else {
+              parsedSpecs.engine = "Single-Turbo Diesel 2.0L";
+            }
+          } else if (lowerText.includes("1.5l")) {
+            parsedSpecs.engine = "EcoBoost 1.5L";
+          } else if (lowerText.includes("pin") || lowerText.includes("kwh")) {
+            const pinMatch = cleanText.match(/(\d+\s*kWh)/i);
+            parsedSpecs.engine = `Pin ${pinMatch ? pinMatch[1] : "87 kWh"}`;
+          }
+        }
+
+        // 2. Transmission
+        if (
+          title.includes("hộp số") ||
+          title.includes("động cơ") ||
+          title.includes("vận hành") ||
+          title.includes("thông số kỹ thuật")
+        ) {
+          if (lowerText.includes("số tự động")) {
+            const match = cleanText.match(/(Số tự động\s*\d+\s*cấp)/i);
+            parsedSpecs.transmission = match ? match[1] : "Số tự động";
+          } else if (lowerText.includes("số sàn") || lowerText.includes("số tay") || lowerText.includes("mt")) {
+            const match = cleanText.match(/(\d+\s*cấp\s*số\s*sàn)/i)
+              || cleanText.match(/(số sàn\s*\d+\s*cấp)/i)
+              || cleanText.match(/(\d+\s*số\s*tay)/i);
+            parsedSpecs.transmission = match ? match[1] : "Số sàn";
+          }
+        }
+
+        // 3. Drivetrain
+        if (
+          title.includes("dẫn động") ||
+          title.includes("vận hành") ||
+          title.includes("truyền động") ||
+          title.includes("thông số kỹ thuật")
+        ) {
+          if (lowerText.includes("4x4") || lowerText.includes("hai cầu") || lowerText.includes("4wd")) {
+            parsedSpecs.drivetrain = "Hai cầu (4x4)";
+          } else if (lowerText.includes("awd") || lowerText.includes("4 bánh")) {
+            parsedSpecs.drivetrain = "Hai cầu (AWD)";
+          } else if (lowerText.includes("4x2") || lowerText.includes("một cầu") || lowerText.includes("fwd")) {
+            parsedSpecs.drivetrain = "Một cầu (4x2)";
+          } else if (lowerText.includes("cầu sau") || lowerText.includes("rwd")) {
+            parsedSpecs.drivetrain = "Cầu sau (RWD)";
+          }
+        }
+      });
+    }
+
+    // Post-processing and fallbacks
+    let transmission = parsedSpecs.transmission;
+    if (transmission) {
+      transmission = transmission.charAt(0).toUpperCase() + transmission.slice(1);
+      if (transmission.toLowerCase().includes("6 số tay") || transmission.toLowerCase().includes("6 cấp số sàn")) {
+        transmission = "Số sàn 6 cấp";
       }
-    } else if (name.toLowerCase().includes("raptor") || name.toLowerCase().includes("everest") || name.toLowerCase().includes("transit")) {
+    } else {
+      if (name.toLowerCase().includes("transit") || name.toLowerCase().includes("ranger xl")) {
+        transmission = "Số sàn 6 cấp";
+      } else {
+        transmission = "Số tự động";
+      }
+    }
+
+    let engine = parsedSpecs.engine;
+    if (!engine) {
+      if (name.toLowerCase().includes("raptor")) {
+        engine = "EcoBoost 3.0L V6";
+      } else if (name.toLowerCase().includes("stormtrak") || name.toLowerCase().includes("wildtrak") || name.toLowerCase().includes("platinum")) {
+        engine = "Bi-Turbo Diesel 2.0L";
+      } else if (name.toLowerCase().includes("everest") || name.toLowerCase().includes("ranger") || name.toLowerCase().includes("transit")) {
+        engine = "Single-Turbo Diesel 2.0L";
+      } else {
+        engine = "EcoBoost 1.5L";
+      }
+    }
+
+    let drivetrain = parsedSpecs.drivetrain;
+    if (!drivetrain) {
+      if (name.toLowerCase().includes("transit")) {
+        drivetrain = "Cầu sau (RWD)";
+      } else if (name.toLowerCase().includes("raptor") || name.toLowerCase().includes("wildtrak") || name.toLowerCase().includes("stormtrak")) {
+        drivetrain = "Hai cầu (4x4)";
+      } else {
+        drivetrain = "Một cầu (4x2)";
+      }
+    }
+
+    let fuel = "Xăng";
+    if (engine.toLowerCase().includes("diesel") || engine.toLowerCase().includes("dầu")) {
       fuel = "Diesel";
     }
-    
-    let transmission = "Số tự động";
-    if (firstVersionSpecs?.transmission) {
-      const trans = firstVersionSpecs.transmission.toLowerCase();
-      if (trans.includes("số sàn") || trans.includes("mt") || trans.includes("manual")) {
-        transmission = "Số sàn";
-      }
-    }
-    
+
     return {
       ...v,
       id,
@@ -194,9 +306,9 @@ export default function ProductsPage() {
       fuel,
       transmission,
       typeName: v.type_name || v.typeName || (seatsCount === "16" ? "Xe 16 Chỗ" : `${categorySlug === "ban-tai" ? "Bán tải" : "SUV"} ${seatsCount} Chỗ`),
-      engine: firstVersionSpecs?.engine || (fuel === "Diesel" ? "Diesel 2.0L" : "Ecoboost 1.5L"),
-      transText: firstVersionSpecs?.transmission || "Số tự động",
-      drivetrain: firstVersionSpecs?.drivetrain || "Cầu trước (FWD)"
+      engine,
+      transText: transmission,
+      drivetrain
     };
   };
 
