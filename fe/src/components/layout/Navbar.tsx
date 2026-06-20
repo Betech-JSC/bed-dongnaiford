@@ -182,7 +182,7 @@ export default function Navbar() {
       ],
     },
     {
-      id: "commercial",
+      id: "thuong-mai",
       name: "Xe thương mại",
       bannerTitle: "Khám phá các dòng xe thương mại của Ford",
       bannerDesc: "Bền bỉ, hiệu quả, tối ưu hóa lợi ích kinh doanh",
@@ -199,7 +199,7 @@ export default function Navbar() {
     
     // Filter vehicles belonging to this category
     const catVehicles = vehiclesList
-      .filter((v) => v.category_id === cat.id)
+      .filter((v) => (v.category_ids && Array.isArray(v.category_ids) ? v.category_ids.includes(cat.id) : v.category_id === cat.id))
       .map((v) => ({
         id: v.slug || v.id,
         displayName: v.title || v.name,
@@ -532,7 +532,7 @@ export default function Navbar() {
                 <button
                   key={cat.id}
                   onClick={() => {
-                    router.push(`/san-pham?category=${cat.id}`);
+                    router.push(`/dong-xe/${cat.id}`);
                     setIsProductHovered(false);
                   }}
                   onMouseEnter={() => setActiveTab(cat.id)}

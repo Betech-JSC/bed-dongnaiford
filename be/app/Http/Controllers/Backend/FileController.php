@@ -57,12 +57,24 @@ class FileController extends Controller
     public function folderCreate(Request $request)
     {
         $file = new File($request->input('path', '/'));
-        return $file->folderCreate($request->input('name'));
+        $result = $file->folderCreate($request->input('name'));
+        if (!$result) {
+            return response()->json([
+                'message' => 'Tạo thư mục thất bại. Thư mục đã tồn tại hoặc tên thư mục không hợp lệ.'
+            ], 422);
+        }
+        return response()->json(['success' => true]);
     }
 
     public function folderDelete(Request $request)
     {
         $file = new File($request->input('path', '/'));
-        return $file->folderDelete();
+        $result = $file->folderDelete();
+        if (!$result) {
+            return response()->json([
+                'message' => 'Xóa thư mục thất bại. Thư mục không trống hoặc không thể xóa.'
+            ], 422);
+        }
+        return response()->json(['success' => true]);
     }
 }

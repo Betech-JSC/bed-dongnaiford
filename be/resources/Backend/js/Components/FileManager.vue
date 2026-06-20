@@ -73,7 +73,7 @@
                     label: false,
                     type: 'tree',
                     maxLevel: 10,
-                    expandDefaultLevel: 10,
+                    expandDefaultLevel: 3,
                     keyBy: 'slug',
                     labelBy: 'name',
                     childrenBy: 'children',
@@ -1035,6 +1035,15 @@ export default {
                         life: 3000,
                     })
                 })
+                .catch((error) => {
+                    const msg = error.response?.data?.message || 'Tạo thư mục thất bại!';
+                    this.$toast.add({
+                        severity: 'error',
+                        summary: 'Lỗi tạo thư mục',
+                        detail: msg,
+                        life: 5000,
+                    })
+                })
         },
         renameFolder(name) {
             if (!name) return
@@ -1055,7 +1064,23 @@ export default {
                             detail: this.tt('models.has_crud_action.update'),
                             life: 3000,
                         })
+                    } else {
+                        this.$toast.add({
+                            severity: 'error',
+                            summary: 'Lỗi đổi tên',
+                            detail: 'Tên thư mục đã tồn tại hoặc không hợp lệ.',
+                            life: 5000,
+                        })
                     }
+                })
+                .catch((error) => {
+                    const msg = error.response?.data?.message || 'Đổi tên thư mục thất bại!';
+                    this.$toast.add({
+                        severity: 'error',
+                        summary: 'Lỗi đổi tên',
+                        detail: msg,
+                        life: 5000,
+                    })
                 })
                 .finally(() => {
                     this.loading = false
@@ -1077,6 +1102,15 @@ export default {
                             summary: this.tt('models.admins.success'),
                             detail: this.tt('models.has_crud_action.destroy'),
                             life: 3000,
+                        })
+                    })
+                    .catch((error) => {
+                        const msg = error.response?.data?.message || 'Xóa thư mục thất bại!';
+                        this.$toast.add({
+                            severity: 'error',
+                            summary: 'Lỗi xóa thư mục',
+                            detail: msg,
+                            life: 5000,
                         })
                     })
             }

@@ -56,7 +56,7 @@ class VehicleCategory extends BaseModel
     
     public function vehicles()
     {
-        return $this->hasMany(Vehicle::class, 'category_id');
+        return $this->belongsToMany(Vehicle::class, 'vehicle_ref_categories', 'vehicle_category_id', 'vehicle_id');
     }
 
     public function getUrlAttribute(): array

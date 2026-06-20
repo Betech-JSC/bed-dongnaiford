@@ -535,13 +535,12 @@
                                 <!-- Price -->
                                 <div>
                                     <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Giá bán (VNĐ)</label>
-                                    <input 
-                                        v-model.number="newAccessoryForm.price" 
-                                        type="number" 
-                                        placeholder="Ví dụ: 15000000"
-                                        min="0"
-                                        class="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900"
-                                    />
+                                    <Field v-model="newAccessoryForm.price" :field="{
+                                        type: 'money',
+                                        name: 'new_accessory_price',
+                                        label: false,
+                                        placeholder: 'Ví dụ: 15000000',
+                                    }" />
                                 </div>
 
                                 <!-- Category -->
@@ -562,12 +561,12 @@
                                 <!-- Description -->
                                 <div class="col-span-2">
                                     <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Mô tả ngắn</label>
-                                    <textarea 
-                                        v-model="newAccessoryForm.description" 
-                                        rows="3"
-                                        placeholder="Mô tả tóm tắt tính năng hoặc tác dụng của phụ kiện..."
-                                        class="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900"
-                                    ></textarea>
+                                    <Field v-model="newAccessoryForm.description" :field="{
+                                        type: 'richtext',
+                                        name: 'new_accessory_description',
+                                        label: false,
+                                        placeholder: 'Mô tả tóm tắt tính năng hoặc tác dụng của phụ kiện...',
+                                    }" />
                                 </div>
 
                                 <!-- Image Thumbnail -->
@@ -947,9 +946,9 @@
         <template #aside="{ form }">
             <div class="card">
                 <div class="card-body">
-                    <Field v-model="form.category_id" :field="{
-                        type: 'dropdown',
-                        name: 'category_id',
+                    <Field v-model="form.category_ids" :field="{
+                        type: 'select_multiple',
+                        name: 'category_ids',
                         label: 'Danh mục xe',
                         keyBy: 'id',
                         labelBy: 'title',
@@ -1148,7 +1147,7 @@ export default {
                 is_best_seller: 0,
                 base_price: 0,
                 type: 'suv',
-                category_id: null,
+                category_ids: [],
                 image: null,
                 image_thumbnail: null,
                 image_featured: null,
@@ -1163,6 +1162,7 @@ export default {
                 accessories: [],
                 ...item,
             }
+            data.category_ids = data.category_ids || (data.category_id ? [data.category_id] : [])
             data.images_360_external = data.images_360_external || []
             data.images_360_internal = data.images_360_internal || []
             data.layout_blocks = data.layout_blocks || []

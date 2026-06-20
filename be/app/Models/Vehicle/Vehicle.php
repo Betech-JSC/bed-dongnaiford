@@ -15,7 +15,7 @@ class Vehicle extends BaseModel
     public $translationModel = VehicleTranslation::class;
     public $translationForeignKey = 'vehicle_id';
     public $with = ['translations'];
-    protected $appends = ['url', 'image_url', 'image_thumbnail_url', 'image_featured_url'];
+    protected $appends = ['url', 'image_url', 'image_thumbnail_url', 'image_featured_url', 'category_id', 'category_ids'];
 
     public $translatedAttributes = [
         'title',
@@ -33,7 +33,6 @@ class Vehicle extends BaseModel
     ];
 
     protected $fillable = [
-        'category_id',
         'type',
         'is_best_seller',
         'base_price',
@@ -226,9 +225,19 @@ class Vehicle extends BaseModel
         return $this->decodeJsonField($value);
     }
 
-    public function category()
+    public function categories()
     {
-        return $this->belongsTo(VehicleCategory::class, 'category_id');
+        return $this->belongsToMany(VehicleCategory::class, 'vehicle_ref_categories', 'vehicle_id', 'vehicle_category_id');
+    }
+
+    public function getCategoryIdAttribute(): ?int
+    {
+        return $this->categories->first()?->id;
+    }
+
+    public function getCategoryIdsAttribute(): array
+    {
+        return $this->categories->pluck('id')->toArray();
     }
 
     public function versions()

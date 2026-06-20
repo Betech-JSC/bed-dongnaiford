@@ -334,9 +334,10 @@ export default function AccessoryDetailPage() {
               </div>
 
               {/* Description */}
-              <p className="font-['Ford_Antenna',sans-serif] font-normal text-[16px] text-[#1d2939] leading-[1.5]">
-                {accessory.description}
-              </p>
+              <p 
+                className="font-['Ford_Antenna',sans-serif] font-normal text-[16px] text-[#1d2939] leading-[1.5]"
+                dangerouslySetInnerHTML={{ __html: accessory.description }}
+              />
 
               {/* Price & Quantity & Action Row */}
               <div className="flex flex-col gap-[12px] w-full">
@@ -445,9 +446,10 @@ export default function AccessoryDetailPage() {
                         </span>
                       </button>
                       {isOpen && (
-                        <div className="font-['Ford_Antenna',sans-serif] font-normal text-[16px] text-[#333] leading-[1.5]">
-                          {acc.text}
-                        </div>
+                        <div 
+                          className="font-['Ford_Antenna',sans-serif] font-normal text-[16px] text-[#333] leading-[1.5] rich-text-content"
+                          dangerouslySetInnerHTML={{ __html: acc.text }}
+                        />
                       )}
                     </div>
                   );

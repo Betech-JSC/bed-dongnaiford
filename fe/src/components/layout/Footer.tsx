@@ -1,6 +1,31 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { vehiclesAPI } from "@/lib/api";
 
 export default function Footer() {
+  const [categoriesList, setCategoriesList] = useState<any[]>([]);
+
+  useEffect(() => {
+    let active = true;
+    const fetchCategories = async () => {
+      try {
+        const catsData = await vehiclesAPI.getCategories().catch(() => null);
+        const cats = (catsData as any)?.data || catsData;
+        if (active && Array.isArray(cats) && cats.length > 0) {
+          setCategoriesList(cats);
+        }
+      } catch (err) {
+        console.error("Error fetching categories in footer:", err);
+      }
+    };
+    fetchCategories();
+    return () => {
+      active = false;
+    };
+  }, []);
+
   return (
     <footer className="bg-[#00095b] text-white pt-[40px] pb-[20px] px-4 lg:px-[144px] border-t border-[#00095b] mt-auto">
       {/* Upper Grid Area */}
@@ -52,16 +77,31 @@ export default function Footer() {
                     Tất cả dòng xe
                   </Link>
                 </li>
-                <li>
-                  <Link href="/san-pham" className="hover:text-[#0562d2] transition-colors block">
-                    Xe SUV
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/san-pham" className="hover:text-[#0562d2] transition-colors block">
-                    Xe Thương Mại
-                  </Link>
-                </li>
+                {categoriesList.length > 0 ? (
+                  categoriesList.map((cat) => (
+                    <li key={cat.id}>
+                      <Link 
+                        href={`/dong-xe/${cat.slug}`} 
+                        className="hover:text-[#0562d2] transition-colors block"
+                      >
+                        {cat.title.startsWith("Xe") ? cat.title : `Xe ${cat.title}`}
+                      </Link>
+                    </li>
+                  ))
+                ) : (
+                  <>
+                    <li>
+                      <Link href="/dong-xe/suv" className="hover:text-[#0562d2] transition-colors block">
+                        Xe SUV
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/dong-xe/thuong-mai" className="hover:text-[#0562d2] transition-colors block">
+                        Xe Thương Mại
+                      </Link>
+                    </li>
+                  </>
+                )}
               </ul>
             </div>
 

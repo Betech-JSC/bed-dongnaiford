@@ -608,7 +608,7 @@ export default function Home() {
     }
     const cat = categories.find(c => c.slug === selectedCategory);
     if (!cat) return [];
-    return vehiclesList.filter(v => v.category_id === cat.id);
+    return vehiclesList.filter(v => (v.category_ids && Array.isArray(v.category_ids) ? v.category_ids.includes(cat.id) : v.category_id === cat.id));
   };
 
   const handlePrevHero = () => {

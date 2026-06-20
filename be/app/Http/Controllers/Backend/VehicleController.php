@@ -21,7 +21,7 @@ class VehicleController extends Controller
     private $originalVehicleTitle = null;
 
     public $with = [
-        'form' => ['category', 'translations', 'versions', 'versions.translations'],
+        'form' => ['categories', 'translations', 'versions', 'versions.translations'],
     ];
 
     /**
@@ -59,7 +59,7 @@ class VehicleController extends Controller
     private function beforeIndex($query)
     {
         return $query
-            ->with(['translations', 'category'])
+            ->with(['translations', 'categories'])
             ->orderBy('id', 'DESC');
     }
 
@@ -73,7 +73,7 @@ class VehicleController extends Controller
         // List reviews to select in form
         $data['reviews'] = CustomerReview::query()
             ->withoutGlobalScopes()
-            ->with(['vehicle:id,category_id', 'translations'])
+            ->with(['vehicle:id', 'vehicle.categories', 'translations'])
             ->where('status', CustomerReview::STATUS_ACTIVE)
             ->orderBy('id', 'desc')
             ->get()
@@ -148,6 +148,7 @@ class VehicleController extends Controller
 
         // List of all keys that must be validated as arrays
         $arrayKeys = [
+            'category_ids',
             'images',
             'colors',
             'images_360_external',
@@ -228,6 +229,12 @@ class VehicleController extends Controller
     private function afterStore($request, $resource)
     {
         DB::transaction(function () use ($request, $resource) {
+            // Sync categories
+            $categoryIds = $request->input('category_ids', []);
+            if (is_array($categoryIds)) {
+                $resource->categories()->sync($categoryIds);
+            }
+
             $versionsData = $request->input('versions', []);
             $keepIds = [];
 

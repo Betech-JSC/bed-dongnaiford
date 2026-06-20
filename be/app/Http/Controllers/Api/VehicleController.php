@@ -22,6 +22,7 @@ class VehicleController extends Controller
         $data = [
             'id'                  => $v->id,
             'category_id'         => $v->category_id,
+            'category_ids'        => $v->category_ids,
             'title'               => $v->title,
             'slug'                => $v->slug,
             'tagline'             => $v->tagline,
@@ -55,23 +56,19 @@ class VehicleController extends Controller
     public function index(Request $request): JsonResponse
     {
         $query = Vehicle::query()
+            ->with('categories')
             ->where('status', Vehicle::STATUS_ACTIVE)
             ->sortByPosition();
 
         if ($request->has('with_versions')) {
-            $query->with(['versions' => fn($q) => $q->where('status', 'ACTIVE')->sortByPosition()]);
+            $query->with(['categories', 'versions' => fn($q) => $q->where('status', 'ACTIVE')->sortByPosition()]);
         }
 
         if ($categorySlug = $request->query('category')) {
-            $category = VehicleCategory::whereSlug($categorySlug)
-                ->where('status', VehicleCategory::STATUS_ACTIVE)
-                ->first();
-
-            if (!$category) {
-                return $this->success([]);
-            }
-
-            $query->where('category_id', $category->id);
+            $query->whereHas('categories', function ($q) use ($categorySlug) {
+                $q->whereSlug($categorySlug)
+                    ->where('status', VehicleCategory::STATUS_ACTIVE);
+            });
         }
 
         $vehicles = $query->get()
@@ -86,6 +83,7 @@ class VehicleController extends Controller
     public function featured(): JsonResponse
     {
         $vehicles = Vehicle::query()
+            ->with('categories')
             ->where('status', Vehicle::STATUS_ACTIVE)
             ->where('is_best_seller', true)
             ->sortByPosition()
@@ -103,7 +101,10 @@ class VehicleController extends Controller
         $vehicle = Vehicle::query()
             ->where('status', Vehicle::STATUS_ACTIVE)
             ->whereSlug($slug)
-            ->with(['versions' => fn($q) => $q->where('status', 'ACTIVE')->sortByPosition()])
+            ->with([
+                'categories',
+                'versions' => fn($q) => $q->where('status', 'ACTIVE')->sortByPosition()
+            ])
             ->first();
 
         if (!$vehicle) {
@@ -113,6 +114,7 @@ class VehicleController extends Controller
         return $this->success([
             'id'                     => $vehicle->id,
             'category_id'            => $vehicle->category_id,
+            'category_ids'           => $vehicle->category_ids,
             'title'                  => $vehicle->title,
             'slug'                   => $vehicle->slug,
             'tagline'                => $vehicle->tagline,

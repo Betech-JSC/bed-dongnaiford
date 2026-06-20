@@ -28,7 +28,7 @@ const staticCategories = [
   { slug: "thuong-mai", title: "Thương mại" },
 ];
 
-export default function ProductsPage() {
+export default function ProductsPage({ initialCategory }: { initialCategory?: string }) {
   const [apiVehicles, setApiVehicles] = useState<any[]>([]);
   const [apiCategories, setApiCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -121,6 +121,10 @@ export default function ProductsPage() {
 
   // Parse URL query parameters to pre-select category
   useEffect(() => {
+    if (initialCategory) {
+      setSelectedCategories([initialCategory]);
+      return;
+    }
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
       const cat = params.get("category");
@@ -128,7 +132,7 @@ export default function ProductsPage() {
         setSelectedCategories([cat]);
       }
     }
-  }, []);
+  }, [initialCategory]);
 
   const categories = apiCategories.length > 0 ? apiCategories : staticCategories;
 
@@ -143,19 +147,28 @@ export default function ProductsPage() {
     const name = v.title || v.name || "";
     const image = v.image_thumbnail_url || v.image_url || v.images?.[0] || getPopularVehicleImage(id, "");
     
-    let categorySlug = "all";
-    if (v.category_id) {
+    let categorySlugs: string[] = [];
+    if (v.category_ids && Array.isArray(v.category_ids)) {
+      v.category_ids.forEach((id: number) => {
+        const cat = apiCategories.find((c: any) => c.id === id);
+        if (cat) categorySlugs.push(cat.slug);
+      });
+    } else if (v.category_id) {
       const cat = apiCategories.find((c: any) => c.id === v.category_id);
-      if (cat) {
-        categorySlug = cat.slug;
-      }
-    } else if (v.type) {
-      categorySlug = v.type;
+      if (cat) categorySlugs.push(cat.slug);
     }
-    
-    // Normalize category slug for comparison
-    if (categorySlug === "pickup") categorySlug = "ban-tai";
-    if (categorySlug === "commercial") categorySlug = "thuong-mai";
+    if (categorySlugs.length === 0 && v.type) {
+      categorySlugs.push(v.type);
+    }
+
+    categorySlugs = categorySlugs.map((slug: string) => {
+      let norm = slug;
+      if (norm === "pickup") norm = "ban-tai";
+      if (norm === "commercial") norm = "thuong-mai";
+      return norm;
+    });
+
+    const categorySlug = categorySlugs[0] || "all";
     
     const seats = v.type_name || v.typeName || (
       name.toLowerCase().includes("transit") ? "16 Chỗ" : 
@@ -302,6 +315,7 @@ export default function ProductsPage() {
       price,
       image,
       categorySlug,
+      categorySlugs,
       seatsCount,
       fuel,
       transmission,
@@ -326,7 +340,8 @@ export default function ProductsPage() {
     
     // Category filter
     if (selectedCategories.length > 0) {
-      if (!selectedCategories.includes(v.categorySlug)) {
+      const hasMatchingCategory = v.categorySlugs.some((slug: string) => selectedCategories.includes(slug));
+      if (!hasMatchingCategory) {
         return false;
       }
     }
