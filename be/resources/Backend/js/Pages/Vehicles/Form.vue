@@ -653,7 +653,8 @@
                                             type: 'select_single',
                                             name: 'new_accessory_brand_id',
                                             label: false,
-                                            options: (brands || []).map(b => ({ id: b.id, label: b.title }))
+                                            placeholder: 'Chọn thương hiệu',
+                                            options: ($props.data?.brands || []).map(b => ({ id: b.id, label: b.title }))
                                         }" />
                                     </div>
 
@@ -664,7 +665,8 @@
                                             type: 'select_multiple',
                                             name: 'new_accessory_categories',
                                             label: false,
-                                            options: (accessoryCategories || []).map(c => ({ id: c.id, label: c.title }))
+                                            placeholder: 'Chọn danh mục',
+                                            options: ($props.data?.accessory_categories || []).map(c => ({ id: c.id, label: c.title }))
                                         }" />
                                     </div>
 
@@ -1188,8 +1190,6 @@ export default {
                 { id: 'seo', name: '🔍 Cấu hình SEO' }
             ],
             categories: this.data?.categories ?? [],
-            brands: this.data?.brands ?? [],
-            accessoryCategories: this.data?.accessory_categories ?? [],
             formData: this.initFormData(this.item),
         }
     },
