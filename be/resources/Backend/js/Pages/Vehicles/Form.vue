@@ -608,19 +608,19 @@
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-gray-150 pb-5 mb-6">
                         <div>
-                            <h3 class="text-lg font-bold text-gray-900">🎒 Chọn phụ kiện tương thích</h3>
-                            <p class="text-sm text-gray-500 mt-1">Chọn các phụ kiện chính hãng tương thích với dòng xe này. Những phụ kiện được chọn sẽ tự động hiển thị trong trang chi tiết sản phẩm.</p>
+                            <h3 class="text-lg font-bold text-gray-900">🎒 Phụ kiện của xe</h3>
+                            <p class="text-sm text-gray-500 mt-1">Danh sách các phụ kiện chính hãng tương thích với dòng xe này. Bạn có thể gỡ bỏ phụ kiện hiện tại hoặc tạo phụ kiện mới.</p>
                         </div>
                         <div class="flex flex-wrap items-center gap-3">
                             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
-                                Đã chọn: {{ (form.accessories || []).length }} phụ kiện
+                                Số lượng: {{ (form.accessories || []).length }} phụ kiện
                             </span>
                             <button 
                                 type="button"
                                 @click="form.accessories = []"
                                 class="text-xs text-red-600 hover:text-red-800 font-semibold transition-colors cursor-pointer focus:outline-none"
                             >
-                                Xóa tất cả
+                                Gỡ tất cả
                             </button>
                             <button 
                                 type="button"
@@ -667,20 +667,14 @@
                         <svg class="h-10 w-10 text-gray-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0a2 2 0 01-2 2H6a2 2 0 01-2-2m16 0V9a2 2 0 00-2-2H6a2 2 0 00-2 2v4.5m15 3.5l-3-3m0 0l-3 3m3-3V17" />
                         </svg>
-                        <p class="text-sm font-semibold text-gray-500">Không tìm thấy phụ kiện nào phù hợp</p>
+                        <p class="text-sm font-semibold text-gray-500">Chưa có phụ kiện nào được liên kết hoặc tìm thấy</p>
                     </div>
                     
                     <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 max-h-[500px] overflow-y-auto pr-2">
                         <div 
                             v-for="acc in filteredAccessoriesList" 
                             :key="acc.id"
-                            @click="toggleAccessorySelection(acc.id)"
-                            :class="[
-                                'relative border rounded-lg p-3 cursor-pointer select-none transition-all duration-200 flex gap-3 hover:scale-[1.01] hover:shadow-sm items-start',
-                                isAccessorySelected(acc.id) 
-                                    ? 'border-indigo-500 bg-indigo-50/30 ring-1 ring-indigo-500' 
-                                    : 'border-gray-200 bg-white hover:border-gray-300'
-                            ]"
+                            class="relative border border-gray-200 bg-white rounded-lg p-3 select-none flex gap-3 items-start"
                         >
                             <!-- Accessory Image -->
                             <div class="w-16 h-16 rounded-md overflow-hidden bg-gray-50 border border-gray-150 flex-shrink-0 relative">
@@ -702,19 +696,17 @@
                                         <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block truncate">
                                             {{ acc.code || 'N/A' }}
                                         </span>
-                                        <!-- Selected Indicator -->
-                                        <div 
-                                            :class="[
-                                                'w-4 h-4 rounded-full flex items-center justify-center transition-all duration-200 border flex-shrink-0',
-                                                isAccessorySelected(acc.id)
-                                                    ? 'bg-indigo-600 border-indigo-600 text-white'
-                                                    : 'border-gray-300 bg-white'
-                                            ]"
+                                        <!-- Remove/Detach Button -->
+                                        <button 
+                                            type="button"
+                                            @click="toggleAccessorySelection(acc.id)"
+                                            class="w-5 h-5 rounded-full flex items-center justify-center transition-all duration-200 border border-transparent hover:border-red-200 bg-gray-55 hover:bg-red-50 text-gray-400 hover:text-red-650 cursor-pointer focus:outline-none flex-shrink-0"
+                                            title="Gỡ phụ kiện khỏi xe này"
                                         >
-                                            <svg v-if="isAccessorySelected(acc.id)" class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                                             </svg>
-                                        </div>
+                                        </button>
                                     </div>
                                     <h4 class="text-xs font-semibold text-gray-900 mt-0.5 line-clamp-2 pr-1 leading-tight" :title="acc.title">
                                         {{ acc.title }}
@@ -725,13 +717,6 @@
                                 <div class="flex flex-wrap items-center gap-1.5 mt-2 pt-1 border-t border-gray-100/50">
                                     <span class="text-[9px] font-semibold uppercase tracking-wider text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded-full">
                                         {{ getCategoryLabel(acc.category) }}
-                                    </span>
-                                    <span 
-                                        v-if="isInitiallyFit(acc)" 
-                                        class="text-[9px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded-full"
-                                        title="Phụ kiện này ban đầu được gắn nhãn tương thích trong DB"
-                                    >
-                                        Đã gán
                                     </span>
                                 </div>
                             </div>
@@ -1093,6 +1078,10 @@ export default {
             const category = this.accessoryFilterCategory || 'all';
 
             return list.filter(acc => {
+                // Chỉ hiển thị phụ kiện đã gán cho xe hiện tại (có ID nằm trong mảng accessories)
+                const isSelected = (this.formData.accessories || []).includes(acc.id);
+                if (!isSelected) return false;
+
                 const matchesSearch = !search || 
                     (acc.title && acc.title.toLowerCase().includes(search)) || 
                     (acc.code && acc.code.toLowerCase().includes(search));
