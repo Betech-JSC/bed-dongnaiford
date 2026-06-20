@@ -159,7 +159,7 @@ export default function VehicleVersionDetailPage() {
   // Detect if external or internal image sequence exists
   const hasExteriorSeq = (currentColor && currentColor.images_360 && currentColor.images_360.length > 0)
     || (vehicle && vehicle.images_360_external && vehicle.images_360_external.length > 0);
-  
+
   const hasInteriorSeq = (currentColor && currentColor.images_360_internal && currentColor.images_360_internal.length > 0)
     || (vehicle && vehicle.images_360_internal && vehicle.images_360_internal.length > 0);
 
@@ -287,7 +287,7 @@ export default function VehicleVersionDetailPage() {
     const images360 = (currentColor && currentColor.images_360 && currentColor.images_360.length > 0)
       ? currentColor.images_360
       : (vehicle.images_360_external || []);
-    
+
     if (images360.length === 0) return null;
     const imagesCount = images360.length;
     const frameIdx = Math.floor(((rotation % 360 + 360) % 360) / (360 / imagesCount)) % imagesCount;
@@ -318,7 +318,7 @@ export default function VehicleVersionDetailPage() {
     const images360 = (currentColor && currentColor.images_360_internal && currentColor.images_360_internal.length > 0)
       ? currentColor.images_360_internal
       : (vehicle.images_360_internal || []);
-    
+
     if (images360.length === 0) return null;
     const imagesCount = images360.length;
     const frameIdx = Math.floor(((rotation % 360 + 360) % 360) / (360 / imagesCount)) % imagesCount;
@@ -403,7 +403,7 @@ export default function VehicleVersionDetailPage() {
   return (
     <div className="bg-[#ffffff] text-[#1a1a1a] font-sans pb-24 select-none">
       <VehicleTabBar />
-      
+
       {/* 1. Version Selector Section */}
       <section className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full pt-12 pb-4">
         <div className="w-full text-left">
@@ -414,14 +414,13 @@ export default function VehicleVersionDetailPage() {
             {vehicle.versions?.map((ver: any, idx: number) => {
               const isActive = activeVersionIndex === idx;
               const imgUrl = ver.image_url || vehicle.image_url;
-              
+
               return (
                 <button
                   key={ver.id}
                   onClick={() => handleVersionSelect(idx)}
-                  className={`flex flex-col items-center gap-2 cursor-pointer border-0 bg-transparent relative shrink-0 transition-transform group py-2 px-1 ${
-                    isActive ? "scale-102" : "hover:scale-[1.01] opacity-70 hover:opacity-95"
-                  }`}
+                  className={`flex flex-col items-center gap-2 cursor-pointer border-0 bg-transparent relative shrink-0 transition-transform group py-2 px-1 ${isActive ? "scale-102" : "hover:scale-[1.01] opacity-70 hover:opacity-95"
+                    }`}
                 >
                   <div className="w-[100px] aspect-[16/10] relative">
                     <img
@@ -446,10 +445,10 @@ export default function VehicleVersionDetailPage() {
       {/* 2. Selected Version Details & 360 Viewer Grid */}
       <section className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full pb-12 pt-4">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
-          
+
           {/* Left Column: Specifications & Info */}
           <div className="lg:col-span-5 flex flex-col items-start w-full">
-            
+
             {/* Version Title & Short Description */}
             <div className="space-y-4 w-full text-left mt-2">
               <h1 className="font-['Ford_Antenna',sans-serif] font-bold text-[32px] sm:text-[38px] text-[#1a1a1a] leading-[1.1] tracking-tight">
@@ -504,9 +503,8 @@ export default function VehicleVersionDetailPage() {
               onTouchStart={is360Active && isImageSequence ? handleTouchStart : undefined}
               onTouchMove={is360Active && isImageSequence ? handleTouchMove : undefined}
               onTouchEnd={is360Active && isImageSequence ? handleMouseUpOrLeave : undefined}
-              className={`w-full aspect-[16/10] bg-[#f5f5f5] rounded-2xl relative overflow-hidden flex items-center justify-center transition-all ${
-                is360Active ? "cursor-grab active:cursor-grabbing shadow-inner" : "shadow-xs"
-              }`}
+              className={`w-full aspect-[16/10] bg-[#f5f5f5] rounded-2xl relative overflow-hidden flex items-center justify-center transition-all ${is360Active ? "cursor-grab active:cursor-grabbing shadow-inner" : "shadow-xs"
+                }`}
             >
               {is360Active ? (
                 viewType === "exterior" ? (
@@ -572,9 +570,8 @@ export default function VehicleVersionDetailPage() {
                             setSelectedColorIndex(idx);
                             setIs360Active(false);
                           }}
-                          className={`w-9 h-9 rounded-md p-[2px] transition-all flex items-center justify-center cursor-pointer border ${
-                            isSelected ? "border-black ring-1 ring-black" : "border-gray-200 hover:scale-105"
-                          }`}
+                          className={`w-9 h-9 rounded-md p-[2px] transition-all flex items-center justify-center cursor-pointer border ${isSelected ? "border-black ring-1 ring-black" : "border-gray-200 hover:scale-105"
+                            }`}
                           title={color.name}
                         >
                           <div className="w-full h-full rounded-[4px] shadow-sm border border-black/5" style={{ backgroundColor: color.hex }} />
@@ -593,18 +590,16 @@ export default function VehicleVersionDetailPage() {
                   <button
                     type="button"
                     onClick={() => setViewType("exterior")}
-                    className={`px-5 py-2 rounded-full text-xs font-bold border-0 cursor-pointer transition-all ${
-                      viewType === "exterior" ? "bg-slate-900 text-white shadow-xs" : "text-gray-500 hover:text-gray-900 bg-transparent"
-                    }`}
+                    className={`px-5 py-2 rounded-full text-xs font-bold border-0 cursor-pointer transition-all ${viewType === "exterior" ? "bg-slate-900 text-white shadow-xs" : "text-gray-500 hover:text-gray-900 bg-transparent"
+                      }`}
                   >
                     Vẻ ngoài
                   </button>
                   <button
                     type="button"
                     onClick={() => setViewType("interior")}
-                    className={`px-5 py-2 rounded-full text-xs font-bold border-0 cursor-pointer transition-all ${
-                      viewType === "interior" ? "bg-slate-900 text-white shadow-xs" : "text-gray-500 hover:text-gray-900 bg-transparent"
-                    }`}
+                    className={`px-5 py-2 rounded-full text-xs font-bold border-0 cursor-pointer transition-all ${viewType === "interior" ? "bg-slate-900 text-white shadow-xs" : "text-gray-500 hover:text-gray-900 bg-transparent"
+                      }`}
                   >
                     Khoang Lái
                   </button>
@@ -620,7 +615,7 @@ export default function VehicleVersionDetailPage() {
       {features.length > 0 && (
         <section className="bg-[#fafafa] border-t border-[#e5e5e5] py-20 overflow-hidden">
           <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full flex flex-col gap-10">
-            
+
             {/* Header controls */}
             <div className="flex items-center justify-between w-full">
               <div className="space-y-1 text-left">
@@ -679,7 +674,7 @@ export default function VehicleVersionDetailPage() {
       {/* 4. Detailed Technical Specifications Section */}
       <section className="bg-white py-16 md:py-24 border-t border-[#e5e5e5]">
         <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full flex flex-col gap-8 md:gap-10">
-          <div className="space-y-1 text-left border-b border-gray-150 pb-5">
+          <div className="space-y-1 text-left">
             <h2 className="font-['Ford_Antenna',sans-serif] font-bold text-2xl md:text-[32px] text-[#00095b] leading-tight tracking-tight">
               Thông số kỹ thuật của {vehicle.name === "Ford Mustang Mach-E" ? "Mach-E" : vehicle.name} {getVersionDisplayName(selectedVersion?.name || "", vehicle.name)}
             </h2>
@@ -692,20 +687,18 @@ export default function VehicleVersionDetailPage() {
                 <div key={catGroup.category} className="border-b border-[#e5e5e5] w-full">
                   <button
                     onClick={() => setOpenSpecsGroup(isOpen ? null : catGroup.category)}
-                    className={`flex justify-between items-center w-full text-left font-['Ford_Antenna',sans-serif] font-bold text-base md:text-[18px] py-6 transition-colors cursor-pointer bg-transparent border-0 p-0 focus:outline-none ${
-                      isOpen ? "text-[#0562d2]" : "text-[#424242] hover:text-[#0562d2]"
-                    }`}
+                    className={`flex justify-between items-center w-full text-left font-['Ford_Antenna',sans-serif] font-bold text-base md:text-[18px] py-6 transition-colors cursor-pointer bg-transparent border-0 p-0 focus:outline-none ${isOpen ? "text-[#0562d2]" : "text-[#424242] hover:text-[#0562d2]"
+                      }`}
                   >
                     <span>{catGroup.category}</span>
                     <span className="text-xl font-medium leading-none text-[#0562d2]">{isOpen ? "−" : "+"}</span>
                   </button>
 
                   <div
-                    className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                      isOpen ? "max-h-[1200px] opacity-100" : "max-h-0 opacity-0"
-                    }`}
+                    className={`overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? "max-h-[1200px] opacity-100" : "max-h-0 opacity-0"
+                      }`}
                   >
-                    <div 
+                    <div
                       className="px-0 pr-4 pb-8 text-[14px] md:text-[15px] text-[#424242] leading-relaxed font-normal whitespace-pre-line prose prose-sm max-w-none [&_ul]:list-disc [&_ul]:pl-4 [&_ul]:space-y-1 [&_p]:mb-1 [&_strong]:text-black"
                       dangerouslySetInnerHTML={{ __html: catGroup.content }}
                     />

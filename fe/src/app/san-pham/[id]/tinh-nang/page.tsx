@@ -179,12 +179,12 @@ function FeatureSectionSlider({ sec, openDriveDrawer }: FeatureSectionSliderProp
             <div
               ref={scrollRef}
               onMouseDown={handleMouseDown}
-              className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth scrollbar-none gap-6 cursor-grab active:cursor-grabbing pb-4"
+              className="flex items-stretch overflow-x-auto snap-x snap-mandatory scroll-smooth scrollbar-none gap-6 cursor-grab active:cursor-grabbing pb-4"
             >
               {sec.features.map((feat) => (
                 <div
                   key={feat.title}
-                  className="group flex flex-col items-start text-left bg-white rounded-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-lg p-1.5 shrink-0 snap-start
+                  className="group flex flex-col items-start text-left bg-white rounded-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-lg p-1.5 shrink-0 snap-start h-auto
                     w-[85vw] sm:w-[45vw] md:w-[calc((100%-48px)/3)] xl:w-[calc((100%-72px)/4)]"
                 >
                   {/* Image container with scale effect on hover */}
@@ -202,7 +202,7 @@ function FeatureSectionSlider({ sec, openDriveDrawer }: FeatureSectionSliderProp
                   <h3 className="font-['Ford_Antenna',sans-serif] font-bold text-sm md:text-[15px] text-[#1a1a1a] mt-4 mb-2 line-clamp-2 min-h-[40px] md:min-h-[44px]">
                     {feat.title}
                   </h3>
-                  <p className="text-[#616161] text-xs md:text-[13px] leading-relaxed font-normal line-clamp-4 hover:line-clamp-none transition-all duration-300">
+                  <p className="text-[#616161] text-xs md:text-[13px] leading-relaxed font-normal line-clamp-4">
                     {feat.desc}
                   </p>
                 </div>
