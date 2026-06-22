@@ -49,4 +49,18 @@ class AccessoryController extends Controller
             ->with(['translations', 'categories', 'brand'])
             ->orderBy('id', 'DESC');
     }
+
+    private function beforeStore($request, $rules)
+    {
+        if ($request->has('brochure_file')) {
+            $val = $request->input('brochure_file');
+            if (is_string($val)) {
+                $decoded = json_decode($val, true);
+                if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                    $request->merge(['brochure_file' => $decoded]);
+                }
+            }
+        }
+        return $rules;
+    }
 }

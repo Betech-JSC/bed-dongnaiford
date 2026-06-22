@@ -159,6 +159,7 @@ class VehicleController extends Controller
             'versions',
             'layout_blocks',
             'accessories',
+            'brochure_file',
         ];
 
         foreach ($arrayKeys as $key) {

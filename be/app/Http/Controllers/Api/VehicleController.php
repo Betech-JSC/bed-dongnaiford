@@ -35,6 +35,8 @@ class VehicleController extends Controller
             'base_price'          => $v->base_price,
             'is_best_seller'      => $v->is_best_seller,
             'sort_order'          => $v->sort_order,
+            'brochure_url'        => $v->brochure_url,
+            'brochure_file'       => $v->brochure_file ? $this->resolveFileUrl($v->brochure_file) : null,
         ];
 
         if ($v->relationLoaded('versions')) {
@@ -122,6 +124,8 @@ class VehicleController extends Controller
             'image_url'              => $vehicle->image_url,
             'video_url'              => $vehicle->video_url,
             'video'                  => $this->resolveFileUrl($vehicle->video),
+            'brochure_url'           => $vehicle->brochure_url,
+            'brochure_file'          => $this->resolveFileUrl($vehicle->brochure_file),
             'images'                 => collect($vehicle->images)->map(fn($img) => isset($img['path']) ? static_url($img['path']) : $img),
             'colors'                 => collect($vehicle->colors)->map(function ($color) {
                 $imagePath = null;

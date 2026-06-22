@@ -49,6 +49,8 @@ class Vehicle extends BaseModel
         'status',
         'sort_order',
         'layout_blocks',
+        'brochure_url',
+        'brochure_file',
     ];
 
     protected $casts = [
@@ -78,6 +80,8 @@ class Vehicle extends BaseModel
             'status'         => 'required|string|in:ACTIVE,INACTIVE',
             'sort_order'     => 'nullable|integer',
             'accessories'    => 'nullable|array',
+            'brochure_url'   => 'nullable|string|max:500',
+            'brochure_file'  => 'nullable|array',
         ];
 
         return [
@@ -121,6 +125,21 @@ class Vehicle extends BaseModel
     }
 
     public function getVideoAttribute($value): ?array
+    {
+        if (is_null($value) || $value === '') return null;
+        $decoded = $this->decodeJsonField($value);
+        if (is_null($decoded) && is_string($value)) {
+            return ['path' => $value];
+        }
+        return $decoded;
+    }
+
+    public function setBrochureFileAttribute($value): void
+    {
+        $this->attributes['brochure_file'] = $this->encodeJsonField($value);
+    }
+
+    public function getBrochureFileAttribute($value): ?array
     {
         if (is_null($value) || $value === '') return null;
         $decoded = $this->decodeJsonField($value);

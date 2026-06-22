@@ -65,6 +65,18 @@
                             label: 'Tải lên Video nền dòng xe (MP4)',
                             accept: 'video/mp4, video/x-m4v, video/*',
                         }" />
+                        <Field v-model="form.brochure_url" :field="{
+                            type: 'text',
+                            name: 'brochure_url',
+                            label: 'Đường dẫn tài liệu Brochure (Link liên kết ngoài)',
+                            placeholder: 'vd: https://domain.com/brochure.pdf',
+                        }" />
+                        <Field v-model="form.brochure_file" :field="{
+                            type: 'file_upload',
+                            name: 'brochure_file',
+                            label: 'Tải lên file tài liệu Brochure (PDF)',
+                            accept: 'application/pdf',
+                        }" />
                     </div>
                 </div>
             </div>
@@ -691,6 +703,26 @@
                                         }" />
                                     </div>
 
+                                    <!-- Brochure fields -->
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Đường dẫn tài liệu Brochure (Link ngoài)</label>
+                                        <Field v-model="newAccessoryForm.brochure_url" :field="{
+                                            type: 'text',
+                                            name: 'new_accessory_brochure_url',
+                                            label: false,
+                                            placeholder: 'vd: https://domain.com/catalog.pdf',
+                                        }" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Tải lên file tài liệu Brochure (PDF)</label>
+                                        <Field v-model="newAccessoryForm.brochure_file" :field="{
+                                            type: 'file_upload',
+                                            name: 'new_accessory_brochure_file',
+                                            label: false,
+                                            accept: 'application/pdf',
+                                        }" />
+                                    </div>
+
                                     <!-- Dynamic Features -->
                                     <div class="col-span-2 border-t pt-4">
                                         <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Tính năng nổi bật</label>
@@ -1182,6 +1214,8 @@ export default {
                 images: [],
                 features: [],
                 vehicles: [],
+                brochure_url: '',
+                brochure_file: null,
                 vi: {
                     title: '',
                     description: '',
@@ -1761,6 +1795,8 @@ export default {
                 images: [],
                 features: [],
                 vehicles: [],
+                brochure_url: '',
+                brochure_file: null,
                 vi: {
                     title: '',
                     description: '',
@@ -1802,6 +1838,8 @@ export default {
                 images: [],
                 features: [],
                 vehicles: [],
+                brochure_url: '',
+                brochure_file: null,
                 vi: {
                     title: '',
                     description: '',
@@ -1832,6 +1870,8 @@ export default {
                     this.newAccessoryForm.price = data.price || 0;
                     this.newAccessoryForm.image = data.image || null;
                     this.newAccessoryForm.images = data.images || [];
+                    this.newAccessoryForm.brochure_url = data.brochure_url || '';
+                    this.newAccessoryForm.brochure_file = data.brochure_file || null;
                     
                     if (Array.isArray(data.categories)) {
                         this.newAccessoryForm.categories = data.categories.map(c => c.id);
@@ -1928,6 +1968,8 @@ export default {
                     features: this.newAccessoryForm.features || [],
                     fit_vehicles: this.isEditAccessory ? (this.newAccessoryForm.fit_vehicles || []) : (vehicleTitle ? [vehicleTitle] : []),
                     vehicles: vehiclesPayload,
+                    brochure_url: this.newAccessoryForm.brochure_url || '',
+                    brochure_file: this.newAccessoryForm.brochure_file || null,
                     vi: {
                         title: this.newAccessoryForm.vi.title,
                         description: this.newAccessoryForm.vi.description || '',
@@ -1962,6 +2004,8 @@ export default {
                             : 'exterior',
                         fit_vehicles: payload.fit_vehicles,
                         image: response.data.image || payload.image,
+                        brochure_url: payload.brochure_url,
+                        brochure_file: response.data.brochure_file || payload.brochure_file,
                     };
 
                     if (this.isEditAccessory) {

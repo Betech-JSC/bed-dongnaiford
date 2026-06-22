@@ -56,6 +56,8 @@ class Accessory extends BaseModel
         'sort_order',
         'created_by',
         'updated_by',
+        'brochure_url',
+        'brochure_file',
     ];
 
     protected $casts = [
@@ -73,6 +75,8 @@ class Accessory extends BaseModel
             'images'     => 'nullable|array',
             'status'     => 'required|string|in:ACTIVE,INACTIVE',
             'sort_order' => 'nullable|integer',
+            'brochure_url' => 'nullable|string|max:500',
+            'brochure_file' => 'nullable|array',
         ];
 
         return [
@@ -181,6 +185,21 @@ class Accessory extends BaseModel
     public function getFeaturesAttribute($value): ?array
     {
         return $this->decodeJsonField($value);
+    }
+
+    public function setBrochureFileAttribute($value): void
+    {
+        $this->attributes['brochure_file'] = $this->encodeJsonField($value);
+    }
+
+    public function getBrochureFileAttribute($value): ?array
+    {
+        if (is_null($value) || $value === '') return null;
+        $decoded = $this->decodeJsonField($value);
+        if (is_null($decoded) && is_string($value)) {
+            return ['path' => $value];
+        }
+        return $decoded;
     }
 
     // ── Helpers ──
@@ -312,6 +331,11 @@ class Accessory extends BaseModel
                 'slug' => $item->translate('vi')->slug ?? $item->slug,
             ]),
             'features'      => $this->features ?? [],
+            'brochure_url'  => $this->brochure_url,
+            'brochure_file' => $this->brochure_file ? [
+                'url'  => isset($this->brochure_file['path']) ? static_url($this->brochure_file['path']) : null,
+                'path' => $this->brochure_file['path'] ?? null,
+            ] : null,
         ];
     }
 

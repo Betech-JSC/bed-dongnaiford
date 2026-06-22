@@ -76,6 +76,18 @@
                         label: 'Thư viện ảnh chi tiết',
                         multiple: true,
                     }" />
+                    <Field v-model="form.brochure_url" :field="{
+                        type: 'text',
+                        name: 'brochure_url',
+                        label: 'Đường dẫn tài liệu / PDF (Link liên kết ngoài)',
+                        placeholder: 'vd: https://domain.com/catalog.pdf',
+                    }" />
+                    <Field v-model="form.brochure_file" :field="{
+                        type: 'file_upload',
+                        name: 'brochure_file',
+                        label: 'Tải lên file tài liệu / PDF (PDF)',
+                        accept: 'application/pdf',
+                    }" />
                 </div>
             </div>
 
@@ -213,6 +225,8 @@ export default {
                 fit_vehicles: [],
                 vehicles: [],
                 features: [],
+                brochure_url: '',
+                brochure_file: null,
                 ...item,
             }
 
