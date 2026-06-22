@@ -495,7 +495,7 @@
                         <!-- Header -->
                         <div class="flex items-center justify-between p-5 border-b border-gray-200 rounded-t shrink-0">
                             <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
-                                🎒 Tạo Phụ Kiện Mới
+                                🎒 {{ isEditAccessory ? 'Chỉnh Sửa Phụ Kiện' : 'Tạo Phụ Kiện Mới' }}
                             </h3>
                             <button
                                 type="button"
@@ -726,7 +726,7 @@
                                 @click="saveNewAccessory"
                                 :disabled="isSavingAccessory"
                             >
-                                {{ isSavingAccessory ? 'Đang tạo...' : 'Tạo phụ kiện' }}
+                                {{ isSavingAccessory ? 'Đang lưu...' : (isEditAccessory ? 'Lưu thay đổi' : 'Tạo phụ kiện') }}
                             </button>
                         </div>
                     </div>
@@ -826,17 +826,30 @@
                                         <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block truncate">
                                             {{ acc.code || 'N/A' }}
                                         </span>
-                                        <!-- Remove/Detach Button -->
-                                        <button 
-                                            type="button"
-                                            @click="toggleAccessorySelection(acc.id)"
-                                            class="w-5 h-5 rounded-full flex items-center justify-center transition-all duration-200 border border-transparent hover:border-red-200 bg-gray-55 hover:bg-red-50 text-gray-400 hover:text-red-650 cursor-pointer focus:outline-none flex-shrink-0"
-                                            title="Gỡ phụ kiện khỏi xe này"
-                                        >
-                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                            </svg>
-                                        </button>
+                                        <div class="flex items-center gap-1">
+                                            <!-- Edit Button -->
+                                            <button 
+                                                type="button"
+                                                @click="openEditAccessoryModal(acc)"
+                                                class="w-5 h-5 rounded-full flex items-center justify-center transition-all duration-200 border border-transparent hover:border-indigo-200 bg-gray-55 hover:bg-indigo-50 text-gray-400 hover:text-indigo-650 cursor-pointer focus:outline-none flex-shrink-0"
+                                                title="Chỉnh sửa thông tin phụ kiện"
+                                            >
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                                </svg>
+                                            </button>
+                                            <!-- Remove/Detach Button -->
+                                            <button 
+                                                type="button"
+                                                @click="toggleAccessorySelection(acc.id)"
+                                                class="w-5 h-5 rounded-full flex items-center justify-center transition-all duration-200 border border-transparent hover:border-red-200 bg-gray-55 hover:bg-red-50 text-gray-400 hover:text-red-650 cursor-pointer focus:outline-none flex-shrink-0"
+                                                title="Gỡ phụ kiện khỏi xe này"
+                                            >
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                            </button>
+                                        </div>
                                     </div>
                                     <h4 class="text-xs font-semibold text-gray-900 mt-0.5 line-clamp-2 pr-1 leading-tight" :title="acc.title">
                                         {{ acc.title }}
@@ -1157,6 +1170,8 @@ export default {
             newCategoryName: '',
             showCreateAccessoryModal: false,
             isSavingAccessory: false,
+            isEditAccessory: false,
+            editingAccessoryId: null,
             modalTab: 'vi',
             newAccessoryForm: {
                 brand_id: null,
@@ -1166,6 +1181,7 @@ export default {
                 image: null,
                 images: [],
                 features: [],
+                vehicles: [],
                 vi: {
                     title: '',
                     description: '',
@@ -1219,6 +1235,7 @@ export default {
 
     computed: {
         brandsList() {
+            console.log('Brands data:', this.data?.brands);
             return this.data?.brands || [];
         },
         accessoryCategoriesList() {
@@ -1733,6 +1750,8 @@ export default {
         },
 
         openCreateAccessoryModal() {
+            this.isEditAccessory = false;
+            this.editingAccessoryId = null;
             this.newAccessoryForm = {
                 brand_id: null,
                 code: '',
@@ -1741,6 +1760,7 @@ export default {
                 image: null,
                 images: [],
                 features: [],
+                vehicles: [],
                 vi: {
                     title: '',
                     description: '',
@@ -1757,11 +1777,99 @@ export default {
                 }
             };
             this.modalTab = 'vi';
+            console.log('Vehicle Form props data:', this.data);
             this.showCreateAccessoryModal = true;
         },
 
         closeCreateAccessoryModal() {
             this.showCreateAccessoryModal = false;
+            this.isEditAccessory = false;
+            this.editingAccessoryId = null;
+        },
+
+        async openEditAccessoryModal(acc) {
+            this.isSavingAccessory = true;
+            this.isEditAccessory = true;
+            this.editingAccessoryId = acc.id;
+            this.modalTab = 'vi';
+
+            this.newAccessoryForm = {
+                brand_id: null,
+                code: '',
+                price: 0,
+                categories: [],
+                image: null,
+                images: [],
+                features: [],
+                vehicles: [],
+                vi: {
+                    title: '',
+                    description: '',
+                    compatibility_text: '',
+                    safety_text: '',
+                    product_desc_text: '',
+                },
+                en: {
+                    title: '',
+                    description: '',
+                    compatibility_text: '',
+                    safety_text: '',
+                    product_desc_text: '',
+                }
+            };
+
+            try {
+                const url = this.route('admin.accessories.form', { id: acc.id });
+                const response = await this.$axios.get(url, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+                });
+
+                if (response.data) {
+                    const data = response.data;
+                    
+                    this.newAccessoryForm.brand_id = data.brand_id || null;
+                    this.newAccessoryForm.code = data.code || '';
+                    this.newAccessoryForm.price = data.price || 0;
+                    this.newAccessoryForm.image = data.image || null;
+                    this.newAccessoryForm.images = data.images || [];
+                    
+                    if (Array.isArray(data.categories)) {
+                        this.newAccessoryForm.categories = data.categories.map(c => c.id);
+                    } else {
+                        this.newAccessoryForm.categories = [];
+                    }
+
+                    this.newAccessoryForm.features = Array.isArray(data.features) ? [...data.features] : [];
+                    this.newAccessoryForm.vehicles = Array.isArray(data.vehicles) ? [...data.vehicles] : [];
+
+                    const translations = data.translations || [];
+                    const viTrans = translations.find(t => t.locale === 'vi') || {};
+                    const enTrans = translations.find(t => t.locale === 'en') || {};
+
+                    this.newAccessoryForm.vi = {
+                        title: viTrans.title || data.title || '',
+                        description: viTrans.description || '',
+                        compatibility_text: viTrans.compatibility_text || '',
+                        safety_text: viTrans.safety_text || '',
+                        product_desc_text: viTrans.product_desc_text || '',
+                    };
+
+                    this.newAccessoryForm.en = {
+                        title: enTrans.title || '',
+                        description: enTrans.description || '',
+                        compatibility_text: enTrans.compatibility_text || '',
+                        safety_text: enTrans.safety_text || '',
+                        product_desc_text: enTrans.product_desc_text || '',
+                    };
+
+                    this.showCreateAccessoryModal = true;
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Không thể tải thông tin phụ kiện. Lỗi: ' + (error.response?.data?.message || error.message));
+            } finally {
+                this.isSavingAccessory = false;
+            }
         },
 
         addModalFeature() {
@@ -1799,6 +1907,16 @@ export default {
                 this.isSavingAccessory = true;
                 const vehicleTitle = this.formData.vi?.title || this.formData.title;
 
+                let vehiclesPayload = [];
+                if (this.isEditAccessory) {
+                    vehiclesPayload = (this.newAccessoryForm.vehicles || []).map(v => ({ id: v.id }));
+                    if (this.formData.id && !vehiclesPayload.some(v => String(v.id) === String(this.formData.id))) {
+                        vehiclesPayload.push({ id: this.formData.id });
+                    }
+                } else {
+                    vehiclesPayload = this.formData.id ? [{ id: this.formData.id }] : [];
+                }
+
                 const payload = {
                     status: 'ACTIVE',
                     brand_id: this.newAccessoryForm.brand_id || null,
@@ -1808,8 +1926,8 @@ export default {
                     images: this.newAccessoryForm.images || [],
                     categories: (this.newAccessoryForm.categories || []).map(id => ({ id })),
                     features: this.newAccessoryForm.features || [],
-                    fit_vehicles: vehicleTitle ? [vehicleTitle] : [],
-                    vehicles: this.formData.id ? [{ id: this.formData.id }] : [],
+                    fit_vehicles: this.isEditAccessory ? (this.newAccessoryForm.fit_vehicles || []) : (vehicleTitle ? [vehicleTitle] : []),
+                    vehicles: vehiclesPayload,
                     vi: {
                         title: this.newAccessoryForm.vi.title,
                         description: this.newAccessoryForm.vi.description || '',
@@ -1826,10 +1944,16 @@ export default {
                     }
                 };
 
-                const response = await this.$axios.post(this.route('admin.accessories.store'), payload);
+                let response;
+                if (this.isEditAccessory) {
+                    const url = this.route('admin.accessories.store', { id: this.editingAccessoryId });
+                    response = await this.$axios.post(url, payload);
+                } else {
+                    response = await this.$axios.post(this.route('admin.accessories.store'), payload);
+                }
                 
                 if (response.data && response.data.id) {
-                    const newAcc = {
+                    const savedAcc = {
                         id: response.data.id,
                         title: payload.vi.title,
                         code: payload.code,
@@ -1840,26 +1964,39 @@ export default {
                         image: response.data.image || payload.image,
                     };
 
-                    // Add to local accessories list options
-                    if (!this.data.accessories) {
-                        this.data.accessories = [];
-                    }
-                    this.data.accessories.unshift(newAcc);
+                    if (this.isEditAccessory) {
+                        // Update in local accessories list options
+                        if (this.data.accessories) {
+                            const idx = this.data.accessories.findIndex(acc => acc.id === savedAcc.id);
+                            if (idx !== -1) {
+                                this.data.accessories.splice(idx, 1, savedAcc);
+                            }
+                        }
+                        this.closeCreateAccessoryModal();
+                        alert('Cập nhật phụ kiện thành công!');
+                    } else {
+                        // Add to local accessories list options
+                        if (!this.data.accessories) {
+                            this.data.accessories = [];
+                        }
+                        this.data.accessories.unshift(savedAcc);
 
-                    // Auto-select the newly created accessory
-                    if (!this.formData.accessories) {
-                        this.formData.accessories = [];
-                    }
-                    this.formData.accessories.push(newAcc.id);
+                        // Auto-select the newly created accessory
+                        if (!this.formData.accessories) {
+                            this.formData.accessories = [];
+                        }
+                        this.formData.accessories.push(savedAcc.id);
 
-                    this.closeCreateAccessoryModal();
-                    alert('Tạo phụ kiện mới thành công!');
+                        this.closeCreateAccessoryModal();
+                        alert('Tạo phụ kiện mới thành công!');
+                    }
                 } else {
                     throw new Error('Không nhận được dữ liệu phản hồi hợp lệ từ server.');
                 }
             } catch (error) {
                 console.error(error);
-                const errorMsg = error.response?.data?.message || error.message || 'Có lỗi xảy ra khi tạo phụ kiện.';
+                const actionText = this.isEditAccessory ? 'cập nhật' : 'tạo';
+                const errorMsg = error.response?.data?.message || error.message || `Có lỗi xảy ra khi ${actionText} phụ kiện.`;
                 alert('Lỗi: ' + errorMsg);
             } finally {
                 this.isSavingAccessory = false;
