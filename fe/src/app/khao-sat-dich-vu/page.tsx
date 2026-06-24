@@ -353,7 +353,7 @@ export default function ServiceSurveyPage() {
                   </p>
                   
                   {/* NPS Rating Grid Row */}
-                  <div className="flex flex-wrap md:flex-nowrap justify-between gap-1.5 md:gap-1">
+                  <div className="grid grid-cols-6 sm:grid-cols-11 gap-2">
                     {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((score) => {
                       const isActive = formData.npsScore === score;
                       return (
@@ -361,7 +361,7 @@ export default function ServiceSurveyPage() {
                           key={score}
                           type="button"
                           onClick={() => handleNpsClick(score)}
-                          className={`w-9 h-9 md:w-full md:h-10 rounded-xl border flex items-center justify-center text-xs font-bold transition-all cursor-pointer bg-white shrink-0
+                          className={`w-full aspect-square rounded-xl border flex items-center justify-center text-xs font-bold transition-all cursor-pointer bg-white
                             ${getNpsClass(score, isActive)}`}
                         >
                           {score}
