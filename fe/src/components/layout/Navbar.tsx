@@ -648,15 +648,14 @@ export default function Navbar() {
                           onClick={handleMouseLeaveImmediate}
                           className="group border border-gray-100 hover:border-blue-200 rounded-xl p-4 flex flex-col items-center bg-gray-50/30 hover:bg-white hover:shadow-lg transition-all duration-300 text-center cursor-pointer"
                         >
-                          {/* Image Container */}
-                          <div className="w-full h-32 relative mb-3 overflow-hidden rounded-lg bg-gray-100">
+                          <div className="w-full h-32 relative mb-3 overflow-hidden rounded-lg bg-white border border-gray-100 flex items-center justify-center">
                             {image ? (
                               <Image
                                 src={image}
                                 alt={name}
                                 fill
                                 sizes="(max-width: 1024px) 30vw, 20vw"
-                                className="object-cover group-hover:scale-105 transition-transform duration-500"
+                                className="object-contain p-2 group-hover:scale-105 transition-transform duration-500"
                               />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center bg-gray-100 rounded-lg text-xs text-gray-400">

@@ -264,12 +264,12 @@ export default function UsedVehiclesPage() {
                     className="group bg-white border border-gray-200/60 hover:border-blue-500/30 rounded-2xl overflow-hidden shadow-xs hover:shadow-lg transition-all duration-300 flex flex-col h-full"
                   >
                     {/* Image Area */}
-                    <div className="relative h-[220px] bg-gray-100 overflow-hidden">
+                    <div className="relative h-[220px] bg-white overflow-hidden flex items-center justify-center border-b border-gray-100">
                       <Image 
                         src={vehicle.image_url || "/assets/images/placeholder_car.png"} 
                         alt={vehicle.title}
                         fill
-                        className="object-cover group-hover:scale-105 transition-all duration-500"
+                        className="object-contain p-3 group-hover:scale-105 transition-all duration-500"
                         sizes="(max-width: 768px) 100vw, (max-w-1200px) 50vw, 33vw"
                       />
                       

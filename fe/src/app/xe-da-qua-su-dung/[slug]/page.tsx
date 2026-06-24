@@ -293,7 +293,7 @@ export default function UsedVehicleDetailPage() {
           <div className="lg:col-span-7 space-y-4">
             {/* Main Big Image Preview */}
             <div 
-              className="relative aspect-[16/10] w-full overflow-hidden rounded-2xl border border-gray-100 bg-gray-50 shadow-inner group cursor-zoom-in select-none"
+              className="relative aspect-[16/10] w-full overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-inner group cursor-zoom-in select-none"
               onClick={() => { if (!hasDraggedRef.current) setShowLightbox(true); }}
               onTouchStart={onTouchStart}
               onTouchMove={onTouchMove}
@@ -307,7 +307,7 @@ export default function UsedVehicleDetailPage() {
                 fill
                 priority
                 sizes="(max-width: 1024px) 100vw, 60vw"
-                className="object-cover group-hover:scale-[1.02] transition-transform duration-500 pointer-events-none select-none"
+                className="object-contain p-4 group-hover:scale-[1.02] transition-transform duration-500 pointer-events-none select-none"
               />
 
               {/* Navigation Arrows overlay on hover */}
