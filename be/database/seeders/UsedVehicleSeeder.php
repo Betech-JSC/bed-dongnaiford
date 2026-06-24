@@ -24,6 +24,8 @@ class UsedVehicleSeeder extends Seeder
             'status' => 'ACTIVE',
             'sort_order' => 10,
             'price' => 745000000,
+            'year' => 2021,
+            'odo' => 35000,
             'image' => ['path' => 'uploads/ranger_wildtrak.png'],
             'images' => [
                 ['path' => 'uploads/ranger_wildtrak.png'],
@@ -51,6 +53,8 @@ class UsedVehicleSeeder extends Seeder
             'status' => 'ACTIVE',
             'sort_order' => 20,
             'price' => 1390000000,
+            'year' => 2023,
+            'odo' => 12000,
             'image' => ['path' => 'uploads/everest_platinum.png'],
             'images' => [
                 ['path' => 'uploads/everest_platinum.png'],
@@ -77,6 +81,8 @@ class UsedVehicleSeeder extends Seeder
             'status' => 'ACTIVE',
             'sort_order' => 30,
             'price' => 715000000,
+            'year' => 2023,
+            'odo' => 22000,
             'image' => ['path' => 'uploads/territory_hero.png'],
             'images' => [
                 ['path' => 'uploads/territory_hero.png']

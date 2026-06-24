@@ -91,6 +91,24 @@
                         }"
                     />
                     <Field
+                        v-model="form.year"
+                        :field="{
+                            type: 'number',
+                            name: 'year',
+                            label: 'Năm sản xuất',
+                            placeholder: 'vd: 2021',
+                        }"
+                    />
+                    <Field
+                        v-model="form.odo"
+                        :field="{
+                            type: 'number',
+                            name: 'odo',
+                            label: 'Số km đã đi (Odo)',
+                            placeholder: 'vd: 35000',
+                        }"
+                    />
+                    <Field
                         v-model="form.sort_order"
                         :field="{
                             type: 'number',
@@ -127,6 +145,8 @@ export default {
                 status: 'ACTIVE',
                 sort_order: 0,
                 price: 0,
+                year: null,
+                odo: null,
                 image: null,
                 images: [],
                 ...item,

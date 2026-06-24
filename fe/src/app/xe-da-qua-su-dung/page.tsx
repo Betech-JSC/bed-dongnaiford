@@ -255,12 +255,8 @@ export default function UsedVehiclesPage() {
             /* Vehicle Grid */
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {sortedVehicles.map((vehicle) => {
-                // Parse manufacturing year and odo from tagline or description if possible
-                let year = "2021";
-                let odo = "35,000 km";
-                if (vehicle.title.includes("2023")) year = "2023";
-                if (vehicle.tagline.includes("12,000")) odo = "12,000 km";
-                if (vehicle.tagline.includes("22,000")) odo = "22,000 km";
+                const year = vehicle.year || "Đang cập nhật";
+                const odo = vehicle.odo ? `${new Intl.NumberFormat("vi-VN").format(vehicle.odo)} km` : "Đang cập nhật";
 
                 return (
                   <div 
@@ -274,7 +270,7 @@ export default function UsedVehiclesPage() {
                         alt={vehicle.title}
                         fill
                         className="object-cover group-hover:scale-105 transition-all duration-500"
-                        sizes="(max-w-768px) 100vw, (max-w-1200px) 50vw, 33vw"
+                        sizes="(max-width: 768px) 100vw, (max-w-1200px) 50vw, 33vw"
                       />
                       
                       {/* Assured Badge */}

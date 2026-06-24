@@ -158,12 +158,9 @@ export default function UsedVehicleDetailPage() {
     ? vehicle.images_urls.filter(Boolean) 
     : [];
 
-  // Metadata specifics (year, odo) parsed from titles and tags
-  let year = "2021";
-  let odo = "35,000 km";
-  if (vehicle && vehicle.title && vehicle.title.includes("2023")) year = "2023";
-  if (vehicle && vehicle.tagline && vehicle.tagline.includes("12,000")) odo = "12,000 km";
-  if (vehicle && vehicle.tagline && vehicle.tagline.includes("22,000")) odo = "22,000 km";
+  // Metadata specifics (year, odo) from vehicle properties
+  const year = vehicle.year || "Đang cập nhật";
+  const odo = vehicle.odo ? `${new Intl.NumberFormat("vi-VN").format(vehicle.odo)} km` : "Đang cập nhật";
 
   return (
     <div className="bg-[#fafafa] min-h-screen text-[#1a1a1a] font-sans pb-20">

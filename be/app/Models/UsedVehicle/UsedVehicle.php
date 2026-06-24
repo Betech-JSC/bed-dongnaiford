@@ -37,12 +37,16 @@ class UsedVehicle extends BaseModel
         'status',
         'sort_order',
         'price',
+        'year',
+        'odo',
         'image',
         'images',
     ];
 
     protected $casts = [
         'price' => 'decimal:2',
+        'year' => 'integer',
+        'odo' => 'integer',
         'image' => 'array',
         'images' => 'array',
     ];
@@ -55,6 +59,8 @@ class UsedVehicle extends BaseModel
         $base = [
             'vi.title'   => 'required|string|max:255',
             'price'      => 'nullable|numeric|min:0',
+            'year'       => 'nullable|integer|min:1900|max:' . (date('Y') + 1),
+            'odo'        => 'nullable|integer|min:0',
             'image'      => 'nullable|array',
             'images'     => 'nullable|array',
             'status'     => 'required|string|in:ACTIVE,INACTIVE',
