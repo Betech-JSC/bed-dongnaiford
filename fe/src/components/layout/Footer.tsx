@@ -2,25 +2,35 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { vehiclesAPI } from "@/lib/api";
+import { vehiclesAPI, servicesAPI } from "@/lib/api";
 
 export default function Footer() {
   const [categoriesList, setCategoriesList] = useState<any[]>([]);
+  const [servicesList, setServicesList] = useState<any[]>([]);
 
   useEffect(() => {
     let active = true;
-    const fetchCategories = async () => {
+    const fetchFooterData = async () => {
       try {
-        const catsData = await vehiclesAPI.getCategories().catch(() => null);
+        const [catsData, servicesData] = await Promise.all([
+          vehiclesAPI.getCategories().catch(() => null),
+          servicesAPI.getAll().catch(() => null)
+        ]);
+
         const cats = (catsData as any)?.data || catsData;
         if (active && Array.isArray(cats) && cats.length > 0) {
           setCategoriesList(cats);
         }
+
+        const services = (servicesData as any)?.services || (servicesData as any)?.data || servicesData;
+        if (active && Array.isArray(services) && services.length > 0) {
+          setServicesList(services);
+        }
       } catch (err) {
-        console.error("Error fetching categories in footer:", err);
+        console.error("Error fetching footer data:", err);
       }
     };
-    fetchCategories();
+    fetchFooterData();
     return () => {
       active = false;
     };
@@ -116,26 +126,43 @@ export default function Footer() {
                 DỊCH VỤ & BẢO DƯỠNG
               </h4>
               <ul className="space-y-2.5 text-xs text-white/70">
-                <li>
-                  <Link href="/dich-vu/cham-soc-khach-hang" className="hover:text-[#0562d2] transition-colors block">
-                    Chăm sóc khách hàng
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/dich-vu/bao-duong-nhanh" className="hover:text-[#0562d2] transition-colors block">
-                    Bảo dưỡng nhanh
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/dich-vu/bao-duong-dinh-ky" className="hover:text-[#0562d2] transition-colors block">
-                    Bảo dưỡng định kỳ
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/dich-vu/giao-nhan-xe-tan-noi" className="hover:text-[#0562d2] transition-colors block">
-                    Nhận & Giao xe tận nơi
-                  </Link>
-                </li>
+                {servicesList.length > 0 ? (
+                  servicesList.map((srv) => {
+                    const href = (srv.custom_link && srv.custom_link.startsWith('/dich-vu/'))
+                      ? srv.custom_link
+                      : `/dich-vu/${srv.slug}`;
+                    return (
+                      <li key={srv.id}>
+                        <Link href={href} className="hover:text-[#0562d2] transition-colors block">
+                          {srv.title}
+                        </Link>
+                      </li>
+                    );
+                  })
+                ) : (
+                  <>
+                    <li>
+                      <Link href="/dich-vu/cham-soc-khach-hang" className="hover:text-[#0562d2] transition-colors block">
+                        Chăm sóc khách hàng
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/dich-vu/bao-duong-nhanh" className="hover:text-[#0562d2] transition-colors block">
+                        Bảo dưỡng nhanh
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/dich-vu/bao-duong-dinh-ky" className="hover:text-[#0562d2] transition-colors block">
+                        Bảo dưỡng định kỳ
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/dich-vu/giao-nhan-xe-tan-noi" className="hover:text-[#0562d2] transition-colors block">
+                        Nhận & Giao xe tận nơi
+                      </Link>
+                    </li>
+                  </>
+                )}
                 <li>
                   <Link href="/phu-kien" className="hover:text-[#0562d2] transition-colors block">
                     Phụ kiện & Phụ tùng chính hãng
