@@ -5,6 +5,7 @@ namespace App\Traits;
 use Illuminate\Support\Facades\Notification;
 use JamstackVietnam\Contact\Notifications\CommonNotification;
 use JamstackVietnam\Contact\Models\Contact;
+use App\Http\Notifications\ServiceBookingNotification;
 
 trait HasNotification
 {
@@ -29,17 +30,42 @@ trait HasNotification
                         ->notify(new CommonNotification($data));
                 }
             } else {
-                $emails = explode(',', notification_to());
-
-                $data['mail_title'] = config('contact.message.new_contact');
-
-                if (method_exists($model, 'transformEmail')) {
-                    $data = array_merge($data, $model->transformEmail());
+                $emails = array_filter(explode(',', notification_to()));
+                if (empty($emails)) {
+                    $emails = [config('contact.mail_spam') ?: 'admin@dongnaiford.com.vn'];
                 }
 
-                foreach ($emails as $email) {
-                    Notification::route('mail', $email)
-                        ->notify(new CommonNotification($data));
+                if ($model->type === 'SERVICE_BOOKING') {
+                    $contactData = $model->data;
+                    $emailData = [
+                        'mail_title' => 'Yêu cầu dịch vụ - Đồng Nai Ford',
+                        'customer_name' => $contactData['Họ và tên'],
+                        'phone' => $contactData['Số điện thoại'],
+                        'email' => $contactData['E-mail'] ?? '--',
+                        'license_plate' => $contactData['Biển số xe'],
+                        'appointment_time' => $contactData['Thời gian hẹn'],
+                        'content' => $contactData['Nội dung yêu cầu dịch vụ'] ?? '',
+                        'location' => $contactData['Tại'],
+                        'url' => route(current_locale() . '.admin.contacts.form', ['id' => $model->id])
+                    ];
+
+                    foreach ($emails as $email) {
+                        Notification::route('mail', $email)
+                            ->notify(new ServiceBookingNotification($emailData));
+                    }
+                } else {
+                    $data['mail_title'] = config('contact.message.new_contact');
+
+                    if (method_exists($model, 'transformEmail')) {
+                        $data = array_merge($data, $model->transformEmail());
+                    } else {
+                        $data = array_merge($data, $model->data);
+                    }
+
+                    foreach ($emails as $email) {
+                        Notification::route('mail', $email)
+                            ->notify(new CommonNotification($data));
+                    }
                 }
             }
 
@@ -51,12 +77,12 @@ trait HasNotification
             }
 
             $data['mail_title'] = config('contact.message.success_form');
-            if (isset($data['Email'])) {
-                $emailTo = $data['Email'];
-
+            $emailTo = $data['Email'] ?? $data['E-mail'] ?? null;
+            if ($emailTo) {
                 Notification::route('mail', $emailTo)
                     ->notify(new CommonNotification($data));
             }
         });
     }
 }
+

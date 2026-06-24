@@ -84,6 +84,26 @@ return [
             ],
             'route' => 'service-surveys',
         ],
+        'SERVICE_BOOKING' => [
+            'title' => 'Đặt hẹn dịch vụ',
+            'columns' => [
+                'Số điện thoại',
+            ],
+            'all_columns' => [
+                'Số điện thoại',
+                'E-mail',
+            ],
+            'rules' => [
+                'Họ và tên' => 'required',
+                'Số điện thoại' => 'required|regex:/(0)[0-9]/|not_regex:/[a-z]/|min:9|max:12',
+                'E-mail' => 'nullable|email',
+                'Biển số xe' => 'required',
+                'Thời gian hẹn' => 'required',
+                'Nội dung yêu cầu dịch vụ' => 'required',
+                'Tại' => 'required',
+            ],
+            'route' => 'contacts',
+        ],
     ],
     'message' => [
         'new_contact' => 'Bạn nhận được liên hệ mới',

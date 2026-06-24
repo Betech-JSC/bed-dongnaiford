@@ -9,6 +9,7 @@ use App\Models\Contact;
 use App\Models\File;
 use Illuminate\Support\Facades\Notification;
 use App\Http\Notifications\CommonNotification;
+use App\Http\Notifications\ServiceBookingNotification;
 use App\Traits\ApiResponse;
 
 class ContactController extends Controller
@@ -100,6 +101,18 @@ class ContactController extends Controller
                     'Service link' => route(current_locale() . '.services.show', ['slug' => $contactData['Service']['slug']]),
                     'url' => route(current_locale() . '.admin.contacts.form', ['id' => $contact->id])
                 ]);
+            } else if ($contact->type == 'SERVICE_BOOKING') {
+                $emailData = [
+                    'mail_title' => 'Yêu cầu dịch vụ - Đồng Nai Ford',
+                    'customer_name' => $contactData['Họ và tên'],
+                    'phone' => $contactData['Số điện thoại'],
+                    'email' => $contactData['E-mail'] ?? '--',
+                    'license_plate' => $contactData['Biển số xe'],
+                    'appointment_time' => $contactData['Thời gian hẹn'],
+                    'content' => $contactData['Nội dung yêu cầu dịch vụ'] ?? '',
+                    'location' => $contactData['Tại'],
+                    'url' => route(current_locale() . '.admin.contacts.form', ['id' => $contact->id])
+                ];
             } else if ($contact->type == 'APPLY_FORM') {
                 $files = [];
 
@@ -120,8 +133,13 @@ class ContactController extends Controller
             }
 
             foreach ($emails as $email) {
-                Notification::route('mail', $email)
-                    ->notify(new CommonNotification($emailData));
+                if ($contact->type == 'SERVICE_BOOKING') {
+                    Notification::route('mail', $email)
+                        ->notify(new ServiceBookingNotification($emailData));
+                } else {
+                    Notification::route('mail', $email)
+                        ->notify(new CommonNotification($emailData));
+                }
             }
         }
 
@@ -137,9 +155,8 @@ class ContactController extends Controller
         }
 
         $data['mail_title'] = config('contact.message.success_form');
-        if (isset($data['Email'])) {
-            $emailTo = $data['Email'];
-
+        $emailTo = $data['Email'] ?? $data['E-mail'] ?? null;
+        if ($emailTo) {
             Notification::route('mail', $emailTo)
                 ->notify(new CommonNotification($data));
         }

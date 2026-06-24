@@ -200,7 +200,7 @@ export const regionsAPI = {
 export const contactsAPI = {
   submit: (payload: {
     contact: {
-      type: 'CONTACT_FORM' | 'ADVISE_FORM' | 'APPLY_FORM' | 'TEST_DRIVE_SURVEY' | 'SERVICE_SURVEY';
+      type: 'CONTACT_FORM' | 'ADVISE_FORM' | 'APPLY_FORM' | 'TEST_DRIVE_SURVEY' | 'SERVICE_SURVEY' | 'SERVICE_BOOKING';
       data: Record<string, any>;
     };
   }) => fetchAPI<{ success: boolean; data: any; message?: string }>('/contacts', {

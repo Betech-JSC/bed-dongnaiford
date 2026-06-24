@@ -20,6 +20,12 @@ function ContactFormContent() {
   const [formNote, setFormNote] = useState(() => noteParam || "");
   const [allVehicles, setAllVehicles] = useState<any[]>([]);
 
+  // Service Booking Form Specific States
+  const [formLicensePlate, setFormLicensePlate] = useState("");
+  const [formAppointmentTime, setFormAppointmentTime] = useState("");
+  const [formLocation, setFormLocation] = useState("Tại đại lý");
+  const [formServiceContent, setFormServiceContent] = useState("");
+
   useEffect(() => {
     const fetchVehicles = async () => {
       try {
@@ -60,12 +66,45 @@ function ContactFormContent() {
       return;
     }
 
+    const isServiceBooking = formReason === "Đặt hẹn dịch vụ";
+    if (isServiceBooking) {
+      if (!formLicensePlate) {
+        setToastMessage("Vui lòng điền Biển số xe!");
+        setShowToast(true);
+        return;
+      }
+      if (!formAppointmentTime) {
+        setToastMessage("Vui lòng chọn Thời gian hẹn!");
+        setShowToast(true);
+        return;
+      }
+      if (!formServiceContent) {
+        setToastMessage("Vui lòng điền Nội dung yêu cầu dịch vụ!");
+        setShowToast(true);
+        return;
+      }
+    }
+
     setIsSubmitting(true);
     try {
       const selectedVehicleName = getVehicleName(formVehicle);
-      const response = await contactsAPI.submit({
+      
+      const payload = isServiceBooking ? {
         contact: {
-          type: "CONTACT_FORM",
+          type: "SERVICE_BOOKING" as const,
+          data: {
+            "Họ và tên": formName,
+            "Số điện thoại": formPhone,
+            "E-mail": formEmail || undefined,
+            "Biển số xe": formLicensePlate,
+            "Thời gian hẹn": formAppointmentTime,
+            "Nội dung yêu cầu dịch vụ": formServiceContent,
+            "Tại": formLocation
+          }
+        }
+      } : {
+        contact: {
+          type: "CONTACT_FORM" as const,
           data: {
             Name: formName,
             Phone: formPhone,
@@ -73,14 +112,18 @@ function ContactFormContent() {
             "Nội dung cần hỗ trợ": formNote || `Yêu cầu liên hệ: ${formReason} cho xe ${selectedVehicleName}`,
           }
         }
-      });
+      };
+
+      const response = await contactsAPI.submit(payload);
 
       if (response && response.success === false) {
         setToastMessage(response.message || "Gửi yêu cầu thất bại. Vui lòng thử lại!");
         setShowToast(true);
       } else {
         setToastMessage(
-          `Đăng ký thành công! Đồng Nai Ford đã nhận được yêu cầu ${formReason.toLowerCase()} của quý khách cho dòng xe ${selectedVehicleName}. Chúng tôi sẽ liên hệ tư vấn trong vòng 15 phút.`
+          isServiceBooking 
+            ? "Đăng ký thành công! Đồng Nai Ford đã nhận được yêu cầu đặt hẹn dịch vụ của bạn. Cố vấn dịch vụ sẽ liên hệ xác nhận lịch hẹn trong ít phút."
+            : `Đăng ký thành công! Đồng Nai Ford đã nhận được yêu cầu ${formReason.toLowerCase()} của quý khách cho dòng xe ${selectedVehicleName}. Chúng tôi sẽ liên hệ tư vấn trong vòng 15 phút.`
         );
         setShowToast(true);
 
@@ -89,6 +132,10 @@ function ContactFormContent() {
         setFormPhone("");
         setFormEmail("");
         setFormNote("");
+        setFormLicensePlate("");
+        setFormAppointmentTime("");
+        setFormServiceContent("");
+        setFormLocation("Tại đại lý");
       }
     } catch (error: any) {
       console.error("Contact submit error:", error);
@@ -96,10 +143,10 @@ function ContactFormContent() {
       if (error && error.data && error.data.message) {
         const backendMessage = error.data.message;
         if (typeof backendMessage === "object") {
-          // Validation error keys (Phone, Name)
-          if (backendMessage.Phone) {
+          // Validation error keys
+          if (backendMessage.Phone || backendMessage["Số điện thoại"]) {
             errMsg = "Số điện thoại không hợp lệ (yêu cầu từ 9 đến 12 chữ số)!";
-          } else if (backendMessage.Name) {
+          } else if (backendMessage.Name || backendMessage["Họ và tên"]) {
             errMsg = "Họ và tên không hợp lệ!";
           }
         } else {
@@ -213,66 +260,184 @@ function ContactFormContent() {
         {/* Right Side: Appointment Booking Form */}
         <div className="bg-[#003478] flex flex-col gap-6 p-8 rounded-[16px] shadow-lg text-white">
           <h3 className="font-['Ford_Antenna',sans-serif] font-semibold text-[28px] text-center text-white">
-            Đặt lịch hẹn
+            {formReason === "Đặt hẹn dịch vụ" ? "Đặt hẹn dịch vụ" : "Đặt lịch hẹn"}
           </h3>
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-            {/* Full Name */}
-            <div className="flex flex-col gap-1.5">
-              <label className="font-['Ford_Antenna',sans-serif] font-medium text-sm text-white">
-                Họ và tên <span className="text-[#f97066]">*</span>
-              </label>
-              <input
-                type="text"
-                required
-                value={formName}
-                onChange={(e) => setFormName(e.target.value)}
-                placeholder="Nhập tên của bạn"
-                className="w-full bg-white border border-[#d6d6d6] text-gray-900 placeholder-[#808080] rounded-[8px] px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#0562d2] focus:ring-4 focus:ring-[#0562d2]/20 transition shadow-sm font-sans"
-              />
-            </div>
+            {formReason === "Đặt hẹn dịch vụ" ? (
+              <>
+                {/* Họ và tên */}
+                <div className="flex flex-col gap-1.5">
+                  <label className="font-['Ford_Antenna',sans-serif] font-medium text-sm text-white">
+                    Họ và tên <span className="text-[#f97066]">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={formName}
+                    onChange={(e) => setFormName(e.target.value)}
+                    placeholder="Nhập tên của bạn"
+                    className="w-full bg-white border border-[#d6d6d6] text-gray-900 placeholder-[#808080] rounded-[8px] px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#0562d2] focus:ring-4 focus:ring-[#0562d2]/20 transition shadow-sm font-sans"
+                  />
+                </div>
 
-            {/* Phone & Email Row */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="flex flex-col gap-1.5">
-                <label className="font-['Ford_Antenna',sans-serif] font-medium text-sm text-white">
-                  Số điện thoại <span className="text-[#f97066]">*</span>
-                </label>
-                <input
-                  type="tel"
-                  required
-                  value={formPhone}
-                  onChange={(e) => setFormPhone(e.target.value)}
-                  placeholder="0909888888"
-                  className="w-full bg-white border border-[#d6d6d6] text-gray-900 placeholder-[#808080] rounded-[8px] px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#0562d2] focus:ring-4 focus:ring-[#0562d2]/20 transition shadow-sm font-sans"
-                />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="font-['Ford_Antenna',sans-serif] font-medium text-sm text-white">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  value={formEmail}
-                  onChange={(e) => setFormEmail(e.target.value)}
-                  placeholder="example@gmail.com"
-                  className="w-full bg-white border border-[#d6d6d6] text-gray-900 placeholder-[#808080] rounded-[8px] px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#0562d2] focus:ring-4 focus:ring-[#0562d2]/20 transition shadow-sm font-sans"
-                />
-              </div>
-            </div>
+                {/* Số điện thoại & Email */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="font-['Ford_Antenna',sans-serif] font-medium text-sm text-white">
+                      Số điện thoại <span className="text-[#f97066]">*</span>
+                    </label>
+                    <input
+                      type="tel"
+                      required
+                      value={formPhone}
+                      onChange={(e) => setFormPhone(e.target.value)}
+                      placeholder="0909888888"
+                      className="w-full bg-white border border-[#d6d6d6] text-gray-900 placeholder-[#808080] rounded-[8px] px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#0562d2] focus:ring-4 focus:ring-[#0562d2]/20 transition shadow-sm font-sans"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="font-['Ford_Antenna',sans-serif] font-medium text-sm text-white">
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      value={formEmail}
+                      onChange={(e) => setFormEmail(e.target.value)}
+                      placeholder="example@gmail.com"
+                      className="w-full bg-white border border-[#d6d6d6] text-gray-900 placeholder-[#808080] rounded-[8px] px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#0562d2] focus:ring-4 focus:ring-[#0562d2]/20 transition shadow-sm font-sans"
+                    />
+                  </div>
+                </div>
 
-            {/* Message */}
-            <div className="flex flex-col gap-1.5">
-              <label className="font-['Ford_Antenna',sans-serif] font-medium text-sm text-white">
-                Lời nhắn
-              </label>
-              <textarea
-                value={formNote}
-                onChange={(e) => setFormNote(e.target.value)}
-                placeholder="Nhập lời nhắn..."
-                className="w-full h-[180px] bg-white border border-[#d6d6d6] text-gray-900 placeholder-[#808080] rounded-[8px] px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#0562d2] focus:ring-4 focus:ring-[#0562d2]/20 transition shadow-sm resize-none font-sans"
-              />
-            </div>
+                {/* Biển số xe & Thời gian hẹn */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="font-['Ford_Antenna',sans-serif] font-medium text-sm text-white">
+                      Biển số xe <span className="text-[#f97066]">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={formLicensePlate}
+                      onChange={(e) => setFormLicensePlate(e.target.value)}
+                      placeholder="60C-525.45"
+                      className="w-full bg-white border border-[#d6d6d6] text-gray-900 placeholder-[#808080] rounded-[8px] px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#0562d2] focus:ring-4 focus:ring-[#0562d2]/20 transition shadow-sm font-sans"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="font-['Ford_Antenna',sans-serif] font-medium text-sm text-white">
+                      Thời gian hẹn <span className="text-[#f97066]">*</span>
+                    </label>
+                    <input
+                      type="date"
+                      required
+                      value={formAppointmentTime}
+                      onChange={(e) => setFormAppointmentTime(e.target.value)}
+                      className="w-full bg-white border border-[#d6d6d6] text-gray-900 placeholder-[#808080] rounded-[8px] px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#0562d2] focus:ring-4 focus:ring-[#0562d2]/20 transition shadow-sm font-sans text-black"
+                    />
+                  </div>
+                </div>
+
+                {/* Tại (Địa điểm thực hiện dịch vụ) */}
+                <div className="flex flex-col gap-1.5">
+                  <label className="font-['Ford_Antenna',sans-serif] font-medium text-sm text-white">
+                    Địa điểm làm dịch vụ <span className="text-[#f97066]">*</span>
+                  </label>
+                  <div className="grid grid-cols-2 gap-4">
+                    {["Tại đại lý", "Tại nhà"].map((loc) => {
+                      const isSel = formLocation === loc;
+                      return (
+                        <button
+                          key={loc}
+                          type="button"
+                          onClick={() => setFormLocation(loc)}
+                          className={`py-2.5 rounded-lg border font-semibold text-xs transition cursor-pointer text-center
+                            ${isSel 
+                              ? "bg-[#0562d2] border-[#0562d2] text-white" 
+                              : "bg-white/10 border-white/20 text-white hover:bg-white/20"}`}
+                        >
+                          {loc === "Tại đại lý" ? "Tại đại lý" : "Tại nhà"}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Nội dung yêu cầu dịch vụ */}
+                <div className="flex flex-col gap-1.5">
+                  <label className="font-['Ford_Antenna',sans-serif] font-medium text-sm text-white">
+                    Nội dung yêu cầu dịch vụ <span className="text-[#f97066]">*</span>
+                  </label>
+                  <textarea
+                    required
+                    value={formServiceContent}
+                    onChange={(e) => setFormServiceContent(e.target.value)}
+                    placeholder="Nhập nội dung yêu cầu dịch vụ..."
+                    className="w-full h-[120px] bg-white border border-[#d6d6d6] text-gray-900 placeholder-[#808080] rounded-[8px] px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#0562d2] focus:ring-4 focus:ring-[#0562d2]/20 transition shadow-sm resize-none font-sans"
+                  />
+                </div>
+              </>
+            ) : (
+              <>
+                {/* Họ và tên */}
+                <div className="flex flex-col gap-1.5">
+                  <label className="font-['Ford_Antenna',sans-serif] font-medium text-sm text-white">
+                    Họ và tên <span className="text-[#f97066]">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={formName}
+                    onChange={(e) => setFormName(e.target.value)}
+                    placeholder="Nhập tên của bạn"
+                    className="w-full bg-white border border-[#d6d6d6] text-gray-900 placeholder-[#808080] rounded-[8px] px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#0562d2] focus:ring-4 focus:ring-[#0562d2]/20 transition shadow-sm font-sans"
+                  />
+                </div>
+
+                {/* Phone & Email Row */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="font-['Ford_Antenna',sans-serif] font-medium text-sm text-white">
+                      Số điện thoại <span className="text-[#f97066]">*</span>
+                    </label>
+                    <input
+                      type="tel"
+                      required
+                      value={formPhone}
+                      onChange={(e) => setFormPhone(e.target.value)}
+                      placeholder="0909888888"
+                      className="w-full bg-white border border-[#d6d6d6] text-gray-900 placeholder-[#808080] rounded-[8px] px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#0562d2] focus:ring-4 focus:ring-[#0562d2]/20 transition shadow-sm font-sans"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="font-['Ford_Antenna',sans-serif] font-medium text-sm text-white">
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      value={formEmail}
+                      onChange={(e) => setFormEmail(e.target.value)}
+                      placeholder="example@gmail.com"
+                      className="w-full bg-white border border-[#d6d6d6] text-gray-900 placeholder-[#808080] rounded-[8px] px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#0562d2] focus:ring-4 focus:ring-[#0562d2]/20 transition shadow-sm font-sans"
+                    />
+                  </div>
+                </div>
+
+                {/* Message */}
+                <div className="flex flex-col gap-1.5">
+                  <label className="font-['Ford_Antenna',sans-serif] font-medium text-sm text-white">
+                    Lời nhắn
+                  </label>
+                  <textarea
+                    value={formNote}
+                    onChange={(e) => setFormNote(e.target.value)}
+                    placeholder="Nhập lời nhắn..."
+                    className="w-full h-[180px] bg-white border border-[#d6d6d6] text-gray-900 placeholder-[#808080] rounded-[8px] px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#0562d2] focus:ring-4 focus:ring-[#0562d2]/20 transition shadow-sm resize-none font-sans"
+                  />
+                </div>
+              </>
+            )}
 
             {/* Action button */}
             <div className="pt-2 flex justify-center lg:justify-start">
