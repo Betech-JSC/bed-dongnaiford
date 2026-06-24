@@ -180,7 +180,16 @@ class Contact extends BaseModel
                     }
                 }
 
-                $data[$column['column']] = route($routeLocale . '.' . $column['route']['name'], $params);
+                $routeName = $column['route']['name'];
+                if ($key === 'Product' && isset($this->data[$key]['type'])) {
+                    if ($this->data[$key]['type'] === 'used_vehicle') {
+                        $routeName = 'api.used_vehicles.show';
+                    } elseif ($this->data[$key]['type'] === 'accessory') {
+                        $routeName = 'api.accessories.show';
+                    }
+                }
+
+                $data[$column['column']] = route($routeLocale . '.' . $routeName, $params);
             } else if ($column == 'File CV' && is_array($this->data[$column])) {
                 $files = [];
                 foreach ($this->data[$column] as $index => $file) {

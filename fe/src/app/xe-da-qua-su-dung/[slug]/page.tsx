@@ -142,6 +142,7 @@ export default function UsedVehicleDetailPage() {
               id: vehicle.id,
               slug: vehicle.slug,
               title: vehicle.title,
+              type: "used_vehicle",
             },
             "Nội dung cần hỗ trợ": bookingForm.note || `Đăng ký tư vấn xe đã qua sử dụng: ${vehicle.title}`,
           }

@@ -111,8 +111,8 @@ export default function VehiclePriceCalculatorPage() {
     setErrorMessage("");
 
     try {
-      const productId = vehicle?.id || "";
-      const productSlug = vehicle?.id || "";
+      const productId = String(vehicle?.id || "");
+      const productSlug = vehicle?.slug || String(vehicle?.id || "");
       const productTitle = `${vehicle?.name} - ${selectedVersion?.name || ""}`;
       const note = formData.note || `Yêu cầu báo giá lăn bánh xe ${productTitle} tại ${selectedProvince}. Tổng dự toán: ${formatPrice(rollingCost.total)}`;
 
@@ -127,7 +127,8 @@ export default function VehiclePriceCalculatorPage() {
             Product: {
               id: productId,
               slug: productSlug,
-              title: productTitle
+              title: productTitle,
+              type: "vehicle"
             },
             "Nội dung cần hỗ trợ": note
           }

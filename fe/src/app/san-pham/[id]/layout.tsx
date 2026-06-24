@@ -478,8 +478,8 @@ export default function VehicleDetailLayout({
     setErrorMessage("");
 
     try {
-      let productId = vehicle?.id || "";
-      let productSlug = vehicle?.id || "";
+      let productId = String(vehicle?.id || "");
+      let productSlug = vehicle?.slug || String(vehicle?.id || "");
       let productTitle = vehicle?.name || "";
       let note = formData.note;
 
@@ -487,8 +487,8 @@ export default function VehicleDetailLayout({
         const list = allVehicles.length > 0 ? allVehicles : [vehicle];
         const selVeh = list.find((v: any) => v.id === selectedVehicleId) || vehicle;
         const selVer = selVeh?.versions.find((v: any) => String(v.id) === String(selectedVersionId)) || selVeh?.versions[0];
-        productId = selVeh.id;
-        productSlug = selVeh.id;
+        productId = String(selVeh.id);
+        productSlug = selVeh.slug || String(selVeh.id);
         productTitle = `${selVeh.name} - ${selVer?.name}`;
         note = formData.note || `Yêu cầu báo giá lăn bánh xe ${selVeh.name} - ${selVer?.name} tại ${selectedProvince}. Tổng dự toán: ${formatPrice(rollingCost.total)}`;
       } else {
@@ -510,7 +510,8 @@ export default function VehicleDetailLayout({
             Product: {
               id: productId,
               slug: productSlug,
-              title: productTitle
+              title: productTitle,
+              type: "vehicle",
             },
             "Nội dung cần hỗ trợ": note
           }

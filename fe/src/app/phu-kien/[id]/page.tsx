@@ -192,6 +192,7 @@ export default function AccessoryDetailPage() {
               id: accessory.id,
               slug: accessory.id,
               title: accessory.name,
+              type: "accessory",
             },
             CarModel: bookingForm.carModel,
             InstallDate: bookingForm.date,

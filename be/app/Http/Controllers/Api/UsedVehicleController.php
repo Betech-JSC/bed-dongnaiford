@@ -23,6 +23,8 @@ class UsedVehicleController extends Controller
             'slug'           => $v->slug,
             'tagline'        => $v->tagline,
             'price'          => (float) $v->price,
+            'year'           => $v->year,
+            'odo'            => $v->odo,
             'image_url'      => $v->image_url,
             'images_urls'    => $v->images_urls,
             'sort_order'     => $v->sort_order,
@@ -81,6 +83,8 @@ class UsedVehicleController extends Controller
             'tagline'        => $vehicle->tagline,
             'description'    => $vehicle->description, // Rich text content
             'price'          => (float) $vehicle->price,
+            'year'           => $vehicle->year,
+            'odo'            => $vehicle->odo,
             'image_url'      => $vehicle->image_url,
             'images_urls'    => $vehicle->images_urls,
             'sort_order'     => $vehicle->sort_order,

@@ -18,7 +18,7 @@ class ContactController extends Controller
 
     private function beforeIndex($query)
     {
-        return $query->where('type', 'CONTACT_FORM')
+        return $query->whereIn('type', ['CONTACT_FORM', 'ADVISE_FORM'])
             ->orderBy('id', 'DESC');
     }
 }

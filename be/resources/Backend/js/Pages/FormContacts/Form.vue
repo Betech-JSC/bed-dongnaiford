@@ -7,13 +7,32 @@
                     <template v-for="(key, field) in form.data_contact" :key="field">
                         <div v-if="typeof form.data_contact[field] === 'object' && form.data_contact[field] != null">
                             <div class="pb-3 text-sm font-medium select-none">
-                                {{ form.data_contact[field]['title'] }}
+                                {{ field === 'Product' ? 'Sản phẩm: ' + form.data_contact[field]['title'] : form.data_contact[field]['title'] }}
                             </div>
                             <div>
                                 <a
+                                    v-if="field === 'Service'"
                                     class="btn-primary btn"
                                     :href="route('admin.services.form', { id: form.data_contact[field]['id'] })"
                                     >Xem dịch vụ</a
+                                >
+                                <a
+                                    v-else-if="field === 'Product' && form.data_contact[field]['type'] === 'used_vehicle'"
+                                    class="btn-primary btn"
+                                    :href="route('admin.used-vehicles.form', { id: form.data_contact[field]['id'] })"
+                                    >Xem chi tiết xe cũ</a
+                                >
+                                <a
+                                    v-else-if="field === 'Product' && form.data_contact[field]['type'] === 'accessory'"
+                                    class="btn-primary btn"
+                                    :href="route('admin.accessories.form', { id: form.data_contact[field]['id'] })"
+                                    >Xem chi tiết phụ kiện</a
+                                >
+                                <a
+                                    v-else-if="field === 'Product'"
+                                    class="btn-primary btn"
+                                    :href="route('admin.vehicles.form', { id: form.data_contact[field]['id'] })"
+                                    >Xem chi tiết xe mới</a
                                 >
                             </div>
                         </div>

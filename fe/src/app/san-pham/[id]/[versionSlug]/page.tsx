@@ -153,8 +153,8 @@ export default function VehicleVersionDetailPage() {
     return [];
   };
 
-  const colors = (selectedVersion?.colors && selectedVersion.colors.length > 0) ? selectedVersion.colors : (vehicle?.colors || []);
-  const currentColor = selectedColorIndex !== null ? colors[selectedColorIndex] : (selectedVersion?.image_url ? null : colors[0]);
+  const colors = (selectedVersion?.colors && selectedVersion.colors.length > 0) ? selectedVersion.colors : [];
+  const currentColor = (selectedColorIndex !== null && colors.length > 0) ? colors[selectedColorIndex] : null;
 
   // Detect if external or internal image sequence exists
   const hasExteriorSeq = (currentColor && currentColor.images_360 && currentColor.images_360.length > 0)
@@ -555,57 +555,57 @@ export default function VehicleVersionDetailPage() {
             </div>
 
             {/* Paint Selector & View Type Toggle Row */}
-            <div className="w-full flex items-center justify-between mt-6">
-              {/* Left: Paint Selector */}
-              <div className="flex flex-col gap-2 items-start text-left">
-                <span className="text-sm font-bold text-gray-800">Bảng màu</span>
-                <div className="flex gap-2">
-                  {colors && colors.length > 0 ? (
-                    colors.map((color: any, idx: number) => {
-                      const isSelected = selectedColorIndex === idx || (selectedColorIndex === null && idx === 0 && !selectedVersion?.image_url);
-                      return (
-                        <button
-                          key={color.name}
-                          onClick={() => {
-                            setSelectedColorIndex(idx);
-                            setIs360Active(false);
-                          }}
-                          className={`w-9 h-9 rounded-md p-[2px] transition-all flex items-center justify-center cursor-pointer border ${isSelected ? "border-black ring-1 ring-black" : "border-gray-200 hover:scale-105"
-                            }`}
-                          title={color.name}
-                        >
-                          <div className="w-full h-full rounded-[4px] shadow-sm border border-black/5" style={{ backgroundColor: color.hex }} />
-                        </button>
-                      );
-                    })
-                  ) : (
-                    <span className="text-xs text-gray-400 italic">Theo phiên bản</span>
-                  )}
-                </div>
-              </div>
+            {((colors && colors.length > 0) || hasInteriorPhotos) && (
+              <div className={`w-full flex items-center mt-6 ${colors && colors.length > 0 ? "justify-between" : "justify-end"}`}>
+                {/* Left: Paint Selector */}
+                {colors && colors.length > 0 && (
+                  <div className="flex flex-col gap-2 items-start text-left">
+                    <span className="text-sm font-bold text-gray-800">Bảng màu</span>
+                    <div className="flex gap-2">
+                      {colors.map((color: any, idx: number) => {
+                        const isSelected = selectedColorIndex === idx || (selectedColorIndex === null && idx === 0 && !selectedVersion?.image_url);
+                        return (
+                          <button
+                            key={color.name}
+                            onClick={() => {
+                              setSelectedColorIndex(idx);
+                              setIs360Active(false);
+                            }}
+                            className={`w-9 h-9 rounded-md p-[2px] transition-all flex items-center justify-center cursor-pointer border ${isSelected ? "border-black ring-1 ring-black" : "border-gray-200 hover:scale-105"
+                              }`}
+                            title={color.name}
+                          >
+                            <div className="w-full h-full rounded-[4px] shadow-sm border border-black/5" style={{ backgroundColor: color.hex }} />
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
 
-              {/* Right: View Type Toggle Switch */}
-              {hasInteriorPhotos && (
-                <div className="bg-white border border-[#e5e5e5] p-1 rounded-full flex gap-1 shadow-sm self-end">
-                  <button
-                    type="button"
-                    onClick={() => setViewType("exterior")}
-                    className={`px-5 py-2 rounded-full text-xs font-bold border-0 cursor-pointer transition-all ${viewType === "exterior" ? "bg-slate-900 text-white shadow-xs" : "text-gray-500 hover:text-gray-900 bg-transparent"
-                      }`}
-                  >
-                    Vẻ ngoài
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setViewType("interior")}
-                    className={`px-5 py-2 rounded-full text-xs font-bold border-0 cursor-pointer transition-all ${viewType === "interior" ? "bg-slate-900 text-white shadow-xs" : "text-gray-500 hover:text-gray-900 bg-transparent"
-                      }`}
-                  >
-                    Khoang Lái
-                  </button>
-                </div>
-              )}
-            </div>
+                {/* Right: View Type Toggle Switch */}
+                {hasInteriorPhotos && (
+                  <div className="bg-white border border-[#e5e5e5] p-1 rounded-full flex gap-1 shadow-sm self-end">
+                    <button
+                      type="button"
+                      onClick={() => setViewType("exterior")}
+                      className={`px-5 py-2 rounded-full text-xs font-bold border-0 cursor-pointer transition-all ${viewType === "exterior" ? "bg-slate-900 text-white shadow-xs" : "text-gray-500 hover:text-gray-900 bg-transparent"
+                        }`}
+                    >
+                      Vẻ ngoài
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setViewType("interior")}
+                      className={`px-5 py-2 rounded-full text-xs font-bold border-0 cursor-pointer transition-all ${viewType === "interior" ? "bg-slate-900 text-white shadow-xs" : "text-gray-500 hover:text-gray-900 bg-transparent"
+                        }`}
+                    >
+                      Khoang Lái
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
 
           </div>
         </div>

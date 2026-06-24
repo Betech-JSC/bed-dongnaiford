@@ -1268,8 +1268,8 @@ function ThreeSixtyViewerBlock({ data, vehicle, isEditMode, onChangeData, threeS
   } = threeSixtyProps;
 
   const activeVersion = vehicle?.versions?.[activeVersionIndex];
-  const colors = (activeVersion?.colors && activeVersion.colors.length > 0) ? activeVersion.colors : (vehicle?.colors || []);
-  const currentColor = colors[selectedColorIndex];
+  const colors = (activeVersion?.colors && activeVersion.colors.length > 0) ? activeVersion.colors : [];
+  const currentColor = colors.length > 0 ? colors[selectedColorIndex] : null;
   const hasInteriorSequence = (currentColor && currentColor.images_360_internal && currentColor.images_360_internal.length > 0)
     || (vehicle && (vehicle as any).images_360_internal && (vehicle as any).images_360_internal.length > 0);
 
@@ -1361,25 +1361,27 @@ function ThreeSixtyViewerBlock({ data, vehicle, isEditMode, onChangeData, threeS
 
               <div>
                 <div className={`view-wrapper ${viewType === "exterior" ? "show" : ""}`}>
-                  <div className="exteriorPaint">
-                    <div className="color-selector-container">
-                      <div className="color-selector" role="radiogroup">
-                        {colors.map((color: any, idx: number) => (
-                          <div
-                            key={color.name}
-                            className={`color-container ${selectedColorIndex === idx ? "selected" : ""}`}
-                            onClick={() => setSelectedColorIndex(idx)}
-                            title={color.name}
-                          >
-                            <div className="color" style={{ backgroundColor: color.hex }}></div>
-                          </div>
-                        ))}
+                  {colors && colors.length > 0 && (
+                    <div className="exteriorPaint">
+                      <div className="color-selector-container">
+                        <div className="color-selector" role="radiogroup">
+                          {colors.map((color: any, idx: number) => (
+                            <div
+                              key={color.name}
+                              className={`color-container ${selectedColorIndex === idx ? "selected" : ""}`}
+                              onClick={() => setSelectedColorIndex(idx)}
+                              title={color.name}
+                            >
+                              <div className="color" style={{ backgroundColor: color.hex }}></div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="paint-color">
+                        Paint Color: <span className="uppercase text-[#0562D2]">{colors[selectedColorIndex]?.name}</span>
                       </div>
                     </div>
-                    <div className="paint-color">
-                      Paint Color: <span className="uppercase text-[#0562D2]">{colors[selectedColorIndex]?.name}</span>
-                    </div>
-                  </div>
+                  )}
                 </div>
 
                 <div className={`view-wrapper ${viewType === "interior" ? "show" : ""}`}>
