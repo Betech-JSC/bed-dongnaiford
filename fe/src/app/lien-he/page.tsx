@@ -162,22 +162,24 @@ function ContactFormContent() {
 
   return (
     <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] py-12 w-full">
-      {/* Toast Notification */}
+      {/* Toast Notification (Centered Modal style) */}
       {showToast && (
-        <div className="fixed bottom-6 left-6 z-50 bg-white border border-[#d6d6d6] text-[#1a1a1a] p-4 max-w-sm rounded-lg shadow-2xl flex gap-3 items-start animate-fade-in">
-          <div className="w-5 h-5 bg-[#0562d2] text-white flex items-center justify-center rounded-full mt-0.5 flex-shrink-0">
-            <CheckCircle className="w-3.5 h-3.5 text-white fill-current" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-fade-in">
+          <div className="bg-white border border-[#d6d6d6] text-[#1a1a1a] p-6 max-w-md w-full rounded-2xl shadow-2xl flex gap-4 items-start relative">
+            <div className="w-10 h-10 bg-blue-50 text-[#0562d2] flex items-center justify-center rounded-full flex-shrink-0">
+              <CheckCircle className="w-6 h-6 text-[#0562d2]" />
+            </div>
+            <div className="flex-1 space-y-2 pr-6">
+              <h4 className="font-bold text-sm text-[#0562d2]">Thông báo hệ thống</h4>
+              <p className="text-sm text-[#424242] leading-relaxed">{toastMessage}</p>
+            </div>
+            <button
+              onClick={() => setShowToast(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 transition-colors cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
           </div>
-          <div className="flex-1 space-y-1">
-            <h4 className="font-semibold text-xs tracking-wider text-[#0562d2]">Thông báo hệ thống</h4>
-            <p className="text-xs text-[#424242] leading-normal">{toastMessage}</p>
-          </div>
-          <button
-            onClick={() => setShowToast(false)}
-            className="text-gray-400 hover:text-gray-700 transition-colors cursor-pointer"
-          >
-            <X className="w-4 h-4" />
-          </button>
         </div>
       )}
 

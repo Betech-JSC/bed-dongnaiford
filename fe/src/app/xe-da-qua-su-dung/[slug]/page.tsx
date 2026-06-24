@@ -169,7 +169,7 @@ export default function UsedVehicleDetailPage() {
         const backendMessage = error.data.message;
         if (typeof backendMessage === "object") {
           if (backendMessage.Phone) {
-            errMsg = "Số điện thoại không hợp lệ (yêu cầu từ 9 đến 12 chữ số)!";
+            errMsg = "Số điện thoại không hợp lệ (yêu cầu từ 9 đến 12 chữ số và bắt đầu bằng số 0)!";
           } else if (backendMessage.Name) {
             errMsg = "Họ và tên không hợp lệ!";
           }
