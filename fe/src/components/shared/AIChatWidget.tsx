@@ -401,6 +401,7 @@ export function InChatServiceForm({ onSubmit }: InChatServiceFormProps) {
 
 export default function AIChatWidget() {
   const [mounted, setMounted] = useState(false);
+  const [showChatWidget, setShowChatWidget] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([INITIAL_MESSAGE]);
   const [input, setInput] = useState("");
@@ -417,30 +418,37 @@ export default function AIChatWidget() {
   const windowRef = useRef<HTMLDivElement>(null);
 
   const updatePosition = useCallback(() => {
-    const hasConsent = typeof window !== "undefined" ? localStorage.getItem("ford-cookie-consent") : null;
-    const hasSessionClosed = typeof window !== "undefined" ? sessionStorage.getItem("ford-cookie-consent-closed") : null;
-    const isCookieVisible = !hasConsent && !hasSessionClosed;
-    const bottomOffset = isCookieVisible ? 240 : 24;
-
     setPosition({
       x: 84,
-      y: window.innerHeight - BUBBLE_SIZE - bottomOffset,
+      y: window.innerHeight - BUBBLE_SIZE - 24,
     });
   }, []);
 
-  // Set mounted & listen to window resize and cookie consent changes
+  // Set mounted & listen to window resize
   useEffect(() => {
     setMounted(true);
     updatePosition();
     window.addEventListener("resize", updatePosition);
-    window.addEventListener("cookie-consent-changed", updatePosition);
-    window.addEventListener("storage", updatePosition);
-    return () => {
-      window.removeEventListener("resize", updatePosition);
-      window.removeEventListener("cookie-consent-changed", updatePosition);
-      window.removeEventListener("storage", updatePosition);
-    };
+    return () => window.removeEventListener("resize", updatePosition);
   }, [updatePosition]);
+
+  // Check and listen to cookie consent
+  useEffect(() => {
+    const consent = localStorage.getItem("ford-cookie-consent");
+    const sessionClosed = sessionStorage.getItem("ford-cookie-consent-closed");
+    if (consent || sessionClosed) {
+      setShowChatWidget(true);
+    }
+
+    const handleConsentDismissed = () => {
+      setShowChatWidget(true);
+    };
+
+    window.addEventListener("cookie-consent-dismissed", handleConsentDismissed);
+    return () => {
+      window.removeEventListener("cookie-consent-dismissed", handleConsentDismissed);
+    };
+  }, []);
 
   // Calculate chat window position relative to bubble
   const getChatPosition = (): React.CSSProperties => {
@@ -657,8 +665,8 @@ export default function AIChatWidget() {
       );
   };
 
-  // Don't render until mounted and position is initialized
-  if (!mounted || position.x < 0) return null;
+  // Don't render until mounted and position is initialized and cookie consent is dismissed
+  if (!mounted || position.x < 0 || !showChatWidget) return null;
 
   return (
     <>
@@ -670,7 +678,7 @@ export default function AIChatWidget() {
           left: `${position.x}px`,
           top: `${position.y}px`,
         }}
-        className={`fixed z-[60] w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-[top,left,background-color] ease-out duration-500 cursor-pointer select-none ${
+        className={`fixed z-[60] w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-colors duration-200 cursor-pointer select-none ${
           isOpen
             ? "bg-[#333] hover:bg-[#1a1a1a]"
             : "bg-[#0562d2] hover:bg-[#044ea7]"

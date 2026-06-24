@@ -27,18 +27,14 @@ export default function CookieConsent() {
     localStorage.setItem("ford-cookie-consent", "accepted");
     setIsVisible(false);
     setTimeout(() => setIsMounted(false), 500);
-    if (typeof window !== "undefined") {
-      window.dispatchEvent(new Event("cookie-consent-changed"));
-    }
+    window.dispatchEvent(new Event("cookie-consent-dismissed"));
   };
 
   const handleDecline = () => {
     localStorage.setItem("ford-cookie-consent", "declined");
     setIsVisible(false);
     setTimeout(() => setIsMounted(false), 500);
-    if (typeof window !== "undefined") {
-      window.dispatchEvent(new Event("cookie-consent-changed"));
-    }
+    window.dispatchEvent(new Event("cookie-consent-dismissed"));
   };
 
   const handleClose = () => {
@@ -46,9 +42,7 @@ export default function CookieConsent() {
     sessionStorage.setItem("ford-cookie-consent-closed", "true");
     setIsVisible(false);
     setTimeout(() => setIsMounted(false), 500);
-    if (typeof window !== "undefined") {
-      window.dispatchEvent(new Event("cookie-consent-changed"));
-    }
+    window.dispatchEvent(new Event("cookie-consent-dismissed"));
   };
 
   if (!isMounted) return null;
