@@ -4,6 +4,7 @@ import { useParams, useRouter, usePathname } from "next/navigation";
 import { useState, useEffect, useRef, useMemo, createContext, useContext } from "react";
 import Link from "next/link";
 import { contactsAPI, vehiclesAPI, regionsAPI } from "@/lib/api";
+import { calculateRollingCost } from "@/lib/rolling-cost";
 import {
   X,
   Check,
@@ -451,25 +452,7 @@ export default function VehicleDetailLayout({
       };
     }
 
-    const basePrice = typeof selVer.price === 'string' ? parseFloat(selVer.price) : (selVer.price || 0);
-    const taxRate = 0.10; // 10% standard registration tax
-    const registrationTax = basePrice * taxRate;
-    const plateFee = selectedProvince.includes("Hồ Chí Minh") || selectedProvince.includes("Hà Nội") ? 20000000 : 1000000;
-    const registryFee = 340000;
-    const roadFee = 1560000; // 130k/month * 12 months for personal vehicles
-    const insuranceFee = 480700; // standard civil liability insurance
-
-    const total = basePrice + registrationTax + plateFee + registryFee + roadFee + insuranceFee;
-
-    return {
-      basePrice,
-      registrationTax,
-      plateFee,
-      registryFee,
-      roadFee,
-      insuranceFee,
-      total,
-    };
+    return calculateRollingCost(selVeh, selVer, selectedProvince);
   };
 
   const rollingCost = getRollingCostDetails();

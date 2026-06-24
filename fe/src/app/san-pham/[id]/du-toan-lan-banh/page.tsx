@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useVehicle, VehicleTabBar } from "../layout";
 import { regionsAPI, contactsAPI } from "@/lib/api";
+import { calculateRollingCost } from "@/lib/rolling-cost";
 import { Check, Info, FileText } from "lucide-react";
 
 export default function VehiclePriceCalculatorPage() {
@@ -64,9 +65,8 @@ export default function VehiclePriceCalculatorPage() {
 
   const selectedVersion = getSelectedVersion();
 
-  // Calculations sheet logic
   const getRollingCostDetails = () => {
-    if (!selectedVersion) {
+    if (!selectedVersion || !vehicle) {
       return {
         basePrice: 0,
         registrationTax: 0,
@@ -78,25 +78,7 @@ export default function VehiclePriceCalculatorPage() {
       };
     }
 
-    const basePrice = typeof selectedVersion.price === 'string' ? parseFloat(selectedVersion.price) : (selectedVersion.price || 0);
-    const taxRate = 0.10; // 10% standard registration tax
-    const registrationTax = basePrice * taxRate;
-    const plateFee = selectedProvince.includes("Hồ Chí Minh") || selectedProvince.includes("Hà Nội") ? 20000000 : 1000000;
-    const registryFee = 340000;
-    const roadFee = 1560000; // 130k/month * 12 months for personal vehicles
-    const insuranceFee = 480700; // standard civil liability insurance
-
-    const total = basePrice + registrationTax + plateFee + registryFee + roadFee + insuranceFee;
-
-    return {
-      basePrice,
-      registrationTax,
-      plateFee,
-      registryFee,
-      roadFee,
-      insuranceFee,
-      total,
-    };
+    return calculateRollingCost(vehicle, selectedVersion, selectedProvince);
   };
 
   const rollingCost = getRollingCostDetails();
@@ -342,7 +324,7 @@ export default function VehiclePriceCalculatorPage() {
                 </div>
                 <div className="flex justify-between items-center py-1 border-b border-[#e5e5e5]">
                   <span className="text-gray-500 font-medium flex items-center gap-1">
-                    <span>Lệ phí trước bạ (tạm tính 10%):</span>
+                    <span>Lệ phí trước bạ (tạm tính {((rollingCost.registrationTax / (rollingCost.basePrice || 1)) * 100).toFixed(1)}%):</span>
                     <Info className="w-3.5 h-3.5 text-gray-400" />
                   </span>
                   <span className="font-bold text-gray-800">+{formatPrice(rollingCost.registrationTax)}</span>

@@ -22,6 +22,10 @@ export const metadata: Metadata = {
   description: "Đại lý ủy quyền chính thức của Ford Việt Nam tại Đồng Nai. Cung cấp các dòng xe Ford Everest, Ford Ranger, Ford Territory chính hãng, bảo dưỡng nhanh, hỗ trợ trả góp 80%.",
   keywords: ["Ford Đồng Nai", "Đồng Nai Ford", "đại lý Ford Đồng Nai", "mua xe Ford Đồng Nai", "Ford Everest", "Ford Ranger", "Ford Territory"],
   authors: [{ name: "Đồng Nai Ford" }],
+  robots: {
+    index: false,
+    follow: false,
+  },
   openGraph: {
     title: "Đồng Nai Ford | Đại lý xe Ford chính hãng lớn nhất Đồng Nai",
     description: "Đại lý ủy quyền chính thức của Ford Việt Nam tại Đồng Nai. Cung cấp các dòng xe Ford Everest, Ranger, Territory, Raptor chính hãng giá ưu đãi.",
