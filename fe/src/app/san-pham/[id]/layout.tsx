@@ -326,6 +326,7 @@ export default function VehicleDetailLayout({
             name: v.name,
             price: typeof v.price === 'string' ? parseFloat(v.price) : v.price,
             image_url: v.image_url || resolveFileUrl(v.image) || null,
+            image_thumbnail_url: v.image_thumbnail_url || resolveFileUrl(v.image_thumbnail) || null,
             colors: v.colors ? safeArray(v.colors).map((c: any) => ({
               name: c.name || c.color_name || '',
               hex: c.hex || c.color_code || '',

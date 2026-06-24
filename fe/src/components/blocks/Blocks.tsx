@@ -582,7 +582,7 @@ function SpecsGridBlock({ data, vehicle, isEditMode, onChangeData, openQuoteDraw
     id: ver.id,
     name: ver.name,
     price: ver.price,
-    image: resolveImageUrl(ver.image_url || ver.image || vehicle.images?.[idx] || vehicle.images?.[0] || (idx === 0
+    image: resolveImageUrl(ver.image_thumbnail_url || ver.image_url || ver.image || vehicle.image_thumbnail_url || vehicle.image_url || vehicle.images?.[idx] || vehicle.images?.[0] || (idx === 0
       ? "/assets/territory-hero.png"
       : idx === 1
         ? "/assets/territory-tech-split.png"

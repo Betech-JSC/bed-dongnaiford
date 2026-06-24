@@ -16,6 +16,7 @@ const SteeringWheelIcon = () => (
 
 export default function QuickAccessToolbar() {
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [hasCompareItems, setHasCompareItems] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -24,6 +25,26 @@ export default function QuickAccessToolbar() {
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const checkCompare = () => {
+      if (typeof window !== "undefined") {
+        const stored = localStorage.getItem("compare-vehicles");
+        if (stored) {
+          try {
+            const ids = JSON.parse(stored);
+            setHasCompareItems(Array.isArray(ids) && ids.length > 0);
+            return;
+          } catch (e) {}
+        }
+      }
+      setHasCompareItems(false);
+    };
+
+    checkCompare();
+    window.addEventListener("compare-updated", checkCompare);
+    return () => window.removeEventListener("compare-updated", checkCompare);
   }, []);
 
   const scrollToTop = () => {
@@ -73,7 +94,9 @@ export default function QuickAccessToolbar() {
   ];
 
   return (
-    <div className="fixed right-6 bottom-8 z-50 flex flex-col items-center gap-3 select-none">
+    <div className={`fixed right-6 z-50 flex flex-col items-center gap-3 select-none transition-all duration-300 ${
+      hasCompareItems ? "bottom-20 sm:bottom-8" : "bottom-8"
+    }`}>
       {/* Action pill container */}
       <div className="bg-white/80 backdrop-blur-md border border-gray-200/50 rounded-[28px] shadow-[0_12px_40px_-12px_rgba(0,9,91,0.15)] flex flex-col py-2 w-12 transition-all duration-300 hover:shadow-[0_12px_40px_-6px_rgba(5,98,210,0.2)]">
         {menuItems.map((item, idx) => {

@@ -416,13 +416,37 @@ export default function AIChatWidget() {
   const [position, setPosition] = useState<Position>({ x: 84, y: -1 });
   const bubbleRef = useRef<HTMLButtonElement>(null);
   const windowRef = useRef<HTMLDivElement>(null);
+  const [hasCompareItems, setHasCompareItems] = useState(false);
+
+  // Sync with compare list to shift bubble up if active
+  useEffect(() => {
+    const checkCompare = () => {
+      if (typeof window !== "undefined") {
+        const stored = localStorage.getItem("compare-vehicles");
+        if (stored) {
+          try {
+            const ids = JSON.parse(stored);
+            setHasCompareItems(Array.isArray(ids) && ids.length > 0);
+            return;
+          } catch (e) {}
+        }
+      }
+      setHasCompareItems(false);
+    };
+
+    checkCompare();
+    window.addEventListener("compare-updated", checkCompare);
+    return () => window.removeEventListener("compare-updated", checkCompare);
+  }, []);
 
   const updatePosition = useCallback(() => {
+    const isMobile = window.innerWidth < 640;
+    const offset = (isMobile && hasCompareItems) ? 56 : 0;
     setPosition({
       x: 84,
-      y: window.innerHeight - BUBBLE_SIZE - 24,
+      y: window.innerHeight - BUBBLE_SIZE - 24 - offset,
     });
-  }, []);
+  }, [hasCompareItems]);
 
   // Set mounted & listen to window resize
   useEffect(() => {
@@ -431,6 +455,11 @@ export default function AIChatWidget() {
     window.addEventListener("resize", updatePosition);
     return () => window.removeEventListener("resize", updatePosition);
   }, [updatePosition]);
+
+  // Update position when hasCompareItems changes
+  useEffect(() => {
+    updatePosition();
+  }, [hasCompareItems, updatePosition]);
 
   // Check and listen to cookie consent
   useEffect(() => {
