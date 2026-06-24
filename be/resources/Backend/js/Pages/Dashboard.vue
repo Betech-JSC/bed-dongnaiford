@@ -193,6 +193,42 @@
                     </a>
                 </div>
             </div>
+
+            <!-- Tổng kết Đặt hẹn dịch vụ & Khảo sát -->
+            <div class="summary-card">
+                <div class="summary-card__header">
+                    <h2 class="summary-card__title">
+                        <svg viewBox="0 0 20 20" fill="currentColor" class="summary-icon summary-icon--rose" style="color: #0562d2;">
+                            <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+                        </svg>
+                        Đặt Hẹn Dịch Vụ &amp; Khảo Sát
+                    </h2>
+                </div>
+                <div class="summary-card__body">
+                    <div class="summary-row">
+                        <span class="summary-label">Đặt hẹn dịch vụ hôm nay</span>
+                        <span class="summary-value summary-value--indigo" style="color: #0562d2;">{{ todayServiceBookingCount }}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">Đặt hẹn dịch vụ chưa xử lý</span>
+                        <span class="summary-value summary-value--rose">{{ newServiceBookingCount }}</span>
+                    </div>
+                    <div class="summary-divider"></div>
+                    <div class="summary-row">
+                        <span class="summary-label">Khảo sát lái thử chưa đọc</span>
+                        <span class="summary-value summary-value--amber">{{ newTestDriveSurveyCount }}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">Khảo sát dịch vụ chưa đọc</span>
+                        <span class="summary-value summary-value--amber">{{ newServiceSurveyCount }}</span>
+                    </div>
+                </div>
+                <div class="summary-card__footer">
+                    <a :href="route('admin.service-bookings.index')" class="summary-link summary-link--rose" style="color: #0562d2;">
+                        Quản lý đặt hẹn dịch vụ →
+                    </a>
+                </div>
+            </div>
         </div>
 
         <!-- Tài nguyên hệ thống -->
@@ -242,6 +278,9 @@ export default {
         todayContactCount() {
             return this.$page.props.data.today_contact_count ?? 0
         },
+        todayServiceBookingCount() {
+            return this.$page.props.data.today_service_booking_count ?? 0
+        },
         todayApplyCount() {
             return this.$page.props.data.today_apply_count ?? 0
         },
@@ -250,6 +289,15 @@ export default {
         },
         newContactCount() {
             return this.$page.props.data.new_contact_count ?? 0
+        },
+        newServiceBookingCount() {
+            return this.$page.props.data.new_service_booking_count ?? 0
+        },
+        newTestDriveSurveyCount() {
+            return this.$page.props.data.new_test_drive_survey_count ?? 0
+        },
+        newServiceSurveyCount() {
+            return this.$page.props.data.new_service_survey_count ?? 0
         },
         newApplyCount() {
             return this.$page.props.data.new_apply_count ?? 0
@@ -586,8 +634,14 @@ export default {
 /* Summary Grid */
 .summary-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 20px;
+}
+
+@media (max-width: 1024px) {
+    .summary-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
 @media (max-width: 768px) {

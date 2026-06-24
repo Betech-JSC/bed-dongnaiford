@@ -100,18 +100,28 @@
         :class="{ active: isUrl('admin.contacts.*') }" class="item">
         <material-symbols:connect-without-contact />
         <span>Yêu cầu liên hệ</span>
+        <span v-if="newContact" class="badge badge-danger ml-auto">{{ newContact }}</span>
+    </Link>
+
+    <Link v-if="can('admin.service-bookings.index')" :href="route('admin.service-bookings.index')"
+        :class="{ active: isUrl('admin.service-bookings.*') }" class="item">
+        <ph:calendar-blank-light />
+        <span>Đặt hẹn dịch vụ</span>
+        <span v-if="newServiceBooking" class="badge badge-danger ml-auto">{{ newServiceBooking }}</span>
     </Link>
 
     <Link v-if="can('admin.test-drive-surveys.index')" :href="route('admin.test-drive-surveys.index')"
         :class="{ active: isUrl('admin.test-drive-surveys.*') }" class="item">
         <ph:clipboard-text-light />
         <span>Khảo sát lái thử</span>
+        <span v-if="newTestDriveSurvey" class="badge badge-danger ml-auto">{{ newTestDriveSurvey }}</span>
     </Link>
 
     <Link v-if="can('admin.service-surveys.index')" :href="route('admin.service-surveys.index')"
         :class="{ active: isUrl('admin.service-surveys.*') }" class="item">
         <ph:clipboard-light />
         <span>Khảo sát dịch vụ</span>
+        <span v-if="newServiceSurvey" class="badge badge-danger ml-auto">{{ newServiceSurvey }}</span>
     </Link>
     
     <Link v-if="can('admin.chat-sessions.index')" :href="route('admin.chat-sessions.index')"
@@ -172,6 +182,15 @@ export default {
     computed: {
         newContact() {
             return this.$page.props.data.new_contact_count
+        },
+        newServiceBooking() {
+            return this.$page.props.data.new_service_booking_count
+        },
+        newTestDriveSurvey() {
+            return this.$page.props.data.new_test_drive_survey_count
+        },
+        newServiceSurvey() {
+            return this.$page.props.data.new_service_survey_count
         },
         newApply() {
             return this.$page.props.data.new_apply_count

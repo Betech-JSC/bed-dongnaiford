@@ -102,7 +102,7 @@ return [
                 'Nội dung yêu cầu dịch vụ' => 'required',
                 'Tại' => 'required',
             ],
-            'route' => 'contacts',
+            'route' => 'service-bookings',
         ],
     ],
     'message' => [

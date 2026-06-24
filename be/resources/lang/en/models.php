@@ -48,6 +48,9 @@ return [
         'service-surveys' => 'Service Surveys',
         'service_surveys' => 'Service Surveys',
         'ServiceSurveys' => 'Service Surveys',
+        'service-bookings' => 'Service Bookings',
+        'service_bookings' => 'Service Bookings',
+        'ServiceBookings' => 'Service Bookings',
     ],
     'chat-sessions' => [
         'id' => 'ID',

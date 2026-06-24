@@ -82,6 +82,9 @@ return [
         'service-surveys' => 'Khảo sát dịch vụ',
         'service_surveys' => 'Khảo sát dịch vụ',
         'ServiceSurveys' => 'Khảo sát dịch vụ',
+        'service-bookings' => 'Đặt hẹn dịch vụ',
+        'service_bookings' => 'Đặt hẹn dịch vụ',
+        'ServiceBookings' => 'Đặt hẹn dịch vụ',
     ],
     'common' => [
         'id' => 'ID',
