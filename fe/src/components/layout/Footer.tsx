@@ -102,6 +102,11 @@ export default function Footer() {
                     </li>
                   </>
                 )}
+                <li>
+                  <Link href="/xe-da-qua-su-dung" className="hover:text-[#0562d2] transition-colors block">
+                    Xe đã qua sử dụng
+                  </Link>
+                </li>
               </ul>
             </div>
 

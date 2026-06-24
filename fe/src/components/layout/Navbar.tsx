@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { MapPin, Mail, Phone, Search, ChevronDown, ChevronRight } from "lucide-react";
-import { vehiclesAPI, accessoriesAPI, servicesAPI } from "@/lib/api";
+import { vehiclesAPI, accessoriesAPI, servicesAPI, usedVehiclesAPI } from "@/lib/api";
 import { accessoriesData } from "@/data/accessories";
 
 type DropdownItem = {
@@ -33,6 +33,7 @@ export default function Navbar() {
   const [categoriesList, setCategoriesList] = useState<any[]>([]);
   const [vehiclesList, setVehiclesList] = useState<any[]>([]);
   const [accessoriesList, setAccessoriesList] = useState<any[]>([]);
+  const [usedVehiclesList, setUsedVehiclesList] = useState<any[]>([]);
   const [servicesMenuList, setServicesMenuList] = useState<DropdownItem[]>([
     { name: "Chăm sóc khách hàng", href: "/dich-vu/cham-soc-khach-hang" },
     { name: "Bảo dưỡng nhanh 60 phút", href: "/dich-vu/bao-duong-nhanh" },
@@ -79,11 +80,12 @@ export default function Navbar() {
     let active = true;
     const fetchMenuData = async () => {
       try {
-        const [catsData, vehsData, accsData, servicesData] = await Promise.all([
+        const [catsData, vehsData, accsData, servicesData, usedVehsData] = await Promise.all([
           vehiclesAPI.getCategories().catch(() => null),
           vehiclesAPI.getAll().catch(() => null),
           accessoriesAPI.getAll({ limit: 6 }).catch(() => null),
           servicesAPI.getAll().catch(() => null),
+          usedVehiclesAPI.getAll({ limit: 3 }).catch(() => null),
         ]);
         
         if (!active) return;
@@ -92,6 +94,7 @@ export default function Navbar() {
         const vehs = (vehsData as any)?.data || vehsData;
         const accs = (accsData as any)?.data || accsData;
         const services = (servicesData as any)?.services || (servicesData as any)?.data || servicesData;
+        const usedVehs = (usedVehsData as any)?.data || usedVehsData;
 
         if (Array.isArray(cats) && cats.length > 0) {
           setCategoriesList(cats);
@@ -101,6 +104,9 @@ export default function Navbar() {
         }
         if (Array.isArray(accs) && accs.length > 0) {
           setAccessoriesList(accs);
+        }
+        if (Array.isArray(usedVehs) && usedVehs.length > 0) {
+          setUsedVehiclesList(usedVehs);
         }
         if (Array.isArray(services) && services.length > 0) {
           setServicesMenuList(services.map((srv: any) => {
@@ -262,6 +268,7 @@ export default function Navbar() {
         { name: "Ford Territory", href: "/san-pham/ford-territory" },
         { name: "Ford Transit", href: "/san-pham/ford-transit-2024" },
         { name: "Ford Mustang", href: "/san-pham/mustang-fastback" },
+        { name: "Xe đã qua sử dụng", href: "/xe-da-qua-su-dung" },
         { name: "Phụ kiện chính hãng", href: "/phu-kien" },
       ],
     },
@@ -568,10 +575,113 @@ export default function Navbar() {
                 </button>
               );
             })()}
+
+            {/* Xe đã qua sử dụng tab button */}
+            {(() => {
+              const isActive = activeTab === "xe-da-qua-su-dung";
+              return (
+                <button
+                  onClick={() => {
+                    router.push("/xe-da-qua-su-dung");
+                    setIsProductHovered(false);
+                  }}
+                  onMouseEnter={() => setActiveTab("xe-da-qua-su-dung")}
+                  className={`flex items-center justify-between px-4 py-3 rounded-lg font-['Ford_Antenna',sans-serif] font-bold text-sm tracking-wider uppercase transition-all duration-200 text-left cursor-pointer
+                    ${isActive 
+                      ? "text-[#0562D2] bg-blue-50/50 border-l-4 border-[#0562D2] pl-3" 
+                      : "text-[#333333] hover:text-[#0562D2] hover:bg-gray-50 border-l-4 border-transparent"}`}
+                >
+                  <span>Xe đã qua sử dụng</span>
+                  <ChevronRight className={`w-4 h-4 transition-transform duration-200 ${isActive ? "translate-x-1" : ""}`} />
+                </button>
+              );
+            })()}
           </div>
 
           {/* Right Product Showcase Panel */}
           {(() => {
+            if (activeTab === "xe-da-qua-su-dung") {
+              const displayUsedVehicles = usedVehiclesList.length > 0 
+                ? usedVehiclesList.slice(0, 3) 
+                : [
+                    { id: "ford-ranger-wildtrak-2-0l-4x4-at-2021", name: "Ranger Wildtrak 2.0L 2021", price: 680000000, year: 2021, odo: 45000, slug: "ford-ranger-wildtrak-2-0l-4x4-at-2021" },
+                    { id: "ford-everest-titanium-2-0l-at-2023", name: "Everest Titanium 2.0L 2023", price: 1050000000, year: 2023, odo: 15000, slug: "ford-everest-titanium-2-0l-at-2023" },
+                    { id: "ford-territory-trend-1-5l-at-2023", name: "Territory Trend 1.5L 2023", price: 720000000, year: 2023, odo: 20000, slug: "ford-territory-trend-1-5l-at-2023" }
+                  ];
+                
+              return (
+                <div className="col-span-3 flex flex-col gap-6">
+                  {/* Banner Card */}
+                  <div className="p-6 rounded-xl text-white flex justify-between items-center bg-gradient-to-r from-[#02337A] via-[#0562D2] to-[#00095B]">
+                    <div className="space-y-1 text-left">
+                      <h4 className="font-['Ford_Antenna',sans-serif] font-bold text-lg">
+                        Xe đã qua sử dụng chính hãng
+                      </h4>
+                      <p className="text-xs text-white/80 font-medium">
+                        Đảm bảo chất lượng xe cũ, kiểm duyệt nghiêm ngặt, hỗ trợ trả góp và bảo hành uy tín
+                      </p>
+                    </div>
+                    <Link
+                      href="/xe-da-qua-su-dung"
+                      onClick={handleMouseLeaveImmediate}
+                      className="bg-white text-gray-900 hover:bg-gray-100 transition-colors px-5 py-2.5 rounded-full text-xs font-bold font-['Ford_Antenna',sans-serif] flex items-center gap-1.5 shrink-0"
+                    >
+                      <span>Xem tất cả xe cũ</span>
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </Link>
+                  </div>
+
+                  {/* Used Vehicles Grid */}
+                  <div className="grid grid-cols-3 gap-6 text-left">
+                    {displayUsedVehicles.map((car: any) => {
+                      const id = car.slug || car.id;
+                      const name = car.title || car.name;
+                      const price = car.price || 0;
+                      const image = car.image_url || car.image?.[0]?.url || car.image?.[0] || "";
+                      
+                      return (
+                        <Link
+                          key={id}
+                          href={`/xe-da-qua-su-dung/${id}`}
+                          onClick={handleMouseLeaveImmediate}
+                          className="group border border-gray-100 hover:border-blue-200 rounded-xl p-4 flex flex-col items-center bg-gray-50/30 hover:bg-white hover:shadow-lg transition-all duration-300 text-center cursor-pointer"
+                        >
+                          {/* Image Container */}
+                          <div className="w-full h-32 relative mb-3 overflow-hidden rounded-lg bg-gray-100">
+                            {image ? (
+                              <Image
+                                src={image}
+                                alt={name}
+                                fill
+                                sizes="(max-width: 1024px) 30vw, 20vw"
+                                className="object-cover group-hover:scale-105 transition-transform duration-500"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center bg-gray-100 rounded-lg text-xs text-gray-400">
+                                Hình ảnh đang cập nhật
+                              </div>
+                            )}
+                          </div>
+                          {/* Title */}
+                          <h5 className="font-['Ford_Antenna',sans-serif] font-bold text-xs text-gray-900 group-hover:text-[#0562D2] transition-colors mb-1 line-clamp-1 w-full">
+                            {name}
+                          </h5>
+                          {/* Info */}
+                          <p className="text-[10px] text-gray-400 mb-1">
+                            {car.year ? `Đời ${car.year}` : "Xe đã qua sử dụng"} {car.odo ? `• ${new Intl.NumberFormat("vi-VN").format(car.odo)} km` : ""}
+                          </p>
+                          {/* Price */}
+                          <p className="text-[11px] text-gray-550 font-medium">
+                            Giá bán: <span className="text-[#0562D2] font-bold">{price > 0 ? formatPrice(price) : "Liên hệ"}</span>
+                          </p>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            }
+
             if (activeTab === "phu-kien") {
               const displayAccessories = accessoriesList.length > 0 
                 ? accessoriesList.slice(0, 3) 
@@ -790,6 +900,19 @@ export default function Navbar() {
                         );
                       })}
 
+                      <div className="h-px bg-gray-100 my-1" />
+
+                      <Link
+                        href="/xe-da-qua-su-dung"
+                        onClick={() => {
+                          setIsOpen(false);
+                          setIsMobileProductOpen(false);
+                        }}
+                        className="w-full block px-2 py-1.5 text-sm font-semibold text-gray-700 hover:text-[#0562D2] hover:bg-gray-50 rounded text-left cursor-pointer"
+                      >
+                        Xe đã qua sử dụng
+                      </Link>
+                      
                       <div className="h-px bg-gray-100 my-1" />
                       
                       {/* Accessories Collapsible Menu on Mobile Drawer */}
