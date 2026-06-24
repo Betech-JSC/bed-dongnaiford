@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Search, Car, Wrench, FileText, ChevronRight, HelpCircle, X } from "lucide-react";
 import { handleImageError } from "@/lib/site-assets";
 import { vehiclesAPI, accessoriesAPI, postsAPI } from "@/lib/api";
+import { resolveImageUrl } from "@/components/blocks/Blocks";
 
 // Helper function to remove Vietnamese accents for fuzzy searching
 function removeAccents(str: string): string {
@@ -119,7 +120,7 @@ function SearchPageContent() {
       const id = v.slug || String(v.id);
       const name = v.title || v.name || "";
       const price = typeof v.base_price === 'string' ? parseFloat(v.base_price) : (v.base_price || v.basePrice || 0);
-      const image = v.image_thumbnail_url || v.image_url || v.images?.[0] || "";
+      const image = resolveImageUrl(v.image_thumbnail_url || v.image_url || v.images?.[0] || "");
       
       let typeName = "SUV";
       const titleLower = name.toLowerCase();
@@ -156,7 +157,7 @@ function SearchPageContent() {
       const id = a.slug || String(a.id);
       const name = a.title || a.name || "";
       const price = typeof a.price === 'string' ? parseFloat(a.price) : (a.price || 0);
-      const image = a.image_url || a.images?.[0]?.url || a.image || "";
+      const image = resolveImageUrl(a.image_url || a.images?.[0]?.url || a.image || "");
       const categoryName = a.category_name || a.categoryName || "Phụ Kiện";
       
       return {
@@ -176,7 +177,7 @@ function SearchPageContent() {
       const content = art.description || art.content || "";
       const date = formatDate(art.published_at || art.created_at);
       const category = art.category?.title || art.category || "Tin tức";
-      const image = art.image?.url || art.image_url || art.image || "/placeholder-news.jpg";
+      const image = resolveImageUrl(art.image?.url || art.image_url || art.image || "/placeholder-news.jpg");
 
       return {
         id,
