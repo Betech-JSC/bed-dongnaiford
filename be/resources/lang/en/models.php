@@ -42,6 +42,12 @@ return [
         'cms-manuals' => 'CMS Manuals',
         'maintenance-schedules' => 'Maintenance Schedules',
         'maintenance_schedules' => 'Maintenance Schedules',
+        'test-drive-surveys' => 'Test Drive Surveys',
+        'test_drive_surveys' => 'Test Drive Surveys',
+        'TestDriveSurveys' => 'Test Drive Surveys',
+        'service-surveys' => 'Service Surveys',
+        'service_surveys' => 'Service Surveys',
+        'ServiceSurveys' => 'Service Surveys',
     ],
     'chat-sessions' => [
         'id' => 'ID',

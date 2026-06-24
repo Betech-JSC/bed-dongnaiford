@@ -33,6 +33,8 @@ use App\Http\Controllers\Backend\BrandController;
 use App\Http\Controllers\Backend\CmsManualController;
 use App\Http\Controllers\Backend\MaintenanceScheduleController;
 use App\Http\Controllers\Backend\CustomerHandoverController;
+use App\Http\Controllers\Backend\TestDriveSurveyController;
+use App\Http\Controllers\Backend\ServiceSurveyController;
 
 Route::localized(function () {
     Route::middleware(['auth:admin'])->name('admin.')->group(function () {
@@ -70,5 +72,7 @@ Route::localized(function () {
         Route::module(CmsManualController::class);
         Route::module(MaintenanceScheduleController::class);
         Route::module(CustomerHandoverController::class);
+        Route::module(TestDriveSurveyController::class);
+        Route::module(ServiceSurveyController::class);
     });
 });

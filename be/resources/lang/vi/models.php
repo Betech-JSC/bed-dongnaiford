@@ -76,6 +76,12 @@ return [
         'cms-manuals' => 'Hướng dẫn sử dụng',
         'maintenance-schedules' => 'Lịch bảo dưỡng xe',
         'maintenance_schedules' => 'Lịch bảo dưỡng xe',
+        'test-drive-surveys' => 'Khảo sát lái thử',
+        'test_drive_surveys' => 'Khảo sát lái thử',
+        'TestDriveSurveys' => 'Khảo sát lái thử',
+        'service-surveys' => 'Khảo sát dịch vụ',
+        'service_surveys' => 'Khảo sát dịch vụ',
+        'ServiceSurveys' => 'Khảo sát dịch vụ',
     ],
     'common' => [
         'id' => 'ID',

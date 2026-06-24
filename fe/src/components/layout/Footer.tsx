@@ -212,6 +212,16 @@ export default function Footer() {
                     Liên hệ
                   </Link>
                 </li>
+                <li>
+                  <Link href="/khao-sat-lai-thu" className="hover:text-[#0562d2] transition-colors block">
+                    Khảo sát lái thử
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/khao-sat-dich-vu" className="hover:text-[#0562d2] transition-colors block">
+                    Khảo sát dịch vụ
+                  </Link>
+                </li>
               </ul>
 
               {/* Social Icons (Facebook, Zalo, YouTube, TikTok) */}

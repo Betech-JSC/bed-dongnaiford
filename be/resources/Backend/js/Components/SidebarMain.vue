@@ -101,6 +101,18 @@
         <material-symbols:connect-without-contact />
         <span>Yêu cầu liên hệ</span>
     </Link>
+
+    <Link v-if="can('admin.test-drive-surveys.index')" :href="route('admin.test-drive-surveys.index')"
+        :class="{ active: isUrl('admin.test-drive-surveys.*') }" class="item">
+        <ph:clipboard-text-light />
+        <span>Khảo sát lái thử</span>
+    </Link>
+
+    <Link v-if="can('admin.service-surveys.index')" :href="route('admin.service-surveys.index')"
+        :class="{ active: isUrl('admin.service-surveys.*') }" class="item">
+        <ph:clipboard-light />
+        <span>Khảo sát dịch vụ</span>
+    </Link>
     
     <Link v-if="can('admin.chat-sessions.index')" :href="route('admin.chat-sessions.index')"
         :class="{ active: isUrl('admin.chat-sessions.*') }" class="item">
