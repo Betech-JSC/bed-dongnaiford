@@ -417,18 +417,29 @@ export default function AIChatWidget() {
   const windowRef = useRef<HTMLDivElement>(null);
 
   const updatePosition = useCallback(() => {
+    const hasConsent = typeof window !== "undefined" ? localStorage.getItem("ford-cookie-consent") : null;
+    const hasSessionClosed = typeof window !== "undefined" ? sessionStorage.getItem("ford-cookie-consent-closed") : null;
+    const isCookieVisible = !hasConsent && !hasSessionClosed;
+    const bottomOffset = isCookieVisible ? 240 : 24;
+
     setPosition({
       x: 84,
-      y: window.innerHeight - BUBBLE_SIZE - 24,
+      y: window.innerHeight - BUBBLE_SIZE - bottomOffset,
     });
   }, []);
 
-  // Set mounted & listen to window resize
+  // Set mounted & listen to window resize and cookie consent changes
   useEffect(() => {
     setMounted(true);
     updatePosition();
     window.addEventListener("resize", updatePosition);
-    return () => window.removeEventListener("resize", updatePosition);
+    window.addEventListener("cookie-consent-changed", updatePosition);
+    window.addEventListener("storage", updatePosition);
+    return () => {
+      window.removeEventListener("resize", updatePosition);
+      window.removeEventListener("cookie-consent-changed", updatePosition);
+      window.removeEventListener("storage", updatePosition);
+    };
   }, [updatePosition]);
 
   // Calculate chat window position relative to bubble
@@ -659,7 +670,7 @@ export default function AIChatWidget() {
           left: `${position.x}px`,
           top: `${position.y}px`,
         }}
-        className={`fixed z-[60] w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-colors duration-200 cursor-pointer select-none ${
+        className={`fixed z-[60] w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-[top,left,background-color] ease-out duration-500 cursor-pointer select-none ${
           isOpen
             ? "bg-[#333] hover:bg-[#1a1a1a]"
             : "bg-[#0562d2] hover:bg-[#044ea7]"
