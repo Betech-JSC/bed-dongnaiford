@@ -20,6 +20,7 @@ use App\Http\Controllers\Backend\FeedbackController;
 use App\Http\Controllers\Backend\BannerController;
 use App\Http\Controllers\Backend\VehicleCategoryController;
 use App\Http\Controllers\Backend\VehicleController;
+use App\Http\Controllers\Backend\UsedVehicleController;
 use App\Http\Controllers\Backend\CustomerReviewController;
 use App\Http\Controllers\Backend\PartnerController;
 use App\Http\Controllers\Backend\SalesConsultantController;
@@ -56,6 +57,7 @@ Route::localized(function () {
         Route::module(BannerController::class);
         Route::module(VehicleCategoryController::class);
         Route::module(VehicleController::class);
+        Route::module(UsedVehicleController::class);
         Route::module(CustomerReviewController::class);
         Route::module(PartnerController::class);
         Route::module(SalesConsultantController::class);

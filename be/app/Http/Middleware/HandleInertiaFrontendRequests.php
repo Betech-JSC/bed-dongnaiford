@@ -23,7 +23,7 @@ class HandleInertiaFrontendRequests extends Middleware
             $lotusCategories = VehicleCategory::where('status', VehicleCategory::STATUS_ACTIVE)
                 ->whereLocaleActive()
                 ->with(['vehicles' => function ($query) {
-                    $query->where('status', 'ACTIVE')->orderBy('sort_order');
+                    $query->where('status', 'ACTIVE')->orderBy('sort_order')->with('categories');
                 }])
                 ->orderBy('sort_order')
                 ->get()

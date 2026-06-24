@@ -242,12 +242,13 @@ class VehicleController extends Controller
                 $versionId = $data['id'] ?? null;
 
                 $versionPayload = [
-                    'price'      => $data['price'] ?? 0,
-                    'status'     => $data['status'] ?? 'ACTIVE',
-                    'sort_order' => $data['sort_order'] ?? ($index + 1),
-                    'specs'      => $data['specs'] ?? null,
-                    'image'      => $data['image'] ?? null,
-                    'colors'     => $data['colors'] ?? null,
+                    'price'           => $data['price'] ?? 0,
+                    'status'          => $data['status'] ?? 'ACTIVE',
+                    'sort_order'      => $data['sort_order'] ?? ($index + 1),
+                    'specs'           => $data['specs'] ?? null,
+                    'image'           => $data['image'] ?? null,
+                    'image_thumbnail' => $data['image_thumbnail'] ?? null,
+                    'colors'          => $data['colors'] ?? null,
                 ];
 
                 // Map translations for locales 'vi' and 'en'

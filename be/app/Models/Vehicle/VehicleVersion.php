@@ -20,13 +20,14 @@ class VehicleVersion extends BaseModel
         'name',
     ];
 
-    protected $appends = ['image_url'];
+    protected $appends = ['image_url', 'image_thumbnail_url'];
 
     protected $fillable = [
         'vehicle_id',
         'price',
         'specs',
         'image',
+        'image_thumbnail',
         'colors',
         'status',
         'sort_order',
@@ -42,14 +43,15 @@ class VehicleVersion extends BaseModel
     public function rules(): array
     {
         return [
-            'vehicle_id'  => 'required|exists:vehicles,id',
-            'vi.name'     => 'required|string|max:255',
-            'price'       => 'required|numeric|min:0',
-            'specs'       => 'nullable|array',
-            'image'       => 'nullable|array',
-            'colors'      => 'nullable|array',
-            'status'      => 'required|string|in:ACTIVE,INACTIVE',
-            'sort_order'  => 'nullable|integer',
+            'vehicle_id'      => 'required|exists:vehicles,id',
+            'vi.name'         => 'required|string|max:255',
+            'price'           => 'required|numeric|min:0',
+            'specs'           => 'nullable|array',
+            'image'           => 'nullable|array',
+            'image_thumbnail' => 'nullable|array',
+            'colors'          => 'nullable|array',
+            'status'          => 'required|string|in:ACTIVE,INACTIVE',
+            'sort_order'      => 'nullable|integer',
         ];
     }
 
@@ -69,6 +71,24 @@ class VehicleVersion extends BaseModel
     public function getImageUrlAttribute(): ?string
     {
         return isset($this->image['path']) ? static_url($this->image['path']) : null;
+    }
+
+    public function setImageThumbnailAttribute($value): void
+    {
+        $this->attributes['image_thumbnail'] = is_array($value) ? json_encode($value) : $value;
+    }
+
+    public function getImageThumbnailAttribute($value): ?array
+    {
+        if (is_string($value) && !empty($value)) {
+            return json_decode($value, true);
+        }
+        return is_array($value) ? $value : null;
+    }
+
+    public function getImageThumbnailUrlAttribute(): ?string
+    {
+        return isset($this->image_thumbnail['path']) ? static_url($this->image_thumbnail['path']) : null;
     }
 
     public function setSpecsAttribute($value): void

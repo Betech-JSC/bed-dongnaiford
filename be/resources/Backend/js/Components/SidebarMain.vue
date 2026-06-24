@@ -18,6 +18,12 @@
         <span>Sản phẩm xe</span>
     </Link>
     
+    <Link v-if="can('admin.used-vehicles.index')" :href="route('admin.used-vehicles.index')"
+        :class="{ active: isUrl('admin.used-vehicles.*') }" class="item">
+        <ph:car-light />
+        <span>Xe đã qua sử dụng</span>
+    </Link>
+    
     <Link v-if="can('admin.accessory-categories.index')" :href="route('admin.accessory-categories.index')"
         :class="{ active: isUrl('admin.accessory-categories.*') }" class="item">
         <bx:category />

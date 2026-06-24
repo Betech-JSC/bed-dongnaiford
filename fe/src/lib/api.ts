@@ -69,6 +69,20 @@ export const vehiclesAPI = {
 };
 
 /**
+ * Used Vehicles API
+ */
+export const usedVehiclesAPI = {
+  // Get all used vehicles
+  getAll: (params?: Record<string, any>) => {
+    const query = params ? '?' + new URLSearchParams(params as any).toString() : '';
+    return fetchAPI<any>(`/used-vehicles${query}`);
+  },
+  
+  // Get used vehicle by slug
+  getBySlug: (slug: string) => fetchAPI<any>(`/used-vehicles/${slug}`),
+};
+
+/**
  * Banners API
  */
 export const bannersAPI = {

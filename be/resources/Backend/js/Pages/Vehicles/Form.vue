@@ -264,6 +264,19 @@
                                     />
                                 </div>
 
+                                <div class="mb-4 bg-white p-4 rounded-xl border border-gray-200">
+                                    <!-- Ảnh đại diện phiên bản show ở card sản phẩm xe -->
+                                    <Field 
+                                        :key="'version_image_thumbnail_' + activeVersionIndex"
+                                        v-model="form.versions[activeVersionIndex].image_thumbnail" 
+                                        :field="{
+                                            type: 'file_upload',
+                                            name: 'version_image_thumbnail_' + activeVersionIndex,
+                                            label: 'Ảnh đại diện phiên bản (Hiển thị ở các card dòng sản phẩm xe, không hiển thị trong chi tiết xe)',
+                                        }" 
+                                    />
+                                </div>
+
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                                     <!-- Trạng thái hoạt động -->
                                     <Field v-model="form.versions[activeVersionIndex].status" :field="{
@@ -1479,6 +1492,7 @@ export default {
                     status: ver.status ?? 'ACTIVE',
                     sort_order: ver.sort_order ?? 0,
                     image: ver.image ?? null,
+                    image_thumbnail: ver.image_thumbnail ?? null,
                     showSpecs: false,
                     customSpecs: customSpecs,
                     specs: customSpecs,
@@ -1531,6 +1545,7 @@ export default {
                 status: 'ACTIVE',
                 sort_order: this.formData.versions.length + 1,
                 image: null,
+                image_thumbnail: null,
                 showSpecs: true,
                 customSpecs: defaultSpecs,
                 specs: defaultSpecs,

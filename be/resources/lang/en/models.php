@@ -30,6 +30,8 @@ return [
         'banners' => 'Banners',
         'vehicle-categories' => 'Vehicle Categories',
         'vehicles' => 'Vehicles',
+        'used-vehicles' => 'Used Vehicles',
+        'used_vehicles' => 'Used Vehicles',
         'customer-reviews' => 'Customer Reviews',
         'partners' => 'Partners',
         'sales-consultants' => 'Sales Consultants',

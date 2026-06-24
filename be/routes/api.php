@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\KeywordController;
 use App\Http\Controllers\Api\VehicleController;
+use App\Http\Controllers\Api\UsedVehicleController;
 use App\Http\Controllers\Api\VehicleCategoryController;
 use App\Http\Controllers\Api\CustomerReviewController;
 use App\Http\Controllers\Api\BannerController;
@@ -41,6 +42,11 @@ Route::localized(function () {
         // Chi tiết xe (Đặt ở dưới cùng để tránh tranh chấp wildcard {slug})
         Route::get('{slug}', [VehicleController::class, 'show'])->name('show');
         Route::put('{slug}/layout', [VehicleController::class, 'updateLayout'])->name('updateLayout');
+    });
+
+    Route::prefix('used-vehicles')->name('api.used_vehicles.')->group(function () {
+        Route::get('/', [UsedVehicleController::class, 'index'])->name('index');
+        Route::get('{slug}', [UsedVehicleController::class, 'show'])->name('show');
     });
 
     Route::prefix('accessories')->name('api.accessories.')->group(function () {

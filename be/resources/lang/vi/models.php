@@ -51,6 +51,8 @@ return [
         'banners' => 'Banners',
         'vehicle-categories' => 'Danh mục xe',
         'vehicles' => 'Sản phẩm xe',
+        'used-vehicles' => 'Xe đã qua sử dụng',
+        'used_vehicles' => 'Xe đã qua sử dụng',
         'customer-reviews' => 'Ý kiến khách hàng',
         'partners' => 'Đối tác',
         'sales-consultants' => 'Đội ngũ tư vấn',

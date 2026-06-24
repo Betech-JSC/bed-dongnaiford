@@ -1985,8 +1985,8 @@ function VersionsGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId, 
 
               const desc = descriptions[idx] || defaultDesc;
 
-              // Quyết định ảnh: Lấy ảnh đặc trưng của phiên bản nếu có, nếu không lấy ảnh trong images array theo index, nếu không lấy ảnh chính của xe
-              const versionImage = ver.image_url || vehicle?.images?.[idx] || vehicle?.images?.[0] || vehicle?.image;
+              // Quyết định ảnh: Lấy ảnh đại diện (thumbnail) của phiên bản nếu có, nếu không lấy ảnh đặc trưng, nếu không lấy ảnh trong images array theo index, nếu không lấy ảnh chính của xe
+              const versionImage = ver.image_thumbnail_url || ver.image_url || vehicle?.images?.[idx] || vehicle?.images?.[0] || vehicle?.image;
               const imgUrl = mounted ? resolveImageUrl(versionImage) : "/assets/img-gradient-1.png";
 
               return (
