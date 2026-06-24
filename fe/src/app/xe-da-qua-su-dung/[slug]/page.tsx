@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { 
@@ -16,6 +16,7 @@ import {
   Car,
   FileText,
   ChevronRight,
+  X,
 } from "lucide-react";
 import { contactsAPI, usedVehiclesAPI } from "@/lib/api";
 
@@ -25,38 +26,71 @@ export default function UsedVehicleDetailPage() {
 
   const [vehicle, setVehicle] = useState<any | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeImage, setActiveImage] = useState<string>("");
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [showLightbox, setShowLightbox] = useState(false);
   const [showBookingModal, setShowBookingModal] = useState(false);
+ 
+   // Booking Form States
+   const [bookingForm, setBookingForm] = useState({
+     fullName: "",
+     phone: "",
+     note: ""
+   });
+   const [isSubmitting, setIsSubmitting] = useState(false);
+   const [isSubmitted, setIsSubmitted] = useState(false);
+   const [errorMessage, setErrorMessage] = useState("");
+ 
+   // Swipe / Drag detection states
+   const [touchStart, setTouchStart] = useState<number | null>(null);
+   const [touchEnd, setTouchEnd] = useState<number | null>(null);
+   const [mouseDownX, setMouseDownX] = useState<number | null>(null);
+   
+   // Thumbnail dragging states
+   const thumbnailContainerRef = useRef<HTMLDivElement>(null);
+   const [isDraggingThumb, setIsDraggingThumb] = useState(false);
+   const [startX, setStartX] = useState(0);
+   const [scrollLeft, setScrollLeft] = useState(0);
+   const hasDraggedRef = useRef(false);
 
-  // Booking Form States
-  const [bookingForm, setBookingForm] = useState({
-    fullName: "",
-    phone: "",
-    note: ""
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+   const displayThumbnails = vehicle && Array.isArray(vehicle.images_urls) 
+      ? vehicle.images_urls.filter(Boolean) 
+      : [];
 
-  useEffect(() => {
-    async function loadDetail() {
-      setIsLoading(true);
-      try {
-        const response = await usedVehiclesAPI.getBySlug(slug);
-        const data = response?.data || response;
-        if (data) {
-          setVehicle(data);
-          // Set active image to primary image first
-          setActiveImage(data.image_url || data.images_urls?.[0] || "");
+   const activeImage = displayThumbnails[activeIndex] || (vehicle ? vehicle.image_url : "") || "/assets/images/placeholder_car.png";
+
+   useEffect(() => {
+     async function loadDetail() {
+       setIsLoading(true);
+       try {
+         const response = await usedVehiclesAPI.getBySlug(slug);
+         const data = response?.data || response;
+         if (data) {
+           setVehicle(data);
+           setActiveIndex(0);
+         }
+       } catch (err) {
+         console.error("Failed to fetch used vehicle details:", err);
+       } finally {
+         setIsLoading(false);
+       }
+     }
+     loadDetail();
+   }, [slug]);
+
+    useEffect(() => {
+      if (!showLightbox) return;
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === "Escape") {
+          setShowLightbox(false);
+        } else if (e.key === "ArrowLeft") {
+          handlePrevImage();
+        } else if (e.key === "ArrowRight") {
+          handleNextImage();
         }
-      } catch (err) {
-        console.error("Failed to fetch used vehicle details:", err);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    loadDetail();
-  }, [slug]);
+      };
+      window.addEventListener("keydown", handleKeyDown);
+      return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [showLightbox, displayThumbnails.length]);
 
   if (isLoading && !vehicle) {
     return (
@@ -154,9 +188,78 @@ export default function UsedVehicleDetailPage() {
     setBookingForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const displayThumbnails = Array.isArray(vehicle.images_urls) 
-    ? vehicle.images_urls.filter(Boolean) 
-    : [];
+  const handlePrevImage = () => {
+    if (displayThumbnails.length === 0) return;
+    setActiveIndex((prev) => (prev === 0 ? displayThumbnails.length - 1 : prev - 1));
+  };
+
+  const handleNextImage = () => {
+    if (displayThumbnails.length === 0) return;
+    setActiveIndex((prev) => (prev === displayThumbnails.length - 1 ? 0 : prev + 1));
+  };
+
+  // Swipe / Touch handlers
+  const minSwipeDistance = 50;
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+    hasDraggedRef.current = false;
+  };
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+    if (touchStart !== null && Math.abs(touchStart - e.targetTouches[0].clientX) > 10) {
+      hasDraggedRef.current = true;
+    }
+  };
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    if (distance > minSwipeDistance) {
+      handleNextImage();
+    } else if (distance < -minSwipeDistance) {
+      handlePrevImage();
+    }
+  };
+
+  // Mouse drag handlers
+  const onMouseDown = (e: React.MouseEvent) => {
+    setMouseDownX(e.clientX);
+    hasDraggedRef.current = false;
+  };
+  const onMouseUp = (e: React.MouseEvent) => {
+    if (mouseDownX === null) return;
+    const distance = mouseDownX - e.clientX;
+    if (Math.abs(distance) > 10) {
+      hasDraggedRef.current = true;
+    }
+    if (distance > minSwipeDistance) {
+      handleNextImage();
+    } else if (distance < -minSwipeDistance) {
+      handlePrevImage();
+    }
+    setMouseDownX(null);
+  };
+
+  // Thumbnails scroll drag handlers
+  const handleThumbMouseDown = (e: React.MouseEvent) => {
+    if (!thumbnailContainerRef.current) return;
+    setIsDraggingThumb(true);
+    setStartX(e.pageX - thumbnailContainerRef.current.offsetLeft);
+    setScrollLeft(thumbnailContainerRef.current.scrollLeft);
+  };
+  const handleThumbMouseLeave = () => {
+    setIsDraggingThumb(false);
+  };
+  const handleThumbMouseUp = () => {
+    setIsDraggingThumb(false);
+  };
+  const handleThumbMouseMove = (e: React.MouseEvent) => {
+    if (!isDraggingThumb || !thumbnailContainerRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - thumbnailContainerRef.current.offsetLeft;
+    const walk = (x - startX) * 1.5;
+    thumbnailContainerRef.current.scrollLeft = scrollLeft - walk;
+  };
 
   // Metadata specifics (year, odo) from vehicle properties
   const year = vehicle.year || "Đang cập nhật";
@@ -189,33 +292,73 @@ export default function UsedVehicleDetailPage() {
           {/* Left Column: Image Showcase */}
           <div className="lg:col-span-7 space-y-4">
             {/* Main Big Image Preview */}
-            <div className="relative aspect-[16/10] w-full overflow-hidden rounded-2xl border border-gray-100 bg-gray-50 shadow-inner group">
+            <div 
+              className="relative aspect-[16/10] w-full overflow-hidden rounded-2xl border border-gray-100 bg-gray-50 shadow-inner group cursor-zoom-in select-none"
+              onClick={() => { if (!hasDraggedRef.current) setShowLightbox(true); }}
+              onTouchStart={onTouchStart}
+              onTouchMove={onTouchMove}
+              onTouchEnd={onTouchEnd}
+              onMouseDown={onMouseDown}
+              onMouseUp={onMouseUp}
+            >
               <Image
-                src={activeImage || vehicle.image_url || "/assets/images/placeholder_car.png"}
+                src={activeImage}
                 alt={vehicle.title}
                 fill
                 priority
                 sizes="(max-width: 1024px) 100vw, 60vw"
-                className="object-cover group-hover:scale-[1.02] transition-transform duration-500"
+                className="object-cover group-hover:scale-[1.02] transition-transform duration-500 pointer-events-none select-none"
               />
+
+              {/* Navigation Arrows overlay on hover */}
+              {displayThumbnails.length > 1 && (
+                <>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handlePrevImage(); }}
+                    onMouseDown={(e) => e.stopPropagation()}
+                    onMouseUp={(e) => e.stopPropagation()}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-[#0562D2] text-white p-3 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 border-0 cursor-pointer flex items-center justify-center z-10 hover:scale-105"
+                    aria-label="Previous image"
+                  >
+                    <ChevronRight className="w-5 h-5 rotate-180" />
+                  </button>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleNextImage(); }}
+                    onMouseDown={(e) => e.stopPropagation()}
+                    onMouseUp={(e) => e.stopPropagation()}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-[#0562D2] text-white p-3 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 border-0 cursor-pointer flex items-center justify-center z-10 hover:scale-105"
+                    aria-label="Next image"
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
+                </>
+              )}
             </div>
 
             {/* Thumbnails Row */}
             {displayThumbnails.length > 1 && (
-              <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin">
+              <div 
+                ref={thumbnailContainerRef}
+                onMouseDown={handleThumbMouseDown}
+                onMouseLeave={handleThumbMouseLeave}
+                onMouseUp={handleThumbMouseUp}
+                onMouseMove={handleThumbMouseMove}
+                className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin select-none cursor-grab active:cursor-grabbing"
+              >
                 {displayThumbnails.map((thumb: string, idx: number) => (
                   <button
                     key={idx}
-                    onClick={() => setActiveImage(thumb)}
+                    onClick={() => setActiveIndex(idx)}
+                    onMouseDown={(e) => e.stopPropagation()} // Prevent drag conflict
                     className={`relative w-24 aspect-[16/10] rounded-xl overflow-hidden border-2 transition-all shrink-0 cursor-pointer bg-white
-                      ${activeImage === thumb ? "border-[#0562D2] scale-95 shadow-md" : "border-gray-200 hover:border-gray-300"}`}
+                      ${activeIndex === idx ? "border-[#0562D2] scale-95 shadow-md" : "border-gray-200 hover:border-gray-300"}`}
                   >
                     <Image
                       src={thumb}
                       alt={`Thumbnail ${idx + 1}`}
                       fill
                       sizes="96px"
-                      className="object-cover"
+                      className="object-cover pointer-events-none select-none"
                     />
                   </button>
                 ))}
@@ -413,6 +556,104 @@ export default function UsedVehicleDetailPage() {
               )}
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Lightbox Zoom Modal */}
+      {showLightbox && (
+        <div 
+          className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex flex-col items-center justify-center select-none"
+          onClick={() => setShowLightbox(false)}
+        >
+          {/* Top Panel */}
+          <div className="absolute top-0 inset-x-0 h-16 flex items-center justify-between px-6 z-10 text-white bg-gradient-to-b from-black/60 to-transparent">
+            {/* Index Counter */}
+            <div className="bg-white/10 backdrop-blur-md text-white text-xs px-3.5 py-1.5 rounded-full font-bold">
+              {activeIndex + 1} / {displayThumbnails.length}
+            </div>
+            {/* Close Button */}
+            <button
+              onClick={() => setShowLightbox(false)}
+              className="bg-white/10 hover:bg-[#0562D2] text-white p-2.5 rounded-full transition-all duration-300 border-0 cursor-pointer flex items-center justify-center"
+              aria-label="Close Lightbox"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Large Image Showcase */}
+          <div 
+            className="relative w-full max-w-[90vw] max-h-[80vh] aspect-[16/10] overflow-hidden flex items-center justify-center"
+            onClick={(e) => e.stopPropagation()} // Prevent click on image from closing modal
+          >
+            <div 
+              className="relative w-full h-full flex items-center justify-center"
+              onTouchStart={onTouchStart}
+              onTouchMove={onTouchMove}
+              onTouchEnd={onTouchEnd}
+              onMouseDown={onMouseDown}
+              onMouseUp={onMouseUp}
+            >
+              <Image
+                src={displayThumbnails[activeIndex] || "/assets/images/placeholder_car.png"}
+                alt={vehicle.title}
+                fill
+                priority
+                sizes="90vw"
+                className="object-contain pointer-events-none select-none"
+              />
+            </div>
+          </div>
+
+          {/* Bottom Thumbnails Strip for Lightbox */}
+          {displayThumbnails.length > 1 && (
+            <div 
+              className="absolute bottom-6 inset-x-0 flex items-center justify-center gap-2 px-4 overflow-x-auto py-2 z-10 scrollbar-none"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {displayThumbnails.map((thumb: string, idx: number) => (
+                <button
+                  key={idx}
+                  onClick={() => setActiveIndex(idx)}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  className={`relative w-16 md:w-20 aspect-[16/10] rounded-lg overflow-hidden border-2 transition-all shrink-0 cursor-pointer bg-white
+                    ${activeIndex === idx ? "border-[#0562D2] scale-95 shadow-md" : "border-transparent opacity-50 hover:opacity-100"}`}
+                >
+                  <Image
+                    src={thumb}
+                    alt={`Lightbox Thumbnail ${idx + 1}`}
+                    fill
+                    sizes="80px"
+                    className="object-cover pointer-events-none select-none"
+                  />
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Next/Prev Navigation Buttons */}
+          {displayThumbnails.length > 1 && (
+            <>
+              <button
+                onClick={(e) => { e.stopPropagation(); handlePrevImage(); }}
+                onMouseDown={(e) => e.stopPropagation()}
+                onMouseUp={(e) => e.stopPropagation()}
+                className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-[#0562D2] text-white p-3 md:p-4 rounded-full transition-all duration-300 border-0 cursor-pointer flex items-center justify-center z-10 hover:scale-105"
+                aria-label="Previous image"
+              >
+                <ChevronRight className="w-6 h-6 rotate-180" />
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); handleNextImage(); }}
+                onMouseDown={(e) => e.stopPropagation()}
+                onMouseUp={(e) => e.stopPropagation()}
+                className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-[#0562D2] text-white p-3 md:p-4 rounded-full transition-all duration-300 border-0 cursor-pointer flex items-center justify-center z-10 hover:scale-105"
+                aria-label="Next image"
+              >
+                <ChevronRight className="w-6 h-6" />
+              </button>
+            </>
+          )}
         </div>
       )}
 
