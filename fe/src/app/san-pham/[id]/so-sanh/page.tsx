@@ -1,45 +1,58 @@
-"use client";
+import { notFound } from "next/navigation";
+import { vehiclesAPI } from "@/lib/api";
+import VehicleCompareClient from "@/components/vehicle/VehicleCompareClient";
 
-import { useVehicle, VehicleTabBar } from "../layout";
-import Blocks from "@/components/blocks/Blocks";
+type Props = {
+  params: Promise<{
+    id: string; // The URL slug of the vehicle
+  }>;
+};
 
-export default function VehicleSpecsPage() {
-  const {
-    vehicle,
-    openQuoteDrawer,
-    openDriveDrawer
-  } = useVehicle();
+export async function generateMetadata({ params }: Props) {
+  try {
+    const { id } = await params;
+    const res = await vehiclesAPI.getBySlug(id).catch(() => null);
+    const vehicle = res?.data;
 
-  if (!vehicle) return null;
+    if (!vehicle) return {};
 
-  // Filter specs block: SpecsGrid
-  const specsBlocks = (vehicle.layout_blocks || []).filter((b: any) =>
-    b.type === "SpecsGrid"
-  );
+    const title = `Thông số kỹ thuật & So sánh xe Ford ${vehicle.title} | Đồng Nai Ford`;
+    const description = `Chi tiết bảng thông số kỹ thuật xe Ford ${vehicle.title}, so sánh trang bị giữa các phiên bản. Nhận báo giá lăn bánh mới nhất tại Đồng Nai Ford.`;
 
-  // Fallback block if CMS layout_blocks has no SpecsGrid block configured
-  const displayBlocks = specsBlocks.length > 0 ? specsBlocks : [
-    {
-      type: "SpecsGrid",
-      data: {
-        align: "center"
-      }
-    }
-  ];
+    return {
+      title,
+      description,
+      alternates: {
+        canonical: `/san-pham/${id}/so-sanh`,
+      },
+      openGraph: {
+        title,
+        description,
+        type: "website",
+        locale: "vi_VN",
+        images: vehicle.image_url ? [{ url: vehicle.image_url }] : [],
+      },
+    };
+  } catch (error) {
+    console.error("Error generating metadata for comparison page:", error);
+    return {};
+  }
+}
 
-  return (
-    <div className="bg-[#ffffff] text-[#1a1a1a] font-sans pb-24">
-      <VehicleTabBar />
-      {/* Specs Grid Blocks */}
-      <div className="space-y-16">
-        <Blocks
-          layout={displayBlocks}
-          vehicle={vehicle}
-          isEditMode={false}
-          openQuoteDrawer={openQuoteDrawer}
-          openDriveModal={() => openDriveDrawer()}
-        />
-      </div>
-    </div>
-  );
+export default async function Page({ params }: Props) {
+  const { id } = await params;
+  let vehicle = null;
+
+  try {
+    const res = await vehiclesAPI.getBySlug(id).catch(() => null);
+    vehicle = res?.data;
+  } catch (error) {
+    console.error("Error loading vehicle in server comparison page:", error);
+  }
+
+  if (!vehicle) {
+    notFound();
+  }
+
+  return <VehicleCompareClient />;
 }
