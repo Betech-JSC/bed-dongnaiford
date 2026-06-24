@@ -1996,11 +1996,11 @@ function VersionsGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId, 
                   className={`flex flex-col items-center overflow-hidden rounded-[12px] text-left border border-gray-200/60 p-5 bg-white transition-all duration-300 shadow-xs h-auto justify-between snap-start shrink-0 w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] ${isEditMode ? "" : "hover:scale-[1.01] hover:shadow-md cursor-pointer group hover:border-[#0562d2]/40"
                     }`}
                 >
-                  <div className="aspect-[4/3] relative rounded-[8px] overflow-hidden w-full bg-gray-50 shrink-0">
+                  <div className="aspect-[4/3] relative rounded-[8px] overflow-hidden w-full bg-white flex items-center justify-center shrink-0">
                     <img
                       src={imgUrl}
                       alt={ver.name}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 pointer-events-none"
+                      className="w-full h-full object-contain object-center p-2 transition-transform duration-500 group-hover:scale-105 pointer-events-none"
                     />
                   </div>
 
