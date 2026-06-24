@@ -1034,4 +1034,29 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: 0 0 0 2px rgba(5, 98, 210, 0.3) !important;
 }
 
+/* Custom scrollbar utilities for Tailwind CSS v4 */
+@utility scrollbar-none {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+  &::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+  }
+}
+
+@utility scrollbar-thin {
+  scrollbar-width: thin;
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: var(--brand-gray-light);
+    border-radius: 3px;
+  }
+}
+
+
 

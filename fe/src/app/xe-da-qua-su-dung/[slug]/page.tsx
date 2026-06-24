@@ -343,7 +343,7 @@ export default function UsedVehicleDetailPage() {
                 onMouseLeave={handleThumbMouseLeave}
                 onMouseUp={handleThumbMouseUp}
                 onMouseMove={handleThumbMouseMove}
-                className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin select-none cursor-grab active:cursor-grabbing"
+                className="flex gap-3 overflow-x-auto pb-2 scrollbar-none select-none cursor-grab active:cursor-grabbing"
               >
                 {displayThumbnails.map((thumb: string, idx: number) => (
                   <button
