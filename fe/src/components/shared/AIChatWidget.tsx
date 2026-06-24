@@ -411,135 +411,15 @@ export default function AIChatWidget() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Drag state
-  const [position, setPosition] = useState<Position>({ x: -1, y: -1 });
-  const [isDragging, setIsDragging] = useState(false);
-  const [hasDragged, setHasDragged] = useState(false);
-  const dragOffset = useRef<Position>({ x: 0, y: 0 });
+  // Fixed Position State (Top-Left of the screen)
+  const [position] = useState<Position>({ x: 24, y: 96 });
   const bubbleRef = useRef<HTMLButtonElement>(null);
   const windowRef = useRef<HTMLDivElement>(null);
-
-  const setDefaultPosition = useCallback(() => {
-    setPosition({
-      x: window.innerWidth - BUBBLE_SIZE - 24,
-      y: window.innerHeight - BUBBLE_SIZE - 24,
-    });
-  }, []);
 
   // Set mounted
   useEffect(() => {
     setMounted(true);
   }, []);
-
-  // Initialize position (bottom-right by default)
-  useEffect(() => {
-    const saved = localStorage.getItem("dnf_chat_position");
-    if (saved) {
-      try {
-        const pos = JSON.parse(saved);
-        // Validate saved position is still within viewport
-        const maxX = window.innerWidth - BUBBLE_SIZE - EDGE_MARGIN;
-        const maxY = window.innerHeight - BUBBLE_SIZE - EDGE_MARGIN;
-        setPosition({
-          x: Math.min(Math.max(EDGE_MARGIN, pos.x), maxX),
-          y: Math.min(Math.max(EDGE_MARGIN, pos.y), maxY),
-        });
-      } catch {
-        setDefaultPosition();
-      }
-    } else {
-      setDefaultPosition();
-    }
-  }, [setDefaultPosition]);
-
-  // Save position to localStorage
-  useEffect(() => {
-    if (position.x >= 0 && position.y >= 0) {
-      localStorage.setItem("dnf_chat_position", JSON.stringify(position));
-    }
-  }, [position]);
-
-  // Drag handlers — unified for mouse and touch
-  const handleDragStart = useCallback(
-    (clientX: number, clientY: number) => {
-      setIsDragging(true);
-      setHasDragged(false);
-      dragOffset.current = {
-        x: clientX - position.x,
-        y: clientY - position.y,
-      };
-    },
-    [position]
-  );
-
-  const handleDragMove = useCallback(
-    (clientX: number, clientY: number) => {
-      if (!isDragging) return;
-      setHasDragged(true);
-
-      const maxX = window.innerWidth - BUBBLE_SIZE - EDGE_MARGIN;
-      const maxY = window.innerHeight - BUBBLE_SIZE - EDGE_MARGIN;
-
-      setPosition({
-        x: Math.min(Math.max(EDGE_MARGIN, clientX - dragOffset.current.x), maxX),
-        y: Math.min(Math.max(EDGE_MARGIN, clientY - dragOffset.current.y), maxY),
-      });
-    },
-    [isDragging]
-  );
-
-  const handleDragEnd = useCallback(() => {
-    if (!isDragging) return;
-    setIsDragging(false);
-
-    // Snap to nearest horizontal edge
-    const midX = window.innerWidth / 2;
-    setPosition((prev) => ({
-      x:
-        prev.x + BUBBLE_SIZE / 2 < midX
-          ? EDGE_MARGIN
-          : window.innerWidth - BUBBLE_SIZE - EDGE_MARGIN,
-      y: prev.y,
-    }));
-  }, [isDragging]);
-
-  // Mouse events
-  useEffect(() => {
-    if (!isDragging) return;
-
-    const onMouseMove = (e: MouseEvent) => {
-      e.preventDefault();
-      handleDragMove(e.clientX, e.clientY);
-    };
-    const onMouseUp = () => handleDragEnd();
-
-    window.addEventListener("mousemove", onMouseMove);
-    window.addEventListener("mouseup", onMouseUp);
-    return () => {
-      window.removeEventListener("mousemove", onMouseMove);
-      window.removeEventListener("mouseup", onMouseUp);
-    };
-  }, [isDragging, handleDragMove, handleDragEnd]);
-
-  // Touch events
-  useEffect(() => {
-    if (!isDragging) return;
-
-    const onTouchMove = (e: TouchEvent) => {
-      if (e.touches.length === 1) {
-        e.preventDefault();
-        handleDragMove(e.touches[0].clientX, e.touches[0].clientY);
-      }
-    };
-    const onTouchEnd = () => handleDragEnd();
-
-    window.addEventListener("touchmove", onTouchMove, { passive: false });
-    window.addEventListener("touchend", onTouchEnd);
-    return () => {
-      window.removeEventListener("touchmove", onTouchMove);
-      window.removeEventListener("touchend", onTouchEnd);
-    };
-  }, [isDragging, handleDragMove, handleDragEnd]);
 
   // Calculate chat window position relative to bubble
   const getChatPosition = (): React.CSSProperties => {
@@ -550,7 +430,7 @@ export default function AIChatWidget() {
     // We adjust the right boundary limit to leave 84px space for the QuickAccessToolbar
     const chatX = isRightSide
       ? Math.max(EDGE_MARGIN, Math.min(position.x + BUBBLE_SIZE, window.innerWidth - 84) - CHAT_WIDTH)
-      : Math.min(position.x, window.innerWidth - CHAT_WIDTH - EDGE_MARGIN);
+      : Math.max(EDGE_MARGIN, Math.min(position.x, window.innerWidth - CHAT_WIDTH - EDGE_MARGIN));
 
     // Vertical: place above the bubble, fall below if not enough space
     const spaceAbove = position.y - EDGE_MARGIN;
@@ -761,33 +641,20 @@ export default function AIChatWidget() {
 
   return (
     <>
-      {/* Draggable Chat Bubble */}
+      {/* Fixed Chat Bubble */}
       <button
         ref={bubbleRef}
-        onMouseDown={(e) => {
-          e.preventDefault();
-          handleDragStart(e.clientX, e.clientY);
-        }}
-        onTouchStart={(e) => {
-          if (e.touches.length === 1) {
-            handleDragStart(e.touches[0].clientX, e.touches[0].clientY);
-          }
-        }}
-        onClick={() => {
-          // Only toggle if not dragged
-          if (!hasDragged) setIsOpen((prev) => !prev);
-        }}
+        onClick={() => setIsOpen((prev) => !prev)}
         style={{
           left: `${position.x}px`,
           top: `${position.y}px`,
-          touchAction: "none",
         }}
-        className={`fixed z-[60] w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-colors duration-200 cursor-grab active:cursor-grabbing select-none ${
+        className={`fixed z-[60] w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-colors duration-200 cursor-pointer select-none ${
           isOpen
             ? "bg-[#333] hover:bg-[#1a1a1a]"
             : "bg-[#0562d2] hover:bg-[#044ea7]"
-        } ${isDragging ? "scale-110 shadow-2xl !cursor-grabbing" : ""}`}
-        title={isOpen ? "Đóng chat" : "Chat với AI tư vấn (kéo để di chuyển)"}
+        }`}
+        title={isOpen ? "Đóng chat" : "Chat với AI tư vấn"}
         aria-label={isOpen ? "Đóng chat" : "Mở chat AI tư vấn Ford Đồng Nai"}
       >
         {isOpen ? (
@@ -800,13 +667,6 @@ export default function AIChatWidget() {
             )}
           </>
         )}
-
-        {/* Drag hint indicator */}
-        {!isOpen && !isDragging && (
-          <span className="absolute -bottom-1 -left-1 w-4 h-4 bg-white/90 rounded-full flex items-center justify-center shadow-sm pointer-events-none">
-            <GripVertical className="w-2.5 h-2.5 text-gray-500" />
-          </span>
-        )}
       </button>
 
       {/* Chat Window — positioned relative to bubble */}
@@ -816,7 +676,7 @@ export default function AIChatWidget() {
           ...getChatPosition(),
           width: `${CHAT_WIDTH}px`,
         }}
-        className={`fixed z-[60] max-w-[calc(100vw-32px)] transition-all duration-300 origin-bottom-right ${
+        className={`fixed z-[60] max-w-[calc(100vw-32px)] transition-all duration-300 origin-top-left ${
           isOpen
             ? "opacity-100 scale-100 pointer-events-auto"
             : "opacity-0 scale-95 pointer-events-none"
