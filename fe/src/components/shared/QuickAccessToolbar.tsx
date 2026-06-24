@@ -67,7 +67,7 @@ export default function QuickAccessToolbar() {
     {
       label: "Chat Zalo",
       icon: <MessageCircle className="w-5 h-5" />,
-      href: "https://zalo.me/0918909060",
+      href: "https://zalo.me/4149231651356573695",
       target: "_blank",
     },
   ];
