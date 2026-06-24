@@ -6,7 +6,6 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { MapPin, Mail, Phone, Search, ChevronDown, ChevronRight } from "lucide-react";
 import { vehiclesAPI, accessoriesAPI, servicesAPI, usedVehiclesAPI } from "@/lib/api";
-import { accessoriesData } from "@/data/accessories";
 
 type DropdownItem = {
   name: string;
@@ -684,9 +683,7 @@ export default function Navbar() {
             }
 
             if (activeTab === "phu-kien") {
-              const displayAccessories = accessoriesList.length > 0 
-                ? accessoriesList.slice(0, 3) 
-                : accessoriesData.slice(0, 3);
+              const displayAccessories = accessoriesList.slice(0, 3);
                 
               return (
                 <div className="col-span-3 flex flex-col gap-6">
@@ -919,9 +916,7 @@ export default function Navbar() {
                       {/* Accessories Collapsible Menu on Mobile Drawer */}
                       {(() => {
                         const isSubOpen = mobileActiveTab === "phu-kien";
-                        const displayAccessories = accessoriesList.length > 0 
-                          ? accessoriesList.slice(0, 5) 
-                          : accessoriesData.slice(0, 5);
+                        const displayAccessories = accessoriesList.slice(0, 5);
                           
                         return (
                           <div className="space-y-1">

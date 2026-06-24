@@ -13,7 +13,7 @@ import {
   ArrowLeft,
   Loader2
 } from "lucide-react";
-import { accessoriesData, AccessoryItem } from "@/data/accessories";
+import { AccessoryItem } from "@/data/accessories";
 import { handleImageError } from "@/lib/site-assets";
 
 import { resolveImageUrl } from "@/components/blocks/Blocks";
@@ -77,15 +77,11 @@ export default function AccessoryDetailPage() {
           setAccessory(mapped);
           setActiveImage(mapped.images[0] || "");
         } else {
-          const staticItem = accessoriesData.find(a => a.id === id) || null;
-          setAccessory(staticItem);
-          setActiveImage(staticItem && staticItem.images.length > 0 ? staticItem.images[0] : "");
+          setAccessory(null);
         }
       } catch (err) {
-        console.error("Failed to fetch accessory details, using static fallback:", err);
-        const staticItem = accessoriesData.find(a => a.id === id) || null;
-        setAccessory(staticItem);
-        setActiveImage(staticItem && staticItem.images.length > 0 ? staticItem.images[0] : "");
+        console.error("Failed to fetch accessory details:", err);
+        setAccessory(null);
       } finally {
         setIsLoading(false);
       }
@@ -101,10 +97,10 @@ export default function AccessoryDetailPage() {
         if (response && response.success && Array.isArray(response.data)) {
           setAllAccessories(response.data.map(mapAPIAccessoryToItem));
         } else {
-          setAllAccessories(accessoriesData);
+          setAllAccessories([]);
         }
       } catch (err) {
-        setAllAccessories(accessoriesData);
+        setAllAccessories([]);
       }
     }
     loadAll();
@@ -247,7 +243,7 @@ export default function AccessoryDetailPage() {
   };
 
   // Get related accessories (excluding the current one)
-  const sourceList = allAccessories.length > 0 ? allAccessories : accessoriesData;
+  const sourceList = allAccessories;
   const currentCategory = accessory.category;
   const currentId = accessory.id;
 

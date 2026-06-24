@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Search, ChevronRight, ChevronLeft, Plus, Minus, Loader2 } from "lucide-react";
-import { accessoriesData, AccessoryItem } from "@/data/accessories";
+import { AccessoryItem } from "@/data/accessories";
 import { handleImageError } from "@/lib/site-assets";
 import { accessoriesAPI } from "@/lib/api";
 
@@ -82,7 +82,7 @@ const sidebarModels = [
 ];
 
 export default function AccessoriesPage() {
-  const [accessories, setAccessories] = useState<AccessoryItem[]>(accessoriesData);
+  const [accessories, setAccessories] = useState<AccessoryItem[]>([]);
   const [categories, setCategories] = useState<any[]>(staticCategories);
   const [isLoading, setIsLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState<string>("all");
