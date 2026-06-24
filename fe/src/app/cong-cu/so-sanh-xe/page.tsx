@@ -9,6 +9,7 @@ import { getPopularVehicleImage, handleImageError } from "@/lib/site-assets";
 import { formatPriceShort } from "@/lib/rolling-cost";
 import BookingBanner from "@/components/services/BookingBanner";
 import { vehiclesAPI } from "@/lib/api";
+import { resolveImageUrl } from "@/components/blocks/Blocks";
 
 const mapSpecKey = (key: string, val: string, result: Record<string, string>) => {
   const k = key.trim().toLowerCase();
@@ -241,6 +242,7 @@ export default function ComparePage() {
                 return {
                   id: String(ver.id),
                   name: ver.name,
+                  image_url: ver.image_url || ver.image || "",
                   price: typeof ver.price === 'string' ? parseFloat(ver.price) : (ver.price || 0),
                   rawSpecs: ver.specs,
                   specs: {
@@ -272,7 +274,7 @@ export default function ComparePage() {
                   vehicleName: v.name,
                   versionName: ver.name,
                   typeName: v.typeName,
-                  image: v.images[0],
+                  image: ver.image_url || ver.image || v.image_thumbnail_url || v.image_url || v.images?.[0] || "",
                   basePrice: ver.price || v.basePrice,
                   specs: ver.specs,
                   rawSpecs: ver.rawSpecs,
@@ -289,7 +291,7 @@ export default function ComparePage() {
                 vehicleName: v.name,
                 versionName: "",
                 typeName: v.typeName,
-                image: v.images[0],
+                image: v.image_thumbnail_url || v.image_url || v.images?.[0] || "",
                 basePrice: v.basePrice,
                 specs: {
                   engine: parsedSpecs.engine || v.specs?.engine || v.specs?.engine_type || '',
@@ -541,11 +543,7 @@ export default function ComparePage() {
                   >
                     <div className="relative w-full h-[60px]">
                       <Image
-                        src={
-                          opt.image?.startsWith("http") || opt.image?.startsWith("/")
-                            ? opt.image
-                            : getPopularVehicleImage(opt.vehicleId, opt.image || "")
-                        }
+                        src={resolveImageUrl(opt.image)}
                         alt={opt.displayName}
                         fill
                         sizes="120px"
@@ -624,11 +622,7 @@ export default function ComparePage() {
                         <>
                           <div className="relative w-full h-[130px] mb-3">
                             <Image
-                              src={
-                                opt.image?.startsWith("http") || opt.image?.startsWith("/")
-                                  ? opt.image
-                                  : getPopularVehicleImage(opt.vehicleId, opt.image || "")
-                              }
+                              src={resolveImageUrl(opt.image)}
                               alt={opt.displayName}
                               fill
                               sizes="300px"
