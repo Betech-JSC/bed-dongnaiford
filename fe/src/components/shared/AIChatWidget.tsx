@@ -411,15 +411,25 @@ export default function AIChatWidget() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Fixed Position State (Top-Left of the screen)
-  const [position] = useState<Position>({ x: 24, y: 96 });
+  // Fixed Position State (Bottom-Left of the screen, slightly shifted right)
+  const [position, setPosition] = useState<Position>({ x: 84, y: -1 });
   const bubbleRef = useRef<HTMLButtonElement>(null);
   const windowRef = useRef<HTMLDivElement>(null);
 
-  // Set mounted
+  const updatePosition = useCallback(() => {
+    setPosition({
+      x: 84,
+      y: window.innerHeight - BUBBLE_SIZE - 24,
+    });
+  }, []);
+
+  // Set mounted & listen to window resize
   useEffect(() => {
     setMounted(true);
-  }, []);
+    updatePosition();
+    window.addEventListener("resize", updatePosition);
+    return () => window.removeEventListener("resize", updatePosition);
+  }, [updatePosition]);
 
   // Calculate chat window position relative to bubble
   const getChatPosition = (): React.CSSProperties => {
@@ -676,7 +686,7 @@ export default function AIChatWidget() {
           ...getChatPosition(),
           width: `${CHAT_WIDTH}px`,
         }}
-        className={`fixed z-[60] max-w-[calc(100vw-32px)] transition-all duration-300 origin-top-left ${
+        className={`fixed z-[60] max-w-[calc(100vw-32px)] transition-all duration-300 origin-bottom-left ${
           isOpen
             ? "opacity-100 scale-100 pointer-events-auto"
             : "opacity-0 scale-95 pointer-events-none"
