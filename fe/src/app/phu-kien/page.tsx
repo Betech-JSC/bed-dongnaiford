@@ -226,6 +226,7 @@ export default function AccessoriesPage() {
   const paginatedAccessories = filteredAccessories.slice(startIndex, startIndex + itemsPerPage);
 
   const formatPrice = (price: number) => {
+    if (price === 0) return "Liên hệ";
     return "₫" + new Intl.NumberFormat("vi-VN").format(price);
   };
 
