@@ -145,7 +145,7 @@ function ContactFormContent() {
         if (typeof backendMessage === "object") {
           // Validation error keys
           if (backendMessage.Phone || backendMessage["Số điện thoại"]) {
-            errMsg = "Số điện thoại không hợp lệ (yêu cầu từ 9 đến 12 chữ số)!";
+            errMsg = "Số điện thoại không hợp lệ (yêu cầu từ 9 đến 12 chữ số và bắt đầu bằng số 0)!";
           } else if (backendMessage.Name || backendMessage["Họ và tên"]) {
             errMsg = "Họ và tên không hợp lệ!";
           }

@@ -144,7 +144,7 @@ export default function ServiceSurveyPage() {
         const backendMessage = error.data.message;
         if (typeof backendMessage === "object") {
           if (backendMessage["Số điện thoại"]) {
-            errMsg = "Số điện thoại không hợp lệ (yêu cầu từ 9 đến 12 chữ số)!";
+            errMsg = "Số điện thoại không hợp lệ (yêu cầu từ 9 đến 12 chữ số và bắt đầu bằng số 0)!";
           } else if (backendMessage["Họ và tên"]) {
             errMsg = "Họ và tên không hợp lệ!";
           }

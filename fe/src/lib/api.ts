@@ -33,7 +33,10 @@ async function fetchAPI<T>(endpoint: string, options?: RequestInit): Promise<T> 
 
     const data = await response.json();
     return data;
-  } catch (error) {
+  } catch (error: any) {
+    if (error && error.status) {
+      throw error;
+    }
     console.error(`Failed to fetch ${endpoint}:`, error);
     throw error;
   }
