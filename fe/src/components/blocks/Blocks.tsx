@@ -535,45 +535,42 @@ function parseSpecs(specs: any, vehicleName: string): any[] {
   return [];
 }
 
-function normalizeGroupTitle(title: string): string {
-  if (!title) return "Thông số khác";
-  const t = title.trim().toLowerCase();
-  
-  if (t.includes("động cơ") || t.includes("hộp số") || t.includes("vận hành")) {
-    return "Động cơ & Hộp số";
+function VersionSpecsAccordion({ specs }: { specs: any[] }) {
+  const [openIndex, setOpenIndex] = React.useState<number | null>(0);
+
+  if (!specs || specs.length === 0) {
+    return <div className="p-4 text-xs text-gray-400 italic text-center w-full">Chưa có thông số kỹ thuật.</div>;
   }
-  if (t.includes("dẫn động") || t.includes("truyền động")) {
-    return "Hệ thống dẫn động";
-  }
-  if (t.includes("kích thước") || t.includes("khoảng sáng gầm")) {
-    return "Kích thước";
-  }
-  if (t.includes("lưới tản nhiệt") || t.includes("đèn pha") || t.includes("ngoại thất")) {
-    return "Ngoại thất & Đèn xe";
-  }
-  if (t.includes("bánh xe") || t.includes("mâm xe") || t.includes("lốp")) {
-    return "Mâm & Lốp xe";
-  }
-  if (t.includes("khoang lái") || t.includes("nội thất")) {
-    return "Nội thất & Khoang lái";
-  }
-  if (t.includes("giải trí") || t.includes("thông tin") || t.includes("sync")) {
-    return "Hệ thống giải trí";
-  }
-  if (t.includes("ghế")) {
-    return "Ghế ngồi & Tiện nghi";
-  }
-  if (t.includes("an toàn") || t.includes("hỗ trợ lái") || t.includes("cảnh báo")) {
-    return "Trang bị an toàn";
-  }
-  if (t.includes("thùng hàng") || t.includes("khác")) {
-    return "Thùng hàng & Tiện ích khác";
-  }
-  if (t.includes("tiêu hao") || t.includes("nhiên liệu")) {
-    return "Tiêu hao nhiên liệu";
-  }
-  
-  return title.trim();
+
+  return (
+    <div className="w-full flex flex-col bg-white border-t border-gray-100">
+      {specs.map((item: any, idx: number) => {
+        const isOpen = openIndex === idx;
+        return (
+          <div key={idx} className="border-b border-gray-100 w-full">
+            <button
+              onClick={() => setOpenIndex(isOpen ? null : idx)}
+              className="w-full py-4 px-4 flex items-center justify-between text-left font-semibold text-[#00095b] hover:text-[#0562d2] transition-colors duration-200 focus:outline-none cursor-pointer bg-white"
+            >
+              <span className="text-[14px] leading-tight font-medium">{item.title}</span>
+              <span className="text-[#0562d2] font-normal text-lg select-none">
+                {isOpen ? '−' : '+'}
+              </span>
+            </button>
+            <div
+              className={`transition-all duration-300 overflow-hidden ${isOpen ? 'max-h-[800px] opacity-100 pb-4' : 'max-h-0 opacity-0'
+                }`}
+            >
+              <div
+                className="px-4 text-[13px] text-gray-600 leading-relaxed font-normal whitespace-pre-line prose prose-sm max-w-none [&_p]:mb-1 [&_strong]:text-black"
+                dangerouslySetInnerHTML={{ __html: item.content }}
+              />
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
 }
 
 function SpecsGridBlock({ data, vehicle, isEditMode, onChangeData, openQuoteDrawer, anchorId }: any) {
@@ -590,80 +587,20 @@ function SpecsGridBlock({ data, vehicle, isEditMode, onChangeData, openQuoteDraw
       : idx === 1
         ? "/assets/territory-tech-split.png"
         : "/assets/territory-promo.png")),
-    specs: parseSpecs(ver.specs, vehicle.name)
+    specs: ver.specs || {},
+    isExternal: false
   }));
-
-  // Build categories
-  const categoriesSet: string[] = [];
-  compareItems.forEach((item: any) => {
-    item.specs.forEach((spec: any) => {
-      const norm = normalizeGroupTitle(spec.title);
-      if (norm && !categoriesSet.includes(norm)) {
-        categoriesSet.push(norm);
-      }
-    });
-  });
-
-  const categoryOrder = [
-    "Động cơ & Hộp số",
-    "Hệ thống dẫn động",
-    "Kích thước",
-    "Ngoại thất & Đèn xe",
-    "Mâm & Lốp xe",
-    "Nội thất & Khoang lái",
-    "Hệ thống giải trí",
-    "Ghế ngồi & Tiện nghi",
-    "Trang bị an toàn",
-    "Thùng hàng & Tiện ích khác",
-    "Tiêu hao nhiên liệu"
-  ];
-  
-  const categories = categoriesSet.sort((a, b) => {
-    const idxA = categoryOrder.indexOf(a);
-    const idxB = categoryOrder.indexOf(b);
-    if (idxA === -1 && idxB === -1) return a.localeCompare(b);
-    if (idxA === -1) return 1;
-    if (idxB === -1) return -1;
-    return idxA - idxB;
-  });
-
-  const [openCategories, setOpenCategories] = React.useState<Record<string, boolean>>(() => {
-    const initial: Record<string, boolean> = {};
-    categories.forEach((cat, idx) => {
-      initial[cat] = idx === 0; // open first by default
-    });
-    return initial;
-  });
-
-  const toggleCategory = (cat: string) => {
-    setOpenCategories(prev => ({
-      ...prev,
-      [cat]: !prev[cat]
-    }));
-  };
-
-  const getCategoryContent = (item: any, category: string) => {
-    const matching = item.specs.filter((s: any) => normalizeGroupTitle(s.title) === category);
-    if (matching.length === 0) return null;
-    return matching.map((s: any) => s.content).join("\n");
-  };
-
-  const formatPrice = (price: number) => {
-    if (!price) return "Liên hệ";
-    return new Intl.NumberFormat("vi-VN").format(price) + " VNĐ";
-  };
 
   const scrollContainerRef = React.useRef<HTMLDivElement>(null);
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollContainerRef.current) {
-      const offset = direction === 'left' ? -320 : 320;
+      const offset = direction === 'left' ? -392 : 392; // card width (368) + gap (24)
       scrollContainerRef.current.scrollBy({ left: offset, behavior: 'smooth' });
     }
   };
 
-  const colWidth = 320;
-  const minTableWidth = compareItems.length * colWidth;
+  const justifyClass = compareItems.length <= 3 ? 'lg:justify-center' : 'lg:justify-start';
 
   return (
     <section id={anchorId || undefined} className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full pt-16 pb-12">
@@ -700,99 +637,45 @@ function SpecsGridBlock({ data, vehicle, isEditMode, onChangeData, openQuoteDraw
           )}
         </div>
 
-        <div 
+        <div
           ref={scrollContainerRef}
-          className="w-full overflow-x-auto pb-4 scroll-smooth scrollbar-thin scrollbar-thumb-gray-200"
+          className={`flex flex-row gap-6 justify-start ${justifyClass} items-stretch w-full overflow-x-auto pb-4 scroll-smooth snap-x snap-mandatory scrollbar-none`}
         >
-          <div 
-            style={{ minWidth: `${minTableWidth}px` }}
-            className="flex flex-col border border-gray-200 rounded-2xl overflow-hidden bg-white shadow-xs lg:min-w-full"
-          >
-            {/* Header row */}
-            <div 
-              className="grid bg-[#00095B]/5 divide-x divide-gray-200 border-b border-gray-200"
-              style={{ gridTemplateColumns: `repeat(${compareItems.length}, minmax(0, 1fr))` }}
+          {compareItems.map((item: any) => (
+            <div
+              key={item.id}
+              className="bg-white border border-gray-200/60 drop-shadow-[0px_4px_4px_rgba(16,24,40,0.06)] flex flex-col items-stretch relative w-[280px] sm:w-[320px] md:w-[368px] shrink-0 rounded-[12px] overflow-hidden transition-all duration-300 hover:scale-[1.01] hover:shadow-lg snap-start"
             >
-              {compareItems.map((item: any) => (
-                <div key={item.id} className="flex flex-col items-center bg-gray-50 p-6 text-center select-none">
-                  <div className="aspect-[16/10] relative w-full overflow-hidden bg-white rounded-xl border border-gray-150 shadow-xs mb-4">
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      className="w-full h-full object-contain p-2 pointer-events-none"
-                    />
-                  </div>
-                  <h4 className="font-['Ford_Antenna',sans-serif] font-bold text-[#00095b] text-base leading-tight tracking-tight uppercase">
-                    {item.name}
-                  </h4>
-                  <p className="font-semibold text-xs text-[#0562d2] mt-1.5">
-                    {formatPrice(item.price)}
-                  </p>
+              <div className="content-stretch flex flex-col items-start relative shrink-0 w-full">
+                <div className="aspect-[800/550] relative shrink-0 w-full bg-gray-50 overflow-hidden">
+                  <Image
+                    src={item.image}
+                    alt={item.name}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 368px"
+                    className="object-cover transition-transform duration-500 hover:scale-105 pointer-events-none"
+                  />
                 </div>
-              ))}
-            </div>
-
-            {/* Accordion Categories */}
-            {categories.map((category) => {
-              const isOpen = !!openCategories[category];
-              
-              return (
-                <React.Fragment key={category}>
-                  {/* Category Header */}
-                  <div className="bg-slate-100 border-b border-gray-200">
-                    <button
-                      onClick={() => toggleCategory(category)}
-                      className="w-full py-4 px-6 flex items-center justify-between text-left font-bold text-[#00095b] hover:text-[#0562d2] transition-colors duration-200 focus:outline-none cursor-pointer select-none border-0"
-                    >
-                      <span className="text-xs sm:text-sm uppercase tracking-wider font-semibold">{category}</span>
-                      <span className="text-[#0562d2] font-semibold text-lg">{isOpen ? '−' : '+'}</span>
-                    </button>
+                <div className="content-stretch flex items-center justify-between p-[16px] relative shrink-0 w-full border-b border-gray-100 bg-white">
+                  <div className="[word-break:break-word] flex flex-[1_0_0] flex-col font-['Ford_Antenna',sans-serif] font-semibold justify-center leading-[1.3] text-[#0562d2] text-[18px] tracking-[0.18px]">
+                    <p>{item.name}</p>
                   </div>
-
-                  {/* Category Content Row */}
-                  {isOpen && (
-                    <div 
-                      className="grid divide-x divide-gray-200 border-b border-gray-200 bg-white"
-                      style={{ gridTemplateColumns: `repeat(${compareItems.length}, minmax(0, 1fr))` }}
-                    >
-                      {compareItems.map((item: any) => {
-                        const content = getCategoryContent(item, category);
-                        return (
-                          <div 
-                            key={item.id}
-                            className="p-6 text-sm text-gray-700 leading-relaxed font-normal whitespace-pre-line prose prose-sm max-w-none [&_ul]:list-disc [&_ul]:pl-5 [&_li]:mb-1 [&_strong]:text-black"
-                          >
-                            {content ? (
-                              <div dangerouslySetInnerHTML={{ __html: content }} />
-                            ) : (
-                              <span className="text-gray-400 italic text-xs">Không trang bị</span>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </React.Fragment>
-              );
-            })}
-
-            {/* Sticky Action Row */}
-            <div 
-              className="grid divide-x divide-gray-200 bg-gray-50/50 p-6"
-              style={{ gridTemplateColumns: `repeat(${compareItems.length}, minmax(0, 1fr))` }}
-            >
-              {compareItems.map((item: any) => (
-                <div key={item.id} className="px-4 flex justify-center">
-                  <button
-                    onClick={() => openQuoteDrawer(vehicle.id, item.id)}
-                    className="bg-[#0562d2] hover:bg-[#044ea7] border border-[#0562d2] border-solid flex gap-2 items-center justify-center px-6 py-2.5 rounded-[800px] text-white text-[15px] font-semibold transition-all cursor-pointer shadow-xs w-full max-w-[240px]"
-                  >
-                    Báo giá
-                  </button>
                 </div>
-              ))}
+              </div>
+
+              {/* specs */}
+              <VersionSpecsAccordion specs={parseSpecs(item.specs, vehicle.name)} />
+
+              <div className="p-4 bg-white flex flex-col items-center justify-center shrink-0 w-full border-t border-gray-100/50">
+                <button
+                  onClick={() => openQuoteDrawer(vehicle.id, item.id)}
+                  className="bg-[#0562d2] hover:bg-[#044ea7] border border-[#0562d2] border-solid flex gap-[8px] items-center justify-center overflow-clip px-[24px] py-[10px] rounded-[800px] text-white text-[16px] font-semibold transition-all cursor-pointer shadow-xs w-full"
+                >
+                  Báo giá
+                </button>
+              </div>
             </div>
-          </div>
+          ))}
         </div>
       </div>
     </section>
