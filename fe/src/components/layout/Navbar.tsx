@@ -138,8 +138,10 @@ export default function Navbar() {
     }
   }, [categoriesList]);
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("en-US").format(price) + "đ";
+  const formatPrice = (price: number | string) => {
+    const numericPrice = typeof price === "string" ? parseFloat(price) : price;
+    if (!numericPrice || numericPrice <= 0) return "Liên hệ";
+    return new Intl.NumberFormat("en-US").format(numericPrice) + "đ";
   };
 
   // Helper to resolve banner styling & content for any category slug/title

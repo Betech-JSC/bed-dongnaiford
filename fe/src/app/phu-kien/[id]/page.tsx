@@ -158,9 +158,10 @@ export default function AccessoryDetailPage() {
     );
   }
 
-  const formatPrice = (price: number) => {
-    if (price === 0) return "Liên hệ";
-    return new Intl.NumberFormat("vi-VN").format(price) + " VNĐ";
+  const formatPrice = (price: number | string) => {
+    const numericPrice = typeof price === "string" ? parseFloat(price) : price;
+    if (!numericPrice || numericPrice <= 0) return "Liên hệ";
+    return new Intl.NumberFormat("vi-VN").format(numericPrice) + " VNĐ";
   };
 
   const handleBookingSubmit = async (e: React.FormEvent) => {

@@ -225,9 +225,10 @@ export default function AccessoriesPage() {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedAccessories = filteredAccessories.slice(startIndex, startIndex + itemsPerPage);
 
-  const formatPrice = (price: number) => {
-    if (price === 0) return "Liên hệ";
-    return "₫" + new Intl.NumberFormat("vi-VN").format(price);
+  const formatPrice = (price: number | string) => {
+    const numericPrice = typeof price === "string" ? parseFloat(price) : price;
+    if (!numericPrice || numericPrice <= 0) return "Liên hệ";
+    return "₫" + new Intl.NumberFormat("vi-VN").format(numericPrice);
   };
 
   const scrollCategoryRight = () => {
