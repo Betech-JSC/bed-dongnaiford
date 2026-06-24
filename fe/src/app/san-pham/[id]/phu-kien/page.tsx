@@ -98,6 +98,38 @@ export default function VehicleAccessoriesSubPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 9;
 
+  const getPageNumbers = () => {
+    const pages: number[] = [];
+    const delta = 1;
+
+    for (let i = 1; i <= totalPages; i++) {
+      if (
+        i === 1 ||
+        i === totalPages ||
+        (i >= currentPage - delta && i <= currentPage + delta)
+      ) {
+        pages.push(i);
+      }
+    }
+
+    const result: (number | string)[] = [];
+    let prev: number | null = null;
+
+    for (const page of pages) {
+      if (prev !== null) {
+        if (page - prev === 2) {
+          result.push(prev + 1);
+        } else if (page - prev > 2) {
+          result.push("...");
+        }
+      }
+      result.push(page);
+      prev = page;
+    }
+
+    return result;
+  };
+
   useEffect(() => {
     async function loadData() {
       try {
@@ -432,8 +464,18 @@ export default function VehicleAccessoriesSubPage() {
                     <ChevronLeft className="w-5 h-5" />
                   </button>
 
-                  {Array.from({ length: totalPages }).map((_, idx) => {
-                    const pageNum = idx + 1;
+                  {getPageNumbers().map((page, idx) => {
+                    if (page === "...") {
+                      return (
+                        <span
+                          key={`dots-${idx}`}
+                          className="w-9 h-9 flex items-center justify-center text-gray-400 font-semibold text-sm select-none"
+                        >
+                          ...
+                        </span>
+                      );
+                    }
+                    const pageNum = page as number;
                     const isActive = currentPage === pageNum;
                     return (
                       <button

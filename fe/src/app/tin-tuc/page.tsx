@@ -17,6 +17,38 @@ export default function NewsListPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
 
+  const getPageNumbers = () => {
+    const pages: number[] = [];
+    const delta = 1;
+
+    for (let i = 1; i <= totalPages; i++) {
+      if (
+        i === 1 ||
+        i === totalPages ||
+        (i >= currentPage - delta && i <= currentPage + delta)
+      ) {
+        pages.push(i);
+      }
+    }
+
+    const result: (number | string)[] = [];
+    let prev: number | null = null;
+
+    for (const page of pages) {
+      if (prev !== null) {
+        if (page - prev === 2) {
+          result.push(prev + 1);
+        } else if (page - prev > 2) {
+          result.push("...");
+        }
+      }
+      result.push(page);
+      prev = page;
+    }
+
+    return result;
+  };
+
   // Testimonials Carousel Slide State
   const [testimonials, setTestimonials] = useState<any[]>([]);
   const [activeTestimonialIndex, setActiveTestimonialIndex] = useState(0);
@@ -343,23 +375,33 @@ export default function NewsListPage() {
                 </button>
 
                 {/* Page numbers */}
-                {Array.from({ length: totalPages }, (_, idx) => {
-                  const page = idx + 1;
-                  const isActive = currentPage === page;
-                  return (
-                    <button
-                      key={`page-${page}`}
-                      onClick={() => handlePageChange(page)}
-                      className={`w-11 h-11 flex items-center justify-center font-semibold text-sm rounded-[4px] transition cursor-pointer ${
-                        isActive
-                          ? "bg-[#044ea7] text-white"
-                          : "bg-white text-[#808080] hover:bg-gray-100"
-                      }`}
-                    >
-                      {page < 10 ? `0${page}` : page}
-                    </button>
-                  );
-                })}
+                  {getPageNumbers().map((page, idx) => {
+                    if (page === "...") {
+                      return (
+                        <span
+                          key={`dots-${idx}`}
+                          className="w-11 h-11 flex items-center justify-center text-gray-400 font-semibold text-sm select-none"
+                        >
+                          ...
+                        </span>
+                      );
+                    }
+                    const pageNum = page as number;
+                    const isActive = currentPage === pageNum;
+                    return (
+                      <button
+                        key={`page-${pageNum}`}
+                        onClick={() => handlePageChange(pageNum)}
+                        className={`w-11 h-11 flex items-center justify-center font-semibold text-sm rounded-[4px] transition cursor-pointer ${
+                          isActive
+                            ? "bg-[#044ea7] text-white"
+                            : "bg-white text-[#808080] hover:bg-gray-100"
+                        }`}
+                      >
+                        {pageNum < 10 ? `0${pageNum}` : pageNum}
+                      </button>
+                    );
+                  })}
 
                 {/* Next button */}
                 <button

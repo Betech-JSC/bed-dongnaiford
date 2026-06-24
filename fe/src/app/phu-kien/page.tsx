@@ -159,6 +159,38 @@ export default function AccessoriesPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 12;
 
+  const getPageNumbers = () => {
+    const pages: number[] = [];
+    const delta = 1;
+
+    for (let i = 1; i <= totalPages; i++) {
+      if (
+        i === 1 ||
+        i === totalPages ||
+        (i >= currentPage - delta && i <= currentPage + delta)
+      ) {
+        pages.push(i);
+      }
+    }
+
+    const result: (number | string)[] = [];
+    let prev: number | null = null;
+
+    for (const page of pages) {
+      if (prev !== null) {
+        if (page - prev === 2) {
+          result.push(prev + 1);
+        } else if (page - prev > 2) {
+          result.push("...");
+        }
+      }
+      result.push(page);
+      prev = page;
+    }
+
+    return result;
+  };
+
   const toggleSidebar = (modelName: string) => {
     setExpandedSidebar(prev => ({
       ...prev,
@@ -500,8 +532,18 @@ export default function AccessoriesPage() {
                     <ChevronLeft className="w-[24px] h-[24px]" />
                   </button>
 
-                  {Array.from({ length: totalPages }).map((_, idx) => {
-                    const pageNum = idx + 1;
+                  {getPageNumbers().map((page, idx) => {
+                    if (page === "...") {
+                      return (
+                        <span
+                          key={`dots-${idx}`}
+                          className="w-[44px] h-[44px] flex items-center justify-center text-gray-400 font-semibold text-[16px] select-none"
+                        >
+                          ...
+                        </span>
+                      );
+                    }
+                    const pageNum = page as number;
                     const isActive = currentPage === pageNum;
                     return (
                       <button
