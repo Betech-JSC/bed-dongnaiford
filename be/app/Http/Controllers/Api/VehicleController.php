@@ -41,11 +41,13 @@ class VehicleController extends Controller
 
         if ($v->relationLoaded('versions')) {
             $data['versions'] = $v->versions->map(fn($ver) => [
-                'id'         => $ver->id,
-                'name'       => $ver->name,
-                'price'      => $ver->price,
-                'specs'      => $ver->specs ?? [],
-                'sort_order' => $ver->sort_order,
+                'id'                  => $ver->id,
+                'name'                => $ver->name,
+                'price'               => $ver->price,
+                'image_url'           => $ver->image_url,
+                'image_thumbnail_url' => $ver->image_thumbnail_url,
+                'specs'               => $ver->specs ?? [],
+                'sort_order'          => $ver->sort_order,
             ])->toArray();
         }
 
@@ -169,12 +171,13 @@ class VehicleController extends Controller
             'type'                   => $vehicle->type,
             'base_price'             => $vehicle->base_price,
             'versions'               => $vehicle->versions->map(fn($v) => [
-                'id'         => $v->id,
-                'name'       => $v->name,
-                'price'      => $v->price,
-                'image_url'  => $v->image_url,
-                'specs'      => $v->specs ?? [],
-                'sort_order' => $v->sort_order,
+                'id'                  => $v->id,
+                'name'                => $v->name,
+                'price'               => $v->price,
+                'image_url'           => $v->image_url,
+                'image_thumbnail_url' => $v->image_thumbnail_url,
+                'specs'               => $v->specs ?? [],
+                'sort_order'          => $v->sort_order,
                 'colors'     => collect($v->colors ?? [])->map(function ($color) {
                     $imagePath = null;
                     if (isset($color['image_path'])) {

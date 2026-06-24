@@ -242,7 +242,8 @@ export default function ComparePage() {
                 return {
                   id: String(ver.id),
                   name: ver.name,
-                  image_url: ver.image_url || ver.image || "",
+                  image_url: ver.image_url || resolveImageUrl(ver.image) || "",
+                  image_thumbnail_url: ver.image_thumbnail_url || resolveImageUrl(ver.image_thumbnail) || "",
                   price: typeof ver.price === 'string' ? parseFloat(ver.price) : (ver.price || 0),
                   rawSpecs: ver.specs,
                   specs: {
@@ -274,7 +275,7 @@ export default function ComparePage() {
                   vehicleName: v.name,
                   versionName: ver.name,
                   typeName: v.typeName,
-                  image: ver.image_url || ver.image || v.image_thumbnail_url || v.image_url || v.images?.[0] || "",
+                  image: ver.image_thumbnail_url || ver.image_url || v.image_thumbnail_url || v.image_url || v.images?.[0] || "",
                   basePrice: ver.price || v.basePrice,
                   specs: ver.specs,
                   rawSpecs: ver.rawSpecs,

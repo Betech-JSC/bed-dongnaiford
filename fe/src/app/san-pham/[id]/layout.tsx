@@ -246,6 +246,8 @@ export default function VehicleDetailLayout({
                 id: String(ver.id),
                 name: ver.name,
                 price: typeof ver.price === 'string' ? parseFloat(ver.price) : (ver.price || 0),
+                image_url: ver.image_url || resolveFileUrl(ver.image) || null,
+                image_thumbnail_url: ver.image_thumbnail_url || resolveFileUrl(ver.image_thumbnail) || null,
                 specs: {
                   ...(ver.specs || {}),
                   engine: ver.specs?.engine || ver.specs?.engine_type || '',
