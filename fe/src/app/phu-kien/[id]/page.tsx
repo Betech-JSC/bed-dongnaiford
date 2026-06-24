@@ -64,7 +64,7 @@ export default function AccessoryDetailPage() {
   const [activeImage, setActiveImage] = useState<string>("");
   const [prevId, setPrevId] = useState(id);
   const [quantity, setQuantity] = useState<number>(1);
-  const [activeAccordion, setActiveAccordion] = useState<string>("mota");
+  const [activeAccordion, setActiveAccordion] = useState<string>("");
   const [showBookingModal, setShowBookingModal] = useState(false);
 
   useEffect(() => {
@@ -109,12 +109,28 @@ export default function AccessoryDetailPage() {
     }
     loadAll();
   }, []);
+
+  useEffect(() => {
+    if (accessory) {
+      const items = [
+        { id: "mota", text: accessory.description },
+        { id: "compatibility", text: accessory.compatibilityText },
+        { id: "safety", text: accessory.safetyText },
+        { id: "productdesc", text: accessory.productDescText }
+      ].filter(item => item.text && item.text.trim() !== "");
+
+      if (items.length > 0) {
+        setActiveAccordion(items[0].id);
+      } else {
+        setActiveAccordion("");
+      }
+    }
+  }, [accessory]);
   
   // Reset state when id changes
   if (id !== prevId) {
     setPrevId(id);
     setQuantity(1);
-    setActiveAccordion("mota");
   }
 
   // Booking Form States
@@ -428,34 +444,36 @@ export default function AccessoryDetailPage() {
               {/* Collapsible Accordions (Mô tả, Tương thích, An toàn, Mô tả sản phẩm) */}
               <div className="flex flex-col items-start w-full">
                 {[
-                  { id: "mota", label: "Mô tả", text: accessory.productDescText || accessory.description },
-                  { id: "compatibility", label: "Tương thích", text: accessory.compatibilityText || "Sản phẩm được thiết kế chuẩn theo thông số lắp ráp zin các dòng xe Ford." },
-                  { id: "safety", label: "Thông tin an toàn", text: accessory.safetyText || "Khuyến nghị lắp ráp bởi kỹ thuật viên ủy quyền chính hãng để bảo toàn đường điện zin." },
-                  { id: "productdesc", label: "Mô tả sản phẩm", text: "Chất liệu cao cấp đúc khuôn nguyên khối, chịu lực, chống chịu tốt mọi thời tiết mưa gió tại Việt Nam." }
-                ].map((acc) => {
-                  const isOpen = activeAccordion === acc.id;
-                  return (
-                    <div key={acc.id} className="border-b border-[#d6d6d6] py-[24px] flex flex-col gap-[16px] w-full">
-                      <button
-                        onClick={() => setActiveAccordion(isOpen ? "" : acc.id)}
-                        className="w-full flex justify-between items-center text-left cursor-pointer border-0 bg-transparent"
-                      >
-                        <span className={`font-['Ford_Antenna',sans-serif] font-semibold text-[16px] ${isOpen ? "text-[#0562D2]" : "text-[#1a1a1a]"}`}>
-                          {acc.label}
-                        </span>
-                        <span className="text-[24px] font-medium leading-none text-[#1a1a1a]">
-                          {isOpen ? "−" : "+"}
-                        </span>
-                      </button>
-                      {isOpen && (
-                        <div 
-                          className="font-['Ford_Antenna',sans-serif] font-normal text-[16px] text-[#333] leading-[1.5] rich-text-content"
-                          dangerouslySetInnerHTML={{ __html: acc.text }}
-                        />
-                      )}
-                    </div>
-                  );
-                })}
+                  { id: "mota", label: "Mô tả", text: accessory.description },
+                  { id: "compatibility", label: "Tương thích", text: accessory.compatibilityText },
+                  { id: "safety", label: "Thông tin an toàn", text: accessory.safetyText },
+                  { id: "productdesc", label: "Mô tả sản phẩm", text: accessory.productDescText }
+                ]
+                  .filter((acc) => acc.text && acc.text.trim() !== "")
+                  .map((acc) => {
+                    const isOpen = activeAccordion === acc.id;
+                    return (
+                      <div key={acc.id} className="border-b border-[#d6d6d6] py-[24px] flex flex-col gap-[16px] w-full">
+                        <button
+                          onClick={() => setActiveAccordion(isOpen ? "" : acc.id)}
+                          className="w-full flex justify-between items-center text-left cursor-pointer border-0 bg-transparent"
+                        >
+                          <span className={`font-['Ford_Antenna',sans-serif] font-semibold text-[16px] ${isOpen ? "text-[#0562D2]" : "text-[#1a1a1a]"}`}>
+                            {acc.label}
+                          </span>
+                          <span className="text-[24px] font-medium leading-none text-[#1a1a1a]">
+                            {isOpen ? "−" : "+"}
+                          </span>
+                        </button>
+                        {isOpen && (
+                          <div 
+                            className="font-['Ford_Antenna',sans-serif] font-normal text-[16px] text-[#333] leading-[1.5] rich-text-content"
+                            dangerouslySetInnerHTML={{ __html: acc.text || "" }}
+                          />
+                        )}
+                      </div>
+                    );
+                  })}
               </div>
 
             </div>
