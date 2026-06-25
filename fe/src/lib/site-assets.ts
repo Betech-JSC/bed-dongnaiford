@@ -17,7 +17,7 @@ export const siteAssets = {
   ourStoryBanner: "/showroom_bg.png",
   testDriveBg: "/assets/test-drive-bg.png",
   googleMapsEmbed:
-    "https://maps.google.com/maps?q=10.9511,106.8434&hl=vi&z=16&output=embed",
+    "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d9639.97148545994!2d106.86767807583985!3d10.948647055991795!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3174dfa7287e67b7%3A0xe69044f2892be499!2zxJDhu5NuZyBOYWkgRm9yZA!5e1!3m2!1svi!2s!4v1782375726740!5m2!1svi!2s",
 } as const;
 
 export const aboutAssets = {

@@ -2037,7 +2037,7 @@ export default function Home() {
                 src={siteAssets.googleMapsEmbed}
                 className="absolute inset-0 w-full h-full border-0 rounded-xl"
                 loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
+                referrerPolicy="strict-origin-when-cross-origin"
                 allowFullScreen
               />
             </div>
