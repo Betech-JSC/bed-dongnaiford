@@ -87,7 +87,12 @@ function groupVehiclesBySeries(apiVehicles: any[]) {
     });
   });
 
-  return Object.values(groups);
+  const seriesList = Object.values(groups);
+  seriesList.forEach((group) => {
+    group.versions.sort((a, b) => b.price - a.price);
+  });
+
+  return seriesList;
 }
 
 export default function PriceListPage() {
