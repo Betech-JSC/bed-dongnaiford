@@ -152,7 +152,7 @@ export default function PriceListPage() {
           ) : (
             <>
               {/* Desktop Table */}
-              <div className="hidden md:block bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
+              <div className="hidden md:block bg-white rounded-2xl border border-gray-200 overflow-x-auto shadow-sm">
                 <table className="w-full">
                   <thead>
                     <tr className="bg-[#00095B] text-white text-sm font-bold">
@@ -160,7 +160,7 @@ export default function PriceListPage() {
                       <th className="text-left py-4 px-6">Dòng xe</th>
                       <th className="text-left py-4 px-6">Phiên bản</th>
                       <th className="text-left py-4 px-6">Loại xe</th>
-                      <th className="text-right py-4 px-6">Giá niêm yết</th>
+                      <th className="text-right py-4 px-6 whitespace-nowrap">Giá niêm yết</th>
                       <th className="text-center py-4 px-6 w-[200px]">
                         Hành động
                       </th>
@@ -228,13 +228,13 @@ export default function PriceListPage() {
                             </td>
                           )}
                           {/* Price */}
-                          <td className="py-4 px-6 text-right">
+                          <td className="py-4 px-6 text-right whitespace-nowrap">
                             <span className="font-bold text-[#0562D2] text-sm">
                               {formatVND(version.price)}
                             </span>
                           </td>
                           {/* Actions */}
-                          <td className="py-4 px-6 text-center">
+                          <td className="py-4 px-6 text-center whitespace-nowrap">
                             <div className="flex items-center justify-center gap-2">
                               <Link
                                 href={`/cong-cu/uoc-tinh-lan-banh?vehicle=${vehicle.id}&version=${version.id}`}
@@ -308,7 +308,7 @@ export default function PriceListPage() {
                             <p className="text-sm font-medium text-gray-700">
                               {version.name}
                             </p>
-                            <p className="text-sm font-bold text-[#0562D2]">
+                            <p className="text-sm font-bold text-[#0562D2] whitespace-nowrap">
                               {formatVND(version.price)}
                             </p>
                           </div>
