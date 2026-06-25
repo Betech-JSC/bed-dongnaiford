@@ -637,7 +637,7 @@ export default function ComparePage() {
                             </span>
                             <p className="mt-2 text-sm text-gray-500">
                               Giá:{" "}
-                              <span className="font-bold text-[#0562D2]">
+                              <span className="font-bold text-[#0562D2] whitespace-nowrap">
                                 {formatPriceShort(opt.basePrice)}
                               </span>
                             </p>
@@ -695,7 +695,7 @@ export default function ComparePage() {
                     return (
                       <div
                         key={index}
-                        className="px-5 py-4 text-sm font-bold text-[#0562D2] text-center"
+                        className="px-5 py-4 text-sm font-bold text-[#0562D2] text-center whitespace-nowrap"
                       >
                         {opt ? formatPriceShort(opt.basePrice) : "—"}
                       </div>

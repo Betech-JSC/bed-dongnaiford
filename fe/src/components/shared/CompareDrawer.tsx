@@ -185,7 +185,7 @@ export default function CompareDrawer() {
                 <h4 className="text-sm font-bold truncate uppercase text-white">
                   {vehicle.name}
                 </h4>
-                <p className="text-xs text-blue-400 font-medium">
+                <p className="text-xs text-blue-400 font-medium whitespace-nowrap">
                   {formatPriceShort(vehicle.basePrice)}
                 </p>
               </div>
