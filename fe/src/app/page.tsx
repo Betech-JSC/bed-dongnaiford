@@ -24,6 +24,7 @@ import {
 import { vehicles, Vehicle } from "@/data/vehicles";
 import { getPopularVehicleImage, siteAssets, handleImageError } from "@/lib/site-assets";
 import { bannersAPI, postsAPI, vehiclesAPI, servicesAPI, customerHandoversAPI } from "@/lib/api";
+import SafeImage from "@/components/shared/SafeImage";
 
 // Custom SVG Icons matching Figma design
 const WheelIcon = ({ className }: { className?: string }) => (
@@ -171,6 +172,7 @@ export default function Home() {
   const [vehiclesList, setVehiclesList] = useState<any[]>([]);
   const [servicesList, setServicesList] = useState<any[]>([]);
   const [customerHandovers, setCustomerHandovers] = useState<any[]>([]);
+  const [isVehiclesLoading, setIsVehiclesLoading] = useState(true);
 
   // Technology section states
   const [activeTechTab, setActiveTechTab] = useState(0);
@@ -222,6 +224,8 @@ export default function Home() {
         }
       } catch (error) {
         console.error("Error fetching data:", error);
+      } finally {
+        setIsVehiclesLoading(false);
       }
     };
 
@@ -590,6 +594,9 @@ export default function Home() {
   // Filter vehicles based on active showroom category
   const getFilteredVehicles = () => {
     if (vehiclesList.length === 0) {
+      if (isVehiclesLoading) {
+        return [];
+      }
       // Fallback to static data if API vehicles not loaded
       switch (selectedCategory) {
         case "best-seller":
@@ -944,44 +951,61 @@ export default function Home() {
 
           {/* Vehicles Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {getFilteredVehicles().map((vehicle) => {
-              const vehicleId = vehicle.slug || vehicle.id;
-              const vehicleName = vehicle.title || vehicle.name;
-              const vehicleCardImage = vehicle.image_thumbnail_url || vehicle.image_url || getPopularVehicleImage(vehicle.slug || vehicle.id, vehicle.images?.[0] || "");
-              const vehiclePrice = vehicle.base_price || vehicle.basePrice || 0;
-
-              return (
-                <Link
-                  key={vehicle.id}
-                  href={`/san-pham/${vehicleId}`}
-                  className="bg-white border border-[#EAECF0] rounded-2xl p-6 flex flex-col justify-between hover:shadow-lg transition-all duration-300 relative group cursor-pointer h-full"
+            {isVehiclesLoading ? (
+              Array.from({ length: 3 }).map((_, idx) => (
+                <div
+                  key={`skeleton-showroom-${idx}`}
+                  className="bg-white border border-[#EAECF0] rounded-2xl p-6 flex flex-col justify-between h-[360px] animate-pulse"
                 >
-                  {/* Image Section — white bg, object-contain for cutout thumbnail */}
-                  <div className="relative h-48 w-full bg-white overflow-hidden mb-6 flex items-center justify-center">
-                    <Image
-                      src={vehicleCardImage}
-                      alt={vehicleName}
-                      fill
-                      sizes="(max-width: 768px) 100vw, 30vw"
-                      className="object-contain object-center group-hover:scale-105 transition-transform duration-500 p-2"
-                      onError={handleImageError}
-                    />
-                  </div>
-
-                  {/* Title & Price */}
-                  <div className="space-y-2 mt-auto">
-                    <h3 className={`text-base font-bold tracking-tight uppercase ${vehicleId === "new-mustang-mach-e" ? "text-[#0562D2]" : "text-[#1A1A1A]"
-                      }`}>
-                      {vehicleName}
-                    </h3>
-                    <div className="text-xs text-gray-500 font-medium">
-                      <span>Giá khởi điểm: </span>
-                      <span className="text-sm font-bold text-[#0562D2]">{formatPrice(vehiclePrice)}</span>
+                  <div className="relative h-48 w-full bg-gray-100 rounded-xl overflow-hidden mb-6" style={{ backgroundColor: "#F2F4F7" }} />
+                  <div className="space-y-3 mt-auto w-full">
+                    <div className="h-6 rounded w-2/3" style={{ backgroundColor: "#E4E7EC" }} />
+                    <div className="flex gap-2 items-center">
+                      <div className="h-4 rounded w-1/4" style={{ backgroundColor: "#F2F4F7" }} />
+                      <div className="h-4 rounded w-1/3" style={{ backgroundColor: "#F2F4F7" }} />
                     </div>
                   </div>
-                </Link>
-              );
-            })}
+                </div>
+              ))
+            ) : (
+              getFilteredVehicles().map((vehicle) => {
+                const vehicleId = vehicle.slug || vehicle.id;
+                const vehicleName = vehicle.title || vehicle.name;
+                const vehicleCardImage = vehicle.image_thumbnail_url || vehicle.image_url || getPopularVehicleImage(vehicle.slug || vehicle.id, vehicle.images?.[0] || "");
+                const vehiclePrice = vehicle.base_price || vehicle.basePrice || 0;
+
+                return (
+                  <Link
+                    key={vehicle.id}
+                    href={`/san-pham/${vehicleId}`}
+                    className="bg-white border border-[#EAECF0] rounded-2xl p-6 flex flex-col justify-between hover:shadow-lg transition-all duration-300 relative group cursor-pointer h-full"
+                  >
+                    {/* Image Section — white bg, object-contain for cutout thumbnail */}
+                    <div className="relative h-48 w-full bg-white overflow-hidden mb-6 flex items-center justify-center">
+                      <SafeImage
+                        src={vehicleCardImage}
+                        alt={vehicleName}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 30vw"
+                        className="object-contain object-center group-hover:scale-105 transition-transform duration-500 p-2"
+                      />
+                    </div>
+
+                    {/* Title & Price */}
+                    <div className="space-y-2 mt-auto">
+                      <h3 className={`text-base font-bold tracking-tight uppercase ${vehicleId === "new-mustang-mach-e" ? "text-[#0562D2]" : "text-[#1A1A1A]"
+                        }`}>
+                        {vehicleName}
+                      </h3>
+                      <div className="text-xs text-gray-500 font-medium">
+                        <span>Giá khởi điểm: </span>
+                        <span className="text-sm font-bold text-[#0562D2]">{formatPrice(vehiclePrice)}</span>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })
+            )}
           </div>
         </div>
       </section>
@@ -1231,56 +1255,78 @@ export default function Home() {
                     handlePopularEnd();
                   }}
                 >
-                  {[...popularVehicles, ...popularVehicles, ...popularVehicles].map((vehicle, idx) => {
-                    const vSlug = vehicle.slug || vehicle.id;
-                    const vName = vehicle.title || vehicle.name;
-                    return (
+                  {isVehiclesLoading ? (
+                    Array.from({ length: 3 }).map((_, idx) => (
                       <div
-                        key={`${vehicle.id}-${idx}`}
-                        onClick={(e) => {
-                          if (popularWasDragged.current) {
-                            return;
-                          }
-                          const target = e.target as HTMLElement;
-                          if (!target.closest('a')) {
-                            router.push(`/san-pham/${vSlug}`);
-                          }
-                        }}
-                        className="relative overflow-hidden rounded-xl h-[420px] sm:h-[595px] group cursor-pointer bg-[#121824] flex-shrink-0 transition-all duration-300 block"
+                        key={`skeleton-popular-${idx}`}
+                        className="relative overflow-hidden rounded-xl h-[420px] sm:h-[595px] bg-[#121824] flex-shrink-0 animate-pulse flex flex-col justify-end p-4 sm:p-8"
                         style={{
                           width: 'var(--card-width-popular)',
                         }}
                       >
-                        <Image
-                          src={getPopularVehicleImageForSlide(vehicle)}
-                          alt={vName}
-                          fill
-                          sizes="var(--card-width-popular)"
-                          className="object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
-                        {/* Gradient overlay — Figma: top rgba(0,0,0,0) → bottom heavy */}
+                        <div className="absolute inset-0 bg-[#1E293B]" />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
-                        {/* Content — Figma: p-8 bottom */}
-                        <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-8 z-10 flex flex-col gap-3 sm:gap-4">
-                          <h3 className="text-xl sm:text-2xl md:text-3xl font-semibold text-white leading-[1.2]">{vName}</h3>
-                          <div className="flex flex-row gap-2 sm:gap-3 mt-1">
-                            <Link
-                              href={`/san-pham/${vSlug}`}
-                              className="bg-[#0562D2] text-white text-xs sm:text-sm font-semibold px-4 sm:px-5 py-2 sm:py-2.5 rounded-full hover:bg-[#044ea7] transition-all duration-200 whitespace-nowrap text-center flex-1 sm:flex-none"
-                            >
-                              Xem chi tiết
-                            </Link>
-                            <Link
-                              href={`/lien-he?vehicle=${vSlug}&reason=Báo giá`}
-                              className="bg-transparent border border-white text-white text-xs sm:text-sm font-semibold px-4 sm:px-5 py-2 sm:py-2.5 rounded-full hover:bg-white/10 transition-all duration-200 whitespace-nowrap text-center flex-1 sm:flex-none"
-                            >
-                              Báo giá
-                            </Link>
+                        <div className="relative z-10 flex flex-col gap-4 w-full">
+                          <div className="h-8 sm:h-10 bg-[#334155] rounded-md w-3/4" />
+                          <div className="flex gap-3 mt-1 w-full">
+                            <div className="h-10 bg-[#334155] rounded-full w-1/3" />
+                            <div className="h-10 bg-[#334155] rounded-full w-1/3" />
                           </div>
                         </div>
                       </div>
-                    );
-                  })}
+                    ))
+                  ) : (
+                    [...popularVehicles, ...popularVehicles, ...popularVehicles].map((vehicle, idx) => {
+                      const vSlug = vehicle.slug || vehicle.id;
+                      const vName = vehicle.title || vehicle.name;
+                      return (
+                        <div
+                          key={`${vehicle.id}-${idx}`}
+                          onClick={(e) => {
+                            if (popularWasDragged.current) {
+                              return;
+                            }
+                            const target = e.target as HTMLElement;
+                            if (!target.closest('a')) {
+                              router.push(`/san-pham/${vSlug}`);
+                            }
+                          }}
+                          className="relative overflow-hidden rounded-xl h-[420px] sm:h-[595px] group cursor-pointer bg-[#121824] flex-shrink-0 transition-all duration-300 block"
+                          style={{
+                            width: 'var(--card-width-popular)',
+                          }}
+                        >
+                          <SafeImage
+                            src={getPopularVehicleImageForSlide(vehicle)}
+                            alt={vName}
+                            fill
+                            sizes="var(--card-width-popular)"
+                            className="object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                          {/* Gradient overlay — Figma: top rgba(0,0,0,0) → bottom heavy */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
+                          {/* Content — Figma: p-8 bottom */}
+                          <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-8 z-10 flex flex-col gap-3 sm:gap-4">
+                            <h3 className="text-xl sm:text-2xl md:text-3xl font-semibold text-white leading-[1.2]">{vName}</h3>
+                            <div className="flex flex-row gap-2 sm:gap-3 mt-1">
+                              <Link
+                                href={`/san-pham/${vSlug}`}
+                                className="bg-[#0562D2] text-white text-xs sm:text-sm font-semibold px-4 sm:px-5 py-2 sm:py-2.5 rounded-full hover:bg-[#044ea7] transition-all duration-200 whitespace-nowrap text-center flex-1 sm:flex-none"
+                              >
+                                Xem chi tiết
+                              </Link>
+                              <Link
+                                href={`/lien-he?vehicle=${vSlug}&reason=Báo giá`}
+                                className="bg-transparent border border-white text-white text-xs sm:text-sm font-semibold px-4 sm:px-5 py-2 sm:py-2.5 rounded-full hover:bg-white/10 transition-all duration-200 whitespace-nowrap text-center flex-1 sm:flex-none"
+                              >
+                                Báo giá
+                              </Link>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
                 </div>
               </div>
 
