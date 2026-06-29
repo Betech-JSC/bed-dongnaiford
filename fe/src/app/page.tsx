@@ -1069,7 +1069,11 @@ export default function Home() {
             {/* Slider & Images Container */}
             <div 
               className="relative w-full overflow-visible [--slide-width:80vw] md:[--slide-width:760px]"
-              onMouseEnter={() => setIsTechHovered(true)}
+              onMouseEnter={() => {
+                if (window.matchMedia("(pointer: fine)").matches) {
+                  setIsTechHovered(true);
+                }
+              }}
               onMouseLeave={() => {
                 setIsTechHovered(false);
                 handleTechEnd();
@@ -1078,12 +1082,10 @@ export default function Home() {
               onMouseMove={(e) => handleTechMove(e.clientX)}
               onMouseUp={handleTechEnd}
               onTouchStart={(e) => {
-                setIsTechHovered(true);
                 handleTechStart(e.touches[0].clientX);
               }}
               onTouchMove={(e) => handleTechMove(e.touches[0].clientX)}
               onTouchEnd={(e) => {
-                setIsTechHovered(false);
                 handleTechEnd();
               }}
             >
@@ -1228,7 +1230,11 @@ export default function Home() {
                     transition: isPopularDragging.current ? "none" : (isPopularTransitioning ? "transform 500ms ease-in-out" : "none")
                   }}
                   onTransitionEnd={handlePopularTransitionEnd}
-                  onMouseEnter={() => setIsPopularHovered(true)}
+                  onMouseEnter={() => {
+                    if (window.matchMedia("(pointer: fine)").matches) {
+                      setIsPopularHovered(true);
+                    }
+                  }}
                   onMouseLeave={(e) => {
                     setIsPopularHovered(false);
                     handlePopularEnd();
@@ -1237,12 +1243,10 @@ export default function Home() {
                   onMouseMove={(e) => handlePopularMove(e.clientX)}
                   onMouseUp={handlePopularEnd}
                   onTouchStart={(e) => {
-                    setIsPopularHovered(true);
                     handlePopularStart(e.touches[0].clientX);
                   }}
                   onTouchMove={(e) => handlePopularMove(e.touches[0].clientX)}
                   onTouchEnd={(e) => {
-                    setIsPopularHovered(false);
                     handlePopularEnd();
                   }}
                 >
@@ -1433,7 +1437,11 @@ export default function Home() {
                     transition: isServiceDragging.current ? "none" : (isServiceTransitioning ? "transform 500ms ease-in-out" : "none")
                   }}
                   onTransitionEnd={handleServiceTransitionEnd}
-                  onMouseEnter={() => setIsServiceHovered(true)}
+                  onMouseEnter={() => {
+                    if (window.matchMedia("(pointer: fine)").matches) {
+                      setIsServiceHovered(true);
+                    }
+                  }}
                   onMouseLeave={() => {
                     setIsServiceHovered(false);
                     handleServiceEnd();
@@ -1442,12 +1450,10 @@ export default function Home() {
                   onMouseMove={(e) => handleServiceMove(e.clientX)}
                   onMouseUp={handleServiceEnd}
                   onTouchStart={(e) => {
-                    setIsServiceHovered(true);
                     handleServiceStart(e.touches[0].clientX);
                   }}
                   onTouchMove={(e) => handleServiceMove(e.touches[0].clientX)}
                   onTouchEnd={(e) => {
-                    setIsServiceHovered(false);
                     handleServiceEnd();
                   }}
                 >
@@ -1734,7 +1740,11 @@ export default function Home() {
                   gap: "var(--card-gap-handover, 24px)"
                 }}
                 onTransitionEnd={handleHandoverTransitionEnd}
-                onMouseEnter={() => setIsHandoverHovered(true)}
+                onMouseEnter={() => {
+                  if (window.matchMedia("(pointer: fine)").matches) {
+                    setIsHandoverHovered(true);
+                  }
+                }}
                 onMouseLeave={() => {
                   setIsHandoverHovered(false);
                   handleHandoverEnd();
@@ -1743,12 +1753,10 @@ export default function Home() {
                 onMouseMove={(e) => handleHandoverMove(e.clientX)}
                 onMouseUp={handleHandoverEnd}
                 onTouchStart={(e) => {
-                  setIsHandoverHovered(true);
                   handleHandoverStart(e.touches[0].clientX);
                 }}
                 onTouchMove={(e) => handleHandoverMove(e.touches[0].clientX)}
                 onTouchEnd={(e) => {
-                  setIsHandoverHovered(false);
                   handleHandoverEnd();
                 }}
               >
