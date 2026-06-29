@@ -146,26 +146,7 @@ const techSlides = [
 export default function Home() {
   const router = useRouter();
 
-  const [heroSlides, setHeroSlides] = useState<any[]>([
-    {
-      title: "Ford Ranger Wildtrak Mới",
-      subtitle: "Bản lĩnh dẫn đầu phân khúc bán tải​",
-      image: "/assets/ranger_wildtrak.png",
-      linkVehicleId: "ford-ranger"
-    },
-    {
-      title: "Khuyến Mãi Đặc Biệt",
-      subtitle: "Ưu Đãi Lệ Phí Trước Bạ & Quà Tặng Cho Khách Hàng Biên Hòa",
-      image: "/assets/img-gradient-2.png",
-      linkVehicleId: "lien-he?reason=Nhận%20chương%20trình%20ưu%20đãi"
-    },
-    {
-      title: "Ford Everest Mới",
-      subtitle: "Dấn bước phiêu lưu - Đỉnh cao SUV 7 chỗ​",
-      image: "/assets/everest_platinum.png",
-      linkVehicleId: "ford-everest"
-    }
-  ]);
+  const [heroSlides, setHeroSlides] = useState<any[]>([]);
   const [homeArticles, setHomeArticles] = useState<any[]>([]);
   const [activeNewsTab, setActiveNewsTab] = useState<number>(3); // Default: 3 (Tin Khuyến Mãi)
   const [categories, setCategories] = useState<any[]>([]);
@@ -199,6 +180,7 @@ export default function Home() {
             subtitle: item.subtitle || "",
             tagline: "",
             image: item.image_url || siteAssets.heroSlides[0],
+            imageMobile: item.image_mobile_url || item.image_url || siteAssets.heroSlides[0],
             linkVehicleId: item.button_link || ""
           })));
         }
@@ -790,99 +772,108 @@ export default function Home() {
   return (
     <div className="relative min-h-screen bg-light overflow-x-hidden font-sans">
 
-      <section 
-        className="relative lg:h-[746px] min-h-[600px] flex flex-col justify-end bg-black text-white overflow-hidden pt-12 md:pt-16 pb-0 select-none cursor-grab active:cursor-grabbing"
-        onMouseDown={(e) => handleHeroStart(e.clientX)}
-        onMouseUp={(e) => handleHeroEnd(e.clientX)}
-        onMouseLeave={() => { isHeroDragging.current = false; }}
-        onTouchStart={(e) => handleHeroStart(e.touches[0].clientX)}
-        onTouchEnd={(e) => handleHeroEnd(e.changedTouches[0].clientX)}
-      >
+      {heroSlides.length > 0 && (
+        <section 
+          className="relative lg:h-[746px] min-h-[600px] flex flex-col justify-end bg-black text-white overflow-hidden pt-12 md:pt-16 pb-0 select-none cursor-grab active:cursor-grabbing"
+          onMouseDown={(e) => handleHeroStart(e.clientX)}
+          onMouseUp={(e) => handleHeroEnd(e.clientX)}
+          onMouseLeave={() => { isHeroDragging.current = false; }}
+          onTouchStart={(e) => handleHeroStart(e.touches[0].clientX)}
+          onTouchEnd={(e) => handleHeroEnd(e.changedTouches[0].clientX)}
+        >
 
-        {/* Absolute Background Slides (with fade transitions) */}
-        {heroSlides.map((slide, idx) => (
-          <div
-            key={idx}
-            className={`absolute inset-0 transition-opacity duration-1000 ease-in-out pointer-events-none ${activeHeroIndex === idx ? "opacity-95 scale-100" : "opacity-0 scale-105"
-              }`}
-          >
-            <img
-              src={slide.image}
-              alt={slide.title}
-              className="object-cover w-full h-full object-center transform transition-transform duration-10000"
-            />
-            {/* Linear dark gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-          </div>
-        ))}
+          {/* Absolute Background Slides (with fade transitions) */}
+          {heroSlides.map((slide, idx) => (
+            <div
+              key={idx}
+              className={`absolute inset-0 transition-opacity duration-1000 ease-in-out pointer-events-none ${activeHeroIndex === idx ? "opacity-95 scale-100" : "opacity-0 scale-105"
+                }`}
+            >
+              {/* Desktop Image */}
+              <img
+                src={slide.image}
+                alt={slide.title}
+                className="hidden md:block object-cover w-full h-full object-center transform transition-transform duration-10000"
+              />
+              {/* Mobile Image */}
+              <img
+                src={slide.imageMobile || slide.image}
+                alt={slide.title}
+                className="block md:hidden object-cover w-full h-full object-center transform transition-transform duration-10000"
+              />
+              {/* Linear dark gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+            </div>
+          ))}
 
-        {/* Main Content Area */}
-        <div className="max-w-[1440px] mx-auto w-full px-4 xl:px-[144px] flex flex-col items-center justify-end text-center relative z-10 mt-auto pt-32 pb-[16px] md:pb-[24px]">
-          {/* Slide Text Block */}
-          <div key={activeHeroIndex} className="max-w-3xl flex flex-col items-center text-center reveal-on-scroll">
-            <h1 className="text-4xl sm:text-5xl lg:text-[48px] font-bold tracking-[-0.96px] leading-[1.2] text-white">
-              {heroSlides[activeHeroIndex]?.title || ""}
-            </h1>
-            <p className="mt-[4px] text-lg sm:text-xl md:text-[24px] font-medium text-white/80 leading-[1.25]">
-              {heroSlides[activeHeroIndex]?.subtitle || ""}
-            </p>
+          {/* Main Content Area */}
+          <div className="max-w-[1440px] mx-auto w-full px-4 xl:px-[144px] flex flex-col items-center justify-end text-center relative z-10 mt-auto pt-32 pb-[16px] md:pb-[24px]">
+            {/* Slide Text Block */}
+            <div key={activeHeroIndex} className="max-w-3xl flex flex-col items-center text-center reveal-on-scroll">
+              <h1 className="text-4xl sm:text-5xl lg:text-[48px] font-bold tracking-[-0.96px] leading-[1.2] text-white">
+                {heroSlides[activeHeroIndex]?.title || ""}
+              </h1>
+              <p className="mt-[4px] text-lg sm:text-xl md:text-[24px] font-medium text-white/80 leading-[1.25]">
+                {heroSlides[activeHeroIndex]?.subtitle || ""}
+              </p>
 
-            {/* CTAs */}
-            <div className="flex flex-row justify-center gap-[12px] pt-[24px]">
-              <button
-                onClick={() => triggerQuickAction("Đăng ký lái thử", "Tôi muốn đăng ký lái thử xe thông qua chương trình khuyến mãi.")}
-                className="bg-[#0562d2] hover:bg-[#066FEF] text-white px-[24px] py-[10px] rounded-full text-base font-semibold tracking-[0.16px] transition-all duration-300 cursor-pointer shadow-md"
-              >
-                Book Lái thử
-              </button>
-              <button
-                onClick={() => {
-                  if (heroSlides[activeHeroIndex]?.linkVehicleId) {
-                    router.push(`/san-pham/${heroSlides[activeHeroIndex].linkVehicleId}`);
-                  }
-                }}
-                className="bg-transparent hover:bg-white/10 border border-white text-white px-[24px] py-[10px] rounded-full text-base font-semibold tracking-[0.16px] transition-all duration-300 cursor-pointer"
-              >
-                Khám phá ngay
-              </button>
+              {/* CTAs */}
+              <div className="flex flex-row justify-center gap-[12px] pt-[24px]">
+                <button
+                  onClick={() => triggerQuickAction("Đăng ký lái thử", "Tôi muốn đăng ký lái thử xe thông qua chương trình khuyến mãi.")}
+                  className="bg-[#0562d2] hover:bg-[#066FEF] text-white px-[24px] py-[10px] rounded-full text-base font-semibold tracking-[0.16px] transition-all duration-300 cursor-pointer shadow-md"
+                >
+                  Book Lái thử
+                </button>
+                <button
+                  onClick={() => {
+                    if (heroSlides[activeHeroIndex]?.linkVehicleId) {
+                      router.push(`/san-pham/${heroSlides[activeHeroIndex].linkVehicleId}`);
+                    }
+                  }}
+                  className="bg-transparent hover:bg-white/10 border border-white text-white px-[24px] py-[10px] rounded-full text-base font-semibold tracking-[0.16px] transition-all duration-300 cursor-pointer"
+                >
+                  Khám phá ngay
+                </button>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Dynamic Nav Arrows */}
-        <button
-          onClick={handlePrevHero}
-          className="absolute left-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/40 hover:bg-black/60 transition-colors text-white z-20 cursor-pointer hidden md:flex items-center justify-center"
-          aria-label="Previous Slide"
-        >
-          <ChevronLeft className="w-6 h-6" />
-        </button>
-        <button
-          onClick={handleNextHero}
-          className="absolute right-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/40 hover:bg-black/60 transition-colors text-white z-20 cursor-pointer hidden md:flex items-center justify-center"
-          aria-label="Next Slide"
-        >
-          <ChevronRight className="w-6 h-6" />
-        </button>
+          {/* Dynamic Nav Arrows */}
+          <button
+            onClick={handlePrevHero}
+            className="absolute left-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/40 hover:bg-black/60 transition-colors text-white z-20 cursor-pointer hidden md:flex items-center justify-center"
+            aria-label="Previous Slide"
+          >
+            <ChevronLeft className="w-6 h-6" />
+          </button>
+          <button
+            onClick={handleNextHero}
+            className="absolute right-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/40 hover:bg-black/60 transition-colors text-white z-20 cursor-pointer hidden md:flex items-center justify-center"
+            aria-label="Next Slide"
+          >
+            <ChevronRight className="w-6 h-6" />
+          </button>
 
-        {/* Tab Controls Bar (Dynamic switching banner) */}
-        <div className="w-full flex justify-center items-start relative z-10 pb-0">
-          <div className="flex flex-row justify-center items-start gap-0 max-w-[960px] w-full">
-            {heroSlides.map((slide, idx) => (
-              <button
-                key={idx}
-                onClick={() => setActiveHeroIndex(idx)}
-                className={`w-[320px] text-center transition-all duration-300 tracking-[0.18px] text-[18px] font-semibold cursor-pointer ${activeHeroIndex === idx
-                  ? "border-t-[3px] border-white text-white opacity-100 pt-[8px] pb-[16px]"
-                  : "border-t-[1px] border-white/30 text-white opacity-60 hover:opacity-100 pt-[10px] pb-[16px]"
-                  }`}
-              >
-                {slide.title}
-              </button>
-            ))}
+          {/* Tab Controls Bar (Dynamic switching banner) */}
+          <div className="w-full flex justify-center items-start relative z-10 pb-0">
+            <div className="flex flex-row justify-center items-start gap-0 max-w-[960px] w-full">
+              {heroSlides.map((slide, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setActiveHeroIndex(idx)}
+                  className={`w-[320px] text-center transition-all duration-300 tracking-[0.18px] text-[18px] font-semibold cursor-pointer ${activeHeroIndex === idx
+                    ? "border-t-[3px] border-white text-white opacity-100 pt-[8px] pb-[16px]"
+                    : "border-t-[1px] border-white/30 text-white opacity-60 hover:opacity-100 pt-[10px] pb-[16px]"
+                    }`}
+                >
+                  {slide.title}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* 2. QUICK ACTION GRID */}
       <section className="bg-white border-y border-gray-200 py-8 relative z-20 shadow-xs">
