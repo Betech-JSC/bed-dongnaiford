@@ -1058,5 +1058,32 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
+/* Continuous infinite marquee keyframes and helper classes */
+@keyframes marquee-horizontal {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee-continuous {
+  display: flex;
+  width: max-content;
+  animation: marquee-horizontal 35s linear infinite;
+}
+
+.animate-marquee-continuous-fast {
+  display: flex;
+  width: max-content;
+  animation: marquee-horizontal 25s linear infinite;
+}
+
+.animate-marquee-continuous:hover,
+.animate-marquee-continuous-fast:hover {
+  animation-play-state: paused;
+}
+
 
 

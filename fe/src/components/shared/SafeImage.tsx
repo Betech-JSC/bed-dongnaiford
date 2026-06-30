@@ -19,7 +19,7 @@ export default function SafeImage({
   ...props
 }: SafeImageProps) {
   const [isLoaded, setIsLoaded] = useState(false);
-  const [imgSrc, setImgSrc] = useState<string>("");
+  const [imgSrc, setImgSrc] = useState<string>(src || fallbackSrc);
 
   useEffect(() => {
     // Reset loading state and update source when src changes

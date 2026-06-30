@@ -774,7 +774,7 @@ export default function Home() {
 
       {heroSlides.length > 0 && (
         <section 
-          className="relative lg:h-[746px] min-h-[600px] flex flex-col justify-end bg-black text-white overflow-hidden pt-12 md:pt-16 pb-0 select-none cursor-grab active:cursor-grabbing"
+          className="relative h-[85vh] min-h-[580px] md:h-[calc(100vh-112px)] md:min-h-[700px] flex flex-col justify-end bg-black text-white overflow-hidden pt-12 md:pt-16 pb-0 select-none cursor-grab active:cursor-grabbing"
           onMouseDown={(e) => handleHeroStart(e.clientX)}
           onMouseUp={(e) => handleHeroEnd(e.clientX)}
           onMouseLeave={() => { isHeroDragging.current = false; }}
@@ -793,13 +793,13 @@ export default function Home() {
               <img
                 src={slide.image}
                 alt={slide.title}
-                className="hidden md:block object-cover w-full h-full object-center transform transition-transform duration-10000"
+                className="hidden md:block object-cover w-full h-full object-top transform transition-transform duration-10000"
               />
               {/* Mobile Image */}
               <img
                 src={slide.imageMobile || slide.image}
                 alt={slide.title}
-                className="block md:hidden object-cover w-full h-full object-center transform transition-transform duration-10000"
+                className="block md:hidden object-cover w-full h-full object-top transform transition-transform duration-10000"
               />
               {/* Linear dark gradient overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
@@ -807,21 +807,21 @@ export default function Home() {
           ))}
 
           {/* Main Content Area */}
-          <div className="max-w-[1440px] mx-auto w-full px-4 xl:px-[144px] flex flex-col items-center justify-end text-center relative z-10 mt-auto pt-32 pb-[16px] md:pb-[24px]">
+          <div className="max-w-[1440px] mx-auto w-full px-6 xl:px-[144px] flex flex-col items-center justify-end text-center relative z-10 mt-auto pt-20 pb-8 md:pb-[24px]">
             {/* Slide Text Block */}
             <div key={activeHeroIndex} className="max-w-3xl flex flex-col items-center text-center reveal-on-scroll">
-              <h1 className="text-4xl sm:text-5xl lg:text-[48px] font-bold tracking-[-0.96px] leading-[1.2] text-white">
+              <h1 className="text-2xl sm:text-4xl lg:text-[48px] font-bold tracking-[-0.96px] leading-[1.2] text-white uppercase">
                 {heroSlides[activeHeroIndex]?.title || ""}
               </h1>
-              <p className="mt-[4px] text-lg sm:text-xl md:text-[24px] font-medium text-white/80 leading-[1.25]">
+              <p className="mt-2 text-sm sm:text-lg md:text-[24px] font-medium text-white/80 leading-[1.25] max-w-[90%] mx-auto">
                 {heroSlides[activeHeroIndex]?.subtitle || ""}
               </p>
 
               {/* CTAs */}
-              <div className="flex flex-row justify-center gap-[12px] pt-[24px]">
+              <div className="flex flex-row justify-center gap-3 pt-4 md:pt-6">
                 <button
                   onClick={() => triggerQuickAction("Đăng ký lái thử", "Tôi muốn đăng ký lái thử xe thông qua chương trình khuyến mãi.")}
-                  className="bg-[#0562d2] hover:bg-[#066FEF] text-white px-[24px] py-[10px] rounded-full text-base font-semibold tracking-[0.16px] transition-all duration-300 cursor-pointer shadow-md"
+                  className="bg-[#0562d2] hover:bg-[#066FEF] text-white px-5 py-2 md:px-6 md:py-2.5 rounded-full text-xs md:text-base font-semibold tracking-[0.16px] transition-all duration-300 cursor-pointer shadow-md border-0"
                 >
                   Book Lái thử
                 </button>
@@ -831,7 +831,7 @@ export default function Home() {
                       router.push(`/san-pham/${heroSlides[activeHeroIndex].linkVehicleId}`);
                     }
                   }}
-                  className="bg-transparent hover:bg-white/10 border border-white text-white px-[24px] py-[10px] rounded-full text-base font-semibold tracking-[0.16px] transition-all duration-300 cursor-pointer"
+                  className="bg-transparent hover:bg-white/10 border border-white text-white px-5 py-2 md:px-6 md:py-2.5 rounded-full text-xs md:text-base font-semibold tracking-[0.16px] transition-all duration-300 cursor-pointer"
                 >
                   Khám phá ngay
                 </button>
@@ -842,33 +842,49 @@ export default function Home() {
           {/* Dynamic Nav Arrows */}
           <button
             onClick={handlePrevHero}
-            className="absolute left-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/40 hover:bg-black/60 transition-colors text-white z-20 cursor-pointer hidden md:flex items-center justify-center"
+            className="absolute left-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/40 hover:bg-black/60 transition-colors text-white z-20 cursor-pointer hidden md:flex items-center justify-center border-0"
             aria-label="Previous Slide"
           >
             <ChevronLeft className="w-6 h-6" />
           </button>
           <button
             onClick={handleNextHero}
-            className="absolute right-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/40 hover:bg-black/60 transition-colors text-white z-20 cursor-pointer hidden md:flex items-center justify-center"
+            className="absolute right-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/40 hover:bg-black/60 transition-colors text-white z-20 cursor-pointer hidden md:flex items-center justify-center border-0"
             aria-label="Next Slide"
           >
             <ChevronRight className="w-6 h-6" />
           </button>
 
-          {/* Tab Controls Bar (Dynamic switching banner) */}
-          <div className="w-full flex justify-center items-start relative z-10 pb-0">
+          {/* Tab Controls Bar (Dynamic switching banner) - Desktop */}
+          <div className="w-full hidden md:flex justify-center items-start relative z-10 pb-0">
             <div className="flex flex-row justify-center items-start gap-0 max-w-[960px] w-full">
               {heroSlides.map((slide, idx) => (
                 <button
                   key={idx}
                   onClick={() => setActiveHeroIndex(idx)}
-                  className={`w-[320px] text-center transition-all duration-300 tracking-[0.18px] text-[18px] font-semibold cursor-pointer ${activeHeroIndex === idx
+                  className={`w-[320px] text-center transition-all duration-300 tracking-[0.18px] text-[18px] font-semibold cursor-pointer border-r-0 border-l-0 border-b-0 ${activeHeroIndex === idx
                     ? "border-t-[3px] border-white text-white opacity-100 pt-[8px] pb-[16px]"
                     : "border-t-[1px] border-white/30 text-white opacity-60 hover:opacity-100 pt-[10px] pb-[16px]"
                     }`}
                 >
                   {slide.title}
                 </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Dots Pagination Indicator - Mobile */}
+          <div className="w-full flex md:hidden justify-center items-center relative z-10 pb-4">
+            <div className="flex flex-row gap-2">
+              {heroSlides.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setActiveHeroIndex(idx)}
+                  className={`w-8 h-1 rounded-full transition-all duration-300 cursor-pointer border-0 ${
+                    activeHeroIndex === idx ? "bg-[#0562d2]" : "bg-white/40"
+                  }`}
+                  aria-label={`Go to slide ${idx + 1}`}
+                />
               ))}
             </div>
           </div>
@@ -1384,11 +1400,11 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 6. SERVICES CAROUSEL — Figma: bg-[#f0f0f0], py-72px, cards h-480px, rounded-12px, draggable */}
+      {/* 6. SERVICES CAROUSEL — Continuous Infinite Scrolling Marquee */}
       <section id="services" className="w-full bg-[#f0f0f0] py-[72px] overflow-x-clip">
         <div className="w-full">
-          {/* Header row: title left + nav arrows right */}
-          <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] flex items-end justify-between mb-6 gap-6">
+          {/* Header row: title left */}
+          <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] mb-6">
             <div className="space-y-2">
               <h2 className="text-4xl md:text-5xl font-semibold text-[#1a1a1a] tracking-[-0.96px] leading-[1.2]">
                 Các dịch vụ của chúng tôi
@@ -1397,128 +1413,55 @@ export default function Home() {
                 Các giải pháp dịch vụ toàn diện, tận tâm và chính hãng từ Đồng Nai Ford.
               </p>
             </div>
-            {/* Nav arrows */}
-            {servicesList.length > 0 && (
-              <div className="flex gap-6 flex-shrink-0">
-                <button
-                  onClick={() => {
-                    setIsServiceTransitioning(true);
-                    setActiveServiceIndex((prev) => prev - 1);
-                    setIsServiceInteracted(true);
-                  }}
-                  className="w-10 h-10 rounded-full bg-black/60 flex items-center justify-center hover:bg-black/80 transition-colors cursor-pointer text-white"
-                  aria-label="Previous service"
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                </button>
-                <button
-                  onClick={() => {
-                    setIsServiceTransitioning(true);
-                    setActiveServiceIndex((prev) => prev + 1);
-                    setIsServiceInteracted(true);
-                  }}
-                  className="w-10 h-10 rounded-full bg-black/80 flex items-center justify-center hover:bg-black transition-colors cursor-pointer text-white"
-                  aria-label="Next service"
-                >
-                  <ChevronRight className="w-5 h-5" />
-                </button>
-              </div>
-            )}
           </div>
 
-          {/* Vehicle cards sliding container */}
+          {/* Vehicle cards sliding container — continuous infinite marquee */}
           {servicesList.length > 0 ? (
-            <>
-              <div className="relative w-full overflow-visible py-4 pl-4 xl:pl-[144px] min-[1440px]:pl-[calc((100vw-1152px)/2)] select-none">
-                <div
-                  className="flex gap-[var(--card-gap-service)] cursor-grab active:cursor-grabbing"
-                  style={{
-                    transform: `translateX(calc(-${activeServiceIndex} * (var(--card-width-service) + var(--card-gap-service)) + ${serviceDragOffset}px))`,
-                    transition: isServiceDragging.current ? "none" : (isServiceTransitioning ? "transform 500ms ease-in-out" : "none")
-                  }}
-                  onTransitionEnd={handleServiceTransitionEnd}
-                  onMouseEnter={() => {
-                    if (window.matchMedia("(pointer: fine)").matches) {
-                      setIsServiceHovered(true);
-                    }
-                  }}
-                  onMouseLeave={() => {
-                    setIsServiceHovered(false);
-                    handleServiceEnd();
-                  }}
-                  onMouseDown={(e) => handleServiceStart(e.clientX)}
-                  onMouseMove={(e) => handleServiceMove(e.clientX)}
-                  onMouseUp={handleServiceEnd}
-                  onTouchStart={(e) => {
-                    handleServiceStart(e.touches[0].clientX);
-                  }}
-                  onTouchMove={(e) => handleServiceMove(e.touches[0].clientX)}
-                  onTouchEnd={(e) => {
-                    handleServiceEnd();
-                  }}
-                >
-                  {[...servicesList, ...servicesList, ...servicesList].map((srv, idx) => {
-                    const sTitle = srv.title;
-                    const sImg = srv.image?.url || "/service-support-customer.jpg";
-                    const sHref = (srv.custom_link && srv.custom_link.startsWith('/dich-vu/'))
-                      ? srv.custom_link
-                      : `/dich-vu/${srv.slug}`;
-                    return (
-                      <div
-                        key={`${srv.id}-${idx}`}
-                        onClick={() => {
-                          if (serviceWasDragged.current) return;
-                          router.push(sHref);
-                        }}
-                        className="relative overflow-hidden rounded-xl h-[480px] group cursor-pointer bg-[#121824] flex-shrink-0 transition-all duration-300 block"
-                        style={{
-                          width: 'var(--card-width-service)',
-                        }}
-                      >
-                        <Image
-                          src={sImg}
-                          alt={sTitle}
-                          fill
-                          sizes="var(--card-width-service)"
-                          className="object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
-                        <div className="absolute bottom-0 left-0 right-0 p-8 z-10 flex flex-col gap-3 sm:gap-4">
-                          <h3 className="text-xl sm:text-2xl md:text-3xl font-semibold text-white leading-[1.2]">{sTitle}</h3>
-                          {srv.description && (
-                            <p className="text-sm text-white/70 line-clamp-2 leading-relaxed font-normal">
-                              {srv.description}
-                            </p>
-                          )}
-                          <div className="flex flex-row gap-2 sm:gap-3 mt-2">
-                            <span className="bg-[#0562D2] text-white text-xs sm:text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-[#044ea7] transition-all duration-200 whitespace-nowrap text-center">
-                              Xem chi tiết
-                            </span>
-                          </div>
+            <div className="relative w-full overflow-hidden py-4 select-none">
+              <div className="animate-marquee-continuous gap-[var(--card-gap-service)]">
+                {[...servicesList, ...servicesList].map((srv, idx) => {
+                  const sTitle = srv.title;
+                  const sImg = srv.image?.url || "/service-support-customer.jpg";
+                  const sHref = (srv.custom_link && srv.custom_link.startsWith('/dich-vu/'))
+                    ? srv.custom_link
+                    : `/dich-vu/${srv.slug}`;
+                  return (
+                    <div
+                      key={`${srv.id}-${idx}`}
+                      onClick={() => {
+                        router.push(sHref);
+                      }}
+                      className="relative overflow-hidden rounded-xl h-[480px] group cursor-pointer bg-[#121824] flex-shrink-0 transition-all duration-300 block"
+                      style={{
+                        width: 'var(--card-width-service)',
+                      }}
+                    >
+                      <Image
+                        src={sImg}
+                        alt={sTitle}
+                        fill
+                        sizes="var(--card-width-service)"
+                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
+                      <div className="absolute bottom-0 left-0 right-0 p-8 z-10 flex flex-col gap-3 sm:gap-4">
+                        <h3 className="text-xl sm:text-2xl md:text-3xl font-semibold text-white leading-[1.2]">{sTitle}</h3>
+                        {srv.description && (
+                          <p className="text-sm text-white/70 line-clamp-2 leading-relaxed font-normal">
+                            {srv.description}
+                          </p>
+                        )}
+                        <div className="flex flex-row gap-2 sm:gap-3 mt-2">
+                          <span className="bg-[#0562D2] text-white text-xs sm:text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-[#044ea7] transition-all duration-200 whitespace-nowrap text-center">
+                            Xem chi tiết
+                          </span>
                         </div>
                       </div>
-                    );
-                  })}
-                </div>
+                    </div>
+                  );
+                })}
               </div>
-
-              {/* Dots Pagination Indicators for Services */}
-              <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] flex justify-center gap-2 mt-4 mb-8">
-                {servicesList.map((_, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => {
-                      setIsServiceTransitioning(true);
-                      setActiveServiceIndex(idx + servicesList.length);
-                      setIsServiceInteracted(true);
-                    }}
-                    className={`h-2 transition-all rounded-full cursor-pointer ${activeServiceIndex % servicesList.length === idx ? "w-6 bg-[#0562d2]" : "w-2 bg-gray-300"
-                      }`}
-                    aria-label={`Go to service slide ${idx + 1}`}
-                  />
-                ))}
-              </div>
-            </>
+            </div>
           ) : (
             <div className="text-center py-20 bg-white border border-[#e5e5e5] rounded-[12px] max-w-[1152px] mx-auto">
               <p className="text-gray-500 text-sm">Đang tải danh sách dịch vụ...</p>
@@ -1676,7 +1619,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CUSTOMER HANDOVER (TRI ÂN KHÁCH HÀNG) */}
+      {/* CUSTOMER HANDOVER (TRI ÂN KHÁCH HÀNG) — Continuous Infinite Scrolling Marquee */}
       {customerHandovers.length > 0 && (
         <section id="customer-handovers" className="w-full bg-white py-[72px] overflow-x-clip relative select-none border-b border-gray-100">
           <style dangerouslySetInnerHTML={{ __html: `
@@ -1692,8 +1635,8 @@ export default function Home() {
             }
           ` }} />
           <div className="w-full">
-            {/* Header row: title left + nav arrows right */}
-            <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] flex flex-col md:flex-row md:items-end justify-between mb-8 gap-6">
+            {/* Header row: title left */}
+            <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] mb-8">
               <div className="space-y-2 max-w-4xl">
                 <span className="text-xs font-semibold text-[#0562d2] uppercase tracking-wider block mb-2">
                   Tri ân khách hàng
@@ -1702,71 +1645,19 @@ export default function Home() {
                   CHÚC MỪNG & CẢM ƠN QUÝ KHÁCH HÀNG ĐÃ LỰA CHỌN ĐỒNG NAI FORD
                 </h2>
               </div>
-              
-              {/* Nav arrows */}
-              <div className="flex gap-4 flex-shrink-0">
-                <button
-                  onClick={() => {
-                    setIsHandoverTransitioning(true);
-                    setActiveHandoverIndex((prev) => prev - 1);
-                    setIsHandoverInteracted(true);
-                  }}
-                  className="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer text-gray-700 bg-white shadow-sm"
-                  aria-label="Previous image"
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                </button>
-                <button
-                  onClick={() => {
-                    setIsHandoverTransitioning(true);
-                    setActiveHandoverIndex((prev) => prev + 1);
-                    setIsHandoverInteracted(true);
-                  }}
-                  className="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50 transition-colors cursor-pointer text-gray-700 bg-white shadow-sm"
-                  aria-label="Next image"
-                >
-                  <ChevronRight className="w-5 h-5" />
-                </button>
-              </div>
             </div>
 
-            {/* Slider track container */}
-            <div className="relative w-full overflow-visible py-4 pl-4 xl:pl-[144px] min-[1440px]:pl-[calc((100vw-1152px)/2)] select-none">
+            {/* Slider track container — continuous infinite marquee */}
+            <div className="relative w-full overflow-hidden py-4 select-none">
               <div
-                className="flex cursor-grab active:cursor-grabbing"
-                style={{
-                  transform: `translateX(calc(-${activeHandoverIndex} * (var(--card-width-handover, 360px) + var(--card-gap-handover, 24px)) + ${handoverDragOffset}px))`,
-                  transition: isHandoverDragging.current ? "none" : (isHandoverTransitioning ? "transform 500ms ease-in-out" : "none"),
-                  gap: "var(--card-gap-handover, 24px)"
-                }}
-                onTransitionEnd={handleHandoverTransitionEnd}
-                onMouseEnter={() => {
-                  if (window.matchMedia("(pointer: fine)").matches) {
-                    setIsHandoverHovered(true);
-                  }
-                }}
-                onMouseLeave={() => {
-                  setIsHandoverHovered(false);
-                  handleHandoverEnd();
-                }}
-                onMouseDown={(e) => handleHandoverStart(e.clientX)}
-                onMouseMove={(e) => handleHandoverMove(e.clientX)}
-                onMouseUp={handleHandoverEnd}
-                onTouchStart={(e) => {
-                  handleHandoverStart(e.touches[0].clientX);
-                }}
-                onTouchMove={(e) => handleHandoverMove(e.touches[0].clientX)}
-                onTouchEnd={(e) => {
-                  handleHandoverEnd();
-                }}
+                className="animate-marquee-continuous-fast gap-[var(--card-gap-handover,24px)]"
               >
-                {[...customerHandovers, ...customerHandovers, ...customerHandovers].map((item, idx) => {
+                {[...customerHandovers, ...customerHandovers].map((item, idx) => {
                   const originalIdx = idx % customerHandovers.length;
                   return (
                     <div
                       key={`${item.id}-${idx}`}
                       onClick={() => {
-                        if (handoverWasDragged.current) return;
                         setLightboxIndex(originalIdx);
                       }}
                       className="relative overflow-hidden rounded-xl aspect-[4/3] group cursor-pointer bg-gray-100 flex-shrink-0 transition-all duration-300 block shadow-sm hover:shadow-md border border-gray-100"
@@ -1796,26 +1687,6 @@ export default function Home() {
                   );
                 })}
               </div>
-            </div>
-
-            {/* Dots Pagination Indicators */}
-            <div className="flex justify-center gap-2 mt-8">
-              {customerHandovers.map((_, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => {
-                    setIsHandoverTransitioning(true);
-                    setActiveHandoverIndex(idx + customerHandovers.length);
-                    setIsHandoverInteracted(true);
-                  }}
-                  className={`h-2 transition-all rounded-full cursor-pointer ${
-                    (activeHandoverIndex % customerHandovers.length) === idx
-                      ? "w-8 bg-[#0562d2]"
-                      : "w-2 bg-gray-300 hover:bg-gray-400"
-                  }`}
-                  aria-label={`Go to handover slide ${idx + 1}`}
-                />
-              ))}
             </div>
 
           </div>
