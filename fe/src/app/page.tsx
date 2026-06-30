@@ -1650,7 +1650,7 @@ export default function Home() {
             {/* Slider track container — continuous infinite marquee */}
             <div className="relative w-full overflow-hidden py-4 select-none">
               <div
-                className="animate-marquee-continuous-fast gap-[var(--card-gap-handover,24px)]"
+                className="animate-marquee-continuous gap-[var(--card-gap-handover,24px)]"
               >
                 {[...customerHandovers, ...customerHandovers].map((item, idx) => {
                   const originalIdx = idx % customerHandovers.length;
