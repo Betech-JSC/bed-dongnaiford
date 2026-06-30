@@ -15,27 +15,20 @@ const SteeringWheelIcon = () => (
 );
 
 const FacebookIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 28 27" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path fillRule="evenodd" clipRule="evenodd" d="M0 13.318C0 19.9031 5.02036 25.3783 11.5855 26.4881V16.9229H8.10982V13.2441H11.5855V10.3009C11.5855 6.9899 13.8253 5.15046 16.992 5.15046C17.996 5.15046 19.0774 5.29761 20.0814 5.44476V8.82936H18.305C16.6058 8.82936 16.2196 9.63872 16.2196 10.6688V13.2441H19.927L19.3091 16.9229H16.2196V26.4881C22.7848 25.3783 27.8051 19.9031 27.8051 13.318Z" fill="currentColor"/>
+  <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
   </svg>
 );
 
 const MessengerIcon = () => (
-  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-    <path d="M12 2C6.36 2 2 6.13 2 11.7c0 3.22 1.43 6.08 3.86 7.82l-.24 2.45a.5.5 0 00.7.5l2.76-1.51c.9.25 1.86.39 2.92.39 5.64 0 10-4.13 10-9.7C22 6.13 17.64 2 12 2zm1.2 12.3l-2.4-2.55-4.65 2.55 5.1-5.4 2.4 2.55 4.65-2.55-5.1 5.4z" />
+  <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+    <path d="M12 2C6.477 2 2 6.145 2 11.242c0 2.91 1.45 5.498 3.71 7.073V22l3.528-1.937A11.758 11.758 0 0012 20.484c5.523 0 10-4.146 10-9.242S17.523 2 12 2zm1.192 11.938l-2.435-2.6-4.75 2.6 5.22-5.542 2.435 2.6 4.75-2.6-5.22 5.542z" />
   </svg>
 );
 
 const ZaloIcon = () => (
-  <svg viewBox="0 0 32 32" className="w-5 h-5" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <mask id="quick-access-zalo-mask" x="0" y="0" width="32" height="32">
-        <rect x="0" y="0" width="32" height="32" fill="white" />
-        <path d="M13.1605 10.88H6.93646V12.2146H11.2556L6.99707 17.4923C6.86363 17.6864 6.7666 17.8684 6.7666 18.2809V18.6206H12.6387C12.9299 18.6206 13.1726 18.378 13.1726 18.0868V17.3709H8.63502L12.6387 12.348C12.6994 12.2753 12.8086 12.1418 12.8572 12.0812L12.8814 12.0447C13.1119 11.705 13.1605 11.4138 13.1605 11.062V10.88ZM21.0826 18.6206H21.9683V10.88H20.6337V18.1717C20.6337 18.4144 20.8279 18.6206 21.0826 18.6206ZM16.521 12.6031C14.8467 12.6031 13.4878 13.962 13.4878 15.6363C13.4878 17.3106 14.8467 18.6694 16.521 18.6694C18.1953 18.6694 19.5541 17.3106 19.5541 15.6363C19.5663 13.962 18.2074 12.6031 16.521 12.6031ZM16.521 17.4198C15.5382 17.4198 14.7375 16.619 14.7375 15.6363C14.7375 14.6536 15.5382 13.8528 16.521 13.8528C17.5037 13.8528 18.3045 14.6536 18.3045 15.6363C18.3045 16.619 17.5158 17.4198 16.521 17.4198ZM25.9115 12.5544C24.225 12.5544 22.8541 13.9254 22.8541 15.6118C22.8541 17.2982 24.225 18.6693 25.9115 18.6693C27.5979 18.6693 28.9689 17.2982 28.9689 15.6118C28.9689 13.9254 27.5979 12.5544 25.9115 12.5544ZM25.9115 17.4196C24.9166 17.4196 24.1158 16.6188 24.1158 15.6239C24.1158 14.6291 24.9166 13.8283 25.9115 13.8283C26.9064 13.8283 27.7071 14.6291 27.7071 15.6239C27.7071 16.6188 26.9064 17.4196 25.9115 17.4196Z" fill="black" />
-        <path d="M18.8522 18.6204H19.568V12.7725H18.3184V18.0987C18.3184 18.3778 18.561 18.6204 18.8522 18.6204Z" fill="black" />
-      </mask>
-    </defs>
-    <path fillRule="evenodd" clipRule="evenodd" d="M4.97875 27.8971C6.46541 28.0614 8.3241 27.6375 9.64384 26.9968C15.3746 30.1644 24.3328 30.0131 29.7553 26.5428C29.9656 26.2274 30.1621 25.8993 30.3444 25.5592C31.4282 23.5379 32.0005 21.2608 32.0005 17.3642V14.5392C32.0005 10.6426 31.4282 8.3655 30.3444 6.34415C29.2728 4.32279 27.6777 2.7398 25.6563 1.65605C23.6349 0.572313 21.3579 0 17.4613 0H14.6241C11.3054 0 9.15104 0.417763 7.34093 1.21532C7.24199 1.30392 7.1449 1.39404 7.04986 1.48566C1.73929 6.60499 1.33561 17.702 5.83878 23.73C5.8438 23.7389 5.84937 23.7479 5.85548 23.757C6.54957 24.7798 5.87984 26.5699 4.83263 27.617C4.66215 27.7754 4.72304 27.8728 4.97875 27.8971Z" fill="currentColor" mask="url(#quick-access-zalo-mask)" />
+  <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+    <path d="M12 2C6.48 2 2 5.58 2 10c0 2.5 1.43 4.72 3.69 6.06-.18.88-.65 2.65-.77 3.12-.16.63.22.61.47.45.36-.23 3.01-2.02 3.86-2.58.89.24 1.83.37 2.75.37 5.52 0 10-3.58 10-8s-4.48-8-10-8zm-2.45 10.93H7v-1.12h1.49L7 9.42V9h2.52v1.12H8.03l1.52 2.39v.42zm2.98 0h-1.12V9h1.12v3.93zm2.53-2.73c-.5 0-.89.39-.89.89 0 .5.39.89.89.89.5 0 .89-.39.89-.89 0-.5-.39-.89-.89-.89zm0 2.93c-1.14 0-2.07-.93-2.07-2.07s.93-2.07 2.07-2.07 2.07.93 2.07 2.07-.93 2.07-2.07 2.07zm3.43-2.93c-.5 0-.89.39-.89.89 0 .5.39.89.89.89.5 0 .89-.39.89-.89 0-.5-.39-.89-.89-.89zm0 2.93c-1.14 0-2.07-.93-2.07-2.07s.93-2.07 2.07-2.07 2.07.93 2.07 2.07-.93 2.07-2.07 2.07z" />
   </svg>
 );
 
@@ -113,7 +106,7 @@ export default function QuickAccessToolbar() {
     {
       label: "Chat Zalo",
       icon: <MessageCircle className="w-5 h-5" />,
-      href: "https://zalo.me/4149231651356573695",
+      href: "https://zalo.me/0918909060",
       target: "_blank",
     },
   ];
@@ -125,6 +118,8 @@ export default function QuickAccessToolbar() {
       href: "https://www.facebook.com/FordDongNai.Official",
       target: "_blank",
       colorClass: "text-[#1877f2]",
+      rippleClass: "animate-quick-ripple-facebook",
+      delay: "0s",
     },
     {
       label: "Messenger",
@@ -132,24 +127,81 @@ export default function QuickAccessToolbar() {
       href: "https://m.me/FordDongNai.Official",
       target: "_blank",
       colorClass: "text-[#a200ff]",
+      rippleClass: "animate-quick-ripple-messenger",
+      delay: "0.3s",
     },
     {
       label: "Zalo",
       icon: <ZaloIcon />,
-      href: "https://zalo.me/4149231651356573695",
+      href: "https://zalo.me/0918909060",
       target: "_blank",
       colorClass: "text-[#0068ff]",
+      rippleClass: "animate-quick-ripple-zalo",
+      delay: "0.6s",
     },
     {
       label: "Hotline",
       icon: <Phone className="w-5 h-5" />,
       href: "tel:0918909060",
       colorClass: "text-[#e11d48]",
+      rippleClass: "animate-quick-ripple-phone",
+      delay: "0.9s",
     },
   ];
 
   return (
     <>
+      <style>{`
+        @keyframes quick-ring-keyframes {
+          0% { transform: scale(1); }
+          10% { transform: scale(1.1) rotate(0deg); }
+          12% { transform: scale(1.1) rotate(-12deg); }
+          14% { transform: scale(1.1) rotate(12deg); }
+          16% { transform: scale(1.1) rotate(-10deg); }
+          18% { transform: scale(1.1) rotate(10deg); }
+          20% { transform: scale(1.1) rotate(-8deg); }
+          22% { transform: scale(1.1) rotate(8deg); }
+          24% { transform: scale(1.1) rotate(0deg); }
+          26% { transform: scale(1) rotate(0deg); }
+          100% { transform: scale(1) rotate(0deg); }
+        }
+        @keyframes quick-ripple-phone-keyframes {
+          0% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.5); }
+          70% { box-shadow: 0 0 0 12px rgba(225, 29, 72, 0); }
+          100% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0); }
+        }
+        @keyframes quick-ripple-zalo-keyframes {
+          0% { box-shadow: 0 0 0 0 rgba(0, 104, 255, 0.5); }
+          70% { box-shadow: 0 0 0 12px rgba(0, 104, 255, 0); }
+          100% { box-shadow: 0 0 0 0 rgba(0, 104, 255, 0); }
+        }
+        @keyframes quick-ripple-messenger-keyframes {
+          0% { box-shadow: 0 0 0 0 rgba(162, 0, 255, 0.5); }
+          70% { box-shadow: 0 0 0 12px rgba(162, 0, 255, 0); }
+          100% { box-shadow: 0 0 0 0 rgba(162, 0, 255, 0); }
+        }
+        @keyframes quick-ripple-facebook-keyframes {
+          0% { box-shadow: 0 0 0 0 rgba(24, 119, 242, 0.5); }
+          70% { box-shadow: 0 0 0 12px rgba(24, 119, 242, 0); }
+          100% { box-shadow: 0 0 0 0 rgba(24, 119, 242, 0); }
+        }
+        .animate-quick-ring {
+          animation: quick-ring-keyframes 2.5s infinite ease-in-out;
+        }
+        .animate-quick-ripple-phone {
+          animation: quick-ripple-phone-keyframes 2.5s infinite ease-in-out;
+        }
+        .animate-quick-ripple-zalo {
+          animation: quick-ripple-zalo-keyframes 2.5s infinite ease-in-out;
+        }
+        .animate-quick-ripple-messenger {
+          animation: quick-ripple-messenger-keyframes 2.5s infinite ease-in-out;
+        }
+        .animate-quick-ripple-facebook {
+          animation: quick-ripple-facebook-keyframes 2.5s infinite ease-in-out;
+        }
+      `}</style>
+
       {/* Desktop Version */}
       <div className={`hidden md:flex fixed right-6 z-50 flex-col items-center gap-3 select-none transition-all duration-300 ${
         hasCompareItems ? "bottom-20 sm:bottom-8" : "bottom-8"
@@ -217,7 +269,8 @@ export default function QuickAccessToolbar() {
               href={item.href}
               target={item.target}
               rel={isExternal ? "noopener noreferrer" : undefined}
-              className="w-12 h-12 flex items-center justify-center rounded-full bg-white/90 backdrop-blur-md border border-gray-200/60 shadow-[0_4px_16px_rgba(0,0,0,0.08)] transition-all duration-300 active:scale-90"
+              className={`w-12 h-12 flex items-center justify-center rounded-full bg-white/90 backdrop-blur-md border border-gray-200/60 shadow-[0_4px_16px_rgba(0,0,0,0.08)] transition-all duration-300 active:scale-90 animate-quick-ring ${item.rippleClass}`}
+              style={{ animationDelay: item.delay }}
             >
               <div className={`relative z-10 transition-transform duration-300 ${item.colorClass}`}>
                 {item.icon}
