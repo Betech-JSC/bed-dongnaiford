@@ -495,7 +495,7 @@ export default function Navbar() {
             </Link>
             <Link
               href="/lien-he?reason=Đăng ký lái thử"
-              className="btn-ford-primary text-xs py-1.5 px-3 uppercase tracking-wider font-bold"
+              className="btn-ford-primary text-xs py-1.5 px-3 uppercase tracking-wider font-bold whitespace-nowrap flex-shrink-0"
             >
               Lái Thử
             </Link>

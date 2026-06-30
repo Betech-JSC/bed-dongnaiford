@@ -5105,16 +5105,16 @@
         },
         {
             "name": "rap2hpoutre/fast-excel",
-            "version": "v5.7.0",
+            "version": "v5.11.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rap2hpoutre/fast-excel.git",
-                "reference": "c5c2118c4e1b20395cab3d7ad32648ea9331c5cc"
+                "reference": "c72262afb47fe31576aabd6eb4f2a6aa874d907d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rap2hpoutre/fast-excel/zipball/c5c2118c4e1b20395cab3d7ad32648ea9331c5cc",
-                "reference": "c5c2118c4e1b20395cab3d7ad32648ea9331c5cc",
+                "url": "https://api.github.com/repos/rap2hpoutre/fast-excel/zipball/c72262afb47fe31576aabd6eb4f2a6aa874d907d",
+                "reference": "c72262afb47fe31576aabd6eb4f2a6aa874d907d",
                 "shasum": ""
             },
             "require": {
@@ -5163,7 +5163,7 @@
             ],
             "support": {
                 "issues": "https://github.com/rap2hpoutre/fast-excel/issues",
-                "source": "https://github.com/rap2hpoutre/fast-excel/tree/v5.7.0"
+                "source": "https://github.com/rap2hpoutre/fast-excel/tree/v5.11.0"
             },
             "funding": [
                 {
@@ -5171,7 +5171,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-03-24T09:13:16+00:00"
+            "time": "2026-06-29T19:05:01+00:00"
         },
         {
             "name": "spatie/laravel-permission",
@@ -5859,16 +5859,16 @@
         },
         {
             "name": "symfony/finder",
-            "version": "v6.4.34",
+            "version": "v6.4.42",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/finder.git",
-                "reference": "9590e86be1d1c57bfbb16d0dd040345378c20896"
+                "reference": "0b73dac42493acbadbba644207a715b254e9b029"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/finder/zipball/9590e86be1d1c57bfbb16d0dd040345378c20896",
-                "reference": "9590e86be1d1c57bfbb16d0dd040345378c20896",
+                "url": "https://api.github.com/repos/symfony/finder/zipball/0b73dac42493acbadbba644207a715b254e9b029",
+                "reference": "0b73dac42493acbadbba644207a715b254e9b029",
                 "shasum": ""
             },
             "require": {
@@ -5903,7 +5903,7 @@
             "description": "Finds files and directories via an intuitive fluent interface",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/finder/tree/v6.4.34"
+                "source": "https://github.com/symfony/finder/tree/v6.4.42"
             },
             "funding": [
                 {
@@ -5923,7 +5923,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-01-28T15:16:37+00:00"
+            "time": "2026-06-26T15:18:24+00:00"
         },
         {
             "name": "symfony/http-foundation",
@@ -10594,5 +10594,5 @@
         "ext-mbstring": "*"
     },
     "platform-dev": {},
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.9.0"
 }
