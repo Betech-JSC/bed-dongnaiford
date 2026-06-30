@@ -15,14 +15,14 @@ const SteeringWheelIcon = () => (
 );
 
 const FacebookIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 28 27" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path fillRule="evenodd" clipRule="evenodd" d="M0 13.318C0 19.9031 5.02036 25.3783 11.5855 26.4881V16.9229H8.10982V13.2441H11.5855V10.3009C11.5855 6.9899 13.8253 5.15046 16.992 5.15046C17.996 5.15046 19.0774 5.29761 20.0814 5.44476V8.82936H18.305C16.6058 8.82936 16.2196 9.63872 16.2196 10.6688V13.2441H19.927L19.3091 16.9229H16.2196V26.4881C22.7848 25.3783 27.8051 19.9031 27.8051 13.318Z" fill="currentColor"/>
+  <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
   </svg>
 );
 
 const MessengerIcon = () => (
-  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-    <path d="M12 2C6.36 2 2 6.13 2 11.7c0 3.22 1.43 6.08 3.86 7.82l-.24 2.45a.5.5 0 00.7.5l2.76-1.51c.9.25 1.86.39 2.92.39 5.64 0 10-4.13 10-9.7C22 6.13 17.64 2 12 2zm1.2 12.3l-2.4-2.55-4.65 2.55 5.1-5.4 2.4 2.55 4.65-2.55-5.1 5.4z" />
+  <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+    <path d="M12 2C6.477 2 2 6.145 2 11.242c0 2.91 1.45 5.498 3.71 7.073V22l3.528-1.937A11.758 11.758 0 0012 20.484c5.523 0 10-4.146 10-9.242S17.523 2 12 2zm1.192 11.938l-2.435-2.6-4.75 2.6 5.22-5.542 2.435 2.6 4.75-2.6-5.22 5.542z" />
   </svg>
 );
 
@@ -113,7 +113,7 @@ export default function QuickAccessToolbar() {
     {
       label: "Chat Zalo",
       icon: <MessageCircle className="w-5 h-5" />,
-      href: "https://zalo.me/4149231651356573695",
+      href: "https://zalo.me/0918909060",
       target: "_blank",
     },
   ];
@@ -125,6 +125,8 @@ export default function QuickAccessToolbar() {
       href: "https://www.facebook.com/FordDongNai.Official",
       target: "_blank",
       colorClass: "text-[#1877f2]",
+      rippleClass: "animate-quick-ripple-facebook",
+      delay: "0s",
     },
     {
       label: "Messenger",
@@ -132,24 +134,81 @@ export default function QuickAccessToolbar() {
       href: "https://m.me/FordDongNai.Official",
       target: "_blank",
       colorClass: "text-[#a200ff]",
+      rippleClass: "animate-quick-ripple-messenger",
+      delay: "0.3s",
     },
     {
       label: "Zalo",
       icon: <ZaloIcon />,
-      href: "https://zalo.me/4149231651356573695",
+      href: "https://zalo.me/0918909060",
       target: "_blank",
       colorClass: "text-[#0068ff]",
+      rippleClass: "animate-quick-ripple-zalo",
+      delay: "0.6s",
     },
     {
       label: "Hotline",
       icon: <Phone className="w-5 h-5" />,
       href: "tel:0918909060",
       colorClass: "text-[#e11d48]",
+      rippleClass: "animate-quick-ripple-phone",
+      delay: "0.9s",
     },
   ];
 
   return (
     <>
+      <style>{`
+        @keyframes quick-ring-keyframes {
+          0% { transform: scale(1); }
+          10% { transform: scale(1.1) rotate(0deg); }
+          12% { transform: scale(1.1) rotate(-12deg); }
+          14% { transform: scale(1.1) rotate(12deg); }
+          16% { transform: scale(1.1) rotate(-10deg); }
+          18% { transform: scale(1.1) rotate(10deg); }
+          20% { transform: scale(1.1) rotate(-8deg); }
+          22% { transform: scale(1.1) rotate(8deg); }
+          24% { transform: scale(1.1) rotate(0deg); }
+          26% { transform: scale(1) rotate(0deg); }
+          100% { transform: scale(1) rotate(0deg); }
+        }
+        @keyframes quick-ripple-phone-keyframes {
+          0% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.5); }
+          70% { box-shadow: 0 0 0 12px rgba(225, 29, 72, 0); }
+          100% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0); }
+        }
+        @keyframes quick-ripple-zalo-keyframes {
+          0% { box-shadow: 0 0 0 0 rgba(0, 104, 255, 0.5); }
+          70% { box-shadow: 0 0 0 12px rgba(0, 104, 255, 0); }
+          100% { box-shadow: 0 0 0 0 rgba(0, 104, 255, 0); }
+        }
+        @keyframes quick-ripple-messenger-keyframes {
+          0% { box-shadow: 0 0 0 0 rgba(162, 0, 255, 0.5); }
+          70% { box-shadow: 0 0 0 12px rgba(162, 0, 255, 0); }
+          100% { box-shadow: 0 0 0 0 rgba(162, 0, 255, 0); }
+        }
+        @keyframes quick-ripple-facebook-keyframes {
+          0% { box-shadow: 0 0 0 0 rgba(24, 119, 242, 0.5); }
+          70% { box-shadow: 0 0 0 12px rgba(24, 119, 242, 0); }
+          100% { box-shadow: 0 0 0 0 rgba(24, 119, 242, 0); }
+        }
+        .animate-quick-ring {
+          animation: quick-ring-keyframes 2.5s infinite ease-in-out;
+        }
+        .animate-quick-ripple-phone {
+          animation: quick-ripple-phone-keyframes 2.5s infinite ease-in-out;
+        }
+        .animate-quick-ripple-zalo {
+          animation: quick-ripple-zalo-keyframes 2.5s infinite ease-in-out;
+        }
+        .animate-quick-ripple-messenger {
+          animation: quick-ripple-messenger-keyframes 2.5s infinite ease-in-out;
+        }
+        .animate-quick-ripple-facebook {
+          animation: quick-ripple-facebook-keyframes 2.5s infinite ease-in-out;
+        }
+      `}</style>
+
       {/* Desktop Version */}
       <div className={`hidden md:flex fixed right-6 z-50 flex-col items-center gap-3 select-none transition-all duration-300 ${
         hasCompareItems ? "bottom-20 sm:bottom-8" : "bottom-8"
@@ -217,7 +276,8 @@ export default function QuickAccessToolbar() {
               href={item.href}
               target={item.target}
               rel={isExternal ? "noopener noreferrer" : undefined}
-              className="w-12 h-12 flex items-center justify-center rounded-full bg-white/90 backdrop-blur-md border border-gray-200/60 shadow-[0_4px_16px_rgba(0,0,0,0.08)] transition-all duration-300 active:scale-90"
+              className={`w-12 h-12 flex items-center justify-center rounded-full bg-white/90 backdrop-blur-md border border-gray-200/60 shadow-[0_4px_16px_rgba(0,0,0,0.08)] transition-all duration-300 active:scale-90 animate-quick-ring ${item.rippleClass}`}
+              style={{ animationDelay: item.delay }}
             >
               <div className={`relative z-10 transition-transform duration-300 ${item.colorClass}`}>
                 {item.icon}
