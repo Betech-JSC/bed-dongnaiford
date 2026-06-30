@@ -244,47 +244,7 @@ export default function VehicleAccessoriesClient() {
             </h1>
           </div>
 
-          <div className="relative w-full group mt-2">
-            <div
-              id="category-slider-track"
-              className="flex gap-4 overflow-x-auto pb-4 scrollbar-none snap-x snap-mandatory"
-            >
-              {categories.map((cat) => {
-                const isActive = activeCategory === cat.id;
-                return (
-                  <button
-                    key={cat.id}
-                    onClick={() => handleCategorySelect(cat.id)}
-                    className="snap-start flex-shrink-0 w-[220px] text-left focus:outline-none cursor-pointer border-0 bg-transparent"
-                  >
-                    <div className="flex flex-col gap-2 items-center overflow-hidden rounded-[8px] transition-transform duration-300 hover:scale-[1.02]">
-                      <div className={`aspect-[300/200] w-full relative overflow-hidden rounded-[8px] bg-gray-150 transition-all ${isActive ? "border border-[#0562D2] shadow-sm" : ""}`}>
-                        <img
-                          src={cat.image}
-                          alt={cat.name}
-                          className="object-cover w-full h-full"
-                          onError={handleImageError}
-                        />
-                        <div className={`absolute inset-0 transition-colors duration-300 ${isActive ? "bg-black/10" : "bg-black/35 hover:bg-black/20"}`} />
-                      </div>
-                      <span className={`font-['Ford_Antenna',sans-serif] font-semibold text-center text-sm transition-colors duration-200
-                        ${isActive ? "text-[#0562D2]" : "text-[#1a1a1a] hover:text-[#0562D2]"}`}
-                      >
-                        {cat.name}
-                      </span>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-            <button
-              onClick={scrollCategoryRight}
-              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-3 bg-white/95 hover:bg-white text-gray-800 shadow-md p-2 rounded-full flex items-center justify-center w-9 h-9 border border-gray-100 cursor-pointer z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-              aria-label="Scroll right"
-            >
-              <ChevronRight className="w-5 h-5 text-gray-700" />
-            </button>
-          </div>
+          {/* Categories slider hidden from FE */}
         </div>
       </section>
 

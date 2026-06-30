@@ -718,6 +718,7 @@ export function VehicleTabBar() {
     { label: "Phiên bản", path: `/san-pham/${id}/${firstVersionSlug}` },
     { label: "Tính năng", path: `/san-pham/${id}/tinh-nang` },
     { label: "So sánh", path: `/san-pham/[id]/so-sanh`, actualPath: `/san-pham/${id}/so-sanh` },
+    { label: "Phụ kiện", path: `/san-pham/[id]/phu-kien`, actualPath: `/san-pham/${id}/phu-kien` },
     { label: "Dự toán chi phí lăn bánh", path: `/san-pham/[id]/du-toan-lan-banh`, actualPath: `/san-pham/${id}/du-toan-lan-banh` }
   ], [id, firstVersionSlug]);
 
