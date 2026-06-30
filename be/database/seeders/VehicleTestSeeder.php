@@ -1054,7 +1054,6 @@ class VehicleTestSeeder extends Seeder
         foreach ($vehiclesData as $index => $vData) {
             $vData = $this->transformPaths($vData);
             $v = new Vehicle([
-                'category_id'     => $vData['category_id'],
                 'type'            => $vData['type'],
                 'is_best_seller'  => $vData['is_best_seller'],
                 'base_price'      => $vData['base_price'],
@@ -1072,6 +1071,10 @@ class VehicleTestSeeder extends Seeder
             ]);
             $v->fill(['vi' => $vData['vi']]);
             $v->save();
+
+            if (isset($vData['category_id'])) {
+                $v->categories()->sync([$vData['category_id']]);
+            }
 
             // Seed version
             foreach ($vData['versions'] as $vVerData) {

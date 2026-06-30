@@ -270,7 +270,6 @@ export default function Navbar() {
         { name: "Ford Transit", href: "/san-pham/ford-transit-2024" },
         { name: "Ford Mustang", href: "/san-pham/mustang-fastback" },
         { name: "Xe đã qua sử dụng", href: "/xe-da-qua-su-dung" },
-        { name: "Phụ kiện chính hãng", href: "/phu-kien" },
       ],
     },
     {
@@ -556,26 +555,7 @@ export default function Navbar() {
             })}
             <div className="h-px bg-gray-100 my-1" />
             
-            {/* Phụ kiện chính hãng tab button */}
-            {(() => {
-              const isActive = activeTab === "phu-kien";
-              return (
-                <button
-                  onClick={() => {
-                    router.push("/phu-kien");
-                    setIsProductHovered(false);
-                  }}
-                  onMouseEnter={() => setActiveTab("phu-kien")}
-                  className={`flex items-center justify-between px-4 py-3 rounded-lg font-['Ford_Antenna',sans-serif] font-bold text-sm tracking-wider uppercase transition-all duration-200 text-left cursor-pointer
-                    ${isActive 
-                      ? "text-[#0562D2] bg-blue-50/50 border-l-4 border-[#0562D2] pl-3" 
-                      : "text-[#333333] hover:text-[#0562D2] hover:bg-gray-50 border-l-4 border-transparent"}`}
-                >
-                  <span>Phụ kiện chính hãng</span>
-                  <ChevronRight className={`w-4 h-4 transition-transform duration-200 ${isActive ? "translate-x-1" : ""}`} />
-                </button>
-              );
-            })()}
+            {/* Phụ kiện chính hãng tab button hidden */}
 
             {/* Xe đã qua sử dụng tab button */}
             {(() => {
@@ -913,57 +893,7 @@ export default function Navbar() {
                       
                       <div className="h-px bg-gray-100 my-1" />
                       
-                      {/* Accessories Collapsible Menu on Mobile Drawer */}
-                      {(() => {
-                        const isSubOpen = mobileActiveTab === "phu-kien";
-                        const displayAccessories = accessoriesList.slice(0, 5);
-                          
-                        return (
-                          <div className="space-y-1">
-                            <button
-                              onClick={() => setMobileActiveTab(isSubOpen ? null : "phu-kien")}
-                              className="w-full flex items-center justify-between px-2 py-1.5 text-sm font-semibold text-gray-700 hover:text-[#0562D2] hover:bg-gray-50 rounded text-left cursor-pointer"
-                            >
-                              <span>Phụ kiện chính hãng</span>
-                              <ChevronDown className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-200 ${isSubOpen ? "rotate-180 text-[#0562D2]" : ""}`} />
-                            </button>
-                            <div 
-                              className={`pl-4 flex flex-col gap-1 transition-all duration-300 ease-in-out overflow-hidden
-                                ${isSubOpen 
-                                  ? "max-h-[400px] opacity-100 py-1" 
-                                  : "max-h-0 opacity-0 py-0"}`}
-                            >
-                                {displayAccessories.map((acc) => {
-                                  const accId = acc.slug || acc.id;
-                                  const accName = acc.title || acc.name;
-                                  return (
-                                    <Link
-                                      key={accId}
-                                      href={`/phu-kien/${accId}`}
-                                      onClick={() => {
-                                        setIsOpen(false);
-                                        setIsMobileProductOpen(false);
-                                      }}
-                                      className="block px-2 py-1.5 text-xs font-medium text-gray-550 hover:text-[#0562D2] hover:bg-gray-50 rounded"
-                                    >
-                                      {accName}
-                                    </Link>
-                                  );
-                                })}
-                                <Link
-                                  href="/phu-kien"
-                                  onClick={() => {
-                                    setIsOpen(false);
-                                    setIsMobileProductOpen(false);
-                                  }}
-                                  className="block px-2 py-1.5 text-xs font-bold text-[#0562D2] hover:bg-gray-50 rounded text-left"
-                                >
-                                  Xem tất cả phụ kiện →
-                                </Link>
-                              </div>
-                          </div>
-                        );
-                      })()}
+                      {/* Accessories Collapsible Menu on Mobile Drawer hidden */}
                   </div>
                 </div>
               );

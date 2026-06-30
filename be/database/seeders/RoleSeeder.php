@@ -70,7 +70,13 @@ class RoleSeeder extends Seeder
             ]);
         }
 
-        $role = Role::first()->syncPermissions($permissions);
-        Admin::first()->assignRole($role);
+        $role = Role::first();
+        if ($role) {
+            $role->syncPermissions($permissions);
+            $admin = Admin::first();
+            if ($admin) {
+                $admin->assignRole($role);
+            }
+        }
     }
 }

@@ -163,11 +163,7 @@ export default function Footer() {
                     </li>
                   </>
                 )}
-                <li>
-                  <Link href="/phu-kien" className="hover:text-[#0562d2] transition-colors block">
-                    Phụ kiện & Phụ tùng chính hãng
-                  </Link>
-                </li>
+
               </ul>
             </div>
 
