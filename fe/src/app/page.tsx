@@ -125,21 +125,21 @@ const techSlides = [
     description: "Ứng dụng Ford mang đến cho bạn trải nghiệm sở hữu trọn vẹn và dễ dàng trong tầm tay. Khi truy cập vào ứng dụng này, bạn có đầy đủ thông tin các tính năng của xe và kiểm tra về tình trạng xe.",
     image: "/assets/tech_fordpass.png",
     category: "Lái xe",
-    link: "/lien-he?reason=Đăng ký trải nghiệm công nghệ xe&note=Tôi muốn đăng ký trải nghiệm ứng dụng FordPass."
+    link: "/dang-ky-lai-thu"
   },
   {
     title: "Ford Co-Pilot360",
     description: "Dù trong thành phố hay ra xa lộ, hệ thống Ford Co-Pilot360™ - Công nghệ An toàn Hỗ trợ Người lái được thiết kế để giúp bạn cảm thấy tự tin hơn khi lái xe.",
     image: "/assets/tech_copilot360.png",
     category: "Lái xe",
-    link: "/lien-he?reason=Đăng ký trải nghiệm công nghệ xe&note=Tôi muốn đăng ký trải nghiệm công nghệ hỗ trợ lái Ford Co-Pilot360."
+    link: "/dang-ky-lai-thu"
   },
   {
     title: "Hệ thống âm thanh cao cấp",
     description: "Hệ thống loa B&O cho trải nghiệm âm thanh tuyệt vời với chất âm trung thực và rõ ràng đến từng chi tiết.",
     image: "/assets/tech_audio.png",
     category: "Giải trí",
-    link: "/lien-he?reason=Đăng ký trải nghiệm công nghệ xe&note=Tôi muốn đăng ký trải nghiệm hệ thống âm thanh cao cấp B&O."
+    link: "/dang-ky-lai-thu"
   }
 ];
 
@@ -616,12 +616,12 @@ export default function Home() {
 
   // Pre-fill form details on quick actions click - redirect to /lien-he
   const triggerQuickAction = (reason: string, noteText: string) => {
-    router.push(`/lien-he?reason=${encodeURIComponent(reason)}&note=${encodeURIComponent(noteText)}`);
+    router.push("/lien-he");
   };
 
   // Pre-fill form when clicking get price - redirect to /lien-he
   const triggerGetQuote = (vehicleId: string, vehicleName: string) => {
-    router.push(`/lien-he?vehicle=${encodeURIComponent(vehicleId)}&reason=${encodeURIComponent("Nhận báo giá lăn bánh")}&note=${encodeURIComponent(`Tôi cần nhận báo giá lăn bánh cho dòng xe ${vehicleName}.`)}`);
+    router.push("/lien-he");
   };
 
 
@@ -1327,7 +1327,7 @@ export default function Home() {
                                 Xem chi tiết
                               </Link>
                               <Link
-                                href={`/lien-he?vehicle=${vSlug}&reason=Báo giá`}
+                                href="/lien-he"
                                 className="bg-transparent border border-white text-white text-xs sm:text-sm font-semibold px-4 sm:px-5 py-2 sm:py-2.5 rounded-full hover:bg-white/10 transition-all duration-200 whitespace-nowrap text-center flex-1 sm:flex-none"
                               >
                                 Báo giá

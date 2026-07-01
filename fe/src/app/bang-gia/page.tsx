@@ -251,7 +251,7 @@ export default function PriceListPage() {
                               </Link>
                               <span className="text-gray-300">|</span>
                               <Link
-                                href={`/lien-he?vehicle=${vehicle.id}&reason=Nhận báo giá&note=Phiên bản: ${encodeURIComponent(version.name)}`}
+                                href="/lien-he"
                                 className="text-xs font-semibold text-[#0562d2] hover:text-[#044ea7] transition-colors flex items-center gap-1"
                               >
                                 <FileText className="w-3.5 h-3.5" />
@@ -318,7 +318,7 @@ export default function PriceListPage() {
                             </p>
                           </div>
                           <Link
-                            href={`/lien-he?vehicle=${vehicle.id}&reason=Nhận báo giá&note=Phiên bản: ${encodeURIComponent(version.name)}`}
+                            href="/lien-he"
                             className="text-xs font-semibold text-white bg-[#0562d2] hover:bg-[#044ea7] px-3 py-1.5 rounded-full transition-colors"
                           >
                             Báo giá

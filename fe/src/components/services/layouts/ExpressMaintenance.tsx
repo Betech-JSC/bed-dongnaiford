@@ -11,7 +11,7 @@ export default function ExpressMaintenanceLayout({ service }: { service?: any })
       <ServicePageBanner title={service?.title || "Dịch vụ bảo dưỡng nhanh"} backgroundImage={service?.banner_image?.url}>
         <div className="flex flex-wrap gap-4 justify-center">
           <Link
-            href="/lien-he?reason=Đặt hẹn dịch vụ"
+            href="/lien-he"
             className="bg-[#0562d2] hover:bg-[#044ea7] border border-[#0562d2] transition-colors text-white font-bold px-6 py-3 rounded-full text-sm"
           >
             Đặt hẹn

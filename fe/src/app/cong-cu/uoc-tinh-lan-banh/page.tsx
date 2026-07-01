@@ -407,7 +407,7 @@ function RollingCostContent() {
                     {/* CTAs */}
                     <div className="flex flex-col sm:flex-row gap-3">
                       <Link
-                        href={`/lien-he?vehicle=${currentVehicle.id}&reason=Nhận báo giá lăn bánh&note=Phiên bản: ${encodeURIComponent(currentVersion.name)}, Tỉnh: ${selectedProvince}, Dự toán: ${formatVND(result.total)}`}
+                        href="/lien-he"
                         className="flex-1 flex items-center justify-center gap-2 bg-[#0562d2] hover:bg-[#044ea7] text-white text-sm font-semibold py-3 rounded-full transition-colors"
                       >
                         Nhận báo giá chính xác

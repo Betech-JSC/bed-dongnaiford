@@ -164,7 +164,7 @@ export default function VehicleDetailClient() {
               title: "Kết nối ngay với chuyên viên Đồng Nai Ford",
               phone: "1800 55 68 58",
               btn_text: "Đặt lịch hẹn",
-              btn_link: "/lien-he?reason=Đặt hẹn dịch vụ",
+              btn_link: "/lien-he",
               car_image: vehicle.image_url
             }
           }

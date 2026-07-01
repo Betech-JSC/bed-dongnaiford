@@ -493,7 +493,7 @@ export default function Navbar() {
               <Search className="w-5 h-5" />
             </Link>
             <Link
-              href="/lien-he?reason=Đăng ký lái thử"
+              href="/dang-ky-lai-thu"
               className="btn-ford-primary text-xs py-1.5 px-3 uppercase tracking-wider font-bold whitespace-nowrap flex-shrink-0"
             >
               Lái Thử
@@ -754,7 +754,7 @@ export default function Navbar() {
                     </p>
                   </div>
                   <Link
-                    href="/lien-he?reason=Báo giá"
+                    href="/lien-he"
                     onClick={handleMouseLeaveImmediate}
                     className="bg-white text-gray-900 hover:bg-gray-100 transition-colors px-5 py-2.5 rounded-full text-xs font-bold font-['Ford_Antenna',sans-serif] flex items-center gap-1.5 shrink-0"
                   >

@@ -118,13 +118,13 @@ export default function ArticleDetailClient({
             </p>
             <div className="flex flex-col sm:flex-row gap-4 mt-2 w-full justify-center">
               <Link 
-                href={`/lien-he?reason=Đăng ký lái thử&vehicle=ford-everest`} 
+                href="/dang-ky-lai-thu" 
                 className="w-full sm:w-[200px] py-2.5 bg-[#0562d2] hover:bg-[#00095b] text-white font-semibold text-sm rounded-full text-center transition shadow-xs cursor-pointer"
               >
                 Đăng ký lái thử
               </Link>
               <Link 
-                href={`/lien-he?reason=Báo giá&vehicle=ford-everest`} 
+                href="/lien-he" 
                 className="w-full sm:w-[200px] py-2.5 border border-[#0562d2] hover:bg-[#0562d2]/5 text-[#0562d2] font-semibold text-sm rounded-full text-center transition cursor-pointer"
               >
                 Nhận báo giá

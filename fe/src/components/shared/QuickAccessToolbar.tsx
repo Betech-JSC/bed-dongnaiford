@@ -77,7 +77,7 @@ export default function QuickAccessToolbar() {
     {
       label: "Đăng ký lái thử",
       icon: <SteeringWheelIcon />,
-      href: "/lien-he?reason=Đăng ký lái thử",
+      href: "/dang-ky-lai-thu",
     },
     {
       label: "So sánh xe",
@@ -97,7 +97,7 @@ export default function QuickAccessToolbar() {
     {
       label: "Đặt hẹn dịch vụ",
       icon: <Wrench className="w-5 h-5" />,
-      href: "/lien-he?reason=Đặt hẹn dịch vụ",
+      href: "/lien-he",
     },
     {
       label: "Gọi Hotline: 0918 90 90 60",

@@ -800,7 +800,7 @@ export default function ComparePage() {
                           <ArrowRight className="w-3 h-3" />
                         </Link>
                         <Link
-                          href={`/lien-he?vehicle=${opt.vehicleId}&reason=Nhận báo giá`}
+                          href="/lien-he"
                           className="text-xs font-semibold text-white bg-[#0562d2] hover:bg-[#044ea7] px-4 py-2 rounded-full transition-colors"
                         >
                           Nhận báo giá

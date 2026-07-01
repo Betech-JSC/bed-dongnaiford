@@ -949,7 +949,7 @@ export default function ProductsPage({ initialCategory }: { initialCategory?: st
                           Chi tiết
                         </Link>
                         <Link
-                          href={`/lien-he?vehicle=${vehicleId}&reason=Nhận báo giá`}
+                          href="/lien-he"
                           className="flex-1 text-center border border-[#0562d2] hover:bg-[#0562d2] text-[#0562d2] hover:text-white font-bold py-2.5 rounded-full transition-colors cursor-pointer"
                         >
                           Báo giá
