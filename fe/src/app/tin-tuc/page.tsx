@@ -19,6 +19,7 @@ function NewsListPageContent() {
   const [loading, setLoading] = useState(true);
   const searchParams = useSearchParams();
   const pathname = usePathname();
+  const router = useRouter();
 
   const getPageNumbers = () => {
     const pages: number[] = [];
