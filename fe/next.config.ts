@@ -63,53 +63,76 @@ const nextConfig = {
         permanent: true,
       },
       // --- CHUYỂN HƯỚNG URL SẢN PHẨM XE CÓ CHỨA /SAN-PHAM SANG URL NGẮN ---
+      // Redirects cho transit alias cũ
       {
-        source: "/san-pham/ford-transit",
-        destination: "/ford-transit-2024",
+        source: "/ford-transit-2024",
+        destination: "/ford-transit",
         permanent: true,
       },
       {
-        source: "/san-pham/ford-transit/:subpath*",
-        destination: "/ford-transit-2024/:subpath*",
-        permanent: true,
-      },
-      {
-        source: "/san-pham/ford-mustang",
-        destination: "/mustang-fastback",
-        permanent: true,
-      },
-      {
-        source: "/san-pham/ford-mustang/:subpath*",
-        destination: "/mustang-fastback/:subpath*",
+        source: "/ford-transit-2024/:subpath*",
+        destination: "/ford-transit/:subpath*",
         permanent: true,
       },
       {
         source: "/san-pham/ford-transit-2024",
-        destination: "/ford-transit-2024",
+        destination: "/ford-transit",
         permanent: true,
       },
       {
         source: "/san-pham/ford-transit-2024/:subpath*",
-        destination: "/ford-transit-2024/:subpath*",
+        destination: "/ford-transit/:subpath*",
+        permanent: true,
+      },
+      // Redirects cho mustang alias cũ
+      {
+        source: "/mustang-fastback",
+        destination: "/ford-mustang-mach-e",
+        permanent: true,
+      },
+      {
+        source: "/mustang-fastback/:subpath*",
+        destination: "/ford-mustang-mach-e/:subpath*",
         permanent: true,
       },
       {
         source: "/san-pham/mustang-fastback",
-        destination: "/mustang-fastback",
+        destination: "/ford-mustang-mach-e",
         permanent: true,
       },
       {
         source: "/san-pham/mustang-fastback/:subpath*",
-        destination: "/mustang-fastback/:subpath*",
+        destination: "/ford-mustang-mach-e/:subpath*",
         permanent: true,
       },
       {
-        source: "/san-pham/:slug(ford-ranger|ford-everest|ford-territory|ford-explorer)",
+        source: "/ford-mustang",
+        destination: "/ford-mustang-mach-e",
+        permanent: true,
+      },
+      {
+        source: "/ford-mustang/:subpath*",
+        destination: "/ford-mustang-mach-e/:subpath*",
+        permanent: true,
+      },
+      {
+        source: "/san-pham/ford-mustang",
+        destination: "/ford-mustang-mach-e",
+        permanent: true,
+      },
+      {
+        source: "/san-pham/ford-mustang/:subpath*",
+        destination: "/ford-mustang-mach-e/:subpath*",
+        permanent: true,
+      },
+      // Chuyển hướng chuẩn từ /san-pham/[slug-dung] sang /[slug-dung]
+      {
+        source: "/san-pham/:slug(ford-ranger|ford-everest|ford-territory|ford-explorer|ford-transit|ford-mustang-mach-e)",
         destination: "/:slug",
         permanent: true,
       },
       {
-        source: "/san-pham/:slug(ford-ranger|ford-everest|ford-territory|ford-explorer)/:subpath*",
+        source: "/san-pham/:slug(ford-ranger|ford-everest|ford-territory|ford-explorer|ford-transit|ford-mustang-mach-e)/:subpath*",
         destination: "/:slug/:subpath*",
         permanent: true,
       },
@@ -119,27 +142,11 @@ const nextConfig = {
     return [
       // Chuyển hướng nội bộ cho các dòng xe Ford (rút ngắn URL)
       {
-        source: "/ford-transit",
-        destination: "/san-pham/ford-transit-2024",
-      },
-      {
-        source: "/ford-transit/:subpath*",
-        destination: "/san-pham/ford-transit-2024/:subpath*",
-      },
-      {
-        source: "/ford-mustang",
-        destination: "/san-pham/mustang-fastback",
-      },
-      {
-        source: "/ford-mustang/:subpath*",
-        destination: "/san-pham/mustang-fastback/:subpath*",
-      },
-      {
-        source: "/:slug(ford-ranger|ford-everest|ford-territory|ford-transit-2024|mustang-fastback|ford-explorer)",
+        source: "/:slug(ford-ranger|ford-everest|ford-territory|ford-transit|ford-mustang-mach-e|ford-explorer)",
         destination: "/san-pham/:slug",
       },
       {
-        source: "/:slug(ford-ranger|ford-everest|ford-territory|ford-transit-2024|mustang-fastback|ford-explorer)/:subpath*",
+        source: "/:slug(ford-ranger|ford-everest|ford-territory|ford-transit|ford-mustang-mach-e|ford-explorer)/:subpath*",
         destination: "/san-pham/:slug/:subpath*",
       },
       // Chuyển hướng nội bộ đường dẫn /khuyen-mai sang trang /tin-tuc
