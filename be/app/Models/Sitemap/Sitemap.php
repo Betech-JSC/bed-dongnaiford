@@ -95,8 +95,23 @@ class Sitemap
 
     public function render()
     {
+        $frontendUrl = rtrim(config('app.frontend_url'), '/');
+        $requestHost = request()->getSchemeAndHttpHost();
+        $appUrl = rtrim(config('app.url'), '/');
+
         $items = collect($this->tags)
             ->whereNotNull('url')
+            ->map(function ($item) use ($frontendUrl, $requestHost, $appUrl) {
+                $url = $item['url'];
+                if (str_starts_with($url, '/')) {
+                    $url = $frontendUrl . '/' . ltrim($url, '/');
+                } else {
+                    $url = str_replace($requestHost, $frontendUrl, $url);
+                    $url = str_replace($appUrl, $frontendUrl, $url);
+                }
+                $item['url'] = $url;
+                return $item;
+            })
             ->unique('url')
             ->filter()
             ->sortBy('priority')
@@ -112,9 +127,12 @@ class Sitemap
         if (is_array($item->url)) {
             $urls = [];
             foreach ($item->url as $url) {
-                $newItem = (object) $item->toArray();
-                $newItem->url = $url;
-                $urls[] = $this->transformUrl($newItem);
+                $urls[] = [
+                    'url' => $url,
+                    'lastModificationDate' => Carbon::create($item->created_at)->toAtomString(),
+                    'changeFrequency' => self::CHANGE_FREQUENCY_DAILY,
+                    'priority' => $item->priority ?? self::PRIORITY,
+                ];
             }
             return $urls;
         } else {

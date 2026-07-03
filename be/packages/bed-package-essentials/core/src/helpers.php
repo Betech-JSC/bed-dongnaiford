@@ -144,7 +144,10 @@ if (!function_exists('current_locale')) {
 
         if (request()->route() === null) return $default;
 
-        $routeNames = explode('.', request()->route()->getName());
+        $routeName = request()->route()->getName();
+        if (empty($routeName)) return $default;
+
+        $routeNames = explode('.', $routeName);
 
         if (in_array($routeNames[0], config('app.locales'))) {
             return $routeNames[0];
