@@ -271,27 +271,40 @@ export default {
             const keywordAtStart = first10Percent.includes(kw) || text.substring(0, 1000).includes(kw);
 
             // 6. Keyword in Headings
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(this.currentContent, 'text/html');
-            const headings = doc.querySelectorAll('h2, h3, h4');
             let keywordInHeadings = false;
-            headings.forEach(h => {
-                if (h.textContent.toLowerCase().includes(kw)) {
-                    keywordInHeadings = true;
-                }
-            });
-
-            // 7. Keyword in Image Alt attributes
-            const imgs = doc.querySelectorAll('img');
             let keywordInAlts = false;
-            let hasImages = imgs.length > 0;
-            imgs.forEach(img => {
-                const alt = img.getAttribute('alt');
-                if (alt && alt.toLowerCase().includes(kw)) {
-                    keywordInAlts = true;
-                }
-            });
+            let hasImages = false;
+            let hasLongParagraphs = false;
 
+            if (typeof window !== 'undefined') {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(this.currentContent, 'text/html');
+                const headings = doc.querySelectorAll('h2, h3, h4');
+                headings.forEach(h => {
+                    if (h.textContent.toLowerCase().includes(kw)) {
+                        keywordInHeadings = true;
+                    }
+                });
+
+                // 7. Keyword in Image Alt attributes
+                const imgs = doc.querySelectorAll('img');
+                hasImages = imgs.length > 0;
+                imgs.forEach(img => {
+                    const alt = img.getAttribute('alt');
+                    if (alt && alt.toLowerCase().includes(kw)) {
+                        keywordInAlts = true;
+                    }
+                });
+
+                // 11. Short paragraphs
+                const paragraphs = doc.querySelectorAll('p');
+                paragraphs.forEach(p => {
+                    const pWords = p.textContent.trim().split(/\s+/).length;
+                    if (pWords > 120) {
+                        hasLongParagraphs = true;
+                    }
+                });
+            }
             // 8. Density
             const densityOk = this.keywordDensity >= 1.0 && this.keywordDensity <= 2.5;
 
@@ -304,16 +317,6 @@ export default {
 
             // 10. Title has number
             const titleHasNumber = /\d+/.test(this.currentSeoTitle || this.currentTitle);
-
-            // 11. Short paragraphs
-            const paragraphs = doc.querySelectorAll('p');
-            let hasLongParagraphs = false;
-            paragraphs.forEach(p => {
-                const pWords = p.textContent.trim().split(/\s+/).length;
-                if (pWords > 120) {
-                    hasLongParagraphs = true;
-                }
-            });
 
             return {
                 keywordInTitle,
