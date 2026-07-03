@@ -48,6 +48,12 @@
         <span>Lịch bảo dưỡng</span>
     </Link>
 
+    <Link v-if="can('admin.registration-fees.index')" :href="route('admin.registration-fees.index')"
+        :class="{ active: isUrl('admin.registration-fees.*') }" class="item">
+        <ph:currency-circle-dollar-light />
+        <span>Thuế phí & Biển số</span>
+    </Link>
+
     <!-- ===== QUẢN LÝ NỘI DUNG ===== -->
     <div class="item-group-label">Quản lý Nội dung</div>
 

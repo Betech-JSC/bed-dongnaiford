@@ -197,6 +197,10 @@ export const regionsAPI = {
   getProvinces: () => fetchAPI<{ success: boolean; data: { id: string; name: string }[] }>('/regions/provinces'),
 };
 
+export const registrationFeesAPI = {
+  getAll: () => fetchAPI<{ success: boolean; data: any[] }>('/regions/registration-fees'),
+};
+
 /**
  * Contacts API
  */

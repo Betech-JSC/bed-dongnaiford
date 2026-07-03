@@ -7,6 +7,7 @@ export interface RollingCostBreakdown {
   registryFee: number;
   roadFee: number;
   insuranceFee: number;
+  serviceFee?: number;
   total: number;
 }
 
@@ -33,7 +34,8 @@ export type Province = (typeof PROVINCES)[number];
 export function calculateRollingCost(
   vehicle: any,
   version: any,
-  province: string
+  province: string,
+  registrationFees?: any[]
 ): RollingCostBreakdown {
   const basePrice = typeof version.price === 'string' ? parseFloat(version.price) : (version.price || 0);
 
@@ -52,36 +54,47 @@ export function calculateRollingCost(
     vehicleNameLower.includes("transit") ||
     vehicleIdLower.includes("transit");
 
+  // Tìm cấu hình phí từ Backend nếu có
+  const dbFee = registrationFees?.find(
+    (f: any) =>
+      f.province_name?.toLowerCase() === province.toLowerCase() ||
+      province.toLowerCase().includes(f.province_name?.toLowerCase() || '') ||
+      (f.province_name && (strContainsNormalized(province, f.province_name) || strContainsNormalized(f.province_name, province)))
+  );
+
+  // Hàm so sánh không dấu và chữ thường
+  function strContainsNormalized(str1: string, str2: string): boolean {
+    const s1 = str1.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    const s2 = str2.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    return s1.includes(s2);
+  }
+
   // 2. Thuế trước bạ theo khu vực & dòng xe
   const provinces12Percent = ["Hà Nội", "Hải Phòng", "Đà Nẵng", "Cần Thơ", "Quảng Ninh", "Lào Cai", "Cao Bằng", "Lạng Sơn", "Sơn La"];
   const is12PercentProvince = provinces12Percent.some(p => province.toLowerCase().includes(p.toLowerCase()));
   const isHaTinh = province.toLowerCase().includes("hà tĩnh");
 
-  let registrationTaxRate = 0.10; // Mặc định 10% cho xe con ở các tỉnh khác
+  let baseTaxRate = 0.10; // Mặc định 10%
+  if (dbFee) {
+    baseTaxRate = dbFee.registration_tax_percent / 100;
+  } else {
+    if (is12PercentProvince) {
+      baseTaxRate = 0.12;
+    } else if (isHaTinh) {
+      baseTaxRate = 0.11;
+    }
+  }
+
+  let registrationTaxRate = baseTaxRate;
   if (isPickup) {
     // Thuế xe bán tải = 60% xe con
-    if (is12PercentProvince) {
-      registrationTaxRate = 0.072; // 12% * 60% = 7.2%
-    } else if (isHaTinh) {
-      registrationTaxRate = 0.066; // 11% * 60% = 6.6%
-    } else {
-      registrationTaxRate = 0.06; // 10% * 60% = 6%
-    }
+    registrationTaxRate = baseTaxRate * 0.6;
   } else if (isTransit) {
     // Xe thương mại chở khách (16 chỗ) chịu thuế trước bạ 2%
     registrationTaxRate = 0.02;
-  } else {
-    // Xe du lịch / SUV dưới 9 chỗ
-    if (is12PercentProvince) {
-      registrationTaxRate = 0.12;
-    } else if (isHaTinh) {
-      registrationTaxRate = 0.11;
-    } else {
-      registrationTaxRate = 0.10;
-    }
   }
   
-  // Thuế trước bạ xe điện bằng 50% xe xăng (áp dụng từ 01/03/2025 đến 01/03/2027)
+  // Thuế trước bạ xe điện bằng 50% xe xăng
   const isElectric =
     vehicleNameLower.includes("mach-e") ||
     vehicleIdLower.includes("mach-e") ||
@@ -93,7 +106,7 @@ export function calculateRollingCost(
 
   const registrationTax = basePrice * registrationTaxRate;
 
-  // 3. Lệ phí biển số (Circular 60/2023/TT-BTC)
+  // 3. Lệ phí biển số
   let plateFee = 1_000_000;
   const isHanoiOrHCMC = province.toLowerCase().includes("hà nội") || province.toLowerCase().includes("hồ chí minh");
 
@@ -104,24 +117,30 @@ export function calculateRollingCost(
     // Xe Transit biển số 500k ở HN/HCM, 150k ở tỉnh khác
     plateFee = isHanoiOrHCMC ? 500_000 : 150_000;
   } else {
-    // Xe du lịch dưới 9 chỗ biển số 20 triệu ở HN/HCM, 1 triệu ở tỉnh khác
-    plateFee = isHanoiOrHCMC ? 20_000_000 : 1_000_000;
+    // Xe du lịch dưới 9 chỗ
+    if (dbFee) {
+      plateFee = dbFee.license_plate_fee;
+    } else {
+      plateFee = isHanoiOrHCMC ? 20_000_000 : 1_000_000;
+    }
   }
 
   // 4. Phí đăng kiểm
-  const registryFee = 340_000;
+  let registryFee = 340_000;
+  if (dbFee) {
+    registryFee = dbFee.inspection_fee;
+  }
 
   // 5. Phí bảo trì đường bộ (12 tháng)
-  let roadFee = 1_560_000; // Mặc định 130k/tháng cho xe con đăng ký cá nhân
-  if (isPickup) {
-    roadFee = 2_160_000; // Bán tải 180k/tháng
-  } else if (isTransit) {
-    roadFee = 2_160_000; // Xe khách 10-40 chỗ 180k/tháng
+  let roadFee = 1_560_000;
+  if (isPickup || isTransit) {
+    roadFee = 2_160_000; // Bán tải / Xe khách cố định theo luật
+  } else if (dbFee) {
+    roadFee = dbFee.road_maintenance_fee;
   }
 
   // 6. Phí bảo hiểm TNDS bắt buộc (đã bao gồm VAT)
-  let insuranceFee = 480_700; // Xe dưới 6 chỗ (Territory, Mustang Mach-E, v.v.)
-  
+  let insuranceFee = 480_700; // Xe dưới 6 chỗ
   const is7Seater =
     vehicleIdLower.includes("everest") ||
     vehicleNameLower.includes("everest") ||
@@ -132,13 +151,18 @@ export function calculateRollingCost(
   if (isPickup) {
     insuranceFee = 1_026_300; // Bán tải
   } else if (isTransit) {
-    insuranceFee = 1_397_000; // 16 chỗ không kinh doanh vận tải (đã VAT)
+    insuranceFee = 1_397_000; // 16 chỗ
   } else if (is7Seater) {
-    insuranceFee = 873_400; // Xe 7-9 chỗ (Everest)
+    insuranceFee = 873_400; // Xe 7-9 chỗ
+  } else if (dbFee) {
+    insuranceFee = dbFee.civil_insurance_fee;
   }
 
+  // Phí dịch vụ đăng ký
+  const serviceFee = dbFee ? dbFee.service_fee : 0;
+
   const total =
-    basePrice + registrationTax + plateFee + registryFee + roadFee + insuranceFee;
+    basePrice + registrationTax + plateFee + registryFee + roadFee + insuranceFee + serviceFee;
 
   return {
     basePrice,
@@ -147,6 +171,7 @@ export function calculateRollingCost(
     registryFee,
     roadFee,
     insuranceFee,
+    serviceFee,
     total,
   };
 }

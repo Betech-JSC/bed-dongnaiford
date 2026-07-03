@@ -28,6 +28,8 @@ return [
         'Products' => 'Sản phẩm',
         'brands' => 'Thương hiệu',
         'users' => 'Khách hàng',
+        'registration-fees' => 'Thuế phí & Biển số',
+        'registration_fees' => 'Thuế phí & Biển số',
         'settings' => 'Cấu hình',
         'posts' => 'Bài viết',
         'media' => 'Media',
@@ -264,5 +266,23 @@ return [
     ],
     'policies' => [
         'type' => 'Loại chính sách',
+    ],
+    'registration-fees' => [
+        'region_id' => 'Tỉnh / Thành phố',
+        'registration_tax_percent' => 'Thuế trước bạ (%)',
+        'license_plate_fee' => 'Lệ phí biển số',
+        'inspection_fee' => 'Phí đăng kiểm',
+        'road_maintenance_fee' => 'Phí bảo trì đường bộ (12 tháng)',
+        'civil_insurance_fee' => 'Bảo hiểm TNDS bắt buộc (12 tháng)',
+        'service_fee' => 'Phí dịch vụ đăng ký',
+    ],
+    'registration_fees' => [
+        'region_id' => 'Tỉnh / Thành phố',
+        'registration_tax_percent' => 'Thuế trước bạ (%)',
+        'license_plate_fee' => 'Lệ phí biển số',
+        'inspection_fee' => 'Phí đăng kiểm',
+        'road_maintenance_fee' => 'Phí bảo trì đường bộ (12 tháng)',
+        'civil_insurance_fee' => 'Bảo hiểm TNDS bắt buộc (12 tháng)',
+        'service_fee' => 'Phí dịch vụ đăng ký',
     ]
 ];

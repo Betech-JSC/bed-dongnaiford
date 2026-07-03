@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useVehicle, VehicleTabBar } from "@/components/vehicle/VehicleLayoutClient";
-import { regionsAPI, contactsAPI } from "@/lib/api";
+import { regionsAPI, contactsAPI, registrationFeesAPI } from "@/lib/api";
 import { calculateRollingCost } from "@/lib/rolling-cost";
 import { Check, Info, FileText } from "lucide-react";
 
@@ -17,6 +17,7 @@ export default function VehiclePriceCalculatorClient() {
   const [selectedVersionId, setSelectedVersionId] = useState("");
   const [selectedProvince, setSelectedProvince] = useState("Đồng Nai");
   const [provinces, setProvinces] = useState<{ id: string; name: string }[]>([]);
+  const [registrationFees, setRegistrationFees] = useState<any[]>([]);
 
   // Form states
   const [formData, setFormData] = useState({
@@ -36,7 +37,7 @@ export default function VehiclePriceCalculatorClient() {
     }
   }, [vehicle]);
 
-  // Load provinces
+  // Load provinces & registration fees
   useEffect(() => {
     regionsAPI.getProvinces()
       .then((res) => {
@@ -53,6 +54,16 @@ export default function VehiclePriceCalculatorClient() {
       .catch((err) => {
         console.error("Error loading provinces:", err);
       });
+
+    registrationFeesAPI.getAll()
+      .then((res) => {
+        if (res && res.success && Array.isArray(res.data)) {
+          setRegistrationFees(res.data);
+        }
+      })
+      .catch((err) => {
+        console.error("Error loading registration fees:", err);
+      });
   }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -68,7 +79,7 @@ export default function VehiclePriceCalculatorClient() {
   const selectedVersion = getSelectedVersion();
 
   const rollingCost = vehicle && selectedVersion
-    ? calculateRollingCost(vehicle, selectedVersion, selectedProvince)
+    ? calculateRollingCost(vehicle, selectedVersion, selectedProvince, registrationFees)
     : {
         basePrice: 0,
         registrationTax: 0,
@@ -76,6 +87,7 @@ export default function VehiclePriceCalculatorClient() {
         registryFee: 0,
         roadFee: 0,
         insuranceFee: 0,
+        serviceFee: 0,
         total: 0,
       };
 
@@ -259,6 +271,12 @@ export default function VehiclePriceCalculatorClient() {
                   <span>Bảo hiểm trách nhiệm dân sự bắt buộc:</span>
                   <span className="font-semibold text-gray-900">+{formatPrice(rollingCost.insuranceFee)}</span>
                 </div>
+                {rollingCost.serviceFee && rollingCost.serviceFee > 0 ? (
+                  <div className="flex justify-between items-center pb-3 border-b border-gray-200">
+                    <span>Phí dịch vụ đăng ký:</span>
+                    <span className="font-semibold text-gray-900">+{formatPrice(rollingCost.serviceFee)}</span>
+                  </div>
+                ) : null}
                 <div className="pt-4 flex justify-between items-center">
                   <span className="font-bold text-gray-900 text-base">Tổng dự toán chi phí lăn bánh:</span>
                   <span className="font-extrabold text-[#0562D2] text-xl md:text-2xl">{formatPrice(rollingCost.total)}</span>

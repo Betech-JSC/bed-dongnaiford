@@ -3,7 +3,7 @@
 import { useParams, usePathname } from "next/navigation";
 import { useState, useEffect, useMemo, createContext, useContext } from "react";
 import Link from "next/link";
-import { contactsAPI, regionsAPI } from "@/lib/api";
+import { contactsAPI, regionsAPI, registrationFeesAPI } from "@/lib/api";
 import { calculateRollingCost } from "@/lib/rolling-cost";
 import {
   X,
@@ -70,6 +70,7 @@ export default function VehicleLayoutClient({
   );
   const [selectedProvince, setSelectedProvince] = useState("Đồng Nai");
   const [provinces, setProvinces] = useState<{ id: string; name: string }[]>([]);
+  const [registrationFees, setRegistrationFees] = useState<any[]>([]);
   const [drawerStep, setDrawerStep] = useState<"calculate" | "contact">("calculate");
 
   // Form states
@@ -107,7 +108,7 @@ export default function VehicleLayoutClient({
     }
   }, []);
 
-  // Fetch Provinces
+  // Fetch Provinces & Registration Fees
   useEffect(() => {
     regionsAPI.getProvinces()
       .then((res) => {
@@ -125,6 +126,16 @@ export default function VehicleLayoutClient({
       })
       .catch((err) => {
         console.error("Error loading provinces:", err);
+      });
+
+    registrationFeesAPI.getAll()
+      .then((res) => {
+        if (res && res.success && Array.isArray(res.data)) {
+          setRegistrationFees(res.data);
+        }
+      })
+      .catch((err) => {
+        console.error("Error loading registration fees:", err);
       });
   }, []);
 
@@ -204,6 +215,7 @@ export default function VehicleLayoutClient({
         registryFee: 0,
         roadFee: 0,
         insuranceFee: 0,
+        serviceFee: 0,
         total: 0,
       };
     }
@@ -217,11 +229,12 @@ export default function VehicleLayoutClient({
         registryFee: 0,
         roadFee: 0,
         insuranceFee: 0,
+        serviceFee: 0,
         total: 0,
       };
     }
 
-    return calculateRollingCost(selVeh, selVer, selectedProvince);
+    return calculateRollingCost(selVeh, selVer, selectedProvince, registrationFees);
   };
 
   const rollingCost = getRollingCostDetails();
@@ -606,6 +619,12 @@ export default function VehicleLayoutClient({
                       <span className="text-gray-500">Bảo hiểm trách nhiệm dân sự:</span>
                       <span className="font-semibold text-gray-800">+{formatPrice(rollingCost.insuranceFee)}</span>
                     </div>
+                    {rollingCost.serviceFee && rollingCost.serviceFee > 0 ? (
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Phí dịch vụ đăng ký:</span>
+                        <span className="font-semibold text-gray-800">+{formatPrice(rollingCost.serviceFee)}</span>
+                      </div>
+                    ) : null}
                     <div className="border-t border-gray-200 pt-3 mt-3 flex justify-between items-center">
                       <span className="font-bold text-gray-900 text-base">Tổng chi phí lăn bánh dự kiến:</span>
                       <span className="font-extrabold text-[#0562D2] text-xl">{formatPrice(rollingCost.total)}</span>
