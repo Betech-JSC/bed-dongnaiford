@@ -119,7 +119,7 @@
 export default {
     data(){
         return {
-            settingBar: this.$page.props.setting_bar
+            settingBar: this.$page.props.setting_bar || {}
         }
     }
 };
