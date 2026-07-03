@@ -714,12 +714,12 @@ export function VehicleTabBar() {
   }, [vehicle]);
 
   const subTabs = useMemo(() => [
-    { label: "Tổng quan", path: `/san-pham/${id}` },
-    { label: "Phiên bản", path: `/san-pham/${id}/${firstVersionSlug}` },
-    { label: "Tính năng", path: `/san-pham/${id}/tinh-nang` },
-    { label: "So sánh", path: `/san-pham/[id]/so-sanh`, actualPath: `/san-pham/${id}/so-sanh` },
-    { label: "Phụ kiện", path: `/san-pham/[id]/phu-kien`, actualPath: `/san-pham/${id}/phu-kien` },
-    { label: "Dự toán chi phí lăn bánh", path: `/san-pham/[id]/du-toan-lan-banh`, actualPath: `/san-pham/${id}/du-toan-lan-banh` }
+    { label: "Tổng quan", path: `/${id}` },
+    { label: "Phiên bản", path: `/${id}/${firstVersionSlug}` },
+    { label: "Tính năng", path: `/${id}/tinh-nang` },
+    { label: "So sánh", path: `/[id]/so-sanh`, actualPath: `/${id}/so-sanh` },
+    { label: "Phụ kiện", path: `/[id]/phu-kien`, actualPath: `/${id}/phu-kien` },
+    { label: "Dự toán chi phí lăn bánh", path: `/[id]/du-toan-lan-banh`, actualPath: `/${id}/du-toan-lan-banh` }
   ], [id, firstVersionSlug]);
 
   return (
@@ -727,7 +727,7 @@ export function VehicleTabBar() {
       <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full flex items-center justify-between gap-4">
         <div className="flex items-center gap-[32px] overflow-hidden">
           <Link 
-            href={`/san-pham/${id}`}
+            href={`/${id}`}
             className="font-['Ford_Antenna',sans-serif] font-bold text-[#1a1a1a] text-[13px] uppercase tracking-wider whitespace-nowrap hidden sm:block hover:text-[#0562d2] no-underline"
           >
             {vehicle.name}
@@ -738,11 +738,11 @@ export function VehicleTabBar() {
             {subTabs.map((tab) => {
               const targetPath = tab.actualPath || tab.path;
               
-              const isOverviewActive = pathname === `/san-pham/${id}`;
-              const isFeaturesActive = pathname === `/san-pham/${id}/tinh-nang`;
-              const isCompareActive = pathname === `/san-pham/${id}/so-sanh`;
-              const isAccessoriesActive = pathname === `/san-pham/${id}/phu-kien` || pathname.startsWith(`/san-pham/${id}/phu-kien`);
-              const isCalculatorActive = pathname === `/san-pham/${id}/du-toan-lan-banh` || pathname.startsWith(`/san-pham/${id}/du-toan-lan-banh`);
+              const isOverviewActive = pathname === `/san-pham/${id}` || pathname === `/${id}`;
+              const isFeaturesActive = pathname === `/san-pham/${id}/tinh-nang` || pathname === `/${id}/tinh-nang`;
+              const isCompareActive = pathname === `/san-pham/${id}/so-sanh` || pathname === `/${id}/so-sanh`;
+              const isAccessoriesActive = pathname.startsWith(`/san-pham/${id}/phu-kien`) || pathname.startsWith(`/${id}/phu-kien`);
+              const isCalculatorActive = pathname.startsWith(`/san-pham/${id}/du-toan-lan-banh`) || pathname.startsWith(`/${id}/du-toan-lan-banh`);
 
               let isActive = false;
               if (tab.label === "Tổng quan") {

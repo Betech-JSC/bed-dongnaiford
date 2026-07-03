@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo, useRef, Suspense } from "react";
 import Link from "next/link";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { handleImageError } from "@/lib/site-assets";
 import { postsAPI, reviewsAPI } from "@/lib/api";
 
-export default function NewsListPage() {
+function NewsListPageContent() {
   const [categories, setCategories] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<number | "all">("all");
   const [currentPage, setCurrentPage] = useState(1);
@@ -16,6 +17,8 @@ export default function NewsListPage() {
   const [topPosts, setTopPosts] = useState<any[]>([]);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
 
   const getPageNumbers = () => {
     const pages: number[] = [];
@@ -106,6 +109,30 @@ export default function NewsListPage() {
     };
     loadData();
   }, [currentPage, activeTab, debouncedSearchQuery]);
+
+  // Match category from URL search query parameters (ID or slug) or pathname once categories are loaded
+  useEffect(() => {
+    if (categories.length > 0) {
+      if (pathname === "/khuyen-mai") {
+        const found = categories.find((c) => c.slug === "khuyen-mai");
+        if (found) {
+          setActiveTab(found.id);
+        }
+      } else {
+        const catParam = searchParams.get("category");
+        if (catParam) {
+          const found = categories.find(
+            (c) => String(c.id) === catParam || c.slug === catParam
+          );
+          if (found) {
+            setActiveTab(found.id);
+          }
+        } else {
+          setActiveTab("all");
+        }
+      }
+    }
+  }, [categories, searchParams, pathname]);
 
   // Load reviews from API
   useEffect(() => {
@@ -211,7 +238,7 @@ export default function NewsListPage() {
   return (
     <div className="bg-[#fafafa] min-h-screen py-12 flex flex-col items-center">
       {/* 1. FEATURED NEWS SECTION */}
-      {topPosts.length > 0 && (
+      {pathname !== "/khuyen-mai" && topPosts.length > 0 && (
         <section className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full mb-16">
           <h2 className="font-['Ford_Antenna',sans-serif] font-semibold text-[36px] leading-[1.32] text-[#1a1a1a] mb-8">
             Tin tức nổi bật
@@ -264,37 +291,39 @@ export default function NewsListPage() {
           {/* Section Heading & Category Tabs */}
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 border-b border-[#e5e2dc] pb-4">
             <h2 className="font-['Ford_Antenna',sans-serif] font-semibold text-[28px] leading-[1.2] text-[#1a1a1a] shrink-0">
-              Tin tức & Ưu Đãi
+              {pathname === "/khuyen-mai" ? "Chương trình Khuyến mãi" : "Tin tức & Ưu Đãi"}
             </h2>
 
             {/* Filter controls wrapper */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full lg:w-auto lg:justify-end">
               {/* Category tabs */}
-              <div className="flex overflow-x-auto scrollbar-none border-b sm:border-b-0 border-gray-200">
-                <button
-                  onClick={() => handleTabChange("all")}
-                  className={`px-5 py-2.5 text-base font-semibold transition-all relative whitespace-nowrap cursor-pointer ${
-                    activeTab === "all"
-                      ? "text-[#0562d2] border-b-3 border-[#0562d2]"
-                      : "text-[#424242] hover:text-[#0562d2]"
-                  }`}
-                >
-                  Tất cả
-                </button>
-                {categories.map((cat) => (
+              {pathname !== "/khuyen-mai" && (
+                <div className="flex overflow-x-auto scrollbar-none border-b sm:border-b-0 border-gray-200">
                   <button
-                    key={cat.id}
-                    onClick={() => handleTabChange(cat.id)}
+                    onClick={() => handleTabChange("all")}
                     className={`px-5 py-2.5 text-base font-semibold transition-all relative whitespace-nowrap cursor-pointer ${
-                      activeTab === cat.id
+                      activeTab === "all"
                         ? "text-[#0562d2] border-b-3 border-[#0562d2]"
                         : "text-[#424242] hover:text-[#0562d2]"
                     }`}
                   >
-                    {cat.title}
+                    Tất cả
                   </button>
-                ))}
-              </div>
+                  {categories.map((cat) => (
+                    <button
+                      key={cat.id}
+                      onClick={() => handleTabChange(cat.id)}
+                      className={`px-5 py-2.5 text-base font-semibold transition-all relative whitespace-nowrap cursor-pointer ${
+                        activeTab === cat.id
+                          ? "text-[#0562d2] border-b-3 border-[#0562d2]"
+                          : "text-[#424242] hover:text-[#0562d2]"
+                      }`}
+                    >
+                      {cat.title}
+                    </button>
+                  ))}
+                </div>
+              )}
 
               {/* Search input */}
               <div className="relative min-w-[200px] sm:w-[240px]">
@@ -549,5 +578,17 @@ export default function NewsListPage() {
         </section>
       )}
     </div>
+  );
+}
+
+export default function NewsListPage() {
+  return (
+    <Suspense fallback={
+      <div className="bg-[#fafafa] min-h-screen py-16 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#0562d2]" />
+      </div>
+    }>
+      <NewsListPageContent />
+    </Suspense>
   );
 }

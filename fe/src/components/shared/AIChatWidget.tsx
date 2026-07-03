@@ -154,7 +154,7 @@ export function RecommendationCarousel({ slugs, reason }: RecommendationCarousel
                 </p>
               </div>
               <Link 
-                href={`/san-pham/${vehicle.id}`}
+                href={`/${vehicle.id}`}
                 className="w-full py-1.5 bg-[#0562d2] hover:bg-[#044ea7] text-white text-[9px] font-bold rounded-lg text-center flex items-center justify-center transition-colors"
               >
                 <span>Xem chi tiết</span>

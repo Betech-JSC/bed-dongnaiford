@@ -886,9 +886,8 @@ export default function ProductsPage({ initialCategory }: { initialCategory?: st
                       >
                         <GitCompare className={`w-4 h-4 ${compareIds.includes(vehicleId) ? "animate-pulse" : ""}`} />
                       </button>
-                      {/* Image */}
                       <Link
-                        href={`/san-pham/${vehicleId}`}
+                        href={`/${vehicleId}`}
                         className="relative h-48 w-full bg-white overflow-hidden mb-5 flex items-center justify-center block rounded-xl"
                       >
                         <Image
@@ -943,7 +942,7 @@ export default function ProductsPage({ initialCategory }: { initialCategory?: st
                       {/* CTAs */}
                       <div className="flex gap-2 text-xs">
                         <Link
-                          href={`/san-pham/${vehicleId}`}
+                          href={`/${vehicleId}`}
                           className="flex-1 text-center bg-[#0562d2] hover:bg-[#044ea7] border border-[#0562d2] text-white font-bold py-2.5 rounded-full transition-colors cursor-pointer"
                         >
                           Chi tiết

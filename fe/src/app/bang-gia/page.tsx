@@ -208,7 +208,7 @@ export default function PriceListPage() {
                               rowSpan={vehicle.versions.length}
                             >
                               <Link
-                                href={`/san-pham/${vehicle.id}`}
+                                href={`/${vehicle.id}`}
                                 className="font-bold text-[#1a1a1a] hover:text-[#0562d2] transition-colors uppercase text-sm"
                               >
                                 {vehicle.name}
@@ -275,7 +275,7 @@ export default function PriceListPage() {
                   >
                     {/* Vehicle Header */}
                     <Link
-                      href={`/san-pham/${vehicle.id}`}
+                      href={`/${vehicle.id}`}
                       className="flex items-center gap-4 p-4 border-b border-gray-100"
                     >
                       <div className="relative w-[64px] h-[42px] flex-shrink-0">

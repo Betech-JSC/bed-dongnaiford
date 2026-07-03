@@ -22,6 +22,8 @@ class PostController extends Controller
                 ->where('type', $type)
                 ->active()
                 ->filter(request()->all())
+                ->orderBy('published_at', 'desc')
+                ->orderBy('id', 'desc')
                 ->paginate($perPage)
                 ->onEachSide(0)
                 ->through(function ($item) {
@@ -37,7 +39,7 @@ class PostController extends Controller
             $topPosts = Post::query()
                 ->where('type', Post::TYPE_POST)
                 ->active()
-                ->orderByPosition()
+                ->orderBy('published_at', 'desc')
                 ->orderBy('id', 'desc')
                 ->take(4)
                 ->get()

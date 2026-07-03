@@ -41,3 +41,97 @@
         @apply overflow-y-auto z-10;
     }
 }
+
+/* Style CKEditor to look similar to Next.js Frontend (prose) */
+.ck-content {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+    font-size: 15px !important;
+    line-height: 1.7 !important;
+    color: #1a1a1a !important;
+
+    p {
+        margin-bottom: 1.25em !important;
+        margin-top: 0 !important;
+    }
+
+    h2 {
+        font-size: 1.5em !important;
+        font-weight: 700 !important;
+        margin-top: 1.6em !important;
+        margin-bottom: 0.6em !important;
+        color: #00095b !important; /* Brand Blue */
+        line-height: 1.35 !important;
+    }
+
+    h3 {
+        font-size: 1.25em !important;
+        font-weight: 600 !important;
+        margin-top: 1.6em !important;
+        margin-bottom: 0.6em !important;
+        color: #00095b !important;
+        line-height: 1.4 !important;
+    }
+
+    ul, ol {
+        margin-bottom: 1.25em !important;
+        padding-left: 1.5em !important;
+        
+        li {
+            margin-bottom: 0.25em !important;
+        }
+    }
+
+    ul {
+        list-style-type: disc !important;
+    }
+
+    ol {
+        list-style-type: decimal !important;
+    }
+
+    table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        margin-bottom: 1.5em !important;
+
+        th, td {
+            border: 1px solid #e5e5e5 !important;
+            padding: 10px 12px !important;
+            text-align: left !important;
+        }
+
+        th {
+            background-color: #f9fafb !important;
+            font-weight: 600 !important;
+        }
+    }
+
+    figure {
+        margin: 1.5em auto !important;
+        max-width: 100% !important;
+        
+        img {
+            max-width: 100% !important;
+            height: auto !important;
+            border-radius: 8px !important;
+        }
+        
+        figcaption {
+            text-align: center !important;
+            font-size: 0.85em !important;
+            color: #6b7280 !important;
+            margin-top: 0.5em !important;
+        }
+    }
+
+    /* Inline emoji images */
+    img.xz74otr,
+    img[src*="emoji.php"] {
+        display: inline-block !important;
+        width: 1.1em !important;
+        height: 1.1em !important;
+        margin: 0 4px !important;
+        vertical-align: -0.15em !important;
+    }
+}
+

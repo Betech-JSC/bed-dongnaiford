@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { ArrowLeft, Share2, MessageCircle, Copy, Check, Calendar } from "lucide-react";
+import { ArrowLeft, Share2, MessageCircle, Copy, Check, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import { handleImageError } from "@/lib/site-assets";
 
 const Facebook = (props: React.SVGProps<SVGSVGElement>) => (
@@ -30,6 +30,19 @@ export default function ArticleDetailClient({
 }) {
   const [copied, setCopied] = useState(false);
   const [shareUrl, setShareUrl] = useState("");
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const scrollLeft = () => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({ left: -380, behavior: "smooth" });
+    }
+  };
+
+  const scrollRight = () => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({ left: 380, behavior: "smooth" });
+    }
+  };
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -104,7 +117,7 @@ export default function ArticleDetailClient({
 
           {/* Article Content Body */}
           <div 
-            className="font-sans text-[#1a1a1a] leading-relaxed text-[16px] max-w-[760px] mx-auto w-full prose prose-blue whitespace-pre-line"
+            className="font-sans text-[#1a1a1a] leading-relaxed text-[16px] max-w-[760px] mx-auto w-full prose prose-blue"
             dangerouslySetInnerHTML={{ __html: article.content }}
           />
 
@@ -176,39 +189,66 @@ export default function ArticleDetailClient({
             <h2 className="font-['Ford_Antenna',sans-serif] font-semibold text-[32px] leading-[1.32] text-[#1a1a1a] text-center">
               Tin tức & Ưu Đãi liên quan
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {relatedArticles.map((art) => (
-                <Link
-                  key={art.id}
-                  href={`/tin-tuc/${art.slug}`}
-                  className="bg-white rounded-[12px] overflow-hidden border border-[#e5e5e5] shadow-sm hover:shadow-md transition-premium group flex flex-col h-full"
-                >
-                  <div className="aspect-[600/400] relative overflow-hidden w-full bg-gray-100">
-                    <img
-                      src={art.image?.url || "/placeholder-news.jpg"}
-                      alt={art.title}
-                      className="absolute inset-0 object-cover w-full h-full group-hover:scale-[1.03] transition-transform duration-500"
-                      onError={handleImageError}
-                    />
-                    {art.category && (
-                      <div className="absolute top-4 left-4 bg-[#0562d2] text-white text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider">
-                        {art.category.title}
+            
+            <div className="relative group w-full px-4">
+              {/* Scroll Left Button */}
+              <button 
+                onClick={scrollLeft}
+                className="absolute left-0 lg:left-[-40px] top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white border border-gray-200 shadow-md flex items-center justify-center text-gray-700 hover:text-[#0562d2] hover:border-[#0562d2] transition cursor-pointer opacity-0 group-hover:opacity-100 duration-300"
+                aria-label="Slide left"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+
+              {/* Scrollable Container */}
+              <div 
+                ref={scrollRef}
+                className="flex overflow-x-auto scrollbar-none gap-6 pb-4 snap-x snap-mandatory"
+                style={{ scrollbarWidth: 'none' }}
+              >
+                {relatedArticles.map((art) => (
+                  <div key={art.id} className="min-w-[280px] sm:min-w-[320px] md:min-w-[360px] max-w-[360px] flex-shrink-0 snap-start">
+                    <Link
+                      href={`/tin-tuc/${art.slug}`}
+                      className="bg-white rounded-[12px] overflow-hidden border border-[#e5e5e5] shadow-sm hover:shadow-md transition-premium group flex flex-col h-full"
+                    >
+                      <div className="aspect-[600/400] relative overflow-hidden w-full bg-gray-100">
+                        <img
+                          src={art.image?.url || "/placeholder-news.jpg"}
+                          alt={art.title}
+                          className="absolute inset-0 object-cover w-full h-full group-hover:scale-[1.03] transition-transform duration-500"
+                          onError={handleImageError}
+                        />
+                        {art.category && (
+                          <div className="absolute top-4 left-4 bg-[#0562d2] text-white text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider">
+                            {art.category.title}
+                          </div>
+                        )}
                       </div>
-                    )}
+                      <div className="p-5 flex flex-col flex-1 gap-2.5">
+                        <span className="text-xs font-medium text-[#424242]">
+                          {formatDate(art.published_at)}
+                        </span>
+                        <h3 className="font-['Ford_Antenna',sans-serif] font-semibold text-[16px] leading-[1.4] text-[#1a1a1a] group-hover:text-[#0562d2] transition-colors duration-200 line-clamp-2">
+                          {art.title}
+                        </h3>
+                        <p className="text-xs text-[#424242] leading-relaxed line-clamp-3 mt-1">
+                          {art.description}
+                        </p>
+                      </div>
+                    </Link>
                   </div>
-                  <div className="p-5 flex flex-col flex-1 gap-2.5">
-                    <span className="text-xs font-medium text-[#424242]">
-                      {formatDate(art.published_at)}
-                    </span>
-                    <h3 className="font-['Ford_Antenna',sans-serif] font-semibold text-[16px] leading-[1.4] text-[#1a1a1a] group-hover:text-[#0562d2] transition-colors duration-200 line-clamp-2">
-                      {art.title}
-                    </h3>
-                    <p className="text-xs text-[#424242] leading-relaxed line-clamp-3 mt-1">
-                      {art.description}
-                    </p>
-                  </div>
-                </Link>
-              ))}
+                ))}
+              </div>
+
+              {/* Scroll Right Button */}
+              <button 
+                onClick={scrollRight}
+                className="absolute right-0 lg:right-[-40px] top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white border border-gray-200 shadow-md flex items-center justify-center text-gray-700 hover:text-[#0562d2] hover:border-[#0562d2] transition cursor-pointer opacity-0 group-hover:opacity-100 duration-300"
+                aria-label="Slide right"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
             </div>
           </div>
         </section>

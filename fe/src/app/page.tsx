@@ -828,7 +828,7 @@ export default function Home() {
                 <button
                   onClick={() => {
                     if (heroSlides[activeHeroIndex]?.linkVehicleId) {
-                      router.push(`/san-pham/${heroSlides[activeHeroIndex].linkVehicleId}`);
+                      router.push(`/${heroSlides[activeHeroIndex].linkVehicleId}`);
                     }
                   }}
                   className="bg-transparent hover:bg-white/10 border border-white text-white px-5 py-2 md:px-6 md:py-2.5 rounded-full text-xs md:text-base font-semibold tracking-[0.16px] transition-all duration-300 cursor-pointer"
@@ -984,7 +984,7 @@ export default function Home() {
                 return (
                   <Link
                     key={vehicle.id}
-                    href={`/san-pham/${vehicleId}`}
+                    href={`/${vehicleId}`}
                     className="bg-white border border-[#EAECF0] rounded-2xl p-6 flex flex-col justify-between hover:shadow-lg transition-all duration-300 relative group cursor-pointer h-full"
                   >
                     {/* Image Section — white bg, object-contain for cutout thumbnail */}
@@ -1299,7 +1299,7 @@ export default function Home() {
                             }
                             const target = e.target as HTMLElement;
                             if (!target.closest('a')) {
-                              router.push(`/san-pham/${vSlug}`);
+                              router.push(`/${vSlug}`);
                             }
                           }}
                           className="relative overflow-hidden rounded-xl h-[420px] sm:h-[595px] group cursor-pointer bg-[#121824] flex-shrink-0 transition-all duration-300 block"
@@ -1321,7 +1321,7 @@ export default function Home() {
                             <h3 className="text-xl sm:text-2xl md:text-3xl font-semibold text-white leading-[1.2]">{vName}</h3>
                             <div className="flex flex-row gap-2 sm:gap-3 mt-1">
                               <Link
-                                href={`/san-pham/${vSlug}`}
+                                href={`/${vSlug}`}
                                 className="bg-[#0562D2] text-white text-xs sm:text-sm font-semibold px-4 sm:px-5 py-2 sm:py-2.5 rounded-full hover:bg-[#044ea7] transition-all duration-200 whitespace-nowrap text-center flex-1 sm:flex-none"
                               >
                                 Xem chi tiết
