@@ -21,6 +21,7 @@ class VehicleCategory extends BaseModel
         'title',
         'slug',
         'seo_meta_title',
+        'seo_focus_keyword',
         'seo_slug',
         'seo_meta_description',
         'seo_meta_keywords',
