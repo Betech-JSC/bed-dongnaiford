@@ -212,8 +212,19 @@ function NewsListPageContent() {
   };
 
   const handleTabChange = (tabId: number | "all") => {
-    setActiveTab(tabId);
     setCurrentPage(1);
+    const params = new URLSearchParams(window.location.search);
+    if (tabId === "all") {
+      params.delete("category");
+    } else {
+      const cat = categories.find((c) => c.id === tabId);
+      if (cat && cat.slug) {
+        params.set("category", cat.slug);
+      } else {
+        params.set("category", String(tabId));
+      }
+    }
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
   const handlePageChange = (page: number) => {
