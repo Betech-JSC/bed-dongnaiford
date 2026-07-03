@@ -1512,7 +1512,7 @@ export default function Home() {
                 {homeArticles[0] && (
                   <div className="lg:col-span-5 flex animate-fade-in">
                     <Link
-                      href={`/tin-tuc/${homeArticles[0].id}`}
+                      href={`/${homeArticles[0].id}`}
                       className="bg-white rounded-[12px] overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col w-full group"
                     >
                       {/* Image container */}
@@ -1563,7 +1563,7 @@ export default function Home() {
                   {homeArticles.slice(1, 4).map((art) => (
                     <Link
                       key={art.id}
-                      href={`/tin-tuc/${art.id}`}
+                      href={`/${art.id}`}
                       className="bg-white rounded-[12px] overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col sm:flex-row w-full group min-h-[160px] animate-fade-in"
                     >
                       {/* Left: Image (stacked on mobile) */}

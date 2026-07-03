@@ -57,6 +57,12 @@ const nextConfig = {
   },
   async redirects() {
     return [
+      // Chuyển hướng 301 dịch vụ WordPress cũ duy nhất sang cấu trúc mới
+      {
+        source: "/nhan-va-giao-xe-tan-noi",
+        destination: "/dich-vu/nhan-va-giao-xe-tan-noi",
+        permanent: true,
+      },
       {
         source: "/accessories",
         destination: "/phu-kien",
@@ -158,6 +164,20 @@ const nextConfig = {
         // Giữ nguyên cấu trúc URL cũ /[slug].html từ WordPress
         // Next.js sẽ render trang /tin-tuc/[slug] nhưng URL trình duyệt vẫn giữ nguyên /[slug].html
         source: "/:slug.html",
+        destination: "/tin-tuc/:slug",
+      },
+      // Giữ nguyên cấu trúc danh mục bài viết từ WordPress cũ
+      {
+        source: "/category/:slug",
+        destination: "/tin-tuc",
+      },
+      {
+        source: "/chuyen-muc/:slug",
+        destination: "/tin-tuc",
+      },
+      // Định tuyến chung cho các bài viết không có /tin-tuc
+      {
+        source: "/:slug",
         destination: "/tin-tuc/:slug",
       },
     ];

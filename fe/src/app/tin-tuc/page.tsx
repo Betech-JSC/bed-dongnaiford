@@ -120,7 +120,15 @@ function NewsListPageContent() {
           setActiveTab(found.id);
         }
       } else {
-        const catParam = searchParams.get("category");
+        let catParam = searchParams.get("category");
+        if (!catParam) {
+          if (pathname.startsWith("/category/")) {
+            catParam = pathname.replace("/category/", "").replace(/\/$/, "");
+          } else if (pathname.startsWith("/chuyen-muc/")) {
+            catParam = pathname.replace("/chuyen-muc/", "").replace(/\/$/, "");
+          }
+        }
+
         if (catParam) {
           const found = categories.find(
             (c) => String(c.id) === catParam || c.slug === catParam
@@ -214,18 +222,25 @@ function NewsListPageContent() {
 
   const handleTabChange = (tabId: number | "all") => {
     setCurrentPage(1);
-    const params = new URLSearchParams(window.location.search);
+    const isCategoryPath = pathname.startsWith("/category/");
+    const isChuyenMucPath = pathname.startsWith("/chuyen-muc/");
+
     if (tabId === "all") {
-      params.delete("category");
+      router.push("/tin-tuc", { scroll: false });
     } else {
       const cat = categories.find((c) => c.id === tabId);
-      if (cat && cat.slug) {
-        params.set("category", cat.slug);
+      const catSlug = cat && cat.slug ? cat.slug : String(tabId);
+
+      if (isCategoryPath) {
+        router.push(`/category/${catSlug}`, { scroll: false });
+      } else if (isChuyenMucPath) {
+        router.push(`/chuyen-muc/${catSlug}`, { scroll: false });
       } else {
-        params.set("category", String(tabId));
+        const params = new URLSearchParams(window.location.search);
+        params.set("category", catSlug);
+        router.push(`${pathname}?${params.toString()}`, { scroll: false });
       }
     }
-    router.push(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
   const handlePageChange = (page: number) => {
@@ -259,7 +274,7 @@ function NewsListPageContent() {
             {topPosts.slice(0, 2).map((art) => (
               <Link
                 key={`featured-${art.id}`}
-                href={`/tin-tuc/${art.slug}`}
+                href={`/${art.slug}`}
                 className="bg-white rounded-[12px] overflow-hidden border border-[#e5e5e5] shadow-sm hover:shadow-md transition-premium group flex flex-col"
               >
                 {/* Image Container */}
@@ -361,7 +376,7 @@ function NewsListPageContent() {
               {posts.map((art) => (
                 <Link
                   key={art.id}
-                  href={`/tin-tuc/${art.slug}`}
+                  href={`/${art.slug}`}
                   className="bg-white rounded-[12px] overflow-hidden border border-[#e5e5e5] shadow-sm hover:shadow-md transition-premium group flex flex-col h-full"
                 >
                   <div className="aspect-[600/400] relative overflow-hidden w-full bg-gray-100">

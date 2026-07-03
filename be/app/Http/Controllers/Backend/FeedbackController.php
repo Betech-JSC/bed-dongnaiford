@@ -21,4 +21,10 @@ class FeedbackController extends Controller
         return $query->where('type', Post::TYPE_FEEDBACK)
             ->orderBy('id', 'DESC');
     }
+
+    private function beforeStore($request, $rules)
+    {
+        $request->merge(['type' => Post::TYPE_FEEDBACK]);
+        return $rules;
+    }
 }
