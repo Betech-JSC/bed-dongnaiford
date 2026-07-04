@@ -6,7 +6,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   
   try {
     const res = await fetch(`${apiUrl}/sitemap`, {
-      next: { revalidate: 3600 } // Cache sitemap for 1 hour
+      cache: "no-store"
     });
     
     if (!res.ok) {
