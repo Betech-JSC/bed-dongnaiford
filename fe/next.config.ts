@@ -200,7 +200,7 @@ const nextConfig = {
       },
       // Định tuyến chung cho các bài viết không có /tin-tuc (loại trừ các đường dẫn tĩnh hệ thống)
       {
-        source: "/:slug((?!tin-tuc|khuyen-mai|chuyen-muc|category|san-pham|admin|api|lien-he|gioi-thieu)[^/]+)",
+        source: "/:slug((?!tin-tuc$|khuyen-mai$|chuyen-muc$|category$|san-pham$|admin$|api$|lien-he$|gioi-thieu$|bang-gia$|dang-ky-lai-thu$|tim-kiem$|thu-vien-media$|xe-da-qua-su-dung$|phu-kien$|tuyen-dung$)[^/]+)",
         destination: "/tin-tuc/:slug",
       },
     ];

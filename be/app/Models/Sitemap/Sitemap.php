@@ -42,7 +42,14 @@ class Sitemap
                             'checkout',
                             'api/',
                             'search',
-                            'tim-kiem'
+                            'tim-kiem',
+                            'en/',
+                            'danh-muc/',
+                            'posts',
+                            'policies',
+                            'jobs',
+                            'regions',
+                            'agencies'
                         ];
                         
                         $shouldExclude = false;
@@ -126,7 +133,10 @@ class Sitemap
     {
         if (is_array($item->url)) {
             $urls = [];
-            foreach ($item->url as $url) {
+            foreach ($item->url as $locale => $url) {
+                if (is_string($locale) && strtoupper($locale) !== strtoupper(config('app.locale', 'vi'))) {
+                    continue;
+                }
                 $urls[] = [
                     'url' => $url,
                     'lastModificationDate' => Carbon::create($item->created_at)->toAtomString(),
