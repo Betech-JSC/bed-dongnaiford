@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 
+// Trigger rebuild to clear sitemap cache and load correct staging URLs
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
   
