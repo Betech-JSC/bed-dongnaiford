@@ -97,6 +97,6 @@ Route::localized(function () {
 Route::get('keywords/index', [KeywordController::class, 'index'])
     ->name('api.keywords.index');
 
-Route::get('sitemap.xml', [\App\Http\Controllers\Frontend\SitemapController::class, 'index'])
+Route::get('sitemap', [\App\Http\Controllers\Frontend\SitemapController::class, 'index'])
     ->name('api.sitemap');
 
