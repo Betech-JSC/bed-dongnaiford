@@ -11,7 +11,10 @@ type Props = {
 export async function generateMetadata({ params }: Props) {
   try {
     const { id } = await params;
-    const res = await postsAPI.getBySlug(id).catch(() => null) as any;
+    const res = await postsAPI.getBySlug(id).catch((err) => {
+      console.error("DIAGNOSTIC metadata: postsAPI.getBySlug failed:", err);
+      return null;
+    }) as any;
     const article = res?.post;
 
     if (!article) return {};
@@ -47,10 +50,13 @@ export default async function Page({ params }: Props) {
   let relatedArticles: any[] = [];
 
   try {
-    const res = await postsAPI.getBySlug(id).catch(() => null) as any;
+    const res = await postsAPI.getBySlug(id).catch((err) => {
+      console.error("DIAGNOSTIC: postsAPI.getBySlug failed:", err);
+      return null;
+    }) as any;
     if (res) {
       if (res.redirect_to) {
-        redirect(`/tin-tuc/${res.redirect_to}`);
+        redirect(`/${res.redirect_to}`);
       }
       if (res.post) {
         article = res.post;
@@ -59,7 +65,7 @@ export default async function Page({ params }: Props) {
     }
   } catch (error) {
     if (error instanceof Error && error.message === "NEXT_REDIRECT") {
-      throw error; // Next.js redirects throw a special error that must be rethrown
+      throw error;
     }
     console.error("Error fetching article in server page:", error);
   }

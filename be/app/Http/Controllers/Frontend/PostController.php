@@ -85,7 +85,12 @@ class PostController extends Controller
             $post = $this->model::query()
                 ->where('type', Post::TYPE_POST)
                 ->active()
-                ->whereSlug($slug)
+                ->where(function($query) use ($slug) {
+                    $query->whereHas('translations', function ($q) use ($slug) {
+                        $q->where('slug', $slug)
+                          ->orWhere('seo_slug', $slug);
+                    });
+                })
                 ->first();
 
             if (!$post) {
@@ -97,13 +102,17 @@ class PostController extends Controller
                 $translation = \DB::table('post_translations')
                     ->whereIn('post_id', $activePostIds)
                     ->where('locale', current_locale())
-                    ->where('slug', 'like', $slug . '%')
+                    ->where(function($q) use ($slug) {
+                        $q->where('slug', 'like', $slug . '%')
+                          ->orWhere('seo_slug', 'like', $slug . '%');
+                    })
                     ->first();
 
                 if ($translation) {
                     $post = $this->model::query()->find($translation->post_id);
                     if ($post) {
-                        $targetSlug = $translation->seo_slug ?? $translation->slug;
+                        $targetSlug = $post->slug;
+
                         if (request()->wantsJson() || request()->is('api/*')) {
                             return response()->json([
                                 'redirect_to' => $targetSlug,

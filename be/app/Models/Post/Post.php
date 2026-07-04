@@ -188,7 +188,6 @@ class Post extends BaseModel
                 foreach ($this->translations as $translation) {
                     $urls[strtoupper($translation->locale)] = route("$translation->locale.posts.show", [
                         'slug' => $translation->seo_slug ?? $translation->slug,
-                        'id' => $this->id,
                     ]);
                 }
             } else if (Route::has($default_locale . ".nested_posts.show")) {

@@ -34,7 +34,6 @@ Route::middleware(['meta_seo', 'opening'])->group(function () {
 
         Route::controller(PostController::class)->group(function () {
             Route::get(Lang::uri('posts'), 'index')->name('posts');
-            Route::get(Lang::uri('posts') . '/{slug}', 'show')->name('posts.show');
         });
 
         Route::controller(JobController::class)->group(function () {
@@ -53,6 +52,8 @@ Route::middleware(['meta_seo', 'opening'])->group(function () {
             Route::get(Lang::uri('policies'), 'index')->name('policies.index');
             Route::get(Lang::uri('policies') . '/{slug}', 'show')->name('policies.show');
         });
+
+        Route::get('{slug}', [PostController::class, 'show'])->name('posts.show');
     });
 });
 

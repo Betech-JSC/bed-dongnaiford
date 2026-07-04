@@ -222,8 +222,6 @@ function NewsListPageContent() {
 
   const handleTabChange = (tabId: number | "all") => {
     setCurrentPage(1);
-    const isCategoryPath = pathname.startsWith("/category/");
-    const isChuyenMucPath = pathname.startsWith("/chuyen-muc/");
 
     if (tabId === "all") {
       router.push("/tin-tuc", { scroll: false });
@@ -231,15 +229,7 @@ function NewsListPageContent() {
       const cat = categories.find((c) => c.id === tabId);
       const catSlug = cat && cat.slug ? cat.slug : String(tabId);
 
-      if (isCategoryPath) {
-        router.push(`/category/${catSlug}`, { scroll: false });
-      } else if (isChuyenMucPath) {
-        router.push(`/chuyen-muc/${catSlug}`, { scroll: false });
-      } else {
-        const params = new URLSearchParams(window.location.search);
-        params.set("category", catSlug);
-        router.push(`${pathname}?${params.toString()}`, { scroll: false });
-      }
+      router.push(`/chuyen-muc/${catSlug}`, { scroll: false });
     }
   };
 

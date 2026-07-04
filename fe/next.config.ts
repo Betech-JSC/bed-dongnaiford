@@ -142,6 +142,18 @@ const nextConfig = {
         destination: "/:slug/:subpath*",
         permanent: true,
       },
+      // Tự động Redirect 301 từ URL cũ có .html sang URL mới không có .html
+      {
+        source: "/:slug.html",
+        destination: "/:slug",
+        permanent: true,
+      },
+      // Tự động Redirect 301 từ /category/ sang chuyên mục tiếng Việt /chuyen-muc/
+      {
+        source: "/category/:slug",
+        destination: "/chuyen-muc/:slug",
+        permanent: true,
+      },
     ];
   },
   async rewrites() {
@@ -160,17 +172,7 @@ const nextConfig = {
         source: "/khuyen-mai",
         destination: "/tin-tuc",
       },
-      {
-        // Giữ nguyên cấu trúc URL cũ /[slug].html từ WordPress
-        // Next.js sẽ render trang /tin-tuc/[slug] nhưng URL trình duyệt vẫn giữ nguyên /[slug].html
-        source: "/:slug.html",
-        destination: "/tin-tuc/:slug",
-      },
       // Giữ nguyên cấu trúc danh mục bài viết từ WordPress cũ
-      {
-        source: "/category/:slug",
-        destination: "/tin-tuc",
-      },
       {
         source: "/chuyen-muc/:slug",
         destination: "/tin-tuc",
