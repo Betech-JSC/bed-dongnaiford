@@ -86,7 +86,51 @@ class PostController extends Controller
                 ->where('type', Post::TYPE_POST)
                 ->active()
                 ->whereSlug($slug)
-                ->firstOrFail();
+                ->first();
+
+            if (!$post) {
+                $activePostIds = $this->model::query()
+                    ->where('type', Post::TYPE_POST)
+                    ->active()
+                    ->pluck('id');
+
+                $translation = \DB::table('post_translations')
+                    ->whereIn('post_id', $activePostIds)
+                    ->where('locale', current_locale())
+                    ->where('slug', 'like', $slug . '%')
+                    ->first();
+
+                if ($translation) {
+                    $post = $this->model::query()->find($translation->post_id);
+                    if ($post) {
+                        $targetSlug = $translation->seo_slug ?? $translation->slug;
+                        if (request()->wantsJson() || request()->is('api/*')) {
+                            return response()->json([
+                                'redirect_to' => $targetSlug,
+                            ]);
+                        }
+                        $routeName = current_locale() . '.posts.show';
+                        if (\Illuminate\Support\Facades\Route::has($routeName)) {
+                            return redirect()->route($routeName, ['slug' => $targetSlug], 301);
+                        }
+                    }
+                }
+
+                abort(404);
+            }
+
+            // Nếu slug yêu cầu khác với slug chính thức của bài viết (ví dụ: truy cập qua seo_slug cũ)
+            if ($slug !== $post->slug) {
+                if (request()->wantsJson() || request()->is('api/*')) {
+                    return response()->json([
+                        'redirect_to' => $post->slug,
+                    ]);
+                }
+                $routeName = current_locale() . '.posts.show';
+                if (\Illuminate\Support\Facades\Route::has($routeName)) {
+                    return redirect()->route($routeName, ['slug' => $post->slug], 301);
+                }
+            }
 
             $post->increment('view_count');
 

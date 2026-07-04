@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { postsAPI } from "@/lib/api";
 import ArticleDetailClient from "@/components/news/ArticleDetailClient";
 
@@ -48,11 +48,19 @@ export default async function Page({ params }: Props) {
 
   try {
     const res = await postsAPI.getBySlug(id).catch(() => null) as any;
-    if (res && res.post) {
-      article = res.post;
-      relatedArticles = res.related_posts || [];
+    if (res) {
+      if (res.redirect_to) {
+        redirect(`/tin-tuc/${res.redirect_to}`);
+      }
+      if (res.post) {
+        article = res.post;
+        relatedArticles = res.related_posts || [];
+      }
     }
   } catch (error) {
+    if (error instanceof Error && error.message === "NEXT_REDIRECT") {
+      throw error; // Next.js redirects throw a special error that must be rethrown
+    }
     console.error("Error fetching article in server page:", error);
   }
 
