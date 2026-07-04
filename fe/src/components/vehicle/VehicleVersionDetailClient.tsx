@@ -52,7 +52,7 @@ export default function VehicleVersionDetailClient() {
     );
     if (matchedIdx === -1) {
       const firstSlug = getVersionSlug(vehicle.versions[0].name);
-      router.replace(`/san-pham/${id}/${firstSlug}`);
+      router.replace(`/${id}/${firstSlug}`);
     }
   }, [vehicle, versionSlug, id, router]);
 
@@ -61,7 +61,7 @@ export default function VehicleVersionDetailClient() {
   const handleVersionSelect = (idx: number) => {
     if (vehicle && vehicle.versions[idx]) {
       const targetSlug = getVersionSlug(vehicle.versions[idx].name);
-      router.push(`/san-pham/${id}/${targetSlug}`);
+      router.push(`/${id}/${targetSlug}`);
     }
   };
 

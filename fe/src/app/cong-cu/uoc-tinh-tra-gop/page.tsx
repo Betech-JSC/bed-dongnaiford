@@ -642,7 +642,7 @@ export default function InstallmentCalculatorPage() {
               {/* Action Buttons (Figma 14144:5412) - rounded-[800px] flex-row gap-24px */}
               <div className="flex flex-col sm:flex-row gap-[24px] items-center w-full print:hidden">
                 <Link
-                  href={`/san-pham/${selectedVehicle.id}`}
+                  href={`/${selectedVehicle.id}`}
                   className="bg-[#0562d2] border border-[#0562d2] border-solid rounded-[800px] text-white px-[24px] py-[10px] text-[18px] font-semibold flex-1 text-center hover:bg-secondary transition-colors cursor-pointer border-0 w-full"
                 >
                   Xem sản phẩm

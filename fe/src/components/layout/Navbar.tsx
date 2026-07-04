@@ -774,7 +774,7 @@ export default function Navbar() {
                     return (
                       <Link
                         key={car.id}
-                        href={`/san-pham/${car.id}`}
+                        href={`/${car.id}`}
                         onClick={handleMouseLeaveImmediate}
                         className="group border border-gray-100 hover:border-blue-200 rounded-xl p-4 flex flex-col items-center bg-gray-50/30 hover:bg-white hover:shadow-lg transition-all duration-300 text-center"
                       >
@@ -862,7 +862,7 @@ export default function Navbar() {
                                 {cat.cars.map((car) => (
                                   <Link
                                     key={car.id}
-                                    href={`/san-pham/${car.id}`}
+                                    href={`/${car.id}`}
                                     onClick={() => {
                                       setIsOpen(false);
                                       setIsMobileProductOpen(false);

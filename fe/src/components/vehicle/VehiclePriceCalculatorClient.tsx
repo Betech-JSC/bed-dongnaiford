@@ -169,7 +169,7 @@ export default function VehiclePriceCalculatorClient() {
             Sản phẩm
           </Link>
           <span>/</span>
-          <Link href={`/san-pham/${vehicle.id}`} className="hover:text-[#0562D2] transition-colors">
+          <Link href={`/${vehicle.id}`} className="hover:text-[#0562D2] transition-colors">
             {vehicle.name}
           </Link>
           <span>/</span>

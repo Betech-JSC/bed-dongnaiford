@@ -118,7 +118,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
       title,
       description,
       alternates: {
-        canonical: `/san-pham/${id}`,
+        canonical: `/${id}`,
       },
       openGraph: {
         title,

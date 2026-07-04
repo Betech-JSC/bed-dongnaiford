@@ -793,7 +793,7 @@ export default function ComparePage() {
                         className="px-5 py-5 flex flex-col items-center gap-2"
                       >
                         <Link
-                          href={`/san-pham/${opt.vehicleId}`}
+                          href={`/${opt.vehicleId}`}
                           className="text-xs font-semibold text-[#0562d2] hover:text-[#044ea7] transition-colors flex items-center gap-1"
                         >
                           Xem chi tiết

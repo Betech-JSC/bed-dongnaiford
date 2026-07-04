@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: Props) {
       title,
       description,
       alternates: {
-        canonical: `/san-pham/${id}/phu-kien`,
+        canonical: `/${id}/phu-kien`,
       },
       openGraph: {
         title,
