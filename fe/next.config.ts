@@ -69,6 +69,27 @@ const nextConfig = {
         permanent: true,
       },
       // --- CHUYỂN HƯỚNG URL SẢN PHẨM XE CÓ CHỨA /SAN-PHAM SANG URL NGẮN ---
+      // Redirects từ slug xe cũ không có tiền tố "ford-" sang có tiền tố "ford-"
+      {
+        source: "/:slug(everest|territory|explorer)",
+        destination: "/ford-:slug",
+        permanent: true,
+      },
+      {
+        source: "/:slug(everest|territory|explorer)/:subpath*",
+        destination: "/ford-:slug/:subpath*",
+        permanent: true,
+      },
+      {
+        source: "/san-pham/:slug(everest|territory|explorer)",
+        destination: "/ford-:slug",
+        permanent: true,
+      },
+      {
+        source: "/san-pham/:slug(everest|territory|explorer)/:subpath*",
+        destination: "/ford-:slug/:subpath*",
+        permanent: true,
+      },
       // Redirects cho transit alias cũ
       {
         source: "/ford-transit-2024",
