@@ -12,8 +12,6 @@ use App\Http\Controllers\Frontend\ServiceController;
 use App\Http\Controllers\Frontend\JobController;
 use Inertia\Inertia;
 
-Route::get('sitemap.xml', [SitemapController::class, 'index']);
-
 Route::middleware(['meta_seo', 'opening'])->group(function () {
     Route::localized(function () {
 
