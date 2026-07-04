@@ -87,8 +87,13 @@ class PostController extends Controller
                 ->active()
                 ->where(function($query) use ($slug) {
                     $query->whereHas('translations', function ($q) use ($slug) {
+                        $encodedSlug = rawurlencode($slug);
                         $q->where('slug', $slug)
-                          ->orWhere('seo_slug', $slug);
+                          ->orWhere('slug', $encodedSlug)
+                          ->orWhere('slug', strtolower($encodedSlug))
+                          ->orWhere('seo_slug', $slug)
+                          ->orWhere('seo_slug', $encodedSlug)
+                          ->orWhere('seo_slug', strtolower($encodedSlug));
                     });
                 })
                 ->first();
@@ -103,8 +108,13 @@ class PostController extends Controller
                     ->whereIn('post_id', $activePostIds)
                     ->where('locale', current_locale())
                     ->where(function($q) use ($slug) {
+                        $encodedSlug = rawurlencode($slug);
                         $q->where('slug', 'like', $slug . '%')
-                          ->orWhere('seo_slug', 'like', $slug . '%');
+                          ->orWhere('slug', 'like', $encodedSlug . '%')
+                          ->orWhere('slug', 'like', strtolower($encodedSlug) . '%')
+                          ->orWhere('seo_slug', 'like', $slug . '%')
+                          ->orWhere('seo_slug', 'like', $encodedSlug . '%')
+                          ->orWhere('seo_slug', 'like', strtolower($encodedSlug) . '%');
                     })
                     ->first();
 

@@ -16,7 +16,6 @@ class SitemapController extends Controller
         return Sitemap::create()
             ->addStaticRoutes()
             ->add(Post::active()->get()->pluck('url'))
-            ->add(PostCategory::active()->get())
             ->add(Vehicle::where('status', Vehicle::STATUS_ACTIVE)->get())
             ->add(VehicleCategory::where('status', VehicleCategory::STATUS_ACTIVE)->get())
             ->render();
