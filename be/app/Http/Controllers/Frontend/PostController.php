@@ -139,7 +139,8 @@ class PostController extends Controller
             }
 
             // Nếu slug yêu cầu khác với slug chính thức của bài viết (ví dụ: truy cập qua seo_slug cũ)
-            if ($slug !== $post->slug) {
+            $decodedPostSlug = rawurldecode($post->slug);
+            if ($slug !== $post->slug && $slug !== $decodedPostSlug) {
                 if (request()->wantsJson() || request()->is('api/*')) {
                     return response()->json([
                         'redirect_to' => $post->slug,
