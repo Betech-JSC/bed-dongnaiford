@@ -177,9 +177,9 @@ const nextConfig = {
         source: "/chuyen-muc/:slug",
         destination: "/tin-tuc",
       },
-      // Định tuyến chung cho các bài viết không có /tin-tuc
+      // Định tuyến chung cho các bài viết không có /tin-tuc (loại trừ các đường dẫn tĩnh hệ thống)
       {
-        source: "/:slug",
+        source: "/:slug((?!tin-tuc|khuyen-mai|chuyen-muc|category|san-pham|admin|api|lien-he|gioi-thieu)[^/]+)",
         destination: "/tin-tuc/:slug",
       },
     ];
