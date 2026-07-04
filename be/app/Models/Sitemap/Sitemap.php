@@ -43,13 +43,14 @@ class Sitemap
                             'api/',
                             'search',
                             'tim-kiem',
-                            'en/',
+                            'en',
                             'danh-muc/',
                             'posts',
                             'policies',
                             'jobs',
                             'regions',
-                            'agencies'
+                            'agencies',
+                            'nha-may'
                         ];
                         
                         $shouldExclude = false;
