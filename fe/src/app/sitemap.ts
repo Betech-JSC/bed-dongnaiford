@@ -26,8 +26,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       const priorityMatch = content.match(/<priority>(.*?)<\/priority>/);
       
       if (locMatch) {
+        let locUrl = locMatch[1];
+        const siteUrl = "https://dongnaiford.com.vn";
+        
+        try {
+          const urlObj = new URL(locUrl);
+          locUrl = `${siteUrl}${urlObj.pathname}${urlObj.search}`;
+        } catch {
+          locUrl = locUrl.replace(/https?:\/\/[^\/]+/, siteUrl);
+        }
+
         urls.push({
-          url: locMatch[1],
+          url: locUrl,
           lastModified: lastmodMatch ? new Date(lastmodMatch[1]) : undefined,
           changeFrequency: changefreqMatch ? (changefreqMatch[1] as any) : "daily",
           priority: priorityMatch ? parseFloat(priorityMatch[1]) : 0.8,
