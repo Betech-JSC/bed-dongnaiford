@@ -771,6 +771,7 @@ export default function Home() {
 
   return (
     <div className="relative min-h-screen bg-light overflow-x-hidden font-sans">
+      <h1 className="sr-only">Đồng Nai Ford | Đại lý xe Ford chính hãng lớn nhất Đồng Nai</h1>
 
       {heroSlides.length > 0 && (
         <section
