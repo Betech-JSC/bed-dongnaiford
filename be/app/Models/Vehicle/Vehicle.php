@@ -23,6 +23,7 @@ class Vehicle extends BaseModel
         'tagline',
         'description',
         'seo_meta_title',
+        'seo_focus_keyword',
         'seo_slug',
         'seo_meta_description',
         'seo_meta_keywords',
@@ -305,9 +306,9 @@ class Vehicle extends BaseModel
                 } else {
                     $slug = $translation->seo_slug ?? $translation->slug;
                     if ($translation->locale === 'vi') {
-                        $urls['VI'] = '/san-pham/' . $slug;
+                        $urls['VI'] = '/' . $slug;
                     } else {
-                        $urls[strtoupper($translation->locale)] = '/en/products/' . $slug;
+                        $urls[strtoupper($translation->locale)] = '/en/' . $slug;
                     }
                 }
             }

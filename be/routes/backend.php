@@ -36,6 +36,7 @@ use App\Http\Controllers\Backend\CustomerHandoverController;
 use App\Http\Controllers\Backend\TestDriveSurveyController;
 use App\Http\Controllers\Backend\ServiceSurveyController;
 use App\Http\Controllers\Backend\ServiceBookingController;
+use App\Http\Controllers\Backend\RegistrationFeeController;
 
 Route::localized(function () {
     Route::middleware(['auth:admin'])->name('admin.')->group(function () {
@@ -76,5 +77,6 @@ Route::localized(function () {
         Route::module(TestDriveSurveyController::class);
         Route::module(ServiceSurveyController::class);
         Route::module(ServiceBookingController::class);
+        Route::module(RegistrationFeeController::class);
     });
 });

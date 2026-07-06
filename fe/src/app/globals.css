@@ -1085,5 +1085,86 @@ h1, h2, h3, h4, h5, h6 {
   animation-play-state: paused;
 }
 
+/* Fix WordPress migrated images overflow */
+.prose figure,
+.prose .wp-caption {
+  max-width: 100% !important;
+  width: auto !important;
+}
+.prose img:not(.xz74otr) {
+  max-width: 100% !important;
+  height: auto !important;
+}
+/* Fix Facebook/WP inline emoji images */
+.prose img.xz74otr,
+.prose img[src*="emoji.php"] {
+  display: inline-block !important;
+  width: 1.1em !important;
+  height: 1.1em !important;
+  margin: 0 4px !important;
+  vertical-align: -0.15em;
+}
 
 
+/* Custom Typography styles for migrated WordPress HTML content (.prose wrapper) */
+.prose {
+  h2 {
+    font-size: 24px !important;
+    font-weight: 700 !important;
+    margin-top: 32px !important;
+    margin-bottom: 16px !important;
+    color: #00095b !important;
+  }
+  h3 {
+    font-size: 20px !important;
+    font-weight: 600 !important;
+    margin-top: 28px !important;
+    margin-bottom: 12px !important;
+    color: #00095b !important;
+  }
+  p {
+    margin-bottom: 16px !important;
+    line-height: 1.75 !important;
+  }
+  ul {
+    list-style-type: disc !important;
+    padding-left: 24px !important;
+    margin-bottom: 16px !important;
+  }
+  ol {
+    list-style-type: decimal !important;
+    padding-left: 24px !important;
+    margin-bottom: 16px !important;
+  }
+  li {
+    margin-bottom: 8px !important;
+    line-height: 1.6 !important;
+  }
+  a {
+    color: #0562d2 !important;
+    text-decoration: underline !important;
+    &:hover {
+      color: #00095b !important;
+    }
+  }
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    margin: 24px 0 !important;
+    font-size: 15px !important;
+    
+    th, td {
+      border: 1px solid #e5e5e5 !important;
+      padding: 12px 16px !important;
+      text-align: left !important;
+    }
+    th {
+      background-color: #f8fafc !important;
+      font-weight: 600 !important;
+      color: #1a1a1a !important;
+    }
+    tr:nth-child(even) {
+      background-color: #fcfcfc !important;
+    }
+  }
+}

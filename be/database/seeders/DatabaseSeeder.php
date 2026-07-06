@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             RegionSeeder::class,
             VehicleTestSeeder::class,
+            RegistrationFeeSeeder::class,
             PostNewsSeeder::class,
             ServiceAgencyJobSeeder::class,
             AccessoryAndBrandSeeder::class,

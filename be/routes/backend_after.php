@@ -6,7 +6,7 @@ use App\Http\Controllers\Backend\AdminController;
 use App\Http\Controllers\Backend\SettingController;
 use App\Http\Controllers\Backend\FileController;
 use App\Http\Controllers\Backend\HelperController;
-use JamstackVietnam\MetaPage\Controllers\MetaPageController;
+use App\Http\Controllers\Backend\MetaPageController;
 use JamstackVietnam\Redirect\Controllers\RedirectController;
 use JamstackVietnam\Translation\Controllers\TranslationController;
 

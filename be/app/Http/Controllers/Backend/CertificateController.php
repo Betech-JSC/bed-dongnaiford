@@ -21,4 +21,10 @@ class CertificateController extends Controller
         return $query->where('type', Post::TYPE_CERTIFICATE)
             ->orderBy('id', 'DESC');
     }
+
+    private function beforeStore($request, $rules)
+    {
+        $request->merge(['type' => Post::TYPE_CERTIFICATE]);
+        return $rules;
+    }
 }

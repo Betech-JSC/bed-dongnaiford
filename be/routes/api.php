@@ -66,6 +66,7 @@ Route::localized(function () {
     Route::get('jobs/{slug}', [\App\Http\Controllers\Frontend\JobController::class, 'show'])->name('api.jobs.show');
     Route::get('agencies', [\App\Http\Controllers\Frontend\AgencyController::class, 'index'])->name('api.agencies');
     Route::get('regions/provinces', [\App\Http\Controllers\Api\RegionController::class, 'province'])->name('api.regions.provinces');
+    Route::get('regions/registration-fees', [\App\Http\Controllers\Api\RegionController::class, 'registrationFees'])->name('api.regions.registration-fees');
 
     // AI Chatbot
     Route::post('ai/chat', [ChatController::class, 'chat'])->name('api.ai.chat');
@@ -95,3 +96,7 @@ Route::localized(function () {
 
 Route::get('keywords/index', [KeywordController::class, 'index'])
     ->name('api.keywords.index');
+
+Route::get('sitemap', [\App\Http\Controllers\Frontend\SitemapController::class, 'index'])
+    ->name('api.sitemap');
+

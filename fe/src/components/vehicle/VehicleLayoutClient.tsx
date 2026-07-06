@@ -3,7 +3,7 @@
 import { useParams, usePathname } from "next/navigation";
 import { useState, useEffect, useMemo, createContext, useContext } from "react";
 import Link from "next/link";
-import { contactsAPI, regionsAPI } from "@/lib/api";
+import { contactsAPI, regionsAPI, registrationFeesAPI } from "@/lib/api";
 import { calculateRollingCost } from "@/lib/rolling-cost";
 import {
   X,
@@ -70,6 +70,7 @@ export default function VehicleLayoutClient({
   );
   const [selectedProvince, setSelectedProvince] = useState("Đồng Nai");
   const [provinces, setProvinces] = useState<{ id: string; name: string }[]>([]);
+  const [registrationFees, setRegistrationFees] = useState<any[]>([]);
   const [drawerStep, setDrawerStep] = useState<"calculate" | "contact">("calculate");
 
   // Form states
@@ -107,7 +108,7 @@ export default function VehicleLayoutClient({
     }
   }, []);
 
-  // Fetch Provinces
+  // Fetch Provinces & Registration Fees
   useEffect(() => {
     regionsAPI.getProvinces()
       .then((res) => {
@@ -125,6 +126,16 @@ export default function VehicleLayoutClient({
       })
       .catch((err) => {
         console.error("Error loading provinces:", err);
+      });
+
+    registrationFeesAPI.getAll()
+      .then((res) => {
+        if (res && res.success && Array.isArray(res.data)) {
+          setRegistrationFees(res.data);
+        }
+      })
+      .catch((err) => {
+        console.error("Error loading registration fees:", err);
       });
   }, []);
 
@@ -204,6 +215,7 @@ export default function VehicleLayoutClient({
         registryFee: 0,
         roadFee: 0,
         insuranceFee: 0,
+        serviceFee: 0,
         total: 0,
       };
     }
@@ -217,11 +229,12 @@ export default function VehicleLayoutClient({
         registryFee: 0,
         roadFee: 0,
         insuranceFee: 0,
+        serviceFee: 0,
         total: 0,
       };
     }
 
-    return calculateRollingCost(selVeh, selVer, selectedProvince);
+    return calculateRollingCost(selVeh, selVer, selectedProvince, registrationFees);
   };
 
   const rollingCost = getRollingCostDetails();
@@ -606,6 +619,12 @@ export default function VehicleLayoutClient({
                       <span className="text-gray-500">Bảo hiểm trách nhiệm dân sự:</span>
                       <span className="font-semibold text-gray-800">+{formatPrice(rollingCost.insuranceFee)}</span>
                     </div>
+                    {rollingCost.serviceFee && rollingCost.serviceFee > 0 ? (
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Phí dịch vụ đăng ký:</span>
+                        <span className="font-semibold text-gray-800">+{formatPrice(rollingCost.serviceFee)}</span>
+                      </div>
+                    ) : null}
                     <div className="border-t border-gray-200 pt-3 mt-3 flex justify-between items-center">
                       <span className="font-bold text-gray-900 text-base">Tổng chi phí lăn bánh dự kiến:</span>
                       <span className="font-extrabold text-[#0562D2] text-xl">{formatPrice(rollingCost.total)}</span>
@@ -714,12 +733,12 @@ export function VehicleTabBar() {
   }, [vehicle]);
 
   const subTabs = useMemo(() => [
-    { label: "Tổng quan", path: `/san-pham/${id}` },
-    { label: "Phiên bản", path: `/san-pham/${id}/${firstVersionSlug}` },
-    { label: "Tính năng", path: `/san-pham/${id}/tinh-nang` },
-    { label: "So sánh", path: `/san-pham/[id]/so-sanh`, actualPath: `/san-pham/${id}/so-sanh` },
-    { label: "Phụ kiện", path: `/san-pham/[id]/phu-kien`, actualPath: `/san-pham/${id}/phu-kien` },
-    { label: "Dự toán chi phí lăn bánh", path: `/san-pham/[id]/du-toan-lan-banh`, actualPath: `/san-pham/${id}/du-toan-lan-banh` }
+    { label: "Tổng quan", path: `/${id}` },
+    { label: "Phiên bản", path: `/${id}/${firstVersionSlug}` },
+    { label: "Tính năng", path: `/${id}/tinh-nang` },
+    { label: "So sánh", path: `/[id]/so-sanh`, actualPath: `/${id}/so-sanh` },
+    { label: "Phụ kiện", path: `/[id]/phu-kien`, actualPath: `/${id}/phu-kien` },
+    { label: "Dự toán chi phí lăn bánh", path: `/[id]/du-toan-lan-banh`, actualPath: `/${id}/du-toan-lan-banh` }
   ], [id, firstVersionSlug]);
 
   return (
@@ -727,7 +746,7 @@ export function VehicleTabBar() {
       <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full flex items-center justify-between gap-4">
         <div className="flex items-center gap-[32px] overflow-hidden">
           <Link 
-            href={`/san-pham/${id}`}
+            href={`/${id}`}
             className="font-['Ford_Antenna',sans-serif] font-bold text-[#1a1a1a] text-[13px] uppercase tracking-wider whitespace-nowrap hidden sm:block hover:text-[#0562d2] no-underline"
           >
             {vehicle.name}
@@ -738,11 +757,11 @@ export function VehicleTabBar() {
             {subTabs.map((tab) => {
               const targetPath = tab.actualPath || tab.path;
               
-              const isOverviewActive = pathname === `/san-pham/${id}`;
-              const isFeaturesActive = pathname === `/san-pham/${id}/tinh-nang`;
-              const isCompareActive = pathname === `/san-pham/${id}/so-sanh`;
-              const isAccessoriesActive = pathname === `/san-pham/${id}/phu-kien` || pathname.startsWith(`/san-pham/${id}/phu-kien`);
-              const isCalculatorActive = pathname === `/san-pham/${id}/du-toan-lan-banh` || pathname.startsWith(`/san-pham/${id}/du-toan-lan-banh`);
+              const isOverviewActive = pathname === `/san-pham/${id}` || pathname === `/${id}`;
+              const isFeaturesActive = pathname === `/san-pham/${id}/tinh-nang` || pathname === `/${id}/tinh-nang`;
+              const isCompareActive = pathname === `/san-pham/${id}/so-sanh` || pathname === `/${id}/so-sanh`;
+              const isAccessoriesActive = pathname.startsWith(`/san-pham/${id}/phu-kien`) || pathname.startsWith(`/${id}/phu-kien`);
+              const isCalculatorActive = pathname.startsWith(`/san-pham/${id}/du-toan-lan-banh`) || pathname.startsWith(`/${id}/du-toan-lan-banh`);
 
               let isActive = false;
               if (tab.label === "Tổng quan") {

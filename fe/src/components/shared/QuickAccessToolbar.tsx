@@ -27,15 +27,9 @@ const MessengerIcon = () => (
 );
 
 const ZaloIcon = () => (
-  <svg viewBox="0 0 32 32" className="w-5 h-5" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <mask id="quick-access-zalo-mask" x="0" y="0" width="32" height="32">
-        <rect x="0" y="0" width="32" height="32" fill="white" />
-        <path d="M13.1605 10.88H6.93646V12.2146H11.2556L6.99707 17.4923C6.86363 17.6864 6.7666 17.8684 6.7666 18.2809V18.6206H12.6387C12.9299 18.6206 13.1726 18.378 13.1726 18.0868V17.3709H8.63502L12.6387 12.348C12.6994 12.2753 12.8086 12.1418 12.8572 12.0812L12.8814 12.0447C13.1119 11.705 13.1605 11.4138 13.1605 11.062V10.88ZM21.0826 18.6206H21.9683V10.88H20.6337V18.1717C20.6337 18.4144 20.8279 18.6206 21.0826 18.6206ZM16.521 12.6031C14.8467 12.6031 13.4878 13.962 13.4878 15.6363C13.4878 17.3106 14.8467 18.6694 16.521 18.6694C18.1953 18.6694 19.5541 17.3106 19.5541 15.6363C19.5663 13.962 18.2074 12.6031 16.521 12.6031ZM16.521 17.4198C15.5382 17.4198 14.7375 16.619 14.7375 15.6363C14.7375 14.6536 15.5382 13.8528 16.521 13.8528C17.5037 13.8528 18.3045 14.6536 18.3045 15.6363C18.3045 16.619 17.5158 17.4198 16.521 17.4198ZM25.9115 12.5544C24.225 12.5544 22.8541 13.9254 22.8541 15.6118C22.8541 17.2982 24.225 18.6693 25.9115 18.6693C27.5979 18.6693 28.9689 17.2982 28.9689 15.6118C28.9689 13.9254 27.5979 12.5544 25.9115 12.5544ZM25.9115 17.4196C24.9166 17.4196 24.1158 16.6188 24.1158 15.6239C24.1158 14.6291 24.9166 13.8283 25.9115 13.8283C26.9064 13.8283 27.7071 14.6291 27.7071 15.6239C27.7071 16.6188 26.9064 17.4196 25.9115 17.4196Z" fill="black" />
-        <path d="M18.8522 18.6204H19.568V12.7725H18.3184V18.0987C18.3184 18.3778 18.561 18.6204 18.8522 18.6204Z" fill="black" />
-      </mask>
-    </defs>
-    <path fillRule="evenodd" clipRule="evenodd" d="M4.97875 27.8971C6.46541 28.0614 8.3241 27.6375 9.64384 26.9968C15.3746 30.1644 24.3328 30.0131 29.7553 26.5428C29.9656 26.2274 30.1621 25.8993 30.3444 25.5592C31.4282 23.5379 32.0005 21.2608 32.0005 17.3642V14.5392C32.0005 10.6426 31.4282 8.3655 30.3444 6.34415C29.2728 4.32279 27.6777 2.7398 25.6563 1.65605C23.6349 0.572313 21.3579 0 17.4613 0H14.6241C11.3054 0 9.15104 0.417763 7.34093 1.21532C7.24199 1.30392 7.1449 1.39404 7.04986 1.48566C1.73929 6.60499 1.33561 17.702 5.83878 23.73C5.8438 23.7389 5.84937 23.7479 5.85548 23.757C6.54957 24.7798 5.87984 26.5699 4.83263 27.617C4.66215 27.7754 4.72304 27.8728 4.97875 27.8971Z" fill="currentColor" mask="url(#quick-access-zalo-mask)" />
+  <svg viewBox="0 0 32 32" className="w-5 h-5" xmlns="http://www.w3.org/2000/svg">
+    <path fillRule="evenodd" clipRule="evenodd" d="M4.97875 27.8971C6.46541 28.0614 8.3241 27.6375 9.64384 26.9968C15.3746 30.1644 24.3328 30.0131 29.7553 26.5428C29.9656 26.2274 30.1621 25.8993 30.3444 25.5592C31.4282 23.5379 32.0005 21.2608 32.0005 17.3642V14.5392C32.0005 10.6426 31.4282 8.3655 30.3444 6.34415C29.2728 4.32279 27.6777 2.7398 25.6563 1.65605C23.6349 0.572313 21.3579 0 17.4613 0H14.6241C11.3054 0 9.15104 0.417763 7.34093 1.21532C7.24199 1.30392 7.1449 1.39404 7.04986 1.48566C1.73929 6.60499 1.33561 17.702 5.83878 23.73C5.8438 23.7389 5.84937 23.7479 5.85548 23.757C6.54957 24.7798 5.87984 26.5699 4.83263 27.617C4.66215 27.7754 4.72304 27.8728 4.97875 27.8971Z" fill="currentColor" />
+    <path d="M13.1605 10.88H6.93646V12.2146H11.2556L6.99707 17.4923C6.86363 17.6864 6.7666 17.8684 6.7666 18.2809V18.6206H12.6387C12.9299 18.6206 13.1726 18.378 13.1726 18.0868V17.3709H8.63502L12.6387 12.348C12.6994 12.2753 12.8086 12.1418 12.8572 12.0812L12.8814 12.0447C13.1119 11.705 13.1605 11.4138 13.1605 11.062V10.88ZM21.0826 18.6206H21.9683V10.88H20.6337V18.1717C20.6337 18.4144 20.8279 18.6206 21.0826 18.6206ZM16.521 12.6031C14.8467 12.6031 13.4878 13.962 13.4878 15.6363C13.4878 17.3106 14.8467 18.6694 16.521 18.6694C18.1953 18.6694 19.5541 17.3106 19.5541 15.6363C19.5663 13.962 18.2074 12.6031 16.521 12.6031ZM16.521 17.4198C15.5382 17.4198 14.7375 16.619 14.7375 15.6363C14.7375 14.6536 15.5382 13.8528 16.521 13.8528C17.5037 13.8528 18.3045 14.6536 18.3045 15.6363C18.3045 16.619 17.5158 17.4198 16.521 17.4198ZM25.9115 12.5544C24.225 12.5544 22.8541 13.9254 22.8541 15.6118C22.8541 17.2982 24.225 18.6693 25.9115 18.6693C27.5979 18.6693 28.9689 17.2982 28.9689 15.6118C28.9689 13.9254 27.5979 12.5544 25.9115 12.5544ZM25.9115 17.4196C24.9166 17.4196 24.1158 16.6188 24.1158 15.6239C24.1158 14.6291 24.9166 13.8283 25.9115 13.8283C26.9064 13.8283 27.7071 14.6291 27.7071 15.6239C27.7071 16.6188 26.9064 17.4196 25.9115 17.4196ZM18.8522 18.6204H19.568V12.7725H18.3184V18.0987C18.3184 18.3778 18.561 18.6204 18.8522 18.6204Z" fill="white" />
   </svg>
 );
 
@@ -83,7 +77,7 @@ export default function QuickAccessToolbar() {
     {
       label: "Đăng ký lái thử",
       icon: <SteeringWheelIcon />,
-      href: "/lien-he?reason=Đăng ký lái thử",
+      href: "/dang-ky-lai-thu",
     },
     {
       label: "So sánh xe",
@@ -103,7 +97,7 @@ export default function QuickAccessToolbar() {
     {
       label: "Đặt hẹn dịch vụ",
       icon: <Wrench className="w-5 h-5" />,
-      href: "/lien-he?reason=Đặt hẹn dịch vụ",
+      href: "/lien-he",
     },
     {
       label: "Gọi Hotline: 0918 90 90 60",
@@ -113,7 +107,7 @@ export default function QuickAccessToolbar() {
     {
       label: "Chat Zalo",
       icon: <MessageCircle className="w-5 h-5" />,
-      href: "https://zalo.me/0918909060",
+      href: "https://zalo.me/4149231651356573695",
       target: "_blank",
     },
   ];
@@ -140,7 +134,7 @@ export default function QuickAccessToolbar() {
     {
       label: "Zalo",
       icon: <ZaloIcon />,
-      href: "https://zalo.me/0918909060",
+      href: "https://zalo.me/4149231651356573695",
       target: "_blank",
       colorClass: "text-[#0068ff]",
       rippleClass: "animate-quick-ripple-zalo",
@@ -159,19 +153,6 @@ export default function QuickAccessToolbar() {
   return (
     <>
       <style>{`
-        @keyframes quick-ring-keyframes {
-          0% { transform: scale(1); }
-          10% { transform: scale(1.1) rotate(0deg); }
-          12% { transform: scale(1.1) rotate(-12deg); }
-          14% { transform: scale(1.1) rotate(12deg); }
-          16% { transform: scale(1.1) rotate(-10deg); }
-          18% { transform: scale(1.1) rotate(10deg); }
-          20% { transform: scale(1.1) rotate(-8deg); }
-          22% { transform: scale(1.1) rotate(8deg); }
-          24% { transform: scale(1.1) rotate(0deg); }
-          26% { transform: scale(1) rotate(0deg); }
-          100% { transform: scale(1) rotate(0deg); }
-        }
         @keyframes quick-ripple-phone-keyframes {
           0% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.5); }
           70% { box-shadow: 0 0 0 12px rgba(225, 29, 72, 0); }
@@ -191,9 +172,6 @@ export default function QuickAccessToolbar() {
           0% { box-shadow: 0 0 0 0 rgba(24, 119, 242, 0.5); }
           70% { box-shadow: 0 0 0 12px rgba(24, 119, 242, 0); }
           100% { box-shadow: 0 0 0 0 rgba(24, 119, 242, 0); }
-        }
-        .animate-quick-ring {
-          animation: quick-ring-keyframes 2.5s infinite ease-in-out;
         }
         .animate-quick-ripple-phone {
           animation: quick-ripple-phone-keyframes 2.5s infinite ease-in-out;
@@ -276,7 +254,7 @@ export default function QuickAccessToolbar() {
               href={item.href}
               target={item.target}
               rel={isExternal ? "noopener noreferrer" : undefined}
-              className={`w-12 h-12 flex items-center justify-center rounded-full bg-white/90 backdrop-blur-md border border-gray-200/60 shadow-[0_4px_16px_rgba(0,0,0,0.08)] transition-all duration-300 active:scale-90 animate-quick-ring ${item.rippleClass}`}
+              className={`w-12 h-12 flex items-center justify-center rounded-full bg-white/90 backdrop-blur-md border border-gray-200/60 shadow-[0_4px_16px_rgba(0,0,0,0.08)] transition-all duration-300 active:scale-90 ${item.rippleClass}`}
               style={{ animationDelay: item.delay }}
             >
               <div className={`relative z-10 transition-transform duration-300 ${item.colorClass}`}>

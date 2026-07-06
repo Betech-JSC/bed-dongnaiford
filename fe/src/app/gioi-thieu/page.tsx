@@ -129,22 +129,22 @@ const teamVehicles: TeamVehicle[] = [
     id: "team-le-ban-giao",
     name: "Lễ Bàn Giao Xe Mới Cho Khách Hàng",
     image: "/images/team/team_1.png",
-    link: "/lien-he?reason=Tư vấn",
-    quoteLink: "/lien-he?reason=Tư vấn"
+    link: "/lien-he",
+    quoteLink: "/lien-he"
   },
   {
     id: "team-tu-van-sales",
     name: "Đội Ngũ Tư Vấn Bán Hàng Chuyên Nghiệp",
     image: "/images/team/team_3.png",
-    link: "/lien-he?reason=Tư vấn",
-    quoteLink: "/lien-he?reason=Tư vấn"
+    link: "/lien-he",
+    quoteLink: "/lien-he"
   },
   {
     id: "team-su-kien-lai-thu",
     name: "Sự Kiện Trưng Bày & Trải Nghiệm Lái Thử Xe",
     image: "/images/team/team_2.png",
-    link: "/lien-he?reason=Đăng ký lái thử",
-    quoteLink: "/lien-he?reason=Đăng ký lái thử"
+    link: "/dang-ky-lai-thu",
+    quoteLink: "/dang-ky-lai-thu"
   }
 ];
 
@@ -678,7 +678,7 @@ export default function AboutPage() {
             {/* Apply Button CTA */}
             <div className="pt-4 border-t border-gray-100 flex justify-end">
               <Link
-                href={selectedJob.slug ? `/tuyen-dung/${selectedJob.slug}` : `/lien-he?reason=Tuyển dụng&note=Ứng tuyển: ${encodeURIComponent(selectedJob.title)}`}
+                href={selectedJob.slug ? `/tuyen-dung/${selectedJob.slug}` : "/lien-he"}
                 onClick={() => setSelectedJob(null)}
                 className="w-full md:w-auto text-center px-6 py-3 bg-[#0562d2] hover:bg-[#00095b] text-white font-semibold text-sm uppercase tracking-wider rounded-full transition-colors duration-200 shadow-sm"
               >

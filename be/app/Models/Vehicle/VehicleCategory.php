@@ -21,6 +21,7 @@ class VehicleCategory extends BaseModel
         'title',
         'slug',
         'seo_meta_title',
+        'seo_focus_keyword',
         'seo_slug',
         'seo_meta_description',
         'seo_meta_keywords',
@@ -72,9 +73,9 @@ class VehicleCategory extends BaseModel
                 } else {
                     $slug = $translation->seo_slug ?? $translation->slug;
                     if ($translation->locale === 'vi') {
-                        $urls['VI'] = '/danh-muc/' . $slug;
+                        $urls['VI'] = '/dong-xe/' . $slug;
                     } else {
-                        $urls[strtoupper($translation->locale)] = '/en/categories/' . $slug;
+                        $urls[strtoupper($translation->locale)] = '/en/dong-xe/' . $slug;
                     }
                 }
             }

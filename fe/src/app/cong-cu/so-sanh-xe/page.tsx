@@ -793,14 +793,14 @@ export default function ComparePage() {
                         className="px-5 py-5 flex flex-col items-center gap-2"
                       >
                         <Link
-                          href={`/san-pham/${opt.vehicleId}`}
+                          href={`/${opt.vehicleId}`}
                           className="text-xs font-semibold text-[#0562d2] hover:text-[#044ea7] transition-colors flex items-center gap-1"
                         >
                           Xem chi tiết
                           <ArrowRight className="w-3 h-3" />
                         </Link>
                         <Link
-                          href={`/lien-he?vehicle=${opt.vehicleId}&reason=Nhận báo giá`}
+                          href="/lien-he"
                           className="text-xs font-semibold text-white bg-[#0562d2] hover:bg-[#044ea7] px-4 py-2 rounded-full transition-colors"
                         >
                           Nhận báo giá

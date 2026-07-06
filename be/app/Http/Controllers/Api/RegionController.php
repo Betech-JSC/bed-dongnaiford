@@ -95,4 +95,27 @@ class RegionController extends Controller
 
         return $this->success($item);
     }
+
+    public function registrationFees()
+    {
+        $fees = \App\Models\Vehicle\RegistrationFee::with('region')
+            ->get()
+            ->map(function ($fee) {
+                if (!$fee->region) return null;
+                return [
+                    'province_id' => $fee->region->code,
+                    'province_name' => $fee->region->name,
+                    'registration_tax_percent' => (float) $fee->registration_tax_percent,
+                    'license_plate_fee' => (float) $fee->license_plate_fee,
+                    'inspection_fee' => (float) $fee->inspection_fee,
+                    'road_maintenance_fee' => (float) $fee->road_maintenance_fee,
+                    'civil_insurance_fee' => (float) $fee->civil_insurance_fee,
+                    'service_fee' => (float) $fee->service_fee,
+                ];
+            })
+            ->filter()
+            ->values();
+
+        return $this->success($fees);
+    }
 }

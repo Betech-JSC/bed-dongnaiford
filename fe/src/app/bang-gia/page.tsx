@@ -208,7 +208,7 @@ export default function PriceListPage() {
                               rowSpan={vehicle.versions.length}
                             >
                               <Link
-                                href={`/san-pham/${vehicle.id}`}
+                                href={`/${vehicle.id}`}
                                 className="font-bold text-[#1a1a1a] hover:text-[#0562d2] transition-colors uppercase text-sm"
                               >
                                 {vehicle.name}
@@ -251,7 +251,7 @@ export default function PriceListPage() {
                               </Link>
                               <span className="text-gray-300">|</span>
                               <Link
-                                href={`/lien-he?vehicle=${vehicle.id}&reason=Nhận báo giá&note=Phiên bản: ${encodeURIComponent(version.name)}`}
+                                href="/lien-he"
                                 className="text-xs font-semibold text-[#0562d2] hover:text-[#044ea7] transition-colors flex items-center gap-1"
                               >
                                 <FileText className="w-3.5 h-3.5" />
@@ -275,7 +275,7 @@ export default function PriceListPage() {
                   >
                     {/* Vehicle Header */}
                     <Link
-                      href={`/san-pham/${vehicle.id}`}
+                      href={`/${vehicle.id}`}
                       className="flex items-center gap-4 p-4 border-b border-gray-100"
                     >
                       <div className="relative w-[64px] h-[42px] flex-shrink-0">
@@ -318,7 +318,7 @@ export default function PriceListPage() {
                             </p>
                           </div>
                           <Link
-                            href={`/lien-he?vehicle=${vehicle.id}&reason=Nhận báo giá&note=Phiên bản: ${encodeURIComponent(version.name)}`}
+                            href="/lien-he"
                             className="text-xs font-semibold text-white bg-[#0562d2] hover:bg-[#044ea7] px-3 py-1.5 rounded-full transition-colors"
                           >
                             Báo giá

@@ -377,7 +377,7 @@ function SearchPageContent() {
                 {suggestedVehicles.map((v) => (
                   <Link
                     key={v.id}
-                    href={`/san-pham/${v.id}`}
+                    href={`/${v.id}`}
                     className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-350 flex flex-col group"
                   >
                     <div className="aspect-[16/10] bg-gray-50 relative overflow-hidden">
@@ -431,7 +431,7 @@ function SearchPageContent() {
                   {vehiclesList.map((v) => (
                     <Link
                       key={v.id}
-                      href={`/san-pham/${v.id}`}
+                      href={`/${v.id}`}
                       className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-350 flex flex-col group"
                     >
                       <div className="aspect-[16/10] bg-gray-50 relative overflow-hidden">
@@ -528,7 +528,7 @@ function SearchPageContent() {
                   {articlesList.map((art) => (
                     <Link
                       key={art.id}
-                      href={`/tin-tuc/${art.id}`}
+                      href={`/${art.id}`}
                       className="bg-white rounded-lg overflow-hidden border border-[#e5e5e5] shadow-xs hover:shadow-md transition-premium group flex flex-col h-full"
                     >
                       <div className="aspect-[16/10] relative overflow-hidden w-full bg-gray-100">

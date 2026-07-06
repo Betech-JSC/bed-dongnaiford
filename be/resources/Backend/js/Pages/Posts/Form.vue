@@ -173,7 +173,7 @@
                     />
                 </div>
             </div>
-            <SeoFields :modelValue="form" @update:modelValue="form = $event" />
+            <SeoFields :modelValue="form" :locale="currentTab" @update:modelValue="form = $event" />
         </template>
 
         <template #aside="{ form }">

@@ -22,6 +22,13 @@ class MediaController extends Controller
             ->orderBy('id', 'DESC');
     }
 
+    private function beforeStore($request, $rules)
+    {
+        \Log::info('MediaController beforeStore called!');
+        $request->merge(['type' => Post::TYPE_MEDIA]);
+        return $rules;
+    }
+
     public function getTable($model = null)
     {
         if ($model) {

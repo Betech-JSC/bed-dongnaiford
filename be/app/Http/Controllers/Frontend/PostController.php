@@ -22,6 +22,8 @@ class PostController extends Controller
                 ->where('type', $type)
                 ->active()
                 ->filter(request()->all())
+                ->orderBy('published_at', 'desc')
+                ->orderBy('id', 'desc')
                 ->paginate($perPage)
                 ->onEachSide(0)
                 ->through(function ($item) {
@@ -37,7 +39,7 @@ class PostController extends Controller
             $topPosts = Post::query()
                 ->where('type', Post::TYPE_POST)
                 ->active()
-                ->orderByPosition()
+                ->orderBy('published_at', 'desc')
                 ->orderBy('id', 'desc')
                 ->take(4)
                 ->get()
@@ -83,8 +85,72 @@ class PostController extends Controller
             $post = $this->model::query()
                 ->where('type', Post::TYPE_POST)
                 ->active()
-                ->whereSlug($slug)
-                ->firstOrFail();
+                ->where(function($query) use ($slug) {
+                    $query->whereHas('translations', function ($q) use ($slug) {
+                        $encodedSlug = rawurlencode($slug);
+                        $q->where('slug', $slug)
+                          ->orWhere('slug', $encodedSlug)
+                          ->orWhere('slug', strtolower($encodedSlug))
+                          ->orWhere('seo_slug', $slug)
+                          ->orWhere('seo_slug', $encodedSlug)
+                          ->orWhere('seo_slug', strtolower($encodedSlug));
+                    });
+                })
+                ->first();
+
+            if (!$post) {
+                $activePostIds = $this->model::query()
+                    ->where('type', Post::TYPE_POST)
+                    ->active()
+                    ->pluck('id');
+
+                $translation = \DB::table('post_translations')
+                    ->whereIn('post_id', $activePostIds)
+                    ->where('locale', current_locale())
+                    ->where(function($q) use ($slug) {
+                        $encodedSlug = rawurlencode($slug);
+                        $q->where('slug', 'like', $slug . '%')
+                          ->orWhere('slug', 'like', $encodedSlug . '%')
+                          ->orWhere('slug', 'like', strtolower($encodedSlug) . '%')
+                          ->orWhere('seo_slug', 'like', $slug . '%')
+                          ->orWhere('seo_slug', 'like', $encodedSlug . '%')
+                          ->orWhere('seo_slug', 'like', strtolower($encodedSlug) . '%');
+                    })
+                    ->first();
+
+                if ($translation) {
+                    $post = $this->model::query()->find($translation->post_id);
+                    if ($post) {
+                        $targetSlug = $post->slug;
+
+                        if (request()->wantsJson() || request()->is('api/*')) {
+                            return response()->json([
+                                'redirect_to' => $targetSlug,
+                            ]);
+                        }
+                        $routeName = current_locale() . '.posts.show';
+                        if (\Illuminate\Support\Facades\Route::has($routeName)) {
+                            return redirect()->route($routeName, ['slug' => $targetSlug], 301);
+                        }
+                    }
+                }
+
+                abort(404);
+            }
+
+            // Nếu slug yêu cầu khác với slug chính thức của bài viết (ví dụ: truy cập qua seo_slug cũ)
+            $decodedPostSlug = rawurldecode($post->slug);
+            if ($slug !== $post->slug && $slug !== $decodedPostSlug) {
+                if (request()->wantsJson() || request()->is('api/*')) {
+                    return response()->json([
+                        'redirect_to' => $post->slug,
+                    ]);
+                }
+                $routeName = current_locale() . '.posts.show';
+                if (\Illuminate\Support\Facades\Route::has($routeName)) {
+                    return redirect()->route($routeName, ['slug' => $post->slug], 301);
+                }
+            }
 
             $post->increment('view_count');
 

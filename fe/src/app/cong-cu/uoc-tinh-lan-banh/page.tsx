@@ -12,7 +12,7 @@ import {
 } from "@/lib/rolling-cost";
 import { getPopularVehicleImage, handleImageError } from "@/lib/site-assets";
 import BookingBanner from "@/components/services/BookingBanner";
-import { vehiclesAPI, regionsAPI } from "@/lib/api";
+import { vehiclesAPI, regionsAPI, registrationFeesAPI } from "@/lib/api";
 import AnimatedNumber from "@/components/shared/AnimatedNumber";
 
 // Helper function to group individual dynamic variants into parent model series
@@ -107,6 +107,7 @@ function RollingCostContent() {
   const [selectedVehicleId, setSelectedVehicleId] = useState("");
   const [selectedVersionId, setSelectedVersionId] = useState("");
   const [selectedProvince, setSelectedProvince] = useState<string>("Đồng Nai");
+  const [registrationFees, setRegistrationFees] = useState<any[]>([]);
   const [result, setResult] = useState<RollingCostBreakdown | null>(null);
   const [animateReset, setAnimateReset] = useState(false);
 
@@ -119,7 +120,7 @@ function RollingCostContent() {
     return () => clearTimeout(timer);
   }, [selectedVehicleId, selectedVersionId, selectedProvince]);
 
-  // Fetch provinces from API
+  // Fetch provinces & registration fees from API
   useEffect(() => {
     regionsAPI.getProvinces()
       .then((res) => {
@@ -135,6 +136,16 @@ function RollingCostContent() {
       })
       .catch((err) => {
         console.error("Error loading provinces:", err);
+      });
+
+    registrationFeesAPI.getAll()
+      .then((res) => {
+        if (res && res.success && Array.isArray(res.data)) {
+          setRegistrationFees(res.data);
+        }
+      })
+      .catch((err) => {
+        console.error("Error loading registration fees:", err);
       });
   }, []);
 
@@ -188,9 +199,9 @@ function RollingCostContent() {
     const vehicle = vehicles.find((v) => v.id === selectedVehicleId);
     const version = vehicle?.versions.find((v: any) => v.id === selectedVersionId);
     if (vehicle && version) {
-      setResult(calculateRollingCost(vehicle, version, selectedProvince));
+      setResult(calculateRollingCost(vehicle, version, selectedProvince, registrationFees));
     }
-  }, [selectedVehicleId, selectedVersionId, selectedProvince, vehicles]);
+  }, [selectedVehicleId, selectedVersionId, selectedProvince, vehicles, registrationFees]);
 
   const currentVehicle = vehicles.find((v) => v.id === selectedVehicleId);
   const currentVersion = currentVehicle?.versions.find(
@@ -205,6 +216,7 @@ function RollingCostContent() {
         { label: "Phí đăng kiểm", value: result.registryFee },
         { label: "Phí bảo trì đường bộ (12 tháng)", value: result.roadFee },
         { label: "Bảo hiểm TNDS bắt buộc", value: result.insuranceFee },
+        ...(result.serviceFee && result.serviceFee > 0 ? [{ label: "Phí dịch vụ đăng ký", value: result.serviceFee }] : []),
       ]
     : [];
 
@@ -407,7 +419,7 @@ function RollingCostContent() {
                     {/* CTAs */}
                     <div className="flex flex-col sm:flex-row gap-3">
                       <Link
-                        href={`/lien-he?vehicle=${currentVehicle.id}&reason=Nhận báo giá lăn bánh&note=Phiên bản: ${encodeURIComponent(currentVersion.name)}, Tỉnh: ${selectedProvince}, Dự toán: ${formatVND(result.total)}`}
+                        href="/lien-he"
                         className="flex-1 flex items-center justify-center gap-2 bg-[#0562d2] hover:bg-[#044ea7] text-white text-sm font-semibold py-3 rounded-full transition-colors"
                       >
                         Nhận báo giá chính xác

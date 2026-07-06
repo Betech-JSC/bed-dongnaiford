@@ -35,6 +35,7 @@ class Accessory extends BaseModel
         'safety_text',
         'product_desc_text',
         'seo_meta_title',
+        'seo_focus_keyword',
         'seo_slug',
         'seo_meta_description',
         'seo_meta_keywords',

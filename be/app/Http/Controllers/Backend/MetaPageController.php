@@ -11,13 +11,26 @@ use App\Traits\HasCrudActions;
 
 class MetaPageController extends Controller
 {
-    use HasCrudActions;
+    use HasCrudActions {
+        form as traitForm;
+    }
 
     public $model = MetaPage::class;
 
     private function folder()
     {
         return "@Core/" . Str::studly($this->getTable());
+    }
+
+    public function form($id = null)
+    {
+        $response = $this->traitForm($id);
+
+        if ($response instanceof \Inertia\Response) {
+            $response->with('setting_bar', setting_bar());
+        }
+
+        return $response;
     }
 
     public function index()

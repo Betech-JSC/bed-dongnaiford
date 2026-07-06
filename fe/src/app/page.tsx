@@ -125,21 +125,21 @@ const techSlides = [
     description: "Ứng dụng Ford mang đến cho bạn trải nghiệm sở hữu trọn vẹn và dễ dàng trong tầm tay. Khi truy cập vào ứng dụng này, bạn có đầy đủ thông tin các tính năng của xe và kiểm tra về tình trạng xe.",
     image: "/assets/tech_fordpass.png",
     category: "Lái xe",
-    link: "/lien-he?reason=Đăng ký trải nghiệm công nghệ xe&note=Tôi muốn đăng ký trải nghiệm ứng dụng FordPass."
+    link: "/dang-ky-lai-thu"
   },
   {
     title: "Ford Co-Pilot360",
     description: "Dù trong thành phố hay ra xa lộ, hệ thống Ford Co-Pilot360™ - Công nghệ An toàn Hỗ trợ Người lái được thiết kế để giúp bạn cảm thấy tự tin hơn khi lái xe.",
     image: "/assets/tech_copilot360.png",
     category: "Lái xe",
-    link: "/lien-he?reason=Đăng ký trải nghiệm công nghệ xe&note=Tôi muốn đăng ký trải nghiệm công nghệ hỗ trợ lái Ford Co-Pilot360."
+    link: "/dang-ky-lai-thu"
   },
   {
     title: "Hệ thống âm thanh cao cấp",
     description: "Hệ thống loa B&O cho trải nghiệm âm thanh tuyệt vời với chất âm trung thực và rõ ràng đến từng chi tiết.",
     image: "/assets/tech_audio.png",
     category: "Giải trí",
-    link: "/lien-he?reason=Đăng ký trải nghiệm công nghệ xe&note=Tôi muốn đăng ký trải nghiệm hệ thống âm thanh cao cấp B&O."
+    link: "/dang-ky-lai-thu"
   }
 ];
 
@@ -377,7 +377,7 @@ export default function Home() {
   const handleTechEnd = () => {
     if (!isTechDragging.current) return;
     isTechDragging.current = false;
-    
+
     const dist = Math.abs(techDragOffset);
     if (dist > 10) {
       techWasDragged.current = true;
@@ -399,7 +399,7 @@ export default function Home() {
         setActiveTechTab((prev) => prev + 1);
       }
     }
-    
+
     setTechDragOffset(0);
   };
 
@@ -421,7 +421,7 @@ export default function Home() {
   const handlePopularEnd = () => {
     if (!isPopularDragging.current) return;
     isPopularDragging.current = false;
-    
+
     const dist = Math.abs(popularDragOffset);
     if (dist > 10) {
       popularWasDragged.current = true;
@@ -439,7 +439,7 @@ export default function Home() {
       setIsPopularTransitioning(true);
       setActivePopularIndex((prev) => prev + 1);
     }
-    
+
     setPopularDragOffset(0);
   };
 
@@ -461,7 +461,7 @@ export default function Home() {
   const handleServiceEnd = () => {
     if (!isServiceDragging.current) return;
     isServiceDragging.current = false;
-    
+
     const dist = Math.abs(serviceDragOffset);
     if (dist > 10) {
       serviceWasDragged.current = true;
@@ -479,7 +479,7 @@ export default function Home() {
       setIsServiceTransitioning(true);
       setActiveServiceIndex((prev) => prev + 1);
     }
-    
+
     setServiceDragOffset(0);
   };
 
@@ -499,7 +499,7 @@ export default function Home() {
   const handleHandoverEnd = () => {
     if (!isHandoverDragging.current) return;
     isHandoverDragging.current = false;
-    
+
     const dist = Math.abs(handoverDragOffset);
     if (dist > 10) {
       handoverWasDragged.current = true;
@@ -517,7 +517,7 @@ export default function Home() {
       setIsHandoverTransitioning(true);
       setActiveHandoverIndex((prev) => prev + 1);
     }
-    
+
     setHandoverDragOffset(0);
   };
 
@@ -616,12 +616,12 @@ export default function Home() {
 
   // Pre-fill form details on quick actions click - redirect to /lien-he
   const triggerQuickAction = (reason: string, noteText: string) => {
-    router.push(`/lien-he?reason=${encodeURIComponent(reason)}&note=${encodeURIComponent(noteText)}`);
+    router.push("/lien-he");
   };
 
   // Pre-fill form when clicking get price - redirect to /lien-he
   const triggerGetQuote = (vehicleId: string, vehicleName: string) => {
-    router.push(`/lien-he?vehicle=${encodeURIComponent(vehicleId)}&reason=${encodeURIComponent("Nhận báo giá lăn bánh")}&note=${encodeURIComponent(`Tôi cần nhận báo giá lăn bánh cho dòng xe ${vehicleName}.`)}`);
+    router.push("/lien-he");
   };
 
 
@@ -773,7 +773,7 @@ export default function Home() {
     <div className="relative min-h-screen bg-light overflow-x-hidden font-sans">
 
       {heroSlides.length > 0 && (
-        <section 
+        <section
           className="relative h-[85vh] min-h-[580px] md:h-[calc(100vh-112px)] md:min-h-[700px] flex flex-col justify-end bg-black text-white overflow-hidden pt-12 md:pt-16 pb-0 select-none cursor-grab active:cursor-grabbing"
           onMouseDown={(e) => handleHeroStart(e.clientX)}
           onMouseUp={(e) => handleHeroEnd(e.clientX)}
@@ -827,11 +827,8 @@ export default function Home() {
                 </button>
                 <button
                   onClick={() => {
-                    const vehicleId = heroSlides[activeHeroIndex]?.linkVehicleId;
-                    if (vehicleId) {
-                      router.push(`/lien-he?vehicle=${encodeURIComponent(vehicleId)}`);
-                    } else {
-                      router.push("/lien-he");
+                    if (heroSlides[activeHeroIndex]?.linkVehicleId) {
+                      router.push(`/san-pham/${heroSlides[activeHeroIndex].linkVehicleId}`);
                     }
                   }}
                   className="bg-transparent hover:bg-white/10 border border-white text-white px-5 py-2 md:px-6 md:py-2.5 rounded-full text-xs md:text-base font-semibold tracking-[0.16px] transition-all duration-300 cursor-pointer"
@@ -883,9 +880,8 @@ export default function Home() {
                 <button
                   key={idx}
                   onClick={() => setActiveHeroIndex(idx)}
-                  className={`w-8 h-1 rounded-full transition-all duration-300 cursor-pointer border-0 ${
-                    activeHeroIndex === idx ? "bg-[#0562d2]" : "bg-white/40"
-                  }`}
+                  className={`w-8 h-1 rounded-full transition-all duration-300 cursor-pointer border-0 ${activeHeroIndex === idx ? "bg-[#0562d2]" : "bg-white/40"
+                    }`}
                   aria-label={`Go to slide ${idx + 1}`}
                 />
               ))}
@@ -936,11 +932,11 @@ export default function Home() {
               {(categories.length > 0
                 ? [{ slug: "all", title: "Tất cả" }, ...categories]
                 : [
-                    { slug: "all", title: "Tất cả" },
-                    { slug: "best-seller", title: "Bán chạy" },
-                    { slug: "suv", title: "SUV" },
-                    { slug: "commercial", title: "Thương mại" }
-                  ]
+                  { slug: "all", title: "Tất cả" },
+                  { slug: "best-seller", title: "Bán chạy" },
+                  { slug: "suv", title: "SUV" },
+                  { slug: "commercial", title: "Thương mại" }
+                ]
               ).map((cat) => {
                 const isActive = selectedCategory === cat.slug;
                 return (
@@ -987,7 +983,7 @@ export default function Home() {
                 return (
                   <Link
                     key={vehicle.id}
-                    href={`/san-pham/${vehicleId}`}
+                    href={`/${vehicleId}`}
                     className="bg-white border border-[#EAECF0] rounded-2xl p-6 flex flex-col justify-between hover:shadow-lg transition-all duration-300 relative group cursor-pointer h-full"
                   >
                     {/* Image Section — white bg, object-contain for cutout thumbnail */}
@@ -1024,7 +1020,7 @@ export default function Home() {
       <section id="technology" className="w-full bg-[#00095b] py-20 text-white overflow-hidden relative select-none">
         <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full">
           <div className="max-w-[1152px] mx-auto w-full">
-            
+
             {/* Title Block */}
             <div className="mb-12">
               <span className="text-xs font-semibold text-[#0562d2] uppercase tracking-wider block mb-2">
@@ -1038,8 +1034,8 @@ export default function Home() {
             {/* Tab row (Desktop columns side-by-side) */}
             <div className="hidden md:flex gap-8 mb-12">
               {techSlides.map((slide, idx) => (
-                <div 
-                  key={idx} 
+                <div
+                  key={idx}
                   className="flex-1 cursor-pointer group"
                   onClick={() => {
                     setIsTechTransitioning(true);
@@ -1052,8 +1048,8 @@ export default function Home() {
                       {slide.title}
                     </h3>
                     {/* Active Indicator Line */}
-                    <div 
-                      className={`absolute bottom-[-1px] left-0 right-0 h-[3px] bg-[#0562d2] transition-transform duration-300 origin-left ${activeTechTab === idx ? "scale-x-100" : "scale-x-0 group-hover:scale-x-50"}`} 
+                    <div
+                      className={`absolute bottom-[-1px] left-0 right-0 h-[3px] bg-[#0562d2] transition-transform duration-300 origin-left ${activeTechTab === idx ? "scale-x-100" : "scale-x-0 group-hover:scale-x-50"}`}
                     />
                   </div>
                   <p className={`mt-4 text-sm leading-relaxed transition-opacity duration-300 ${activeTechTab === idx ? "text-white/95 font-medium" : "text-white/60 font-light"}`}>
@@ -1086,7 +1082,7 @@ export default function Home() {
             </div>
 
             {/* Slider & Images Container */}
-            <div 
+            <div
               className="relative w-full overflow-visible [--slide-width:80vw] md:[--slide-width:760px]"
               onMouseEnter={() => {
                 if (window.matchMedia("(pointer: fine)").matches) {
@@ -1108,7 +1104,7 @@ export default function Home() {
                 handleTechEnd();
               }}
             >
-              <div 
+              <div
                 className="flex gap-6 cursor-grab active:cursor-grabbing"
                 style={{
                   transform: `translateX(calc(-${activeTechTab} * (var(--slide-width) + 24px) + ${techDragOffset}px))`,
@@ -1116,7 +1112,7 @@ export default function Home() {
                 }}
               >
                 {techSlides.map((slide, idx) => (
-                  <div 
+                  <div
                     key={idx}
                     onDragStart={(e) => e.preventDefault()}
                     className="relative overflow-hidden rounded-2xl aspect-[16/10] bg-[#121824] flex-shrink-0 w-[var(--slide-width)] transition-all duration-300 select-none border border-white/5 shadow-2xl"
@@ -1129,7 +1125,7 @@ export default function Home() {
                       className="object-cover pointer-events-none group-hover:scale-103 transition-transform duration-700"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
-                    
+
                     {/* Slide fraction indicator */}
                     <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-md border border-white/10 text-white text-xs font-semibold px-3 py-1.5 rounded-full select-none">
                       {idx + 1}/{techSlides.length}
@@ -1302,7 +1298,7 @@ export default function Home() {
                             }
                             const target = e.target as HTMLElement;
                             if (!target.closest('a')) {
-                              router.push(`/san-pham/${vSlug}`);
+                              router.push(`/${vSlug}`);
                             }
                           }}
                           className="relative overflow-hidden rounded-xl h-[420px] sm:h-[595px] group cursor-pointer bg-[#121824] flex-shrink-0 transition-all duration-300 block"
@@ -1324,13 +1320,13 @@ export default function Home() {
                             <h3 className="text-xl sm:text-2xl md:text-3xl font-semibold text-white leading-[1.2]">{vName}</h3>
                             <div className="flex flex-row gap-2 sm:gap-3 mt-1">
                               <Link
-                                href={`/san-pham/${vSlug}`}
+                                href={`/${vSlug}`}
                                 className="bg-[#0562D2] text-white text-xs sm:text-sm font-semibold px-4 sm:px-5 py-2 sm:py-2.5 rounded-full hover:bg-[#044ea7] transition-all duration-200 whitespace-nowrap text-center flex-1 sm:flex-none"
                               >
                                 Xem chi tiết
                               </Link>
                               <Link
-                                href={`/lien-he?vehicle=${vSlug}&reason=Báo giá`}
+                                href="/lien-he"
                                 className="bg-transparent border border-white text-white text-xs sm:text-sm font-semibold px-4 sm:px-5 py-2 sm:py-2.5 rounded-full hover:bg-white/10 transition-all duration-200 whitespace-nowrap text-center flex-1 sm:flex-none"
                               >
                                 Báo giá
@@ -1497,11 +1493,10 @@ export default function Home() {
                   onClick={() => {
                     setActiveNewsTab(tab.id);
                   }}
-                  className={`px-6 py-2.5 rounded-[4px] text-xs font-semibold tracking-wider transition-all duration-300 cursor-pointer border ${
-                    activeNewsTab === tab.id
+                  className={`px-6 py-2.5 rounded-[4px] text-xs font-semibold tracking-wider transition-all duration-300 cursor-pointer border ${activeNewsTab === tab.id
                       ? "bg-white text-[#00095b] border-white"
                       : "bg-transparent text-white/70 hover:bg-white/10 hover:text-white border-white/20"
-                  }`}
+                    }`}
                 >
                   {tab.label}
                 </button>
@@ -1510,12 +1505,12 @@ export default function Home() {
 
             {homeArticles.length > 0 ? (
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch w-full text-[#1a1a1a]">
-                
+
                 {/* Left Column: 1 Featured Large Card */}
                 {homeArticles[0] && (
                   <div className="lg:col-span-5 flex animate-fade-in">
                     <Link
-                      href={`/tin-tuc/${homeArticles[0].id}`}
+                      href={`/${homeArticles[0].id}`}
                       className="bg-white rounded-[12px] overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col w-full group"
                     >
                       {/* Image container */}
@@ -1527,7 +1522,7 @@ export default function Home() {
                           onError={handleImageError}
                         />
                       </div>
-                      
+
                       {/* Content */}
                       <div className="p-6 flex flex-col flex-1 justify-between gap-4">
                         <div className="space-y-3">
@@ -1541,18 +1536,18 @@ export default function Home() {
                               </span>
                             )}
                           </div>
-                          
+
                           <h3 className="font-['Ford_Antenna',sans-serif] font-semibold text-lg sm:text-xl text-[#1a1a1a] group-hover:text-[#0562d2] transition-colors duration-200 line-clamp-2 leading-snug">
                             {homeArticles[0].title}
                           </h3>
-                          
+
                           {homeArticles[0].description && (
                             <p className="text-sm text-[#424242]/80 leading-relaxed line-clamp-3 font-normal">
                               {homeArticles[0].description}
                             </p>
                           )}
                         </div>
-                        
+
                         <div className="pt-2 flex items-center text-sm font-bold text-[#0562d2] group-hover:underline">
                           Xem chi tiết <span className="ml-1">&rsaquo;</span>
                         </div>
@@ -1560,13 +1555,13 @@ export default function Home() {
                     </Link>
                   </div>
                 )}
-                
+
                 {/* Right Column: 3 Horizontal Cards */}
                 <div className="lg:col-span-7 flex flex-col gap-6">
                   {homeArticles.slice(1, 4).map((art) => (
                     <Link
                       key={art.id}
-                      href={`/tin-tuc/${art.id}`}
+                      href={`/${art.id}`}
                       className="bg-white rounded-[12px] overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col sm:flex-row w-full group min-h-[160px] animate-fade-in"
                     >
                       {/* Left: Image (stacked on mobile) */}
@@ -1578,7 +1573,7 @@ export default function Home() {
                           onError={handleImageError}
                         />
                       </div>
-                      
+
                       {/* Right: Content */}
                       <div className="p-5 flex flex-col flex-1 justify-between gap-3">
                         <div className="space-y-2">
@@ -1592,18 +1587,18 @@ export default function Home() {
                               </span>
                             )}
                           </div>
-                          
+
                           <h3 className="font-['Ford_Antenna',sans-serif] font-semibold text-[15px] sm:text-base text-[#1a1a1a] group-hover:text-[#0562d2] transition-colors duration-200 line-clamp-2 leading-snug">
                             {art.title}
                           </h3>
-                          
+
                           {art.description && (
                             <p className="text-xs text-[#424242]/80 leading-relaxed line-clamp-2 font-normal">
                               {art.description}
                             </p>
                           )}
                         </div>
-                        
+
                         <div className="flex items-center text-xs font-bold text-[#0562d2] group-hover:underline">
                           Xem chi tiết <span className="ml-1">&rsaquo;</span>
                         </div>
@@ -1611,7 +1606,7 @@ export default function Home() {
                     </Link>
                   ))}
                 </div>
-                
+
               </div>
             ) : (
               <div className="text-center py-20 bg-white/5 border border-white/10 rounded-[12px] w-full">
@@ -1625,7 +1620,8 @@ export default function Home() {
       {/* CUSTOMER HANDOVER (TRI ÂN KHÁCH HÀNG) — Continuous Infinite Scrolling Marquee */}
       {customerHandovers.length > 0 && (
         <section id="customer-handovers" className="w-full bg-white py-[72px] overflow-x-clip relative select-none border-b border-gray-100">
-          <style dangerouslySetInnerHTML={{ __html: `
+          <style dangerouslySetInnerHTML={{
+            __html: `
             #customer-handovers {
               --card-width-handover: 360px;
               --card-gap-handover: 24px;
@@ -1676,7 +1672,7 @@ export default function Home() {
                         className="object-cover group-hover:scale-103 transition-transform duration-500"
                         onError={handleImageError}
                       />
-                      
+
                       {/* Premium gradient overlay */}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
                         <h3 className="text-white text-base font-semibold leading-snug transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
@@ -1987,7 +1983,7 @@ export default function Home() {
 
       {/* GLASSMORPHIC LIGHTBOX OVERLAY */}
       {lightboxIndex !== null && customerHandovers.length > 0 && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-4 transition-all duration-300 select-none"
           style={{ zIndex: 9999 }}
         >

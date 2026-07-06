@@ -264,13 +264,17 @@ export default function Navbar() {
       href: "/san-pham",
       dropdownItems: [
         { name: "Tất cả dòng xe", href: "/san-pham" },
-        { name: "Ford Ranger", href: "/san-pham/ford-ranger" },
-        { name: "Ford Everest", href: "/san-pham/ford-everest" },
-        { name: "Ford Territory", href: "/san-pham/ford-territory" },
-        { name: "Ford Transit", href: "/san-pham/ford-transit-2024" },
-        { name: "Ford Mustang", href: "/san-pham/mustang-fastback" },
+        { name: "Ford Ranger", href: "/ford-ranger" },
+        { name: "Ford Everest", href: "/ford-everest" },
+        { name: "Ford Territory", href: "/ford-territory" },
+        { name: "Ford Transit", href: "/ford-transit" },
+        { name: "Ford Mustang", href: "/ford-mustang-mach-e" },
         { name: "Xe đã qua sử dụng", href: "/xe-da-qua-su-dung" },
       ],
+    },
+    {
+      name: "Khuyến mãi",
+      href: "/khuyen-mai",
     },
     {
       name: "Dịch vụ",
@@ -400,7 +404,7 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop Navigation Links */}
-          <div className="hidden md:flex items-stretch gap-8 h-full">
+          <div className="hidden lg:flex items-stretch lg:gap-3 xl:gap-5 h-full">
             {navLinks.map((link) => {
               const sectionId = link.href.includes("#") ? link.href.split("#")[1] : "";
               const isCurrentPath = pathname === link.href || 
@@ -421,7 +425,7 @@ export default function Navbar() {
                     <Link
                       href={link.href}
                       onClick={handleMouseLeaveImmediate}
-                      className={`relative px-1 h-full flex items-center text-[16px] font-['Ford_Antenna',sans-serif] font-medium tracking-wide transition-colors duration-200 hover:text-[#0562d2] flex items-center gap-1 cursor-pointer
+                      className={`relative px-1 h-full flex items-center text-[15px] xl:text-[16px] whitespace-nowrap font-['Ford_Antenna',sans-serif] font-medium tracking-wide transition-colors duration-200 hover:text-[#0562d2] flex items-center gap-1 cursor-pointer
                         after:absolute after:bottom-0 after:left-0 after:h-[2px] after:bg-[#0562d2] after:transition-all after:duration-300
                         ${isProductHovered || isActive ? "text-[#0562d2] after:w-full" : "text-[#333333] after:w-0 hover:after:w-full"}`}
                     >
@@ -441,7 +445,7 @@ export default function Navbar() {
                   >
                     <Link
                       href={link.href}
-                      className={`relative px-1 h-full flex items-center text-[16px] font-['Ford_Antenna',sans-serif] font-medium tracking-wide transition-colors duration-200 group-hover:text-[#0562d2] flex items-center gap-1 cursor-pointer
+                      className={`relative px-1 h-full flex items-center text-[15px] xl:text-[16px] whitespace-nowrap font-['Ford_Antenna',sans-serif] font-medium tracking-wide transition-colors duration-200 group-hover:text-[#0562d2] flex items-center gap-1 cursor-pointer
                         after:absolute after:bottom-0 after:left-0 after:h-[2px] after:bg-[#0562d2] after:transition-all after:duration-300
                         ${isActive ? "text-[#0562d2] after:w-full" : "text-[#333333] after:w-0 group-hover:after:w-full"}`}
                     >
@@ -470,7 +474,7 @@ export default function Navbar() {
                   key={link.name}
                   href={link.href}
                   onMouseEnter={handleMouseLeaveImmediate}
-                  className={`relative px-1 h-full flex items-center text-[16px] font-['Ford_Antenna',sans-serif] font-medium tracking-wide transition-colors duration-200 hover:text-[#0562d2] flex items-center gap-1 cursor-pointer
+                  className={`relative px-1 h-full flex items-center text-[15px] xl:text-[16px] whitespace-nowrap font-['Ford_Antenna',sans-serif] font-medium tracking-wide transition-colors duration-200 hover:text-[#0562d2] flex items-center gap-1 cursor-pointer
                     after:absolute after:bottom-0 after:left-0 after:h-[2px] after:bg-[#0562d2] after:transition-all after:duration-300
                     ${isActive ? "text-[#0562d2] after:w-full" : "text-[#333333] after:w-0 hover:after:w-full"}`}
                 >
@@ -481,19 +485,19 @@ export default function Navbar() {
           </div>
 
           {/* Search Icon & Call to Action */}
-          <div className="hidden md:flex items-center gap-4">
+          <div className="hidden lg:flex items-center gap-4">
             <Link href="/tim-kiem" className="p-2 text-[#333333] hover:text-[#0562d2] transition-colors cursor-pointer" aria-label="Search">
               <Search className="w-5 h-5" />
             </Link>
           </div>
 
           {/* Mobile Menu Button */}
-          <div className="md:hidden flex items-center gap-3">
+          <div className="lg:hidden flex items-center gap-3">
             <Link href="/tim-kiem" className="p-2 text-[#333333] hover:text-[#0562d2] transition-colors cursor-pointer" aria-label="Search">
               <Search className="w-5 h-5" />
             </Link>
             <Link
-              href="/lien-he?reason=Đăng ký lái thử"
+              href="/dang-ky-lai-thu"
               className="btn-ford-primary text-xs py-1.5 px-3 uppercase tracking-wider font-bold whitespace-nowrap flex-shrink-0"
             >
               Lái Thử
@@ -754,7 +758,7 @@ export default function Navbar() {
                     </p>
                   </div>
                   <Link
-                    href="/lien-he?reason=Báo giá"
+                    href="/lien-he"
                     onClick={handleMouseLeaveImmediate}
                     className="bg-white text-gray-900 hover:bg-gray-100 transition-colors px-5 py-2.5 rounded-full text-xs font-bold font-['Ford_Antenna',sans-serif] flex items-center gap-1.5 shrink-0"
                   >
@@ -770,7 +774,7 @@ export default function Navbar() {
                     return (
                       <Link
                         key={car.id}
-                        href={`/san-pham/${car.id}`}
+                        href={`/${car.id}`}
                         onClick={handleMouseLeaveImmediate}
                         className="group border border-gray-100 hover:border-blue-200 rounded-xl p-4 flex flex-col items-center bg-gray-50/30 hover:bg-white hover:shadow-lg transition-all duration-300 text-center"
                       >
@@ -815,7 +819,7 @@ export default function Navbar() {
 
       {/* Mobile Drawer Menu */}
       <div 
-        className={`md:hidden bg-white shadow-inner transition-all duration-300 ease-in-out overflow-y-auto
+        className={`lg:hidden bg-white shadow-inner transition-all duration-300 ease-in-out overflow-y-auto
           ${isOpen 
             ? "max-h-[calc(100vh-72px)] opacity-100 visible px-4 py-4 space-y-3 border-t border-gray-100" 
             : "max-h-0 opacity-0 invisible px-4 py-0 space-y-0 border-t-0"}`}
@@ -858,7 +862,7 @@ export default function Navbar() {
                                 {cat.cars.map((car) => (
                                   <Link
                                     key={car.id}
-                                    href={`/san-pham/${car.id}`}
+                                    href={`/${car.id}`}
                                     onClick={() => {
                                       setIsOpen(false);
                                       setIsMobileProductOpen(false);

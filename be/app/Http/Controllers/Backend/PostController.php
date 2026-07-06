@@ -21,6 +21,12 @@ class PostController extends Controller
             ->orderBy('id', 'DESC');
     }
 
+    private function beforeStore($request, $rules)
+    {
+        $request->merge(['type' => Post::TYPE_POST]);
+        return $rules;
+    }
+
     public function generatePostByAI(\Illuminate\Http\Request $request)
     {
         $request->validate([

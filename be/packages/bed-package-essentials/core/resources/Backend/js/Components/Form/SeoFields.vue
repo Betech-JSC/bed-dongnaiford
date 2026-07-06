@@ -63,6 +63,7 @@
                     />
                 </div>
             </details>
+            <RankMathSEO :modelValue="modelValue" :locale="locale" />
         </div>
     </div>
     <div
@@ -103,11 +104,20 @@
 </template>
 
 <script>
+import RankMathSEO from './RankMathSEO.vue';
+
 export default {
+    components: {
+        RankMathSEO
+    },
     props: {
         modelValue: {
             type: Object,
             default: () => ({}),
+        },
+        locale: {
+            type: String,
+            default: 'vi'
         },
         config: {
             type: Object,

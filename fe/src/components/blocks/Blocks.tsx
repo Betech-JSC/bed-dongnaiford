@@ -2046,7 +2046,7 @@ function BookingBannerBlock({ blockIndex, data, vehicle, isEditMode, onChangeDat
   const title = data.title || "Kết nối ngay với chuyên viên Đồng Nai Ford";
   const phone = data.phone || "1800 55 68 58";
   const btnText = data.btn_text || "Đặt lịch hẹn";
-  const btnLink = data.btn_link || "/lien-he?reason=Đặt hẹn dịch vụ";
+  const btnLink = data.btn_link || "/lien-he";
   const hasCarImage = hasImageField(data.car_image);
   const carImage = hasCarImage ? resolveImageUrl(data.car_image) : "";
 
