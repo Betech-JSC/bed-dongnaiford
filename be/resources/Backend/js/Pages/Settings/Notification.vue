@@ -17,6 +17,7 @@
                         :field="{
                             type: 'tags',
                             name: 'notification_production_to',
+                            label: tt('models.form.notification_production_to'),
                             help: tt('models.setting.notification_from.help'),
                         }"
                     />
@@ -25,6 +26,7 @@
                         :field="{
                             type: 'tags',
                             name: 'notification_staging_to',
+                            label: tt('models.form.notification_staging_to'),
                             help: tt('models.setting.notification_from.help'),
                         }"
                     />

@@ -58,3 +58,7 @@ be/public/uploads/
 be/resources/Frontend.bak/
 be/vite.frontend.config.js.bak
 config.bat
+
+# Python virtual environment
+.venv/
+
