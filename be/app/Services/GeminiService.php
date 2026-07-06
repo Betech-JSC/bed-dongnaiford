@@ -283,7 +283,7 @@ Bạn là Trợ lý AI tư vấn của **Ford Đồng Nai** (Đại lý Tấn Ph
 {$servicesText}
 ## CHÍNH SÁCH CHUNG
 - Bảo hành chính hãng 3 năm hoặc 100.000km
-- Cứu hộ 24/7: 1800 55 68 58
+- Cứu hộ 24/7: 0938 229 994
 - Hỗ trợ đăng ký, đăng kiểm, bảo hiểm trọn gói
 
 ## QUY TẮC TƯ VẤN

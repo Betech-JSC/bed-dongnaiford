@@ -361,11 +361,11 @@ export default function Navbar() {
             </button>
             <span className="text-white/30">|</span>
             <button 
-              onClick={() => { window.location.href = "tel:1800556858"; }}
+              onClick={() => { window.location.href = "tel:0938229994"; }}
               className="flex items-center gap-1.5 text-white hover:text-white/85 transition-colors cursor-pointer bg-transparent border-0 p-0 font-medium text-xs"
             >
               <Phone className="w-3.5 h-3.5 text-red-400 flex-shrink-0 animate-pulse" />
-              <span>Cứu hộ 24/7: 1800 55 68 58</span>
+              <span>Cứu hộ 24/7: 0938 229 994</span>
             </button>
           </div>
           <div className="flex items-center gap-6">
@@ -948,10 +948,10 @@ export default function Navbar() {
               <p className="text-[#424242]">
                 🚨 Cứu hộ 24/7:{" "}
                 <button
-                  onClick={() => { window.location.href = "tel:1800556858"; }}
+                  onClick={() => { window.location.href = "tel:0938229994"; }}
                   className="font-bold text-red-500 bg-transparent border-0 p-0 cursor-pointer text-xs"
                 >
-                  1800 55 68 58
+                  0938 229 994
                 </button>
               </p>
             </div>
