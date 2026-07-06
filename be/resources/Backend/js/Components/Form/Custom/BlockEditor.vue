@@ -794,6 +794,8 @@ export default {
                 host = 'http://localhost:3000';
             } else if (hostname === 'cms.dnf.betech-digital.com') {
                 host = 'https://client.dnf.betech-digital.com';
+            } else if (hostname === 'cms.dongnaiford.com.vn') {
+                host = 'https://dongnaiford.com.vn';
             } else {
                 if (hostname.startsWith('cms.')) {
                     host = window.location.origin.replace('//cms.', '//client.');
