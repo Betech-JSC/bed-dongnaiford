@@ -2,16 +2,65 @@ import type { MetadataRoute } from "next";
 
 // Trigger rebuild to clear sitemap cache and load correct staging URLs
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://cms.dnf.betech-digital.com/api";
   
+  // Default static pages to prevent empty sitemap in case of API failure
+  const defaultStaticPages: MetadataRoute.Sitemap = [
+    {
+      url: "https://dongnaiford.com.vn",
+      lastModified: new Date(),
+      changeFrequency: "daily",
+      priority: 1.0,
+    },
+    {
+      url: "https://dongnaiford.com.vn/gioi-thieu",
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
+    {
+      url: "https://dongnaiford.com.vn/lien-he",
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
+    {
+      url: "https://dongnaiford.com.vn/bang-gia",
+      lastModified: new Date(),
+      changeFrequency: "daily",
+      priority: 0.9,
+    },
+    {
+      url: "https://dongnaiford.com.vn/dang-ky-lai-thu",
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.8,
+    },
+    {
+      url: "https://dongnaiford.com.vn/xe-da-qua-su-dung",
+      lastModified: new Date(),
+      changeFrequency: "daily",
+      priority: 0.8,
+    },
+    {
+      url: "https://dongnaiford.com.vn/dich-vu",
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
+  ];
+
   try {
     const res = await fetch(`${apiUrl}/sitemap`, {
-      cache: "no-store"
+      cache: "no-store",
+      headers: {
+        "Accept": "application/xml, text/xml, */*"
+      }
     });
     
     if (!res.ok) {
       console.error(`Sitemap fetch failed with status: ${res.status}`);
-      return [];
+      return defaultStaticPages;
     }
     
     const xml = await res.text();
@@ -44,17 +93,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         });
       }
     }
-    // Add static services landing page explicitly to ensure indexation
-    urls.push({
-      url: "https://dongnaiford.com.vn/dich-vu",
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.9,
-    });
+    
+    // Add static services landing page explicitly if not present
+    if (!urls.some(u => u.url.endsWith("/dich-vu"))) {
+      urls.push({
+        url: "https://dongnaiford.com.vn/dich-vu",
+        lastModified: new Date(),
+        changeFrequency: "weekly",
+        priority: 0.9,
+      });
+    }
     
     return urls;
   } catch (error) {
-    console.error("Failed to fetch backend sitemap:", error);
-    return [];
+    console.error("Failed to fetch backend sitemap, using static fallbacks:", error);
+    return defaultStaticPages;
   }
 }
