@@ -1515,11 +1515,11 @@ export default function Home() {
                       className="bg-white rounded-[12px] overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col w-full group"
                     >
                       {/* Image container */}
-                      <div className="aspect-[16/10] relative overflow-hidden w-full bg-gray-100 flex-shrink-0">
+                      <div className="aspect-[16/10] relative overflow-hidden w-full bg-[#fafafa] flex-shrink-0">
                         <img
                           src={homeArticles[0].image}
                           alt={homeArticles[0].title}
-                          className="absolute inset-0 object-cover w-full h-full group-hover:scale-[1.03] transition-transform duration-500"
+                          className="absolute inset-0 object-contain w-full h-full group-hover:scale-[1.03] transition-transform duration-500"
                           onError={handleImageError}
                         />
                       </div>
@@ -1566,11 +1566,11 @@ export default function Home() {
                       className="bg-white rounded-[12px] overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col sm:flex-row w-full group min-h-[160px] animate-fade-in"
                     >
                       {/* Left: Image (stacked on mobile) */}
-                      <div className="w-full sm:w-[200px] h-[180px] sm:h-auto relative overflow-hidden bg-gray-100 flex-shrink-0">
+                      <div className="w-full sm:w-[260px] aspect-[16/10] sm:aspect-auto sm:h-full relative overflow-hidden bg-[#fafafa] flex-shrink-0">
                         <img
                           src={art.image}
                           alt={art.title}
-                          className="absolute inset-0 object-cover w-full h-full group-hover:scale-[1.03] transition-transform duration-500"
+                          className="absolute inset-0 object-contain w-full h-full bg-[#fafafa] group-hover:scale-[1.03] transition-transform duration-500"
                           onError={handleImageError}
                         />
                       </div>
