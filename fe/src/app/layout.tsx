@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import Script from "next/script";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import { settingsAPI } from "@/lib/api";
 import AIChatWidget from "@/components/shared/AIChatWidget";
 import CompareDrawer from "@/components/shared/CompareDrawer";
 import QuickAccessToolbar from "@/components/shared/QuickAccessToolbar";
@@ -85,11 +86,26 @@ const jsonLd = {
   ],
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  let injectHead = "";
+  let injectBodyStart = "";
+  let injectBodyEnd = "";
+
+  try {
+    const settingsRes = await settingsAPI.getGeneral();
+    if (settingsRes && settingsRes.success && settingsRes.data) {
+      injectHead = settingsRes.data.inject_head || "";
+      injectBodyStart = settingsRes.data.inject_body_start || "";
+      injectBodyEnd = settingsRes.data.inject_body_end || "";
+    }
+  } catch (error) {
+    console.error("Failed to fetch general layout settings:", error);
+  }
+
   return (
     <html
       lang="vi"
@@ -102,21 +118,40 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
+        {/* Dynamic Head Inject Code from CMS */}
+        {injectHead && (
+          <script
+            id="cms-head-inject"
+            dangerouslySetInnerHTML={{
+              __html: `
+                (function() {
+                  const temp = document.createElement('div');
+                  temp.innerHTML = \`${injectHead.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`;
+                  Array.from(temp.childNodes).forEach(node => {
+                    if (node.tagName === 'SCRIPT') {
+                      const script = document.createElement('script');
+                      Array.from(node.attributes).forEach(attr => script.setAttribute(attr.name, attr.value));
+                      script.innerHTML = node.innerHTML;
+                      document.head.appendChild(script);
+                    } else {
+                      document.head.appendChild(node.cloneNode(true));
+                    }
+                  });
+                })();
+              `
+            }}
+          />
+        )}
       </head>
       <body className="min-h-full flex flex-col bg-light text-dark font-sans" suppressHydrationWarning>
-        {/* Google Analytics Tag */}
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-QLXYRG7WSJ"
-          strategy="afterInteractive"
-        />
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-QLXYRG7WSJ');
-          `}
-        </Script>
+        {/* Dynamic Body Start Inject Code from CMS */}
+        {injectBodyStart && (
+          <div
+            id="cms-body-start-inject"
+            style={{ display: 'none' }}
+            dangerouslySetInnerHTML={{ __html: injectBodyStart }}
+          />
+        )}
         <Navbar />
         <Suspense fallback={null}>
           <PageTransitionLoader />
@@ -127,6 +162,14 @@ export default function RootLayout({
         <CompareDrawer />
         <QuickAccessToolbar />
         <CookieConsent />
+        {/* Dynamic Body End Inject Code from CMS */}
+        {injectBodyEnd && (
+          <div
+            id="cms-body-end-inject"
+            style={{ display: 'none' }}
+            dangerouslySetInnerHTML={{ __html: injectBodyEnd }}
+          />
+        )}
       </body>
     </html>
   );

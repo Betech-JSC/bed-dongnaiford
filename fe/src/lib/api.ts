@@ -188,6 +188,20 @@ export const agenciesAPI = {
  */
 export const settingsAPI = {
   getInstallmentRates: () => fetchAPI<{ success: boolean; data: { rate_year_1: number; rate_subsequent: number } }>('/settings/installment'),
+  getGeneral: () => fetchAPI<{
+    success: boolean;
+    data: {
+      inject_head: string;
+      inject_body_start: string;
+      inject_body_end: string;
+      general_company_address: string;
+      general_company_phone: string;
+      general_company_hotline: string;
+      general_company_tax_code: string;
+      general_company_working_hours: string;
+      general_company_copyright: string;
+    };
+  }>('/settings/general'),
 };
 
 /**

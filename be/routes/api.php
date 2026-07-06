@@ -92,6 +92,26 @@ Route::localized(function () {
             'message' => 'OK'
         ]);
     })->name('api.settings.installment');
+
+    // Lấy cấu hình chung và mã inject code cho frontend (GA4, Tag Manager...)
+    Route::get('settings/general', function () {
+        $generalSettings = settings()->group('general')->all();
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'inject_head' => $generalSettings['inject_head'] ?? '',
+                'inject_body_start' => $generalSettings['inject_body_start'] ?? '',
+                'inject_body_end' => $generalSettings['inject_body_end'] ?? '',
+                'general_company_address' => $generalSettings['general_company_address'] ?? '',
+                'general_company_phone' => $generalSettings['general_company_phone'] ?? '',
+                'general_company_hotline' => $generalSettings['general_company_hotline'] ?? '',
+                'general_company_tax_code' => $generalSettings['general_company_tax_code'] ?? '',
+                'general_company_working_hours' => $generalSettings['general_company_working_hours'] ?? '',
+                'general_company_copyright' => $generalSettings['general_company_copyright'] ?? '',
+            ],
+            'message' => 'OK'
+        ]);
+    })->name('api.settings.general');
 });
 
 Route::get('keywords/index', [KeywordController::class, 'index'])
