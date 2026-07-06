@@ -268,11 +268,11 @@ function NewsListPageContent() {
                 className="bg-white rounded-[12px] overflow-hidden border border-[#e5e5e5] shadow-sm hover:shadow-md transition-premium group flex flex-col"
               >
                 {/* Image Container */}
-                <div className="aspect-[600/380] relative overflow-hidden w-full bg-[#fafafa]">
+                <div className="aspect-[600/380] relative overflow-hidden w-full bg-gray-100">
                   <img
                     src={art.image?.url || "/placeholder-news.jpg"}
                     alt={art.title}
-                    className="absolute inset-0 object-contain w-full h-full group-hover:scale-[1.03] transition-transform duration-500"
+                    className="absolute inset-0 object-cover w-full h-full group-hover:scale-[1.03] transition-transform duration-500"
                     onError={handleImageError}
                   />
                   {art.category && (
@@ -369,11 +369,11 @@ function NewsListPageContent() {
                   href={`/${art.slug}`}
                   className="bg-white rounded-[12px] overflow-hidden border border-[#e5e5e5] shadow-sm hover:shadow-md transition-premium group flex flex-col h-full"
                 >
-                  <div className="aspect-[600/400] relative overflow-hidden w-full bg-[#fafafa]">
+                  <div className="aspect-[600/400] relative overflow-hidden w-full bg-gray-100">
                     <img
                       src={art.image?.url || "/placeholder-news.jpg"}
                       alt={art.title}
-                      className="absolute inset-0 object-contain w-full h-full group-hover:scale-[1.03] transition-transform duration-500"
+                      className="absolute inset-0 object-cover w-full h-full group-hover:scale-[1.03] transition-transform duration-500"
                       onError={handleImageError}
                     />
                     {art.category && (
