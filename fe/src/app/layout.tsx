@@ -23,8 +23,8 @@ export const metadata: Metadata = {
   keywords: ["Ford Đồng Nai", "Đồng Nai Ford", "đại lý Ford Đồng Nai", "mua xe Ford Đồng Nai", "Ford Everest", "Ford Ranger", "Ford Territory"],
   authors: [{ name: "Đồng Nai Ford" }],
   robots: {
-    index: process.env.NEXT_PUBLIC_SITE_URL?.includes("dongnaiford.com.vn") ?? false,
-    follow: process.env.NEXT_PUBLIC_SITE_URL?.includes("dongnaiford.com.vn") ?? false,
+    index: true,
+    follow: true,
   },
   openGraph: {
     title: "Đồng Nai Ford | Đại lý xe Ford chính hãng lớn nhất Đồng Nai",
