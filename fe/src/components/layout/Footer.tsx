@@ -123,7 +123,9 @@ export default function Footer() {
             {/* DỊCH VỤ & BẢO DƯỠNG */}
             <div className="space-y-4">
               <h4 className="text-sm font-bold tracking-wider text-white uppercase font-display border-b border-white/10 pb-2">
-                DỊCH VỤ & BẢO DƯỠNG
+                <Link href="/dich-vu" className="hover:text-[#0562d2] transition-colors">
+                  DỊCH VỤ & BẢO DƯỠNG
+                </Link>
               </h4>
               <ul className="space-y-2.5 text-xs text-white/70">
                 {servicesList.length > 0 ? (

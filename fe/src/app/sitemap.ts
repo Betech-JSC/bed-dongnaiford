@@ -44,6 +44,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         });
       }
     }
+    // Add static services landing page explicitly to ensure indexation
+    urls.push({
+      url: "https://dongnaiford.com.vn/dich-vu",
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.9,
+    });
     
     return urls;
   } catch (error) {

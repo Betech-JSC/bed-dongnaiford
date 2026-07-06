@@ -278,7 +278,7 @@ export default function Navbar() {
     },
     {
       name: "Dịch vụ",
-      href: servicesMenuList[0]?.href || "/dich-vu/cham-soc-khach-hang",
+      href: "/dich-vu",
       dropdownItems: servicesMenuList,
     },
     {
