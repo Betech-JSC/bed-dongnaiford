@@ -62,3 +62,7 @@ config.bat
 # Python virtual environment
 .venv/
 
+# SEO documents and reports
+*.docx
+*.pdf
+
