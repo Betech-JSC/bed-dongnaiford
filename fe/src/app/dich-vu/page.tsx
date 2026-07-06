@@ -46,25 +46,37 @@ const fallbackServices = [
 ];
 
 export default async function ServicesPage() {
-  let displayServices = [...fallbackServices];
+  let displayServices = [];
 
   try {
     const response = await servicesAPI.getAll() as any;
-    if (response && response.success && Array.isArray(response.data) && response.data.length > 0) {
-      // Map API data and override fallback where matching slug exists
-      displayServices = response.data.map((item: any) => {
+    const cmsServices = response?.services;
+
+    if (Array.isArray(cmsServices) && cmsServices.length > 0) {
+      displayServices = cmsServices.map((item: any) => {
+        // Find matching badge from fallbacks if applicable
         const fallback = fallbackServices.find(f => f.slug === item.slug);
         return {
-          title: item.title || fallback?.title || "",
-          slug: item.slug || fallback?.slug || "",
-          description: item.description || fallback?.description || "",
+          title: item.title || "",
+          slug: item.slug || "",
+          description: item.description || "",
           image: item.image?.url || fallback?.image || siteAssets.showroomBg,
+          href: item.custom_link || `/dich-vu/${item.slug}`,
           badge: fallback?.badge || "Dịch vụ Ford"
         };
       });
+    } else {
+      displayServices = fallbackServices.map(item => ({
+        ...item,
+        href: `/dich-vu/${item.slug}`
+      }));
     }
   } catch (error) {
     console.error("Failed to load services from CMS API, using fallbacks:", error);
+    displayServices = fallbackServices.map(item => ({
+      ...item,
+      href: `/dich-vu/${item.slug}`
+    }));
   }
 
   // Schema.org Structured Data
@@ -164,20 +176,20 @@ export default async function ServicesPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {displayServices.map((service, index) => (
               <div
                 key={service.slug || index}
                 className="bg-white rounded-2xl border border-gray-200/80 shadow-sm overflow-hidden flex flex-col group hover:shadow-md transition-all duration-300"
               >
-                {/* Image Container */}
-                <div className="relative w-full h-[240px] overflow-hidden bg-gray-100">
+                {/* Image Container with 16:9 aspect ratio and fit/full styles */}
+                <div className="relative w-full aspect-[16/9] overflow-hidden bg-gray-100">
                   <Image
                     src={service.image}
                     alt={service.title}
                     fill
-                    sizes="(max-w-768px) 100vw, 50vw"
-                    className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                    sizes="(max-w-768px) 100vw, (max-w-1200px) 50vw, 33vw"
+                    className="object-cover object-center w-full h-full transition-transform duration-500 group-hover:scale-105"
                   />
                   <div className="absolute top-4 left-4">
                     <span className="bg-[#0562d2] text-white text-xs font-bold px-3 py-1.5 rounded-md shadow-sm">
@@ -188,15 +200,15 @@ export default async function ServicesPage() {
 
                 {/* Content */}
                 <div className="p-6 md:p-8 flex flex-col flex-grow">
-                  <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-[#0562d2] transition-colors">
+                  <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-3 group-hover:text-[#0562d2] transition-colors line-clamp-1">
                     {service.title}
                   </h3>
-                  <p className="text-gray-600 text-sm md:text-base leading-relaxed mb-6 flex-grow">
+                  <p className="text-gray-600 text-sm leading-relaxed mb-6 flex-grow line-clamp-3">
                     {service.description}
                   </p>
                   <div className="mt-auto">
                     <Link
-                      href={`/dich-vu/${service.slug}`}
+                      href={service.href}
                       className="inline-flex items-center gap-1 text-[#0562d2] font-bold text-sm hover:gap-2 transition-all"
                     >
                       Xem chi tiết dịch vụ
