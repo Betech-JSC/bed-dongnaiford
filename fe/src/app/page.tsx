@@ -1370,7 +1370,7 @@ export default function Home() {
               <div className="absolute inset-0 z-0">
                 <Image
                   src={siteAssets.testDriveBg}
-                  alt=""
+                  alt="Đăng ký lái thử xe Ford tại Đồng Nai"
                   fill
                   className="object-cover object-right"
                   onError={handleImageError}
