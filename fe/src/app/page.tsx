@@ -828,9 +828,7 @@ export default function Home() {
                 </button>
                 <button
                   onClick={() => {
-                    if (heroSlides[activeHeroIndex]?.linkVehicleId) {
-                      router.push(`/san-pham/${heroSlides[activeHeroIndex].linkVehicleId}`);
-                    }
+                    router.push("/lien-he");
                   }}
                   className="bg-transparent hover:bg-white/10 border border-white text-white px-5 py-2 md:px-6 md:py-2.5 rounded-full text-xs md:text-base font-semibold tracking-[0.16px] transition-all duration-300 cursor-pointer"
                 >
