@@ -106,9 +106,10 @@ class LandingPageApiController extends Controller
                 'meta_title'       => $ldp->seo_meta_title ?: $ldp->title,
                 'meta_description' => $ldp->seo_meta_description ?: $vehicle->seo_meta_description,
                 'meta_keywords'    => $ldp->seo_meta_keywords,
-                'meta_robots'      => $ldp->seo_meta_robots,
+                'meta_robots'      => $ldp->seo_meta_robots ?: 'index, follow',
                 'canonical'        => $ldp->seo_canonical,
                 'image'            => $ldp->seo_image ? $this->resolveFileUrl($ldp->seo_image) : $vehicle->image_url,
+                'seo_schemas'      => $ldp->seo_schemas,
             ]
         ]);
     }

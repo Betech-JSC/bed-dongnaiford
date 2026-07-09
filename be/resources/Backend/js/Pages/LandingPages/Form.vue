@@ -194,6 +194,43 @@
                             }"
                         />
 
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                            <Field
+                                v-model="form[currentTab].seo_canonical"
+                                :field="{
+                                    type: 'text',
+                                    name: `seo_canonical_${currentTab}`,
+                                    label: 'Canonical URL (Đường dẫn gốc)',
+                                    placeholder: 'Nếu bỏ trống sẽ tự động lấy link LDP hiện tại',
+                                }"
+                            />
+
+                            <Field
+                                v-model="form[currentTab].seo_meta_robots"
+                                :field="{
+                                    type: 'dropdown',
+                                    name: `seo_meta_robots_${currentTab}`,
+                                    label: 'Robots (Cấu hình lập chỉ mục Google)',
+                                    options: [
+                                        { id: 'index, follow', label: 'Index, Follow (Cho phép tìm kiếm & bám theo link)' },
+                                        { id: 'noindex, nofollow', label: 'Noindex, Nofollow (Chặn tìm kiếm & chặn bám theo link)' },
+                                        { id: 'noindex, follow', label: 'Noindex, Follow (Chặn tìm kiếm nhưng bám theo link)' },
+                                    ]
+                                }"
+                            />
+                        </div>
+
+                        <Field
+                            v-model="form[currentTab].seo_schemas"
+                            :field="{
+                                type: 'textarea',
+                                name: `seo_schemas_${currentTab}`,
+                                label: 'Custom Schema JSON-LD (Mã cấu trúc tùy biến)',
+                                placeholder: 'Nhập mã JSON-LD của bạn...',
+                                rows: 5
+                            }"
+                        />
+
                         <Field
                             v-model="form[currentTab].seo_image"
                             :field="{
@@ -575,6 +612,9 @@ export default {
                     seo_meta_title: trans ? (trans.seo_meta_title ?? '') : '',
                     seo_meta_description: trans ? (trans.seo_meta_description ?? '') : '',
                     seo_meta_keywords: trans ? (trans.seo_meta_keywords ?? '') : '',
+                    seo_meta_robots: trans ? (trans.seo_meta_robots ?? 'index, follow') : 'index, follow',
+                    seo_canonical: trans ? (trans.seo_canonical ?? '') : '',
+                    seo_schemas: trans ? (trans.seo_schemas ?? '') : '',
                     seo_image: trans ? (trans.seo_image ?? null) : null,
                 };
             });
