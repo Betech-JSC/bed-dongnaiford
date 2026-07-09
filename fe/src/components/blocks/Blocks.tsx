@@ -27,15 +27,15 @@ export const resolveImageUrl = (img: any): string => {
   }
   if (!path) return "/assets/img-gradient-1.png";
   if (path.startsWith("http://") || path.startsWith("https://") || path.startsWith("/") || path.startsWith("//")) {
-    return path;
+    return encodeURI(path);
   }
   if (/^([a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}|localhost)(:[0-9]+)?\//.test(path)) {
-    return `https://${path}`;
+    return encodeURI(`https://${path}`);
   }
   const cleanPath = path.startsWith("uploads/") ? path.replace("uploads/", "") : path;
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
   const baseDomain = apiUrl.replace(/\/api$/, "");
-  return `${baseDomain}/static/${cleanPath}`;
+  return encodeURI(`${baseDomain}/static/${cleanPath}`);
 };
 
 export const hasImageField = (img: any): boolean => {
@@ -451,13 +451,10 @@ function HeroBannerBlock({ blockIndex, data, vehicle, openQuoteDrawer, openDrive
         {youtubeId ? (
           <iframe
             src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=1&loop=1&playlist=${youtubeId}&controls=0&showinfo=0&rel=0&playsinline=1&enablejsapi=1`}
-            className={`absolute inset-0 w-full h-full object-cover pointer-events-none z-5 scale-110 transition-opacity duration-1000 ${
-              isVideoReady ? "opacity-100" : "opacity-0"
-            }`}
+            className="absolute inset-0 w-full h-full object-cover pointer-events-none z-5 scale-110"
             frameBorder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
-            onLoad={() => setIsVideoReady(true)}
           />
         ) : bgVideo ? (
           <video
@@ -467,12 +464,7 @@ function HeroBannerBlock({ blockIndex, data, vehicle, openQuoteDrawer, openDrive
             loop
             muted
             playsInline
-            className={`absolute inset-0 w-full h-full object-cover object-center pointer-events-none z-5 transition-opacity duration-1000 ${
-              isVideoReady ? "opacity-100" : "opacity-0"
-            }`}
-            onPlay={() => setIsVideoReady(true)}
-            onPlaying={() => setIsVideoReady(true)}
-            onLoadedData={() => setIsVideoReady(true)}
+            className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none z-5"
           />
         ) : null}
         <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent h-[250px] z-10" />

@@ -13,7 +13,7 @@ const resolveFileUrl = (file: any): string => {
   if (!file) return "";
   if (typeof file === "string") {
     if (file.startsWith("http://") || file.startsWith("https://") || file.startsWith("/")) {
-      return file;
+      return encodeURI(file);
     }
     const cleanPath = file.startsWith("uploads/") ? file.replace("uploads/", "") : file;
     const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
@@ -21,10 +21,10 @@ const resolveFileUrl = (file: any): string => {
     try {
       apiHost = new URL(apiBase).origin;
     } catch (e) { }
-    return `${apiHost}/static/${cleanPath}`;
+    return encodeURI(`${apiHost}/static/${cleanPath}`);
   }
   if (typeof file === "object") {
-    if (file.url) return file.url;
+    if (file.url) return encodeURI(file.url);
     if (file.path) {
       const cleanPath = file.path.startsWith("uploads/") ? file.path.replace("uploads/", "") : file.path;
       const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
@@ -32,7 +32,7 @@ const resolveFileUrl = (file: any): string => {
       try {
         apiHost = new URL(apiBase).origin;
       } catch (e) { }
-      return `${apiHost}/static/${cleanPath}`;
+      return encodeURI(`${apiHost}/static/${cleanPath}`);
     }
   }
   return "";
