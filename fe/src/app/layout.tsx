@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { headers } from "next/headers";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { settingsAPI } from "@/lib/api";
@@ -90,6 +91,10 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const headersList = await headers();
+  const pathname = headersList.get("x-pathname") || "";
+  const isLdp = pathname.startsWith("/ldp/");
+
   let injectHead = "";
   let injectBodyStart = "";
   let injectBodyEnd = "";
@@ -171,15 +176,48 @@ export default async function RootLayout({
             dangerouslySetInnerHTML={{ __html: injectBodyStart }}
           />
         )}
-        <Navbar />
+        {isLdp ? (
+          <header className="bg-white border-b border-gray-150 py-3 select-none">
+            <div className="max-w-[1152px] mx-auto px-4 flex items-center justify-between">
+              <div className="flex items-center gap-[5.2px]">
+                <div className="h-[32px] w-[85.3px] relative shrink-0">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img 
+                    src="/ford_logo.svg" 
+                    alt="Ford Oval Logo" 
+                    className="block size-full object-contain"
+                  />
+                </div>
+                <span className="font-['Ford_Antenna',sans-serif] font-bold text-[#00095b] text-[13px] tracking-tight leading-none uppercase">
+                  DONG NAI FORD
+                </span>
+              </div>
+              <span className="hidden sm:inline-block text-xs font-bold text-gray-500 uppercase tracking-wider font-sans">
+                Đại lý ủy quyền chính thức
+              </span>
+            </div>
+          </header>
+        ) : (
+          <Navbar />
+        )}
         <Suspense fallback={null}>
           <PageTransitionLoader />
         </Suspense>
         <main className="flex-1 flex flex-col">{children}</main>
-        <Footer />
-        <AIChatWidget />
-        <CompareDrawer />
-        <QuickAccessToolbar />
+        {isLdp ? (
+          <footer className="bg-slate-900 text-gray-400 py-6 border-t border-slate-800 font-sans text-xs select-none">
+            <div className="max-w-[1152px] mx-auto px-4 text-center">
+              <p className="font-bold text-white mb-2">ĐỒNG NAI FORD - ĐẠI LÝ ỦY QUYỀN CHÍNH THỨC CỦA FORD VIỆT NAM</p>
+              <p className="text-gray-500">B04, Khu Thương Mại Amata, Phường Long Bình, TP. Biên Hòa, Tỉnh Đồng Nai</p>
+              <p className="mt-4 text-[11px] text-gray-500">© 2026 Dong Nai Ford. Bảo lưu mọi quyền.</p>
+            </div>
+          </footer>
+        ) : (
+          <Footer />
+        )}
+        {!isLdp && <AIChatWidget />}
+        {!isLdp && <CompareDrawer />}
+        {!isLdp && <QuickAccessToolbar />}
         <CookieConsent />
         {/* Dynamic Body End Inject Code from CMS */}
         {injectBodyEnd && (
