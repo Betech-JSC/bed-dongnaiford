@@ -156,6 +156,8 @@ function normalizeVehicle(apiVehicle: any) {
       };
     }) : [],
     layout_blocks: apiVehicle.layout_blocks || [],
+    video_url: apiVehicle.video_url || "",
+    video: apiVehicle.video ? resolveFileUrl(apiVehicle.video) : null,
     images_360_external: safeArray(apiVehicle.images_360_external).map((img: any) => resolveFileUrl(img)).filter(Boolean),
     images_360_internal: safeArray(apiVehicle.images_360_internal).map((img: any) => resolveFileUrl(img)).filter(Boolean),
     image_360_internal_url: apiVehicle.image_360_internal_url || ''

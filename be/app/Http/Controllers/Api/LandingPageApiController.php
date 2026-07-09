@@ -80,7 +80,11 @@ class LandingPageApiController extends Controller
                 'slug'          => $vehicle->slug,
                 'tagline'       => $vehicle->tagline,
                 'base_price'    => $vehicle->base_price,
+                'image'         => $vehicle->image,
                 'image_url'     => $vehicle->image_url,
+                'images'        => $vehicle->images,
+                'video_url'     => $vehicle->video_url,
+                'video'         => $vehicle->video,
                 'versions'      => $vehicle->versions->map(fn($v) => [
                     'id'                  => $v->id,
                     'name'                => $v->name,
