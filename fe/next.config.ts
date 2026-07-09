@@ -74,6 +74,57 @@ const nextConfig = {
         destination: "/phu-kien",
         permanent: true,
       },
+      // Redirect các link 404 phát hiện từ Google Search Console (Migration fixes)
+      {
+        source: "/bao-hiem-than-vo-o-to.html/feed",
+        destination: "/tin-tuc",
+        permanent: true,
+      },
+      {
+        source: "/tinh-nang-chieu-sang-thong-minh-tren-ford-",
+        destination: "/tin-tuc",
+        permanent: true,
+      },
+      {
+        source: "/dai-ly-ford-vung-tau",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/dai-ly-ford-tphcm",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/dongnaiford.com.vn",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/sbz/app.js",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/ford-escape-gia-bao-nhieu.html",
+        destination: "/bang-gia",
+        permanent: true,
+      },
+      {
+        source: "/tu-van-mua-xe-5-cho-tai-dong-nai",
+        destination: "/tin-tuc",
+        permanent: true,
+      },
+      {
+        source: "/kich-thuoc-xe-ford-transit-2",
+        destination: "/ford-transit",
+        permanent: true,
+      },
+      {
+        source: "/phu-kien-xe-ford",
+        destination: "/phu-kien",
+        permanent: true,
+      },
       // --- CHUYỂN HƯỚNG URL SẢN PHẨM XE CÓ CHỨA /SAN-PHAM SANG URL NGẮN ---
       // Redirects từ slug xe cũ không có tiền tố "ford-" sang có tiền tố "ford-"
       {
