@@ -3,9 +3,18 @@
         <template #default="{ form, submit }">
             <!-- Top Mode Selectors (Thiết kế / Thông tin chung) -->
             <div class="flex justify-between items-center mb-6">
-                <h1 class="text-2xl font-bold text-gray-900">
-                    {{ item.id ? 'Cập nhật Landing Page' : 'Tạo mới Landing Page' }}
-                </h1>
+                <div class="flex items-center space-x-3">
+                    <h1 class="text-2xl font-bold text-gray-900">
+                        {{ item.id ? 'Cập nhật Landing Page' : 'Tạo mới Landing Page' }}
+                    </h1>
+                    <button
+                        type="button"
+                        class="bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold px-3 py-1.5 rounded-lg border border-solid border-blue-200 cursor-pointer flex items-center gap-1 shadow-xs transition"
+                        @click="showHelpModal = true"
+                    >
+                        📖 Hướng dẫn nhanh cho Sale
+                    </button>
+                </div>
                 <div class="flex space-x-3">
                     <button
                         type="button"
@@ -220,6 +229,13 @@
                         <div class="flex items-center space-x-3">
                             <button
                                 type="button"
+                                class="bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold px-4 py-2 rounded-lg cursor-pointer transition-colors border border-solid border-blue-200 h-9 flex items-center justify-center gap-1.5"
+                                @click="showHelpModal = true"
+                            >
+                                📖 Hướng dẫn cho Sale
+                            </button>
+                            <button
+                                type="button"
                                 class="bg-[#008060] hover:bg-[#006e52] text-white text-xs font-bold px-5 py-2 rounded-lg cursor-pointer transition-colors border border-solid border-[#006e52] h-9 flex items-center justify-center gap-1.5 shadow-sm"
                                 @click="saveFromBuilder(submit)"
                                 :disabled="isSaving"
@@ -341,6 +357,141 @@
                     </div>
                 </div>
             </transition>
+
+            <!-- ===== MODAL HƯỚNG DẪN DÀNH CHO SALE ===== -->
+            <transition name="fade-scale">
+                <div v-if="showHelpModal" class="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+                    <div class="bg-white rounded-2xl shadow-2xl border border-gray-150 max-w-2xl w-full max-h-[85vh] flex flex-col transform transition-all duration-300 scale-100 overflow-hidden text-left">
+                        <!-- Header -->
+                        <div class="px-6 py-4 border-b border-gray-150 flex items-center justify-between bg-gradient-to-r from-blue-50 to-indigo-50">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-xl">📖</span>
+                                <h3 class="text-base font-bold text-slate-800">HƯỚNG DẪN THIẾT KẾ LDP CHO SALE (DỄ HIỂU)</h3>
+                            </div>
+                            <button type="button" @click="showHelpModal = false" class="text-gray-400 hover:text-gray-600 text-xl font-bold bg-transparent border-0 cursor-pointer p-1">&times;</button>
+                        </div>
+                        
+                        <!-- Tabs -->
+                        <div class="flex border-b border-gray-150 bg-gray-50 text-xs font-semibold overflow-x-auto shrink-0 select-none">
+                            <button
+                                type="button"
+                                class="px-4 py-3 border-b-2 transition cursor-pointer"
+                                :class="activeHelpTab === 1 ? 'border-blue-600 text-blue-700 bg-white' : 'border-transparent text-gray-500 hover:text-gray-800 hover:bg-gray-100'"
+                                @click="activeHelpTab = 1"
+                            >
+                                👤 Bước 1: Profile cá nhân
+                            </button>
+                            <button
+                                type="button"
+                                class="px-4 py-3 border-b-2 transition cursor-pointer"
+                                :class="activeHelpTab === 2 ? 'border-blue-600 text-blue-700 bg-white' : 'border-transparent text-gray-500 hover:text-gray-800 hover:bg-gray-100'"
+                                @click="activeHelpTab = 2"
+                            >
+                                ➕ Bước 2: Tạo LDP
+                            </button>
+                            <button
+                                type="button"
+                                class="px-4 py-3 border-b-2 transition cursor-pointer"
+                                :class="activeHelpTab === 3 ? 'border-blue-600 text-blue-700 bg-white' : 'border-transparent text-gray-500 hover:text-gray-800 hover:bg-gray-100'"
+                                @click="activeHelpTab = 3"
+                            >
+                                🎨 Bước 3: Bố cục & Ưu đãi
+                            </button>
+                            <button
+                                type="button"
+                                class="px-4 py-3 border-b-2 transition cursor-pointer"
+                                :class="activeHelpTab === 4 ? 'border-blue-600 text-blue-700 bg-white' : 'border-transparent text-gray-500 hover:text-gray-800 hover:bg-gray-100'"
+                                @click="activeHelpTab = 4"
+                            >
+                                🚀 Bước 4: Chạy Ads
+                            </button>
+                        </div>
+
+                        <!-- Content -->
+                        <div class="p-6 overflow-y-auto text-sm text-gray-700 space-y-4 leading-relaxed">
+                            <!-- TAB 1: Profile -->
+                            <div v-show="activeHelpTab === 1" class="space-y-3">
+                                <div class="bg-blue-50 border-l-4 border-blue-500 p-3 rounded text-xs text-blue-800 font-semibold mb-2">
+                                    LDP sẽ tự động lấy thông tin Avatar, Số điện thoại và liên kết Zalo từ hồ sơ của bạn để hiển thị cho khách hàng!
+                                </div>
+                                <h4 class="font-bold text-gray-900">Cách cập nhật hồ sơ cá nhân:</h4>
+                                <ol class="list-decimal pl-5 space-y-2">
+                                    <li>Vào mục <span class="font-semibold">Cố vấn bán hàng</span> trong menu chính của Admin.</li>
+                                    <li>Tìm đúng tên tài khoản của bạn và bấm <span class="font-semibold">Chỉnh sửa</span>.</li>
+                                    <li>Cập nhật các thông tin quan trọng:
+                                        <ul class="list-disc pl-5 mt-1 space-y-1 text-xs">
+                                            <li><span class="font-semibold">Ảnh đại diện (Avatar)</span>: Nên chọn ảnh mặc áo đồng phục Ford lịch sự, hình ảnh rõ nét.</li>
+                                            <li><span class="font-semibold">Số điện thoại</span>: Số điện thoại dùng để nhận cuộc gọi trực tiếp từ khách hàng.</li>
+                                            <li><span class="font-semibold">Link Zalo</span>: Điền link Zalo cá nhân của bạn (dạng: <code>https://zalo.me/0xxxxxxxxx</code>) để khách hàng nhấn chat Zalo trực tiếp.</li>
+                                            <li><span class="font-semibold">Lời giới thiệu ngắn (Short Bio)</span>: Điền chức vụ/câu chào của bạn (vd: <i>"Đại diện kinh doanh cao cấp tại Đồng Nai Ford"</i>).</li>
+                                        </ul>
+                                    </li>
+                                </ol>
+                            </div>
+
+                            <!-- TAB 2: Tạo LDP -->
+                            <div v-show="activeHelpTab === 2" class="space-y-3">
+                                <h4 class="font-bold text-gray-900">Cách thiết lập ban đầu cho một trang LDP:</h4>
+                                <ol class="list-decimal pl-5 space-y-2">
+                                    <li>Nhấp vào nút <span class="font-semibold">Tạo mới Landing Page</span>.</li>
+                                    <li>Nhập <span class="font-semibold">Tiêu đề Landing Page</span> (Tiêu đề này hiển thị trên đầu tab trình duyệt, nên đặt thu hút như: <i>"Ford Territory Thế Thế Mới - Ưu Đãi Trả Góp 5.9% | Đồng Nai Ford"</i>).</li>
+                                    <li>Ở phần <span class="font-semibold">Liên kết trang (bên cột tay phải)</span>:
+                                        <ul class="list-disc pl-5 mt-1 space-y-1 text-xs">
+                                            <li><span class="font-semibold">Cố vấn phụ trách (Sales)</span>: Chọn đúng tên của bạn.</li>
+                                            <li><span class="font-semibold">Dòng xe áp dụng</span>: Chọn đúng chiếc xe bạn muốn chạy chiến dịch quảng cáo (ví dụ: Ford Everest, Ford Ranger...).</li>
+                                            <li><span class="font-semibold">Trạng thái LDP</span>: Chọn <span class="font-semibold">Hoạt động</span>.</li>
+                                        </ul>
+                                    </li>
+                                </ol>
+                            </div>
+
+                            <!-- TAB 3: Bố cục & Ưu đãi -->
+                            <div v-show="activeHelpTab === 3" class="space-y-3">
+                                <h4 class="font-bold text-gray-900">Cách thiết kế giao diện bằng kéo thả (Block Editor):</h4>
+                                <ol class="list-decimal pl-5 space-y-2">
+                                    <li>Bấm nút <span class="font-semibold">🎨 Thiết kế Giao diện (Block Editor)</span> ở góc trên bên phải.</li>
+                                    <li>Một màn hình lớn sẽ mở ra. Cột bên trái là danh sách các khối giao diện (Blocks), bên phải là màn hình xem trước (Live Preview).</li>
+                                    <li><span class="font-semibold">Quy tắc bố cục chuẩn (khuyên dùng):</span>
+                                        <ul class="list-disc pl-5 mt-1 space-y-1 text-xs">
+                                            <li><span class="font-semibold">Khối 1: Banner lớn (Hero Banner)</span>: Nên là banner đầu trang hiển thị tên xe, nút bấm nhận ưu đãi.</li>
+                                            <li><span class="font-semibold">Khối 2: Cố vấn bán hàng (LdpSalesConsultant)</span>: Khối thông tin liên hệ của bạn (Avatar, Hotline, Zalo).</li>
+                                            <li><span class="font-semibold">Khối 3: Khuyến mãi (LdpPromotions)</span>: Khối hiển thị các chương trình khuyến mãi/quà tặng của dòng xe.</li>
+                                            <li><span class="font-semibold">Khối 4: Form đăng ký (Báo giá/Lái thử)</span>: Để khách hàng điền số điện thoại nhận thông tin tư vấn.</li>
+                                        </ul>
+                                    </li>
+                                    <li>Bạn có thể bấm biểu tượng bút chì ✏️ trên mỗi khối để thay đổi tiêu đề, màu sắc, nút bấm. Sau đó bấm <span class="font-semibold">💾 Lưu trang</span> ở góc trên bên phải để lưu lại.</li>
+                                </ol>
+                            </div>
+
+                            <!-- TAB 4: Chạy Ads -->
+                            <div v-show="activeHelpTab === 4" class="space-y-3">
+                                <div class="bg-emerald-50 border-l-4 border-emerald-500 p-3 rounded text-xs text-emerald-800 font-semibold mb-2">
+                                    Trang LDP của Sale đã được tối ưu hóa: Ẩn hoàn toàn Header/Footer chung của hãng, chỉ hiển thị thông tin và hotline của riêng bạn để tối đa tỉ lệ khách điền form!
+                                </div>
+                                <h4 class="font-bold text-gray-900">Cách lấy link LDP sạch để chạy quảng cáo:</h4>
+                                <ol class="list-decimal pl-5 space-y-2">
+                                    <li>Sau khi bấm <span class="font-semibold">💾 Lưu trang</span> và <span class="font-semibold">Đóng</span>.</li>
+                                    <li>Ở góc dưới bên phải trang thông tin chung, bạn sẽ thấy ô <span class="font-semibold">👁️ Xem trước Landing Page</span>.</li>
+                                    <li>Bấm vào nút <span class="font-semibold">🔗 Mở trang LDP thực tế</span>.</li>
+                                    <li>Trình duyệt sẽ mở ra một trang LDP thực tế của riêng bạn. Bạn chỉ cần <span class="font-semibold">Copy đường dẫn này trên thanh địa chỉ</span> để mang đi chạy Facebook Ads, Google Ads hoặc gửi trực tiếp cho khách hàng qua Zalo/Messenger!</li>
+                                    <li>Link chuẩn sẽ có dạng: <code>https://dongnaiford.com.vn/ldp/ten-cua-ban/ten-dong-xe</code></li>
+                                </ol>
+                            </div>
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="px-6 py-3 bg-gray-50 border-t border-gray-150 flex justify-end shrink-0">
+                            <button
+                                type="button"
+                                @click="showHelpModal = false"
+                                class="bg-[#008060] hover:bg-[#006e52] text-white text-xs font-bold px-4 py-2 rounded-lg cursor-pointer transition border-0"
+                            >
+                                Đã hiểu, đóng hướng dẫn
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </transition>
         </template>
     </Form>
 </template>
@@ -354,6 +505,8 @@ export default {
             activeFormTab: 'general', // tab chính ('general' hoặc 'builder')
             isSaving: false,
             showSuccessNotification: false,
+            showHelpModal: false,
+            activeHelpTab: 1,
             salesConsultants: this.data?.sales_consultants ?? [],
             vehicles: this.data?.vehicles ?? [],
             globalPromotions: this.data?.global_promotions ?? []
