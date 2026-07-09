@@ -412,7 +412,6 @@ function HeroBannerBlock({ blockIndex, data, vehicle, openQuoteDrawer, openDrive
     vehicle.video_url ||
     (hasVehicleVideo ? resolveImageUrl(vehicle.video) : null)
   );
-  const bgImage = resolveImageUrl(data.background_image || vehicle.image_url || vehicle.image);
 
   // Alignment classes
   const alignClass = data.align === 'left' ? 'items-start text-left'
@@ -448,15 +447,6 @@ function HeroBannerBlock({ blockIndex, data, vehicle, openQuoteDrawer, openDrive
   return (
     <section id={anchorId || undefined} className="relative h-[550px] sm:h-[650px] flex items-end overflow-hidden bg-black text-white pb-[68px] w-full">
       <div className="absolute inset-0 z-0">
-        {/* Background Image Fallback */}
-        {bgImage && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={bgImage}
-            alt={title}
-            className="absolute inset-0 w-full h-full object-cover object-center z-1"
-          />
-        )}
 
         {youtubeId ? (
           <iframe
