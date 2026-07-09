@@ -447,7 +447,10 @@ export default {
             const consultant = this.salesConsultants.find(c => c.id == this.formData.sales_consultant_id);
             if (vehicle && consultant) {
                 // Định nghĩa link tới Next.js frontend
-                const clientUrl = window.location.origin.replace('8000', '3000');
+                let clientUrl = window.location.origin.replace('8000', '3000');
+                if (clientUrl.includes('cms.')) {
+                    clientUrl = clientUrl.replace('cms.', '');
+                }
                 
                 // convert consultant name sang slug nếu không tìm thấy slug
                 const consultantSlug = consultant.slug || this.slugify(consultant.name);
