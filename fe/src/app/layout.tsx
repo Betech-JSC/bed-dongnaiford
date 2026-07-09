@@ -126,7 +126,11 @@ export default async function RootLayout({
               __html: `
                 (function() {
                   const temp = document.createElement('div');
-                  temp.innerHTML = \`${injectHead.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`;
+                  temp.innerHTML = \`${injectHead
+                    .replace(/\\/g, '\\\\')
+                    .replace(/`/g, '\\`')
+                    .replace(/\$/g, '\\$')
+                    .replace(/<\/script>/gi, '<\\/script>')}\`;
                   Array.from(temp.childNodes).forEach(node => {
                     if (node.tagName === 'SCRIPT') {
                       const script = document.createElement('script');
@@ -144,6 +148,19 @@ export default async function RootLayout({
         )}
       </head>
       <body className="min-h-full flex flex-col bg-light text-dark font-sans" suppressHydrationWarning>
+        {/* Google Analytics (gtag.js) */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-QLXYRG7WSJ"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-QLXYRG7WSJ');
+          `}
+        </Script>
         {/* Dynamic Body Start Inject Code from CMS */}
         {injectBodyStart && (
           <div
