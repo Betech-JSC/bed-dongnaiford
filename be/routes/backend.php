@@ -37,6 +37,7 @@ use App\Http\Controllers\Backend\TestDriveSurveyController;
 use App\Http\Controllers\Backend\ServiceSurveyController;
 use App\Http\Controllers\Backend\ServiceBookingController;
 use App\Http\Controllers\Backend\RegistrationFeeController;
+use App\Http\Controllers\Backend\LandingPageController;
 
 Route::localized(function () {
     Route::middleware(['auth:admin'])->name('admin.')->group(function () {
@@ -61,6 +62,7 @@ Route::localized(function () {
         Route::module(BannerController::class);
         Route::module(VehicleCategoryController::class);
         Route::module(VehicleController::class);
+        Route::module(LandingPageController::class);
         Route::module(UsedVehicleController::class);
         Route::module(CustomerReviewController::class);
         Route::module(PartnerController::class);

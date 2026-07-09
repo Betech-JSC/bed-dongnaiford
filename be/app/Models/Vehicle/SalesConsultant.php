@@ -168,8 +168,12 @@ class SalesConsultant extends BaseModel
             'name'       => $translation?->name,
             'slug'       => $translation?->slug,
             'job_title'  => $translation?->job_title,
+            'avatar'     => $this->avatar,
             'avatar_url' => $this->avatar_url,
+            'short_bio'  => $translation?->short_bio,
             'bio'        => $translation?->bio,
+            'phone'      => $this->phone,
+            'zalo_url'   => $this->zalo_url,
             'gallery'    => collect($this->gallery ?? [])->map(fn($g) => [
                 'image_url' => isset($g['image']['path'])
                     ? static_url($g['image']['path'])

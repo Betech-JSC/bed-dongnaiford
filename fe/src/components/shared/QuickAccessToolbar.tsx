@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeftRight, Calculator, PiggyBank, Wrench, Phone, MessageCircle, ArrowUp } from "lucide-react";
 
@@ -34,8 +35,15 @@ const ZaloIcon = () => (
 );
 
 export default function QuickAccessToolbar() {
+  const pathname = usePathname();
+  const isLdp = pathname?.startsWith("/ldp/");
+
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [hasCompareItems, setHasCompareItems] = useState(false);
+
+  if (isLdp) {
+    return null;
+  }
 
   useEffect(() => {
     const handleScroll = () => {

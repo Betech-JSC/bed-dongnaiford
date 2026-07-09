@@ -48,11 +48,13 @@ const getVersionSlug = (verName: string) => {
 export default function VehicleLayoutClient({
   children,
   initialVehicle,
-  allVehicles
+  allVehicles,
+  salesConsultantId
 }: {
   children: React.ReactNode;
   initialVehicle: any;
   allVehicles: any[];
+  salesConsultantId?: number;
 }) {
   const [activeVersionIndex, setActiveVersionIndex] = useState(0);
   const [compareIds, setCompareIds] = useState<string[]>([]);
@@ -270,6 +272,7 @@ export default function VehicleLayoutClient({
       const response = await contactsAPI.submit({
         contact: {
           type: "ADVISE_FORM",
+          sales_consultant_id: salesConsultantId,
           data: {
             Name: formData.fullName,
             Phone: formData.phone,

@@ -172,7 +172,19 @@ trait HasCrudActions
                 $locales = ['vi', 'en'];
                 foreach ($locales as $locale) {
                     if (isset($data[$locale]) && is_array($data[$locale])) {
-                        if (empty($data[$locale]['title'])) {
+                        $hasTitle = array_key_exists('title', $data[$locale]);
+                        $hasName = array_key_exists('name', $data[$locale]);
+                        
+                        $isEmpty = false;
+                        if ($hasTitle && empty($data[$locale]['title'])) {
+                            $isEmpty = true;
+                        } elseif ($hasName && empty($data[$locale]['name'])) {
+                            $isEmpty = true;
+                        } elseif (!$hasTitle && !$hasName) {
+                            $isEmpty = empty(array_filter($data[$locale]));
+                        }
+                        
+                        if ($isEmpty) {
                             unset($data[$locale]);
                         }
                     }
@@ -186,10 +198,12 @@ trait HasCrudActions
                 $data['locale'] = $defaultLocale;
                 $default = $this->model::create($data);
 
-                // Chỉ thêm translation cho locale hiện tại nếu có title
-                // Tránh lỗi integrity constraint khi title là NOT NULL
+                // Chỉ thêm translation cho locale hiện tại nếu có title hoặc name
+                // Tránh lỗi integrity constraint khi title/name là NOT NULL
                 $currentTitle = $request->input($currentLocale . '.title')
-                    ?? $request->input('title');
+                    ?? $request->input($currentLocale . '.name')
+                    ?? $request->input('title')
+                    ?? $request->input('name');
                 if (!empty($currentTitle)) {
                     $data['locale'] = $currentLocale;
                     $resource = $this->updateModel($default->id, $data);
@@ -271,9 +285,11 @@ trait HasCrudActions
                 $data['locale'] = $defaultLocale;
                 $default = $this->model::create($data);
 
-                // Chỉ thêm translation cho locale hiện tại nếu có title
+                // Chỉ thêm translation cho locale hiện tại nếu có title hoặc name
                 $currentTitle = $request->input($currentLocale . '.title')
-                    ?? $request->input('title');
+                    ?? $request->input($currentLocale . '.name')
+                    ?? $request->input('title')
+                    ?? $request->input('name');
                 if (!empty($currentTitle)) {
                     $data['locale'] = $currentLocale;
                     $resource = $this->updateModel($default->id, $data);
@@ -561,7 +577,19 @@ trait HasCrudActions
             $locales = ['vi', 'en'];
             foreach ($locales as $locale) {
                 if (isset($data[$locale]) && is_array($data[$locale])) {
-                    if (empty($data[$locale]['title'])) {
+                    $hasTitle = array_key_exists('title', $data[$locale]);
+                    $hasName = array_key_exists('name', $data[$locale]);
+                    
+                    $isEmpty = false;
+                    if ($hasTitle && empty($data[$locale]['title'])) {
+                        $isEmpty = true;
+                    } elseif ($hasName && empty($data[$locale]['name'])) {
+                        $isEmpty = true;
+                    } elseif (!$hasTitle && !$hasName) {
+                        $isEmpty = empty(array_filter($data[$locale]));
+                    }
+                    
+                    if ($isEmpty) {
                         unset($data[$locale]);
                         // Delete the translation from DB if it exists
                         $resource->translations()->where('locale', $locale)->delete();

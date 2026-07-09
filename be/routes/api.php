@@ -55,6 +55,7 @@ Route::localized(function () {
         Route::get('{slug}', [AccessoryController::class, 'show'])->name('show');
     });
 
+    Route::get('ldp/{sales_slug}/{vehicle_slug}', [\App\Http\Controllers\Api\LandingPageApiController::class, 'show'])->name('api.ldp.show');
     Route::post('contacts', [App\Http\Controllers\Frontend\ContactController::class, 'store'])->name('api.contacts.store');
     Route::get('services', [\App\Http\Controllers\Frontend\ServiceController::class, 'index'])->name('api.services');
     Route::get('services/{slug}', [\App\Http\Controllers\Frontend\ServiceController::class, 'show'])->name('api.services.show');

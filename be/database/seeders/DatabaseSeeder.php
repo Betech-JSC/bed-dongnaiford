@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             AccessoryAndBrandSeeder::class,
             MaintenanceScheduleSeeder::class,
             CustomerHandoverSeeder::class,
+            LandingPageSeeder::class,
         ]);
     }
 }

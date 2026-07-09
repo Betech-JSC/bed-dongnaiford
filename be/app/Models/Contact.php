@@ -58,6 +58,7 @@ class Contact extends BaseModel
         'status',
         'ip_address',
         'user_agent',
+        'sales_consultant_id',
     ];
 
     protected $casts = [
@@ -207,5 +208,10 @@ class Contact extends BaseModel
     {
         $route = config('contact.types.' . $this->type . '.route');
         return route(current_locale() . '.admin.' . $route . '.form', ['id' => $this->id]);
+    }
+
+    public function salesConsultant()
+    {
+        return $this->belongsTo(\App\Models\Vehicle\SalesConsultant::class, 'sales_consultant_id');
     }
 }

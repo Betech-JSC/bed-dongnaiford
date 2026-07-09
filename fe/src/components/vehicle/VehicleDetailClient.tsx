@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useVehicle, VehicleTabBar } from "./VehicleLayoutClient";
-import Blocks from "@/components/blocks/Blocks";
+import Blocks, { resolveImageUrl } from "@/components/blocks/Blocks";
 import { vehiclesAPI } from "@/lib/api";
 import {
   ArrowLeft,
@@ -13,7 +13,11 @@ import {
   X,
   Monitor,
   Tablet,
-  Smartphone
+  Smartphone,
+  Phone,
+  MessageCircle,
+  Sparkles,
+  ChevronRight
 } from "lucide-react";
 
 export default function VehicleDetailClient() {
@@ -28,6 +32,9 @@ export default function VehicleDetailClient() {
   const [currentBlocks, setCurrentBlocks] = useState<any[]>([]);
   const [originalBlocks, setOriginalBlocks] = useState<any[]>([]);
   const [saving, setSaving] = useState(false);
+  const [isPreviewInitialized, setIsPreviewInitialized] = useState(false);
+  const [salesConsultant, setSalesConsultant] = useState<any>(null);
+  const [promotions, setPromotions] = useState<any>({ global: [], custom: [] });
 
   // visual page builder states
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
@@ -49,6 +56,9 @@ export default function VehicleDetailClient() {
       }
       if (params.get("embedded") === "true" || params.get("embed") === "true") {
         setIsEmbedded(true);
+        setIsPreviewInitialized(false);
+      } else {
+        setIsPreviewInitialized(true);
       }
     }
   }, []);
@@ -66,12 +76,25 @@ export default function VehicleDetailClient() {
         if (data.activeIndex !== undefined) {
           setActiveIndex(data.activeIndex);
         }
+        if (data.salesConsultant) {
+          setSalesConsultant(data.salesConsultant);
+        }
+        if (data.promotions) {
+          setPromotions(data.promotions);
+        }
+        setIsPreviewInitialized(true);
       } else if (data.type === "UPDATE_BLOCKS") {
         if (data.blocks) {
           setCurrentBlocks(data.blocks);
         }
         if (data.activeIndex !== undefined) {
           setActiveIndex(data.activeIndex);
+        }
+        if (data.salesConsultant) {
+          setSalesConsultant(data.salesConsultant);
+        }
+        if (data.promotions) {
+          setPromotions(data.promotions);
         }
       } else if (data.type === "UPDATE_ACTIVE_INDEX") {
         if (data.activeIndex !== undefined) {
@@ -217,8 +240,24 @@ export default function VehicleDetailClient() {
   const handleRemoveBlock = (index: number) => {
     const updated = currentBlocks.filter((_, i) => i !== index);
     setCurrentBlocks(updated);
-    if (activeIndex === index) handleSelectBlock(null as any);
-    else if (activeIndex !== null && activeIndex > index) handleSelectBlock(activeIndex - 1);
+    
+    let nextActiveIndex = activeIndex;
+    if (activeIndex === index) {
+      nextActiveIndex = null as any;
+    } else if (activeIndex !== null && activeIndex > index) {
+      nextActiveIndex = activeIndex - 1;
+    }
+    
+    setActiveIndex(nextActiveIndex);
+
+    // Notify the parent admin window!
+    if (typeof window !== "undefined" && window.parent) {
+      window.parent.postMessage({
+        type: "SYNC_BLOCKS_FROM_IFRAME",
+        blocks: updated,
+        activeIndex: nextActiveIndex
+      }, "*");
+    }
   };
 
   const handleSaveLayout = async () => {
@@ -273,6 +312,17 @@ export default function VehicleDetailClient() {
   };
 
   if (!vehicle) return null;
+
+  if (isEmbedded && !isPreviewInitialized) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center min-h-screen bg-[#f6f6f7] text-gray-500 font-sans select-none w-full">
+        <div className="flex flex-col items-center space-y-3">
+          <div className="w-8 h-8 border-4 border-[#008060] border-t-transparent rounded-full animate-spin"></div>
+          <span className="text-xs font-bold uppercase tracking-wider text-gray-400">Đang tải bố cục thiết kế...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 flex flex-col relative min-h-screen bg-light w-full">
@@ -467,6 +517,9 @@ export default function VehicleDetailClient() {
                   }
                 };
 
+                const heroStartIndex = heroBlock ? currentBlocks.indexOf(heroBlock) : 0;
+                const otherStartIndex = otherBlocks.length > 0 ? (currentBlocks.indexOf(otherBlocks[0]) !== -1 ? currentBlocks.indexOf(otherBlocks[0]) : 0) : 0;
+
                 return (
                   <>
                     {heroBlock && (
@@ -479,12 +532,15 @@ export default function VehicleDetailClient() {
                         openDriveModal={() => openDriveDrawer()}
                         activeIndex={activeIndex}
                         onSelectBlock={handleSelectBlock}
-                        startIndex={currentBlocks.indexOf(heroBlock)}
+                        startIndex={heroStartIndex}
+                        onDeleteBlock={(idx) => handleRemoveBlock(Number(heroStartIndex) + Number(idx))}
+                        salesConsultant={salesConsultant}
+                        promotions={promotions}
                       />
                     )}
                     
                     {!isEditMode && <VehicleTabBar />}
-
+ 
                     <Blocks
                       layout={otherBlocks}
                       vehicle={vehicle}
@@ -494,7 +550,10 @@ export default function VehicleDetailClient() {
                       openDriveModal={() => openDriveDrawer()}
                       activeIndex={activeIndex}
                       onSelectBlock={handleSelectBlock}
-                      startIndex={otherBlocks.length > 0 ? (currentBlocks.indexOf(otherBlocks[0]) !== -1 ? currentBlocks.indexOf(otherBlocks[0]) : 0) : 0}
+                      startIndex={otherStartIndex}
+                      onDeleteBlock={(idx) => handleRemoveBlock(Number(otherStartIndex) + Number(idx))}
+                      salesConsultant={salesConsultant}
+                      promotions={promotions}
                     />
                   </>
                 );
