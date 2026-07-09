@@ -1,6 +1,6 @@
 "use client";
 
-import { useVehicle, VehicleTabBar } from "./VehicleLayoutClient";
+import { useVehicle } from "./VehicleLayoutClient";
 import VehicleLayoutClient from "./VehicleLayoutClient";
 import Blocks, { resolveImageUrl } from "@/components/blocks/Blocks";
 import { Phone, MessageCircle, Sparkles, ChevronRight } from "lucide-react";
@@ -52,9 +52,6 @@ function LdpInnerContent({ salesConsultant, layoutBlocks, promotions, vehicle }:
           promotions={promotions}
         />
       )}
-
-      {/* TAB BAR DÒNG XE */}
-      <VehicleTabBar />
 
       {/* 2. OTHER LAYOUT BLOCKS (including Consultant & Promotions dynamic blocks) */}
       <Blocks
