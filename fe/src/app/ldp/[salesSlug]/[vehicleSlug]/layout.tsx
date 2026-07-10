@@ -1,4 +1,5 @@
 import { ldpAPI } from "@/lib/api";
+import { headers } from "next/headers";
 
 type LayoutProps = {
   children: React.ReactNode;
@@ -8,6 +9,24 @@ type LayoutProps = {
   }>;
 };
 
+function getCanonicalUrl(host: string, salesSlug: string, vehicleSlug: string, seoCanonical?: string): string {
+  if (seoCanonical) {
+    return seoCanonical.startsWith("http") ? seoCanonical : `https://${host}${seoCanonical}`;
+  }
+
+  const systemDomains = ["dongnaiford.com.vn", "cms.dongnaiford.com.vn", "localhost", "127.0.0.1"];
+  const cleanHost = host.split(":")[0];
+  const isSystemDomain = systemDomains.some(d => cleanHost === d || cleanHost.endsWith(d));
+
+  if (!isSystemDomain) {
+    // Đối với tên miền vệ tinh của Sale, URL hiển thị sạch là domain.com/vehicle-slug
+    return `https://${cleanHost}/${vehicleSlug}`;
+  }
+
+  // Đối với web hãng chính, URL hiển thị là dongnaiford.com.vn/ldp/sales-slug/vehicle-slug
+  return `https://dongnaiford.com.vn/ldp/${salesSlug}/${vehicleSlug}`;
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ salesSlug: string; vehicleSlug: string }> }) {
   try {
     const { salesSlug, vehicleSlug } = await params;
@@ -16,9 +35,9 @@ export async function generateMetadata({ params }: { params: Promise<{ salesSlug
 
     if (!ldp) return {};
 
-    const hostUrl = "https://dongnaiford.com.vn";
-    const canonicalPath = ldp.seo?.canonical || `/ldp/${salesSlug}/${vehicleSlug}`;
-    const canonicalUrl = canonicalPath.startsWith("http") ? canonicalPath : `${hostUrl}${canonicalPath}`;
+    const headersList = await headers();
+    const host = headersList.get("host") || "dongnaiford.com.vn";
+    const canonicalUrl = getCanonicalUrl(host, salesSlug, vehicleSlug, ldp.seo?.canonical);
 
     const title = ldp.seo?.meta_title || `${ldp.title} - Cố vấn ${ldp.sales_consultant?.name}`;
     const description = ldp.seo?.meta_description || `Landing Page giới thiệu xe Ford và ưu đãi đặc quyền từ cố vấn ${ldp.sales_consultant?.name} tại Đồng Nai Ford.`;
@@ -63,11 +82,14 @@ export default async function LdpLayout({
 
   if (!ldp) return <>{children}</>;
 
-  const hostUrl = "https://dongnaiford.com.vn";
-  const canonicalPath = ldp.seo?.canonical || `/ldp/${salesSlug}/${vehicleSlug}`;
-  const canonicalUrl = canonicalPath.startsWith("http") ? canonicalPath : `${hostUrl}${canonicalPath}`;
+  const headersList = await headers();
+  const host = headersList.get("host") || "dongnaiford.com.vn";
+  const canonicalUrl = getCanonicalUrl(host, salesSlug, vehicleSlug, ldp.seo?.canonical);
+  
   const title = ldp.seo?.meta_title || `${ldp.title} - Cố vấn ${ldp.sales_consultant?.name}`;
   const description = ldp.seo?.meta_description || `Landing Page giới thiệu xe Ford và ưu đãi đặc quyền từ cố vấn ${ldp.sales_consultant?.name} tại Đồng Nai Ford.`;
+
+  const hostUrl = `https://${host.split(":")[0]}`;
 
   const autoSchema = {
     "@context": "https://schema.org",
@@ -94,7 +116,7 @@ export default async function LdpLayout({
           "seller": {
             "@type": "AutoDealer",
             "name": "Đồng Nai Ford",
-            "url": hostUrl
+            "url": "https://dongnaiford.com.vn"
           }
         }
       } : null,
@@ -108,7 +130,7 @@ export default async function LdpLayout({
         "worksFor": {
           "@type": "AutoDealer",
           "name": "Đồng Nai Ford",
-          "url": hostUrl
+          "url": "https://dongnaiford.com.vn"
         }
       } : null
     ].filter(Boolean)

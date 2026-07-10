@@ -219,6 +219,16 @@
                             placeholder: 'vd: https://facebook.com/...',
                         }"
                     />
+
+                    <Field
+                        v-model="form.custom_domain"
+                        :field="{
+                            type: 'text',
+                            name: 'custom_domain',
+                            label: 'Tên miền riêng của Sale (nếu có)',
+                            placeholder: 'vd: tuanford.com (không chứa http:// hoặc https://)',
+                        }"
+                    />
                 </div>
             </div>
         </template>
@@ -252,6 +262,7 @@ export default {
                 phone: '',
                 zalo_url: '',
                 facebook_url: '',
+                custom_domain: '',
                 cover_image: null,
                 ...item,
             }

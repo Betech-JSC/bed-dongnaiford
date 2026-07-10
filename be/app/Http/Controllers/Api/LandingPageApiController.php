@@ -16,6 +16,42 @@ class LandingPageApiController extends Controller
     use ApiResponse;
 
     /**
+     * GET /api/ldp/lookup-domain
+     */
+    public function lookupDomain(Request $request): JsonResponse
+    {
+        $domain = $request->query('domain');
+        if (!$domain) {
+            return $this->failure(__('Thiếu tham số domain'), 400);
+        }
+
+        // Loại bỏ http://, https://, www. và các ký tự chéo nếu có
+        $domain = preg_replace('/^https?:\/\/(www\.)?/', '', $domain);
+        $domain = preg_replace('/^www\./', '', $domain);
+        $domain = rtrim($domain, '/');
+
+        // Tìm Sales Consultant sở hữu domain này
+        $consultant = SalesConsultant::query()
+            ->where('custom_domain', $domain)
+            ->where('status', SalesConsultant::STATUS_ACTIVE)
+            ->first();
+
+        if (!$consultant) {
+            return $this->success([
+                'found' => false
+            ]);
+        }
+
+        // Lấy slug tiếng Việt làm mặc định
+        $salesSlug = $consultant->translate('vi')?->slug ?: $consultant->slug;
+
+        return $this->success([
+            'found' => true,
+            'sales_slug' => $salesSlug,
+        ]);
+    }
+
+    /**
      * GET /api/ldp/{sales_slug}/{vehicle_slug}
      */
     public function show(string $sales_slug, string $vehicle_slug): JsonResponse

@@ -24,7 +24,8 @@ sleep 1
 
 # 2. Khởi động Laravel Inertia Vue Compiler cho trang Admin (Vite)
 echo "⚙️  [Inertia Admin] Khởi động Vite Backend (yarn dev)..."
-(cd be && yarn dev) &
+mkdir -p be/public/build/locales
+(cd be && php artisan vue-i18n:generate && yarn dev) &
 
 # 3. Khởi động Next.js Frontend (Next dev)
 echo "🌐 [Next.js FE] Khởi động Next.js dev server..."

@@ -34,6 +34,7 @@ class SalesConsultant extends BaseModel
         'zalo_url',
         'email',
         'phone',
+        'custom_domain',
         'status',
         'sort_order',
     ];
