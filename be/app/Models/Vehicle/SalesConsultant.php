@@ -30,6 +30,7 @@ class SalesConsultant extends BaseModel
         'cover_image',
         'gallery',
         'facebook_url',
+        'fanpage_url',
         'linkedin_url',
         'zalo_url',
         'email',

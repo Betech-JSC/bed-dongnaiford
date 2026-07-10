@@ -2,7 +2,7 @@
 
 namespace App\Traits;
 
-use OpenSpout\Writer\Common\Creator\Style\StyleBuilder;
+use OpenSpout\Common\Entity\Style\Style;
 use Rap2hpoutre\FastExcel\FastExcel;
 
 trait HasAdvancedActions
@@ -11,9 +11,7 @@ trait HasAdvancedActions
     {
         $this->checkAuthorize(__FUNCTION__);
 
-        $headerStyle = (new StyleBuilder())
-            ->setFontBold()
-            ->build();
+        $headerStyle = (new Style())->setFontBold();
 
         $fileName = request()->getHost() . '_' . $this->getTable() . "_" . date('Y_m_d');
 

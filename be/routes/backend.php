@@ -66,6 +66,8 @@ Route::localized(function () {
         Route::module(UsedVehicleController::class);
         Route::module(CustomerReviewController::class);
         Route::module(PartnerController::class);
+        Route::get('sales-consultants/export', [SalesConsultantController::class, 'export'])->name('sales-consultants.export');
+        Route::post('sales-consultants/import', [SalesConsultantController::class, 'import'])->name('sales-consultants.import');
         Route::module(SalesConsultantController::class);
         Route::module(DealerActivityController::class);
         Route::module(AwardController::class);
