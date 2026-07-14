@@ -98,12 +98,14 @@ const quickActions = [
     reason: "Đăng ký lái thử",
     note: "Tôi muốn đặt lịch đăng ký lái thử xe Ford.",
     icon: WheelIcon,
+    link: "/dang-ky-lai-thu",
   },
   {
     title: "Dự toán chi phí",
     reason: "Dự toán chi phí",
     note: "Tôi muốn dự toán chi phí lăn bánh cho các dòng xe Ford tại Đồng Nai.",
     icon: CostIcon,
+    link: "/cong-cu/uoc-tinh-lan-banh",
   },
   {
     title: "Ưu đãi",
@@ -615,8 +617,12 @@ export default function Home() {
 
 
   // Pre-fill form details on quick actions click - redirect to /lien-he
-  const triggerQuickAction = (reason: string, noteText: string) => {
-    router.push("/lien-he");
+  const triggerQuickAction = (reason: string, noteText: string, link?: string) => {
+    if (link) {
+      router.push(link);
+    } else {
+      router.push("/lien-he");
+    }
   };
 
   // Pre-fill form when clicking get price - redirect to /lien-he
@@ -898,7 +904,7 @@ export default function Home() {
               return (
                 <button
                   key={idx}
-                  onClick={() => triggerQuickAction(action.reason, action.note)}
+                  onClick={() => triggerQuickAction(action.reason, action.note, (action as any).link)}
                   className="flex flex-col gap-[16px] items-center justify-center text-center p-[20px_24px] rounded-[12px] h-[140px] w-full bg-[#f0f0f0] text-[#1a1a1a] hover:bg-[#0562d2] hover:text-white hover:shadow-[2px_6px_12px_-1px_rgba(16,24,40,0.12),0px_4px_6px_-2px_rgba(16,24,40,0.05)] transition-all duration-300 group cursor-pointer border border-transparent"
                 >
                   <Icon className="h-[32px] text-[#0562D2] group-hover:text-white transition-colors duration-300 shrink-0" />
