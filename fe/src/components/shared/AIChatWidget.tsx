@@ -412,8 +412,8 @@ export default function AIChatWidget() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Fixed Position State (Bottom-Left of the screen, slightly shifted right)
-  const [position, setPosition] = useState<Position>({ x: 84, y: -1 });
+  // Fixed Position State (Bottom-Left of the screen, aligned near the edge to avoid content overlap)
+  const [position, setPosition] = useState<Position>({ x: 24, y: -1 });
   const bubbleRef = useRef<HTMLButtonElement>(null);
   const windowRef = useRef<HTMLDivElement>(null);
   const [hasCompareItems, setHasCompareItems] = useState(false);
@@ -443,7 +443,7 @@ export default function AIChatWidget() {
     const isMobile = window.innerWidth < 640;
     const offset = (isMobile && hasCompareItems) ? 56 : 0;
     setPosition({
-      x: 84,
+      x: isMobile ? 16 : 24,
       y: window.innerHeight - BUBBLE_SIZE - 24 - offset,
     });
   }, [hasCompareItems]);

@@ -14,6 +14,7 @@ import { getPopularVehicleImage, handleImageError } from "@/lib/site-assets";
 import BookingBanner from "@/components/services/BookingBanner";
 import { vehiclesAPI, regionsAPI, registrationFeesAPI } from "@/lib/api";
 import AnimatedNumber from "@/components/shared/AnimatedNumber";
+import { vehicles as staticVehicles } from "@/data/vehicles";
 
 // Helper function to group individual dynamic variants into parent model series
 function groupVehiclesBySeries(apiVehicles: any[]) {
@@ -85,7 +86,7 @@ function groupVehiclesBySeries(apiVehicles: any[]) {
 
     vehicleVersions.forEach((v: any) => {
       groups[seriesKey].versions.push({
-        id: v.slug || v.id || `v-${v.name}`,
+        id: String(v.slug || v.id || `v-${v.name}`),
         name: v.name || v.title || vehicle.title,
         price: typeof v.price === 'string' ? parseFloat(v.price) : (v.price || 0),
         specs: v.specs || {}
@@ -124,7 +125,7 @@ function RollingCostContent() {
   useEffect(() => {
     regionsAPI.getProvinces()
       .then((res) => {
-        if (res && res.success && Array.isArray(res.data)) {
+        if (res && res.success && Array.isArray(res.data) && res.data.length > 0) {
           setProvinces(res.data);
           const hasDongNai = res.data.some(p => p.name.includes("Đồng Nai"));
           if (hasDongNai) {
@@ -132,10 +133,27 @@ function RollingCostContent() {
           } else if (res.data.length > 0) {
             setSelectedProvince(res.data[0].name);
           }
+        } else {
+          throw new Error("Invalid format or empty provinces data");
         }
       })
       .catch((err) => {
         console.error("Error loading provinces:", err);
+        const fallbackProvinces = [
+          { id: "dongnai", name: "Đồng Nai" },
+          { id: "hcm", name: "TP. Hồ Chí Minh" },
+          { id: "binhduong", name: "Bình Dương" },
+          { id: "vungtau", name: "Bà Rịa - Vũng Tàu" },
+          { id: "longan", name: "Long An" },
+          { id: "tayninh", name: "Tây Ninh" },
+          { id: "binhphuoc", name: "Bình Phước" },
+          { id: "binhthuan", name: "Bình Thuận" },
+          { id: "lamdong", name: "Lâm Đồng" },
+          { id: "hanoi", name: "Hà Nội" },
+          { id: "danang", name: "Đà Nẵng" },
+        ];
+        setProvinces(fallbackProvinces);
+        setSelectedProvince("Đồng Nai");
       });
 
     registrationFeesAPI.getAll()
@@ -146,6 +164,7 @@ function RollingCostContent() {
       })
       .catch((err) => {
         console.error("Error loading registration fees:", err);
+        setRegistrationFees([]);
       });
   }, []);
 
@@ -154,7 +173,7 @@ function RollingCostContent() {
     vehiclesAPI
       .getAll({ with_versions: 1 })
       .then((res) => {
-        if (res && res.success && Array.isArray(res.data)) {
+        if (res && res.success && Array.isArray(res.data) && res.data.length > 0) {
           const grouped = groupVehiclesBySeries(res.data);
           setVehicles(grouped);
           
@@ -168,15 +187,34 @@ function RollingCostContent() {
           const vehicle = grouped.find((v) => v.id === defaultVehicleId);
           if (vehicle) {
             const matchVersion =
-              urlVersionId && vehicle.versions.some((v: any) => v.id === urlVersionId)
+              urlVersionId && vehicle.versions.some((v: any) => String(v.id) === String(urlVersionId))
                 ? urlVersionId
                 : vehicle.versions[0]?.id || "";
-            setSelectedVersionId(matchVersion);
+            setSelectedVersionId(String(matchVersion));
           }
+        } else {
+          throw new Error("Invalid or empty vehicles data from API");
         }
       })
       .catch((err) => {
         console.error("Error loading vehicles for estimator:", err);
+        // Fallback to static vehicles
+        const grouped = groupVehiclesBySeries(staticVehicles);
+        setVehicles(grouped);
+        
+        const defaultVehicleId = urlVehicleId && grouped.some((v) => v.id === urlVehicleId)
+          ? urlVehicleId
+          : grouped[0]?.id || "";
+        setSelectedVehicleId(defaultVehicleId);
+
+        const vehicle = grouped.find((v) => v.id === defaultVehicleId);
+        if (vehicle) {
+          const matchVersion =
+            urlVersionId && vehicle.versions.some((v: any) => String(v.id) === String(urlVersionId))
+              ? urlVersionId
+              : vehicle.versions[0]?.id || "";
+          setSelectedVersionId(String(matchVersion));
+        }
       })
       .finally(() => {
         setLoading(false);
@@ -197,7 +235,7 @@ function RollingCostContent() {
   useEffect(() => {
     if (vehicles.length === 0 || !selectedVehicleId || !selectedVersionId) return;
     const vehicle = vehicles.find((v) => v.id === selectedVehicleId);
-    const version = vehicle?.versions.find((v: any) => v.id === selectedVersionId);
+    const version = vehicle?.versions.find((v: any) => String(v.id) === String(selectedVersionId));
     if (vehicle && version) {
       setResult(calculateRollingCost(vehicle, version, selectedProvince, registrationFees));
     }
@@ -205,7 +243,7 @@ function RollingCostContent() {
 
   const currentVehicle = vehicles.find((v) => v.id === selectedVehicleId);
   const currentVersion = currentVehicle?.versions.find(
-    (v: any) => v.id === selectedVersionId
+    (v: any) => String(v.id) === String(selectedVersionId)
   );
 
   const costBreakdown = result
