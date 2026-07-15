@@ -15,6 +15,7 @@ import BookingBanner from "@/components/services/BookingBanner";
 import { vehiclesAPI, regionsAPI, registrationFeesAPI } from "@/lib/api";
 import AnimatedNumber from "@/components/shared/AnimatedNumber";
 import { vehicles as staticVehicles } from "@/data/vehicles";
+import { resolveImageUrl } from "@/components/blocks/Blocks";
 
 // Helper function to group individual dynamic variants into parent model series
 function groupVehiclesBySeries(apiVehicles: any[]) {
@@ -81,7 +82,8 @@ function groupVehiclesBySeries(apiVehicles: any[]) {
           id: vehicle.slug || `version-${vehicle.id}`,
           name: vehicle.title,
           price: typeof vehicle.base_price === 'string' ? parseFloat(vehicle.base_price) : (vehicle.base_price || 0),
-          specs: vehicle.specs || {}
+          specs: vehicle.specs || {},
+          image_url: vehicle.image_thumbnail_url || vehicle.image_url || ""
         }];
 
     vehicleVersions.forEach((v: any) => {
@@ -89,7 +91,8 @@ function groupVehiclesBySeries(apiVehicles: any[]) {
         id: String(v.slug || v.id || `v-${v.name}`),
         name: v.name || v.title || vehicle.title,
         price: typeof v.price === 'string' ? parseFloat(v.price) : (v.price || 0),
-        specs: v.specs || {}
+        specs: v.specs || {},
+        image_url: v.image_url || resolveImageUrl(v.image) || v.image_thumbnail_url || resolveImageUrl(v.image_thumbnail) || ""
       });
     });
   });
@@ -387,10 +390,13 @@ function RollingCostContent() {
                       <div className="relative w-full h-[120px]">
                         <Image
                           src={
-                            currentVehicle.image_url ||
-                            getPopularVehicleImage(currentVehicle.id)
+                            resolveImageUrl(
+                              currentVersion?.image_url ||
+                              currentVehicle.image_url ||
+                              getPopularVehicleImage(currentVehicle.id)
+                            )
                           }
-                          alt={currentVehicle.name}
+                          alt={currentVersion?.name || currentVehicle.name}
                           fill
                           sizes="300px"
                           className="object-contain"
