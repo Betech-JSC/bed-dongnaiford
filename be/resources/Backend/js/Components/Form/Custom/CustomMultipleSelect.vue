@@ -51,13 +51,13 @@ export default {
             return options;
         },
         selectedOptions() {
-            if (!this.modelValue) return [];
+            if (!this.modelValue || !Array.isArray(this.modelValue)) return [];
 
             const selectedIds = this.modelValue.map((option) => {
-                if (typeof option === "object") {
-                    return option[this.keyBy].toString();
+                if (typeof option === "object" && option !== null) {
+                    return option[this.keyBy] ? option[this.keyBy].toString() : "";
                 } else {
-                    return option;
+                    return option !== null && option !== undefined ? option.toString() : "";
                 }
             });
 

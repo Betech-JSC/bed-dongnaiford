@@ -609,9 +609,17 @@ export default {
         },
         initFormData(item) {
             let vehicleIds = [];
-            if (item.vehicle_ids && Array.isArray(item.vehicle_ids) && item.vehicle_ids.length > 0) {
-                vehicleIds = item.vehicle_ids.map(id => typeof id === 'object' && id !== null ? String(id.id) : String(id));
-            } else if (item.vehicle_id) {
+            let rawIds = item ? item.vehicle_ids : null;
+            if (typeof rawIds === 'string') {
+                try {
+                    rawIds = JSON.parse(rawIds);
+                } catch (e) {
+                    rawIds = [];
+                }
+            }
+            if (Array.isArray(rawIds) && rawIds.length > 0) {
+                vehicleIds = rawIds.map(id => typeof id === 'object' && id !== null ? String(id.id ?? id) : String(id));
+            } else if (item && item.vehicle_id) {
                 vehicleIds = [String(item.vehicle_id)];
             }
 
