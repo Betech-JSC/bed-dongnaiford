@@ -586,19 +586,27 @@ export default {
             return !!this.formData.vehicle_id;
         },
         selectedVehicleSlug() {
-            let firstVehicleId = null;
-            if (Array.isArray(this.formData.vehicle_ids) && this.formData.vehicle_ids.length > 0) {
-                const first = this.formData.vehicle_ids[0];
-                firstVehicleId = typeof first === 'object' && first !== null ? (first.id ?? first) : first;
-            } else if (this.formData.vehicle_id) {
-                firstVehicleId = this.formData.vehicle_id;
-            }
-            if (!firstVehicleId) return '';
-            const vehicle = this.vehicles.find(v => v.id == firstVehicleId);
+            const vehicle = this.getSelectedVehicle();
             return vehicle ? vehicle.slug : '';
         }
     },
     methods: {
+        getFirstVehicleId() {
+            let ids = this.formData.vehicle_ids;
+            if (!ids || (Array.isArray(ids) && ids.length === 0)) {
+                ids = this.formData.vehicle_id ? [this.formData.vehicle_id] : [];
+            }
+            if (Array.isArray(ids) && ids.length > 0) {
+                const first = ids[0];
+                return typeof first === 'object' && first !== null ? (first.id ?? first) : first;
+            }
+            return ids;
+        },
+        getSelectedVehicle() {
+            const id = this.getFirstVehicleId();
+            if (!id) return null;
+            return this.vehicles.find(v => String(v.id) === String(id)) || null;
+        },
         initFormData(item) {
             let vehicleIds = [];
             if (item.vehicle_ids && Array.isArray(item.vehicle_ids) && item.vehicle_ids.length > 0) {
@@ -681,23 +689,13 @@ export default {
             this.formData.promotions.custom_promotions.splice(index, 1);
         },
         getLdpPreviewUrl() {
-            let firstVehicleId = null;
-            if (Array.isArray(this.formData.vehicle_ids) && this.formData.vehicle_ids.length > 0) {
-                const first = this.formData.vehicle_ids[0];
-                firstVehicleId = typeof first === 'object' && first !== null ? (first.id ?? first) : first;
-            } else if (this.formData.vehicle_id) {
-                firstVehicleId = this.formData.vehicle_id;
-            }
-            const vehicle = this.vehicles.find(v => v.id == firstVehicleId);
-            const consultant = this.salesConsultants.find(c => c.id == this.formData.sales_consultant_id);
+            const vehicle = this.getSelectedVehicle();
+            const consultant = this.salesConsultants.find(c => String(c.id) === String(this.formData.sales_consultant_id));
             if (vehicle && consultant) {
-                // Định nghĩa link tới Next.js frontend
                 let clientUrl = window.location.origin.replace('8000', '3000');
                 if (clientUrl.includes('cms.')) {
                     clientUrl = clientUrl.replace('cms.', '');
                 }
-                
-                // convert consultant name sang slug nếu không tìm thấy slug
                 const consultantSlug = consultant.slug || this.slugify(consultant.name);
                 return `${clientUrl}/ldp/${consultantSlug}/${vehicle.slug}`;
             }
@@ -712,30 +710,44 @@ export default {
                 .replace(/-+$/, '');            // Trim - from end of text
         },
         applyVehicleDefaultLayout(quiet = false) {
-            let firstVehicleId = null;
-            if (Array.isArray(this.formData.vehicle_ids) && this.formData.vehicle_ids.length > 0) {
-                const first = this.formData.vehicle_ids[0];
-                firstVehicleId = typeof first === 'object' && first !== null ? (first.id ?? first) : first;
-            } else if (this.formData.vehicle_id) {
-                firstVehicleId = this.formData.vehicle_id;
-            }
-
-            if (!firstVehicleId) {
+            const vehicle = this.getSelectedVehicle();
+            if (!vehicle) {
                 if (!quiet) alert('Vui lòng chọn ít nhất 1 dòng xe trước.');
                 return;
             }
 
-            const vehicle = this.vehicles.find(v => v.id == firstVehicleId);
-            if (!vehicle || !vehicle.layout_blocks || !Array.isArray(vehicle.layout_blocks)) {
-                if (!quiet) alert('Không tìm thấy giao diện mẫu của dòng xe đã chọn.');
-                return;
+            let blocks = vehicle.layout_blocks;
+            if (typeof blocks === 'string') {
+                try {
+                    blocks = JSON.parse(blocks);
+                } catch (e) {
+                    blocks = [];
+                }
+            }
+            if (!Array.isArray(blocks)) {
+                blocks = [];
             }
 
             if (!quiet && !confirm(`Bạn có chắc chắn muốn tải lại giao diện mẫu của dòng xe "${vehicle.title}"? Các thay đổi khối hiện tại sẽ được cập nhật theo mẫu của dòng xe này.`)) {
                 return;
             }
 
-            const clonedBlocks = JSON.parse(JSON.stringify(vehicle.layout_blocks));
+            let clonedBlocks = JSON.parse(JSON.stringify(blocks));
+
+            if (clonedBlocks.length === 0) {
+                clonedBlocks = [
+                    {
+                        id: 'hero-banner-' + Math.random().toString(36).substr(2, 9),
+                        type: 'HeroBanner',
+                        data: {
+                            title: vehicle.title ? `ƯU ĐÃI ${vehicle.title.toUpperCase()}` : 'ƯU ĐÃI ĐẶC BIỆT',
+                            tagline: 'Giá Tốt Nhất - Giao Xe Ngay - Hỗ Trợ Trả Góp',
+                            button_text: 'Nhận Báo Giá Lăn Bánh',
+                            button_link: '#register-form'
+                        }
+                    }
+                ];
+            }
 
             const hasConsultant = clonedBlocks.some(b => b.type === 'LdpSalesConsultant');
             const hasPromotions = clonedBlocks.some(b => b.type === 'LdpPromotions');
@@ -763,7 +775,7 @@ export default {
 
             this.formData.layout_blocks = clonedBlocks;
             if (!quiet) {
-                alert(`Đã cập nhật bộ khối giao diện theo dòng xe "${vehicle.title}" thành công!`);
+                alert(`Đã cập nhật bộ khối giao diện theo dòng xe "${vehicle.title}" thành công! (${clonedBlocks.length} khối)`);
             }
         },
         saveFromBuilder(submitFn) {
