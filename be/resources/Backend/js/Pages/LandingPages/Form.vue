@@ -162,6 +162,57 @@
                     </div>
                 </div>
 
+                <!-- Card Đường Dẫn LDP Thực Tế trên Website -->
+                <div class="card mt-4">
+                    <div class="card-header font-bold text-gray-900 border-b pb-2 flex items-center justify-between">
+                        <span>🔗 Đường Dẫn LDP Thực Tế Trên Website</span>
+                        <span v-if="getLdpUrls().length > 0" class="text-xs bg-blue-50 text-blue-700 font-bold px-2 py-0.5 rounded border border-blue-200">
+                            {{ getLdpUrls().length }} đường dẫn LDP
+                        </span>
+                    </div>
+                    <div class="card-body mt-3">
+                        <div v-if="getLdpUrls().length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div
+                                v-for="item in getLdpUrls()"
+                                :key="item.id"
+                                class="p-3 bg-gray-50 border border-gray-200 rounded-lg flex flex-col justify-between space-y-2 hover:border-blue-300 transition"
+                            >
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-bold text-gray-900 flex items-center gap-1.5">
+                                        🚗 {{ item.title }}
+                                    </span>
+                                    <a
+                                        :href="item.url"
+                                        target="_blank"
+                                        class="text-xs font-bold text-blue-600 hover:text-blue-800 underline flex items-center gap-1"
+                                    >
+                                        Xem thực tế ↗
+                                    </a>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <input
+                                        type="text"
+                                        readonly
+                                        :value="item.url"
+                                        class="w-full text-xs bg-white text-gray-700 px-2.5 py-1.5 border border-gray-300 rounded font-mono select-all focus:outline-none"
+                                        @click="$event.target.select()"
+                                    />
+                                    <button
+                                        type="button"
+                                        class="text-xs bg-gray-200 hover:bg-gray-300 text-gray-800 px-2.5 py-1.5 rounded font-semibold whitespace-nowrap cursor-pointer"
+                                        @click="copyToClipboard(item.url)"
+                                    >
+                                        📋 Copy
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div v-else class="text-xs text-gray-500 italic p-3 bg-gray-50 rounded-lg border border-dashed text-center">
+                            ⚠️ Vui lòng chọn <strong>Cố vấn phụ trách</strong> và chọn ít nhất 1 <strong>Dòng xe áp dụng</strong> để tạo đường dẫn LDP.
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Cấu hình SEO -->
                 <div class="card mt-4">
                     <div class="card-header font-bold text-gray-900 border-b pb-2">🔍 Tối ưu hóa tìm kiếm (SEO)</div>
@@ -696,18 +747,56 @@ export default {
         removeCustomPromo(index) {
             this.formData.promotions.custom_promotions.splice(index, 1);
         },
-        getLdpPreviewUrl() {
-            const vehicle = this.getSelectedVehicle();
+        getLdpUrls() {
             const consultant = this.salesConsultants.find(c => String(c.id) === String(this.formData.sales_consultant_id));
-            if (vehicle && consultant) {
-                let clientUrl = window.location.origin.replace('8000', '3000');
-                if (clientUrl.includes('cms.')) {
-                    clientUrl = clientUrl.replace('cms.', '');
-                }
-                const consultantSlug = consultant.slug || this.slugify(consultant.name);
-                return `${clientUrl}/ldp/${consultantSlug}/${vehicle.slug}`;
+            if (!consultant) return [];
+
+            let clientUrl = window.location.origin.replace('8000', '3000');
+            if (clientUrl.includes('cms.')) {
+                clientUrl = clientUrl.replace('cms.', '');
             }
-            return '#';
+            const consultantSlug = consultant.slug || this.slugify(consultant.name);
+
+            let vehicleIds = this.formData.vehicle_ids;
+            let rawIds = vehicleIds;
+            if (typeof rawIds === 'string') {
+                try {
+                    rawIds = JSON.parse(rawIds);
+                } catch (e) {
+                    rawIds = [];
+                }
+            }
+            if (!Array.isArray(rawIds) || rawIds.length === 0) {
+                rawIds = this.formData.vehicle_id ? [this.formData.vehicle_id] : [];
+            }
+
+            const selectedVehicles = rawIds.map(id => {
+                const realId = typeof id === 'object' && id !== null ? (id.id ?? id) : id;
+                return this.vehicles.find(v => String(v.id) === String(realId));
+            }).filter(Boolean);
+
+            if (selectedVehicles.length === 0 && this.formData.vehicle_id) {
+                const fallbackVehicle = this.vehicles.find(v => String(v.id) === String(this.formData.vehicle_id));
+                if (fallbackVehicle) selectedVehicles.push(fallbackVehicle);
+            }
+
+            return selectedVehicles.map(v => ({
+                id: v.id,
+                title: v.title,
+                url: `${clientUrl}/ldp/${consultantSlug}/${v.slug}`
+            }));
+        },
+        copyToClipboard(text) {
+            if (!text) return;
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Đã sao chép đường dẫn LDP vào bộ nhớ tạm!');
+            }).catch(() => {
+                alert('Không thể tự động sao chép. Vui lòng chọn thủ công.');
+            });
+        },
+        getLdpPreviewUrl() {
+            const urls = this.getLdpUrls();
+            return urls.length > 0 ? urls[0].url : '#';
         },
         slugify(text) {
             return text.toString().toLowerCase()

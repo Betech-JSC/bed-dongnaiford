@@ -26,9 +26,39 @@ export default {
                         return row.vehicle ? row.vehicle.title : '—';
                     }
                 },
+                {
+                    field: 'urls',
+                    label: 'Đường dẫn LDP',
+                    transform: (row) => {
+                        if (!row.sales_consultant) return '—';
+                        const consultantSlug = row.sales_consultant.slug || this.slugify(row.sales_consultant.name);
+                        let clientUrl = window.location.origin.replace('8000', '3000');
+                        if (clientUrl.includes('cms.')) {
+                            clientUrl = clientUrl.replace('cms.', '');
+                        }
+
+                        let vehicles = row.vehicles_list || [];
+                        if (vehicles.length === 0 && row.vehicle) {
+                            vehicles = [row.vehicle];
+                        }
+                        if (vehicles.length === 0) return '—';
+
+                        return vehicles.map(v => `${clientUrl}/ldp/${consultantSlug}/${v.slug}`).join('\n');
+                    }
+                },
                 'status',
                 'created_at',
             ]
+        }
+    },
+    methods: {
+        slugify(text) {
+            return text.toString().toLowerCase()
+                .replace(/\s+/g, '-')
+                .replace(/[^\w\-]+/g, '')
+                .replace(/\-\-+/g, '-')
+                .replace(/^-+/, '')
+                .replace(/-+$/, '');
         }
     }
 }
