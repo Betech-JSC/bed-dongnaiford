@@ -65,7 +65,10 @@ class LandingPage extends BaseModel
             $ids = array_values(array_filter($ids));
             $this->attributes['vehicle_ids'] = json_encode($ids);
             if (!empty($ids)) {
-                $this->attributes['vehicle_id'] = $ids[0];
+                $currentVehicleId = (int)($this->attributes['vehicle_id'] ?? 0);
+                if (!$currentVehicleId || !in_array($currentVehicleId, $ids)) {
+                    $this->attributes['vehicle_id'] = $ids[0];
+                }
             }
         } else {
             $this->attributes['vehicle_ids'] = null;
@@ -93,7 +96,10 @@ class LandingPage extends BaseModel
         static::saving(function ($landingPage) {
             $ids = $landingPage->vehicle_ids;
             if (is_array($ids) && count($ids) > 0) {
-                $landingPage->vehicle_id = (int)$ids[0];
+                $currentVehicleId = (int)($landingPage->vehicle_id ?? 0);
+                if (!$currentVehicleId || !in_array($currentVehicleId, array_map('intval', $ids))) {
+                    $landingPage->vehicle_id = (int)$ids[0];
+                }
             }
             if (empty($landingPage->layout_blocks) && $landingPage->vehicle_id) {
                 $vehicle = Vehicle::find($landingPage->vehicle_id);
