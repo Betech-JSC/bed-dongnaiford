@@ -81,7 +81,11 @@ class LandingPage extends BaseModel
         if (empty($ids)) {
             return [];
         }
-        return Vehicle::whereIn('id', (array)$ids)->get(['id', 'title', 'slug'])->toArray();
+        return Vehicle::whereIn('id', (array)$ids)->get()->map(fn($v) => [
+            'id' => $v->id,
+            'title' => $v->title,
+            'slug' => $v->slug,
+        ])->toArray();
     }
 
     protected static function booted()
