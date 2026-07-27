@@ -206,6 +206,9 @@ class LandingPageApiController extends Controller
                 if ($block['type'] === 'HeroBanner' && isset($block['data']['background_image'])) {
                     $blocks[$i]['data']['background_image'] = $this->resolveFileUrl($block['data']['background_image']);
                 }
+                if ($block['type'] === 'CountdownOfferBanner' && isset($block['data']['background_image'])) {
+                    $blocks[$i]['data']['background_image'] = $this->resolveFileUrl($block['data']['background_image']);
+                }
                 if ($block['type'] === 'BookingBanner' && isset($block['data']['car_image'])) {
                     $blocks[$i]['data']['car_image'] = $this->resolveFileUrl($block['data']['car_image']);
                 }

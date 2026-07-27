@@ -852,6 +852,118 @@
                                 urlOnly: true,
                             }" />
                         </div>
+
+                        <!-- 16. InstallmentCalculator Edit Form -->
+                        <div v-else-if="blocks[activeIndex].type === 'InstallmentCalculator'" class="space-y-4">
+                            <Field v-model="blocks[activeIndex].data.title" :field="{
+                                type: 'text',
+                                name: 'ic_title_' + activeIndex,
+                                label: 'Tiêu đề khối trả góp',
+                                placeholder: 'vd: Bảng Tính Chi Phí Trả Góp Ước Tính',
+                            }" />
+                            <Field v-model="blocks[activeIndex].data.subtitle" :field="{
+                                type: 'text',
+                                name: 'ic_sub_' + activeIndex,
+                                label: 'Mô tả phụ',
+                                placeholder: 'vd: Chỉ từ 20% giá trị xe, hỗ trợ vay đến 8 năm',
+                            }" />
+                            <div class="grid grid-cols-2 gap-3">
+                                <Field v-model.number="blocks[activeIndex].data.interest_rate" :field="{
+                                    type: 'text',
+                                    name: 'ic_ir_' + activeIndex,
+                                    label: 'Lãi suất (%/năm)',
+                                    placeholder: '7.9',
+                                }" />
+                                <Field v-model.number="blocks[activeIndex].data.max_years" :field="{
+                                    type: 'text',
+                                    name: 'ic_my_' + activeIndex,
+                                    label: 'Năm vay tối đa',
+                                    placeholder: '8',
+                                }" />
+                            </div>
+                            <Field v-model="blocks[activeIndex].data.custom_price" :field="{
+                                type: 'text',
+                                name: 'ic_cp_' + activeIndex,
+                                label: 'Giá tham khảo tùy chỉnh (nếu bỏ trống tự lấy giá xe)',
+                                placeholder: 'vd: 850000000',
+                            }" />
+                            <Field v-model="blocks[activeIndex].data.zalo_button_text" :field="{
+                                type: 'text',
+                                name: 'ic_zb_' + activeIndex,
+                                label: 'Nhãn nút liên hệ Zalo',
+                                placeholder: 'vd: Nhận bảng tính chi tiết qua Zalo',
+                            }" />
+                        </div>
+
+                        <!-- 17. CountdownOfferBanner Edit Form -->
+                        <div v-else-if="blocks[activeIndex].type === 'CountdownOfferBanner'" class="space-y-4">
+                            <Field v-model="blocks[activeIndex].data.title" :field="{
+                                type: 'text',
+                                name: 'cob_title_' + activeIndex,
+                                label: 'Tiêu đề khuyến mãi',
+                                placeholder: 'vd: CHƯƠNG TRÌNH ƯU ĐÃI ĐẶC BIỆT THÁNG NÀY',
+                            }" />
+                            <Field v-model="blocks[activeIndex].data.subtitle" :field="{
+                                type: 'text',
+                                name: 'cob_sub_' + activeIndex,
+                                label: 'Mô tả chương trình',
+                                placeholder: 'vd: Đăng ký ngay để giữ suất quà tặng...',
+                            }" />
+                            <div class="grid grid-cols-2 gap-3">
+                                <Field v-model="blocks[activeIndex].data.end_date" :field="{
+                                    type: 'text',
+                                    name: 'cob_ed_' + activeIndex,
+                                    label: 'Hạn đếm ngược (YYYY-MM-DD HH:mm)',
+                                    placeholder: 'vd: 2026-08-15 23:59',
+                                }" />
+                                <Field v-model.number="blocks[activeIndex].data.remaining_slots" :field="{
+                                    type: 'text',
+                                    name: 'cob_rs_' + activeIndex,
+                                    label: 'Số suất còn lại',
+                                    placeholder: '3',
+                                }" />
+                            </div>
+                            <Field v-model="blocks[activeIndex].data.button_text" :field="{
+                                type: 'text',
+                                name: 'cob_btn_' + activeIndex,
+                                label: 'Nhãn nút đăng ký giữ suất',
+                                placeholder: 'vd: Đăng Ký Giữ Suất Ưu Đãi',
+                            }" />
+                            <Field v-model="blocks[activeIndex].data.background_image" :field="{
+                                type: 'file_upload',
+                                name: 'cob_bg_' + activeIndex,
+                                label: 'Ảnh nền khối ưu đãi',
+                                urlOnly: true,
+                            }" />
+                        </div>
+
+                        <!-- 18. DualVehicleComparison Edit Form -->
+                        <div v-else-if="blocks[activeIndex].type === 'DualVehicleComparison'" class="space-y-4">
+                            <Field v-model="blocks[activeIndex].data.title" :field="{
+                                type: 'text',
+                                name: 'dvc_title_' + activeIndex,
+                                label: 'Tiêu đề khối so sánh',
+                                placeholder: 'vd: SO SÁNH TRỰC QUAN 2 DÒNG XE',
+                            }" />
+                            <Field v-model="blocks[activeIndex].data.subtitle" :field="{
+                                type: 'text',
+                                name: 'dvc_sub_' + activeIndex,
+                                label: 'Mô tả phụ',
+                                placeholder: 'vd: Lựa chọn dòng xe phù hợp nhất...',
+                            }" />
+                            <Field v-model="blocks[activeIndex].data.consultant_note_1" :field="{
+                                type: 'textarea',
+                                name: 'dvc_cn1_' + activeIndex,
+                                label: 'Ghi chú tư vấn cho Xe thứ nhất',
+                                placeholder: 'vd: Phù hợp di chuyển gia đình đô thị...',
+                            }" />
+                            <Field v-model="blocks[activeIndex].data.consultant_note_2" :field="{
+                                type: 'textarea',
+                                name: 'dvc_cn2_' + activeIndex,
+                                label: 'Ghi chú tư vấn cho Xe thứ hai',
+                                placeholder: 'vd: Mạnh mẽ vượt địa hình...',
+                            }" />
+                        </div>
                     </div>
 
                     <!-- Styling & Layout Panel -->
@@ -1338,6 +1450,9 @@ export default {
                 { type: 'ComparisonTable', icon: '⚖️', name: 'So sánh với đối thủ', desc: 'Bảng so sánh nhanh xe Ford vs đối thủ cạnh tranh' },
                 { type: 'GalleryMasonry', icon: '🖼️', name: 'Bộ sưu tập ảnh', desc: 'Hiển thị nhiều ảnh dạng lưới Masonry (ảnh thực tế xe, showroom)' },
                 { type: 'SocialProof', icon: '📱', name: 'Bằng chứng xã hội', desc: 'Hiển thị số liệu thống kê ấn tượng (số xe bán, năm kinh nghiệm)' },
+                { type: 'InstallmentCalculator', icon: '🧮', name: 'Bảng tính chi phí trả góp', desc: 'Slider kéo chọn tỷ lệ trả trước & số tháng để tính số tiền trả gốc lãi hàng tháng' },
+                { type: 'CountdownOfferBanner', icon: '🔥', name: 'Đếm ngược ưu đãi & Giữ suất', desc: 'Đồng hồ đếm ngược thời gian thực + hiển thị số suất còn lại + đăng ký giữ suất quà' },
+                { type: 'DualVehicleComparison', icon: '⚖️', name: 'So sánh song song 2 xe', desc: 'Bảng so sánh trực quan các thông số nổi bật dành riêng cho LDP chọn 2 xe' },
             ]
         }
     },
@@ -1724,6 +1839,9 @@ export default {
                 ComparisonTable: 'So sánh với đối thủ (Comparison)',
                 GalleryMasonry: 'Bộ sưu tập ảnh (Gallery)',
                 SocialProof: 'Bằng chứng xã hội (Social Proof)',
+                InstallmentCalculator: 'Bảng tính chi phí trả góp (Installment Calculator)',
+                CountdownOfferBanner: 'Đếm ngược ưu đãi & Giữ suất (Countdown Offer)',
+                DualVehicleComparison: 'So sánh song song 2 xe (Dual Vehicle Comparison)',
             }[type] || type
         },
         getBlockIcon(type) {
@@ -1743,6 +1861,9 @@ export default {
                 ComparisonTable: '⚖️',
                 GalleryMasonry: '🖼️',
                 SocialProof: '📱',
+                InstallmentCalculator: '🧮',
+                CountdownOfferBanner: '🔥',
+                DualVehicleComparison: '⚖️',
             }[type] || '📦'
         },
         addBlockType(type) {
@@ -1917,6 +2038,41 @@ export default {
                         { value: '4.9/5', label: 'Đánh giá trung bình', icon: '⭐' },
                         { value: '50+', label: 'Nhân viên chuyên nghiệp', icon: '👨‍💼' },
                     ]
+                }
+            } else if (type === 'InstallmentCalculator') {
+                newBlock.data = {
+                    title: 'Bảng Tính Chi Phí Trả Góp Ước Tính',
+                    subtitle: 'Chỉ từ 20% giá trị xe, hỗ trợ vay đến 8 năm với lãi suất ưu đãi',
+                    interest_rate: 7.9,
+                    max_years: 8,
+                    default_downpayment_pct: 20,
+                    custom_price: '',
+                    zalo_button_text: 'Nhận bảng tính chi tiết qua Zalo',
+                    align: 'center',
+                    title_size: 'medium',
+                    title_color: '#1a1a1a'
+                }
+            } else if (type === 'CountdownOfferBanner') {
+                newBlock.data = {
+                    title: 'CHƯƠNG TRÌNH ƯU ĐÃI ĐẶC BIỆT THÁNG NÀY',
+                    subtitle: 'Đăng ký ngay để giữ suất quà tặng phụ kiện & giảm trực tiếp tiền mặt',
+                    end_date: new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 16),
+                    remaining_slots: 3,
+                    button_text: 'Đăng Ký Giữ Suất Ưu Đãi',
+                    background_image: null,
+                    align: 'center',
+                    title_size: 'medium',
+                    title_color: '#ffffff'
+                }
+            } else if (type === 'DualVehicleComparison') {
+                newBlock.data = {
+                    title: 'SO SÁNH TRỰC QUAN 2 DÒNG XE',
+                    subtitle: 'Lựa chọn dòng xe phù hợp nhất với nhu cầu sử dụng của bạn',
+                    consultant_note_1: 'Phù hợp di chuyển gia đình đô thị, tiết kiệm nhiên liệu.',
+                    consultant_note_2: 'Mạnh mẽ vượt địa hình, khoang hành lý cực rộng rãi.',
+                    align: 'center',
+                    title_size: 'medium',
+                    title_color: '#1a1a1a'
                 }
             }
 
