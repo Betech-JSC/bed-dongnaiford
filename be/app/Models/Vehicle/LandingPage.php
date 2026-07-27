@@ -20,6 +20,7 @@ class LandingPage extends BaseModel
     protected $fillable = [
         'sales_consultant_id',
         'vehicle_id',
+        'vehicle_ids',
         'layout_blocks',
         'promotions',
         'status',
@@ -27,10 +28,13 @@ class LandingPage extends BaseModel
     ];
 
     protected $casts = [
+        'vehicle_ids' => 'array',
         'layout_blocks' => 'array',
         'promotions' => 'array',
         'sort_order' => 'integer',
     ];
+
+    protected $appends = ['vehicles_list'];
 
     public const STATUS_ACTIVE = 'ACTIVE';
     public const STATUS_INACTIVE = 'INACTIVE';
@@ -46,10 +50,48 @@ class LandingPage extends BaseModel
         'seo_schemas',
     ];
 
+    public function setVehicleIdsAttribute($value)
+    {
+        if (is_string($value)) {
+            $value = json_decode($value, true);
+        }
+        if (is_array($value)) {
+            $ids = array_map(function ($item) {
+                if (is_array($item) && isset($item['id'])) {
+                    return (int) $item['id'];
+                }
+                return (int) $item;
+            }, $value);
+            $ids = array_values(array_filter($ids));
+            $this->attributes['vehicle_ids'] = json_encode($ids);
+            if (!empty($ids)) {
+                $this->attributes['vehicle_id'] = $ids[0];
+            }
+        } else {
+            $this->attributes['vehicle_ids'] = null;
+        }
+    }
+
+    public function getVehiclesListAttribute()
+    {
+        $ids = $this->vehicle_ids;
+        if (empty($ids) && $this->vehicle_id) {
+            $ids = [(int)$this->vehicle_id];
+        }
+        if (empty($ids)) {
+            return [];
+        }
+        return Vehicle::whereIn('id', (array)$ids)->get(['id', 'title', 'slug'])->toArray();
+    }
+
     protected static function booted()
     {
-        static::creating(function ($landingPage) {
-            if (empty($landingPage->layout_blocks)) {
+        static::saving(function ($landingPage) {
+            $ids = $landingPage->vehicle_ids;
+            if (is_array($ids) && count($ids) > 0) {
+                $landingPage->vehicle_id = (int)$ids[0];
+            }
+            if (empty($landingPage->layout_blocks) && $landingPage->vehicle_id) {
                 $vehicle = Vehicle::find($landingPage->vehicle_id);
                 if ($vehicle) {
                     $landingPage->layout_blocks = $vehicle->layout_blocks;
@@ -75,14 +117,8 @@ class LandingPage extends BaseModel
 
         $base = [
             'sales_consultant_id' => 'required|integer|exists:sales_consultants,id',
-            'vehicle_id' => [
-                'required',
-                'integer',
-                'exists:vehicles,id',
-                Rule::unique('landing_pages', 'vehicle_id')
-                    ->where('sales_consultant_id', $salesConsultantId)
-                    ->ignore($id),
-            ],
+            'vehicle_ids' => 'required|array|min:1',
+            'vehicle_id' => 'nullable|integer',
             'status' => 'required|string|in:ACTIVE,INACTIVE',
             'sort_order' => 'nullable|integer',
             'layout_blocks' => 'nullable|array',

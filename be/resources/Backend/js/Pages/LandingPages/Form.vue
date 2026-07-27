@@ -28,7 +28,7 @@
                         type="button"
                         class="btn"
                         :class="activeFormTab === 'builder' ? 'btn-primary' : 'btn-outline-primary'"
-                        :disabled="!form.vehicle_id"
+                        :disabled="!hasVehicleSelected"
                         @click="activeFormTab = 'builder'"
                     >
                         🎨 Thiết kế Giao diện (Block Editor)
@@ -266,6 +266,14 @@
                         <div class="flex items-center space-x-3">
                             <button
                                 type="button"
+                                class="bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-bold px-3 py-2 rounded-lg cursor-pointer transition-colors border border-solid border-amber-300 h-9 flex items-center justify-center gap-1.5"
+                                @click="applyVehicleDefaultLayout()"
+                                title="Cập nhật bố cục mẫu theo xe đã chọn"
+                            >
+                                🔄 Tải lại bố cục theo xe
+                            </button>
+                            <button
+                                type="button"
                                 class="bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold px-4 py-2 rounded-lg cursor-pointer transition-colors border border-solid border-blue-200 h-9 flex items-center justify-center gap-1.5"
                                 @click="showHelpModal = true"
                             >
@@ -322,17 +330,33 @@
                         }"
                     />
 
-                    <!-- Chọn dòng xe -->
+                    <!-- Chọn dòng xe (Cho phép chọn nhiều dòng xe) -->
                     <Field
-                        v-model="form.vehicle_id"
+                        v-model="form.vehicle_ids"
                         :field="{
-                            type: 'dropdown',
-                            name: 'vehicle_id',
-                            label: 'Dòng xe áp dụng',
+                            type: 'select_multiple',
+                            name: 'vehicle_ids',
+                            label: 'Dòng xe áp dụng (Có thể chọn nhiều)',
                             options: vehicles,
-                            emptyLabel: '-- Chọn dòng xe --',
+                            labelBy: 'title',
+                            keyBy: 'id',
+                            placeholder: '-- Chọn các dòng xe áp dụng --',
                         }"
                     />
+
+                    <!-- Nút cập nhật lại bố cục theo dòng xe đã chọn -->
+                    <div v-if="hasVehicleSelected" class="mt-2.5 p-2.5 bg-blue-50/70 border border-blue-200/80 rounded-lg">
+                        <button
+                            type="button"
+                            class="text-blue-700 hover:text-blue-900 font-bold text-xs cursor-pointer flex items-center gap-1.5 border-0 bg-transparent p-0"
+                            @click="applyVehicleDefaultLayout()"
+                        >
+                            <span>🔄</span> Tải lại giao diện mẫu theo dòng xe đã chọn
+                        </button>
+                        <p class="text-[11px] text-gray-500 mt-1 leading-snug">
+                            Khi bạn chọn dòng xe mới, bấm nút này để nạp lại toàn bộ khối thiết kế mẫu tương ứng của xe đó.
+                        </p>
+                    </div>
 
                     <!-- Trạng thái hoạt động -->
                     <Field
@@ -358,7 +382,7 @@
             </div>
 
             <!-- Preview Link nếu đã lưu -->
-            <div v-if="item.id && form.sales_consultant_id && form.vehicle_id" class="card mt-4">
+            <div v-if="item.id && form.sales_consultant_id && hasVehicleSelected" class="card mt-4">
                 <div class="card-header font-bold text-gray-900 border-b pb-2">👁️ Xem trước Landing Page</div>
                 <div class="card-body text-center py-4">
                     <a
@@ -555,17 +579,38 @@ export default {
         }
     },
     computed: {
+        hasVehicleSelected() {
+            if (Array.isArray(this.formData.vehicle_ids) && this.formData.vehicle_ids.length > 0) {
+                return true;
+            }
+            return !!this.formData.vehicle_id;
+        },
         selectedVehicleSlug() {
-            if (!this.formData.vehicle_id) return '';
-            const vehicle = this.vehicles.find(v => v.id == this.formData.vehicle_id);
+            let firstVehicleId = null;
+            if (Array.isArray(this.formData.vehicle_ids) && this.formData.vehicle_ids.length > 0) {
+                const first = this.formData.vehicle_ids[0];
+                firstVehicleId = typeof first === 'object' && first !== null ? (first.id ?? first) : first;
+            } else if (this.formData.vehicle_id) {
+                firstVehicleId = this.formData.vehicle_id;
+            }
+            if (!firstVehicleId) return '';
+            const vehicle = this.vehicles.find(v => v.id == firstVehicleId);
             return vehicle ? vehicle.slug : '';
         }
     },
     methods: {
         initFormData(item) {
+            let vehicleIds = [];
+            if (item.vehicle_ids && Array.isArray(item.vehicle_ids) && item.vehicle_ids.length > 0) {
+                vehicleIds = item.vehicle_ids.map(id => typeof id === 'object' && id !== null ? String(id.id) : String(id));
+            } else if (item.vehicle_id) {
+                vehicleIds = [String(item.vehicle_id)];
+            }
+
             const data = {
                 status: 'ACTIVE',
                 sort_order: 0,
+                vehicle_ids: vehicleIds,
                 layout_blocks: [],
                 ...item,
                 promotions: item.promotions || {
@@ -636,7 +681,14 @@ export default {
             this.formData.promotions.custom_promotions.splice(index, 1);
         },
         getLdpPreviewUrl() {
-            const vehicle = this.vehicles.find(v => v.id == this.formData.vehicle_id);
+            let firstVehicleId = null;
+            if (Array.isArray(this.formData.vehicle_ids) && this.formData.vehicle_ids.length > 0) {
+                const first = this.formData.vehicle_ids[0];
+                firstVehicleId = typeof first === 'object' && first !== null ? (first.id ?? first) : first;
+            } else if (this.formData.vehicle_id) {
+                firstVehicleId = this.formData.vehicle_id;
+            }
+            const vehicle = this.vehicles.find(v => v.id == firstVehicleId);
             const consultant = this.salesConsultants.find(c => c.id == this.formData.sales_consultant_id);
             if (vehicle && consultant) {
                 // Định nghĩa link tới Next.js frontend
@@ -658,6 +710,61 @@ export default {
                 .replace(/\-\-+/g, '-')         // Replace multiple - with single -
                 .replace(/^-+/, '')             // Trim - from start of text
                 .replace(/-+$/, '');            // Trim - from end of text
+        },
+        applyVehicleDefaultLayout(quiet = false) {
+            let firstVehicleId = null;
+            if (Array.isArray(this.formData.vehicle_ids) && this.formData.vehicle_ids.length > 0) {
+                const first = this.formData.vehicle_ids[0];
+                firstVehicleId = typeof first === 'object' && first !== null ? (first.id ?? first) : first;
+            } else if (this.formData.vehicle_id) {
+                firstVehicleId = this.formData.vehicle_id;
+            }
+
+            if (!firstVehicleId) {
+                if (!quiet) alert('Vui lòng chọn ít nhất 1 dòng xe trước.');
+                return;
+            }
+
+            const vehicle = this.vehicles.find(v => v.id == firstVehicleId);
+            if (!vehicle || !vehicle.layout_blocks || !Array.isArray(vehicle.layout_blocks)) {
+                if (!quiet) alert('Không tìm thấy giao diện mẫu của dòng xe đã chọn.');
+                return;
+            }
+
+            if (!quiet && !confirm(`Bạn có chắc chắn muốn tải lại giao diện mẫu của dòng xe "${vehicle.title}"? Các thay đổi khối hiện tại sẽ được cập nhật theo mẫu của dòng xe này.`)) {
+                return;
+            }
+
+            const clonedBlocks = JSON.parse(JSON.stringify(vehicle.layout_blocks));
+
+            const hasConsultant = clonedBlocks.some(b => b.type === 'LdpSalesConsultant');
+            const hasPromotions = clonedBlocks.some(b => b.type === 'LdpPromotions');
+
+            if (!hasConsultant) {
+                const heroIdx = clonedBlocks.findIndex(b => b.type === 'HeroBanner');
+                clonedBlocks.splice(heroIdx !== -1 ? heroIdx + 1 : 0, 0, {
+                    id: 'sales-consultant-' + Math.random().toString(36).substr(2, 9),
+                    type: 'LdpSalesConsultant',
+                    data: {}
+                });
+            }
+
+            if (!hasPromotions) {
+                const consultantIdx = clonedBlocks.findIndex(b => b.type === 'LdpSalesConsultant');
+                clonedBlocks.splice(consultantIdx !== -1 ? consultantIdx + 1 : 1, 0, {
+                    id: 'ldp-promotions-' + Math.random().toString(36).substr(2, 9),
+                    type: 'LdpPromotions',
+                    data: {
+                        title: 'Chương Trình Khuyến Mãi Đặc Biệt',
+                        description: 'Nhận ưu đãi độc quyền từ Cố vấn khi đăng ký mua xe trong tháng này.'
+                    }
+                });
+            }
+
+            this.formData.layout_blocks = clonedBlocks;
+            if (!quiet) {
+                alert(`Đã cập nhật bộ khối giao diện theo dòng xe "${vehicle.title}" thành công!`);
+            }
         },
         saveFromBuilder(submitFn) {
             this.isSaving = true;

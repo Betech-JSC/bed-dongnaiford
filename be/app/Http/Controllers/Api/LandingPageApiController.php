@@ -94,7 +94,11 @@ class LandingPageApiController extends Controller
         $ldp = LandingPage::query()
             ->where('status', LandingPage::STATUS_ACTIVE)
             ->where('sales_consultant_id', $consultant->id)
-            ->where('vehicle_id', $vehicle->id)
+            ->where(function ($q) use ($vehicle) {
+                $q->where('vehicle_id', $vehicle->id)
+                  ->orWhereJsonContains('vehicle_ids', (int)$vehicle->id)
+                  ->orWhereJsonContains('vehicle_ids', (string)$vehicle->id);
+            })
             ->first();
 
         if (!$ldp) {

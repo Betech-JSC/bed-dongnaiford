@@ -44,7 +44,8 @@ class LandingPageController extends Controller
                 'id' => $v->id,
                 'label' => $v->title,
                 'title' => $v->title,
-                'slug' => $v->slug
+                'slug' => $v->slug,
+                'layout_blocks' => $v->layout_blocks,
             ]);
 
         // Lấy danh sách bài viết khuyến mãi thuộc category 'khuyen-mai'

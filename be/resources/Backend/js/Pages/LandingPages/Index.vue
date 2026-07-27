@@ -18,8 +18,13 @@ export default {
                 },
                 {
                     field: 'vehicle_id',
-                    label: 'Dòng xe',
-                    transform: (row) => row.vehicle ? row.vehicle.title : '—'
+                    label: 'Dòng xe áp dụng',
+                    transform: (row) => {
+                        if (row.vehicles_list && row.vehicles_list.length > 0) {
+                            return row.vehicles_list.map(v => v.title).join(', ');
+                        }
+                        return row.vehicle ? row.vehicle.title : '—';
+                    }
                 },
                 'status',
                 'created_at',
