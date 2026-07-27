@@ -94,6 +94,19 @@ class LandingPage extends BaseModel
     protected static function booted()
     {
         static::saving(function ($landingPage) {
+            // Tự động kiểm tra và xóa index UNIQUE cũ uid_lp_sales_vehicle trên mọi môi trường DB
+            try {
+                $hasOldIndex = \Illuminate\Support\Facades\DB::select("SHOW INDEXES FROM landing_pages WHERE Key_name = 'uid_lp_sales_vehicle'");
+                if (!empty($hasOldIndex)) {
+                    \Illuminate\Support\Facades\DB::statement("ALTER TABLE landing_pages DROP FOREIGN KEY fk_lp_sales_consultant_id");
+                    \Illuminate\Support\Facades\DB::statement("ALTER TABLE landing_pages DROP INDEX uid_lp_sales_vehicle");
+                    \Illuminate\Support\Facades\DB::statement("ALTER TABLE landing_pages ADD INDEX idx_lp_sales_consultant (sales_consultant_id)");
+                    \Illuminate\Support\Facades\DB::statement("ALTER TABLE landing_pages ADD CONSTRAINT fk_lp_sales_consultant_id FOREIGN KEY (sales_consultant_id) REFERENCES sales_consultants(id) ON DELETE CASCADE");
+                }
+            } catch (\Throwable $e) {
+                // Tháo gỡ lỗi nếu DB không có quyền DDL hoặc đã xóa
+            }
+
             $ids = $landingPage->vehicle_ids;
             if (is_array($ids) && count($ids) > 0) {
                 $currentVehicleId = (int)($landingPage->vehicle_id ?? 0);
