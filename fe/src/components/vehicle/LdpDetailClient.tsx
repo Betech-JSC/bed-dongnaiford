@@ -1,11 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { useVehicle } from "./VehicleLayoutClient";
 import VehicleLayoutClient from "./VehicleLayoutClient";
 import Blocks, { resolveImageUrl } from "@/components/blocks/Blocks";
-import { Phone, MessageCircle, Sparkles, ChevronRight } from "lucide-react";
+import { Phone, MessageCircle, Sparkles, Car } from "lucide-react";
 
-function LdpInnerContent({ salesConsultant, layoutBlocks, promotions, vehicle }: any) {
+function LdpInnerContent({ salesConsultant, layoutBlocks, promotions, vehicle, allVehicles }: any) {
   const { openQuoteDrawer, openDriveDrawer } = useVehicle();
 
   // Backwards compatibility dynamic injection for existing LDP pages
@@ -38,6 +39,8 @@ function LdpInnerContent({ salesConsultant, layoutBlocks, promotions, vehicle }:
   const heroBlock = resolvedBlocks.find((b: any) => b.type === "HeroBanner");
   const otherBlocks = resolvedBlocks.filter((b: any) => b.type !== "HeroBanner");
 
+  const consultantSlug = salesConsultant?.slug || salesConsultant?.name?.toLowerCase().replace(/\s+/g, '-');
+
   return (
     <div className="relative pb-16 md:pb-0">
       {/* 1. HERO BANNER */}
@@ -51,6 +54,41 @@ function LdpInnerContent({ salesConsultant, layoutBlocks, promotions, vehicle }:
           salesConsultant={salesConsultant}
           promotions={promotions}
         />
+      )}
+
+      {/* MULTI-VEHICLE SWITCHER TAB BAR */}
+      {allVehicles && allVehicles.length > 1 && (
+        <div className="bg-[#0b192e] text-white py-3.5 px-4 border-y border-white/10 sticky top-0 z-[40] shadow-md">
+          <div className="max-w-[1152px] mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-2 text-xs font-semibold text-blue-300 shrink-0">
+              <Car className="w-4 h-4 text-[#0562D2]" />
+              <span>Dòng xe cố vấn phụ trách ({allVehicles.length}):</span>
+            </div>
+            <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0 scrollbar-none">
+              {allVehicles.map((v: any) => {
+                const isActive = (v.slug || v.id) === (vehicle.slug || vehicle.id);
+                const vehicleSlug = v.slug || v.id;
+                const href = salesConsultant.custom_domain
+                  ? `/${vehicleSlug}`
+                  : `/ldp/${consultantSlug}/${vehicleSlug}`;
+                
+                return (
+                  <Link
+                    key={v.id}
+                    href={href}
+                    className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all shrink-0 border ${
+                      isActive
+                        ? "bg-[#0562D2] text-white border-[#0562D2] shadow-sm"
+                        : "bg-white/10 text-gray-200 border-white/10 hover:bg-white/20 hover:text-white"
+                    }`}
+                  >
+                    {v.title || v.name}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </div>
       )}
 
       {/* 2. OTHER LAYOUT BLOCKS (including Consultant & Promotions dynamic blocks) */}
@@ -130,19 +168,21 @@ function LdpInnerContent({ salesConsultant, layoutBlocks, promotions, vehicle }:
 }
 
 export default function LdpDetailClient({ initialData }: { initialData: any }) {
-  const { vehicle, sales_consultant, layout_blocks, promotions } = initialData;
+  const { vehicle, vehicles, sales_consultant, layout_blocks, promotions } = initialData;
+  const allVehicles = (vehicles && vehicles.length > 0) ? vehicles : [vehicle];
 
   return (
     <VehicleLayoutClient
       initialVehicle={vehicle}
-      allVehicles={[]}
-      salesConsultantId={sales_consultant.id}
+      allVehicles={allVehicles}
+      salesConsultantId={sales_consultant?.id}
     >
       <LdpInnerContent
         salesConsultant={sales_consultant}
         layoutBlocks={layout_blocks}
         promotions={promotions}
         vehicle={vehicle}
+        allVehicles={allVehicles}
       />
     </VehicleLayoutClient>
   );

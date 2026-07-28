@@ -33,9 +33,9 @@ export async function middleware(request: NextRequest) {
           const salesSlug = resJson.data.sales_slug;
           let vehicleSlug = request.nextUrl.pathname.replace(/^\//, "");
           
-          // Mặc định nếu truy cập trang chủ của domain vệ tinh thì trỏ về dòng xe chủ lực
+          // Mặc định nếu truy cập trang chủ của domain vệ tinh thì trỏ về dòng xe chủ lực của cố vấn
           if (!vehicleSlug) {
-            vehicleSlug = "ford-territory";
+            vehicleSlug = resJson.data.default_vehicle_slug || "ford-territory";
           }
 
           const url = request.nextUrl.clone();

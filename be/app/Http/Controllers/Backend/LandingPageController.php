@@ -34,7 +34,8 @@ class LandingPageController extends Controller
                 'id' => $c->id,
                 'label' => $c->name,
                 'name' => $c->name,
-                'slug' => $c->slug
+                'slug' => $c->slug,
+                'custom_domain' => $c->custom_domain,
             ]);
 
         $data['vehicles'] = Vehicle::where('status', Vehicle::STATUS_ACTIVE)

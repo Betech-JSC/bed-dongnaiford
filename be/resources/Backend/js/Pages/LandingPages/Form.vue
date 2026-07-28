@@ -434,15 +434,33 @@
 
             <!-- Preview Link nếu đã lưu -->
             <div v-if="item.id && form.sales_consultant_id && hasVehicleSelected" class="card mt-4">
-                <div class="card-header font-bold text-gray-900 border-b pb-2">👁️ Xem trước Landing Page</div>
-                <div class="card-body text-center py-4">
-                    <a
-                        :href="getLdpPreviewUrl()"
-                        target="_blank"
-                        class="btn btn-outline-secondary btn-block text-xs"
-                    >
-                        🔗 Mở trang LDP thực tế
-                    </a>
+                <div class="card-header font-bold text-gray-900 border-b pb-2 flex items-center justify-between">
+                    <span>👁️ Xem trước Landing Page các dòng xe</span>
+                    <span class="text-xs text-gray-500 font-normal">({{ getLdpUrls().length }} dòng xe)</span>
+                </div>
+                <div class="card-body p-3">
+                    <div v-for="ldpUrl in getLdpUrls()" :key="ldpUrl.id" class="flex items-center justify-between py-2 border-b last:border-0">
+                        <div class="flex items-center gap-1.5 overflow-hidden pr-2">
+                            <span class="text-xs font-semibold text-gray-800 shrink-0">🚘 {{ ldpUrl.title }}:</span>
+                            <span class="text-[11px] text-gray-500 truncate" :title="ldpUrl.url">{{ ldpUrl.url }}</span>
+                        </div>
+                        <div class="flex items-center gap-2 shrink-0">
+                            <a
+                                :href="ldpUrl.url"
+                                target="_blank"
+                                class="btn btn-xs btn-outline-primary"
+                            >
+                                🔗 Xem
+                            </a>
+                            <button
+                                type="button"
+                                class="btn btn-xs btn-outline-secondary"
+                                @click="copyToClipboard(ldpUrl.url)"
+                            >
+                                📋 Copy
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
             <!-- ===== MODAL THÔNG BÁO LƯU THÀNH CÔNG ===== -->
@@ -780,11 +798,18 @@ export default {
                 if (fallbackVehicle) selectedVehicles.push(fallbackVehicle);
             }
 
-            return selectedVehicles.map(v => ({
-                id: v.id,
-                title: v.title,
-                url: `${clientUrl}/ldp/${consultantSlug}/${v.slug}`
-            }));
+            return selectedVehicles.map(v => {
+                let url = `${clientUrl}/ldp/${consultantSlug}/${v.slug}`;
+                if (consultant.custom_domain) {
+                    const cleanDomain = consultant.custom_domain.replace(/^https?:\/\//i, '').replace(/\/$/, '');
+                    url = `https://${cleanDomain}/${v.slug}`;
+                }
+                return {
+                    id: v.id,
+                    title: v.title,
+                    url: url
+                };
+            });
         },
         copyToClipboard(text) {
             if (!text) return;

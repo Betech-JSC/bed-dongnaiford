@@ -45,9 +45,28 @@ class LandingPageApiController extends Controller
         // Lấy slug tiếng Việt làm mặc định
         $salesSlug = $consultant->translate('vi')?->slug ?: $consultant->slug;
 
+        // Tìm dòng xe mặc định từ LDP của cố vấn này
+        $defaultVehicleSlug = 'ford-territory';
+        $firstLdp = LandingPage::query()
+            ->where('status', LandingPage::STATUS_ACTIVE)
+            ->where('sales_consultant_id', $consultant->id)
+            ->first();
+
+        if ($firstLdp) {
+            $ids = $firstLdp->vehicle_ids;
+            $firstId = !empty($ids) ? $ids[0] : $firstLdp->vehicle_id;
+            if ($firstId) {
+                $v = Vehicle::find($firstId);
+                if ($v && $v->slug) {
+                    $defaultVehicleSlug = $v->slug;
+                }
+            }
+        }
+
         return $this->success([
             'found' => true,
             'sales_slug' => $salesSlug,
+            'default_vehicle_slug' => $defaultVehicleSlug,
         ]);
     }
 
@@ -111,6 +130,53 @@ class LandingPageApiController extends Controller
         // 5. Chuẩn hóa layout_blocks
         $layoutBlocks = $this->resolveLayoutBlocksUrls($ldp->layout_blocks);
 
+        // 6. Lấy toàn bộ danh sách các dòng xe được áp dụng cho LDP này
+        $vehicleIds = $ldp->vehicle_ids;
+        if (empty($vehicleIds) && $ldp->vehicle_id) {
+            $vehicleIds = [(int)$ldp->vehicle_id];
+        }
+
+        $allVehiclesData = [];
+        if (!empty($vehicleIds)) {
+            $allVehicles = Vehicle::query()
+                ->where('status', Vehicle::STATUS_ACTIVE)
+                ->whereIn('id', (array)$vehicleIds)
+                ->sortByPosition()
+                ->with([
+                    'categories',
+                    'versions' => fn($q) => $q->where('status', 'ACTIVE')->sortByPosition()
+                ])
+                ->get();
+
+            $allVehiclesData = $allVehicles->map(fn($v) => [
+                'id'            => (string)($v->slug ?: $v->id),
+                'name'          => $v->title,
+                'title'         => $v->title,
+                'slug'          => $v->slug,
+                'tagline'       => $v->tagline,
+                'base_price'    => $v->base_price,
+                'basePrice'     => (float)$v->base_price,
+                'image'         => $v->image,
+                'image_url'     => $v->image_url,
+                'images'        => $v->images,
+                'video_url'     => $v->video_url,
+                'video'         => $v->video,
+                'versions'      => $v->versions->map(fn($ver) => [
+                    'id'                  => (string)$ver->id,
+                    'name'                => $ver->name,
+                    'price'               => (float)$ver->price,
+                    'image_url'           => $ver->image_url,
+                    'image_thumbnail_url' => $ver->image_thumbnail_url,
+                    'specs'               => $ver->specs ?? [],
+                    'colors'              => collect($ver->colors ?? [])->map(fn($c) => [
+                        'name'       => $c['name'] ?? ($c['color_name'] ?? ''),
+                        'hex'        => $c['hex'] ?? ($c['color_code'] ?? ''),
+                        'image_path' => isset($c['image_path']) ? static_url($c['image_path']) : (isset($c['image']) ? $this->resolveFileUrl($c['image']) : null),
+                    ])->toArray()
+                ])->toArray()
+            ])->toArray();
+        }
+
         return $this->success([
             'id'                  => $ldp->id,
             'sales_consultant'    => $consultant->toLocalizedDetail($locale),
@@ -139,8 +205,9 @@ class LandingPageApiController extends Controller
                     ])->toArray()
                 ])
             ],
+            'vehicles'            => $allVehiclesData,
             'title'               => $ldp->title,
-            'layout_blocks'      => $layoutBlocks,
+            'layout_blocks'       => $layoutBlocks,
             'promotions'          => $promotionsData,
             'seo' => [
                 'meta_title'       => $ldp->seo_meta_title ?: $ldp->title,
