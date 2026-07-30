@@ -127,8 +127,22 @@ class LandingPageApiController extends Controller
         // 4. Giải mã / định dạng danh sách chương trình khuyến mãi
         $promotionsData = $this->resolvePromotions($ldp->promotions);
 
-        // 5. Chuẩn hóa layout_blocks
-        $layoutBlocks = $this->resolveLayoutBlocksUrls($ldp->layout_blocks);
+        // 5. Chuẩn hóa layout_blocks tương ứng với từng dòng xe đang xem
+        $rawBlocks = $ldp->layout_blocks;
+        if (is_string($rawBlocks)) {
+            $rawBlocks = json_decode($rawBlocks, true);
+        }
+
+        $hasHero = is_array($rawBlocks) && collect($rawBlocks)->contains(fn($b) => ($b['type'] ?? '') === 'HeroBanner');
+
+        if ((int)$ldp->vehicle_id !== (int)$vehicle->id || empty($rawBlocks) || !$hasHero) {
+            $rawBlocks = $vehicle->layout_blocks;
+            if (is_string($rawBlocks)) {
+                $rawBlocks = json_decode($rawBlocks, true);
+            }
+        }
+
+        $layoutBlocks = $this->resolveLayoutBlocksUrls($rawBlocks);
 
         // 6. Lấy toàn bộ danh sách các dòng xe được áp dụng cho LDP này
         $vehicleIds = $ldp->vehicle_ids;
