@@ -769,9 +769,20 @@ export default {
             const consultant = this.salesConsultants.find(c => String(c.id) === String(this.formData.sales_consultant_id));
             if (!consultant) return [];
 
-            let clientUrl = window.location.origin.replace('8000', '3000');
-            if (clientUrl.includes('cms.')) {
-                clientUrl = clientUrl.replace('cms.', '');
+            let clientUrl = '';
+            const origin = window.location.origin;
+            const hostname = window.location.hostname;
+            const port = window.location.port;
+
+            if (port === '8000') {
+                // Local dev: CMS chạy port 8000, frontend chạy port 3000
+                clientUrl = origin.replace(':8000', ':3000');
+            } else if (hostname.startsWith('cms.')) {
+                // Production CMS: cms.dongnaiford.com.vn → dongnaiford.com.vn
+                clientUrl = `https://${hostname.replace('cms.', '')}`;
+            } else {
+                // Fallback: dùng domain chính
+                clientUrl = `https://dongnaiford.com.vn`;
             }
             const consultantSlug = consultant.slug || this.slugify(consultant.name);
 

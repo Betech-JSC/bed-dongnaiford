@@ -56,13 +56,33 @@ class LandingPage extends BaseModel
             $value = json_decode($value, true);
         }
         if (is_array($value)) {
-            $ids = array_map(function ($item) {
-                if (is_array($item) && isset($item['id'])) {
-                    return (int) $item['id'];
+            $ids = [];
+            foreach ($value as $item) {
+                $parsed = null;
+                if (is_numeric($item)) {
+                    // Plain int or string like "3", 5, "12"
+                    $parsed = (int) $item;
+                } elseif (is_array($item)) {
+                    // Object like {id: 3, label: "..."} or {value: 3}
+                    if (isset($item['id'])) {
+                        $parsed = (int) $item['id'];
+                    } elseif (isset($item['value'])) {
+                        $parsed = (int) $item['value'];
+                    }
+                } elseif (is_object($item)) {
+                    // StdClass object from JSON decode
+                    if (isset($item->id)) {
+                        $parsed = (int) $item->id;
+                    } elseif (isset($item->value)) {
+                        $parsed = (int) $item->value;
+                    }
                 }
-                return (int) $item;
-            }, $value);
-            $ids = array_values(array_filter($ids));
+                if ($parsed !== null && $parsed > 0) {
+                    $ids[] = $parsed;
+                }
+            }
+            // Loại bỏ trùng lặp và đảm bảo mảng tuần tự
+            $ids = array_values(array_unique($ids));
             $this->attributes['vehicle_ids'] = json_encode($ids);
             if (!empty($ids)) {
                 $currentVehicleId = (int)($this->attributes['vehicle_id'] ?? 0);
