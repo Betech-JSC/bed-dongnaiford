@@ -128,14 +128,32 @@ class LandingPageApiController extends Controller
         $promotionsData = $this->resolvePromotions($ldp->promotions);
 
         // 5. Chuẩn hóa layout_blocks tương ứng với từng dòng xe đang xem
+        // Hỗ trợ 2 format:
+        //   - Map format (mới): { "vehicle_id": [...blocks...], "vehicle_id2": [...] }
+        //   - Flat array (cũ): [...blocks...]
         $rawBlocks = $ldp->layout_blocks;
         if (is_string($rawBlocks)) {
             $rawBlocks = json_decode($rawBlocks, true);
         }
 
-        $hasHero = is_array($rawBlocks) && collect($rawBlocks)->contains(fn($b) => ($b['type'] ?? '') === 'HeroBanner');
+        $vehicleIdStr = (string)$vehicle->id;
+        $isMapFormat = is_array($rawBlocks) && !empty($rawBlocks) && !isset($rawBlocks[0]);
 
-        if ((int)$ldp->vehicle_id !== (int)$vehicle->id || empty($rawBlocks) || !$hasHero) {
+        if ($isMapFormat) {
+            // Map format: lấy blocks theo vehicle_id
+            $rawBlocks = $rawBlocks[$vehicleIdStr] ?? ($rawBlocks[(int)$vehicle->id] ?? null);
+            if (is_string($rawBlocks)) {
+                $rawBlocks = json_decode($rawBlocks, true);
+            }
+        } else {
+            // Flat array (legacy): chỉ dùng nếu đúng xe chính
+            if ((int)$ldp->vehicle_id !== (int)$vehicle->id) {
+                $rawBlocks = null;
+            }
+        }
+
+        // Fallback: nếu không có blocks cho xe này, dùng layout_blocks mặc định của xe từ bảng vehicles
+        if (empty($rawBlocks) || !is_array($rawBlocks)) {
             $rawBlocks = $vehicle->layout_blocks;
             if (is_string($rawBlocks)) {
                 $rawBlocks = json_decode($rawBlocks, true);

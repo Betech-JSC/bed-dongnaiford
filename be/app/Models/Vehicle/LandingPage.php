@@ -134,7 +134,50 @@ class LandingPage extends BaseModel
                     $landingPage->vehicle_id = (int)$ids[0];
                 }
             }
-            if (empty($landingPage->layout_blocks) && $landingPage->vehicle_id) {
+            // Tự nạp layout_blocks mặc định cho từng xe nếu chưa có
+            $blocks = $landingPage->layout_blocks;
+            $ids = $landingPage->vehicle_ids;
+
+            if (is_array($ids) && count($ids) > 0) {
+                // Kiểm tra xem layout_blocks có phải map format hay không
+                $isMapFormat = is_array($blocks) && !empty($blocks) && !isset($blocks[0]);
+                $isFlatArray = is_array($blocks) && !empty($blocks) && isset($blocks[0]);
+
+                if (empty($blocks)) {
+                    // Khởi tạo map format mới cho tất cả xe
+                    $map = [];
+                    foreach ($ids as $vid) {
+                        $vehicle = Vehicle::find((int)$vid);
+                        if ($vehicle) {
+                            $vBlocks = $vehicle->layout_blocks;
+                            if (is_string($vBlocks)) {
+                                $vBlocks = json_decode($vBlocks, true);
+                            }
+                            $map[(string)$vid] = is_array($vBlocks) ? $vBlocks : [];
+                        }
+                    }
+                    $landingPage->layout_blocks = $map;
+                } elseif ($isFlatArray) {
+                    // Legacy flat array: giữ nguyên backward compat — không auto-migrate
+                } elseif ($isMapFormat) {
+                    // Map format: bổ sung blocks cho xe mới thêm vào (nếu chưa có)
+                    foreach ($ids as $vid) {
+                        $vidStr = (string)$vid;
+                        if (!isset($blocks[$vidStr]) && !isset($blocks[(int)$vid])) {
+                            $vehicle = Vehicle::find((int)$vid);
+                            if ($vehicle) {
+                                $vBlocks = $vehicle->layout_blocks;
+                                if (is_string($vBlocks)) {
+                                    $vBlocks = json_decode($vBlocks, true);
+                                }
+                                $blocks[$vidStr] = is_array($vBlocks) ? $vBlocks : [];
+                            }
+                        }
+                    }
+                    $landingPage->layout_blocks = $blocks;
+                }
+            } elseif (empty($blocks) && $landingPage->vehicle_id) {
+                // Fallback: 1 xe duy nhất, flat array
                 $vehicle = Vehicle::find($landingPage->vehicle_id);
                 if ($vehicle) {
                     $landingPage->layout_blocks = $vehicle->layout_blocks;

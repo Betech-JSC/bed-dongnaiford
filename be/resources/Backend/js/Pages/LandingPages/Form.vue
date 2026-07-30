@@ -319,9 +319,9 @@
                                 type="button"
                                 class="bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-bold px-3 py-2 rounded-lg cursor-pointer transition-colors border border-solid border-amber-300 h-9 flex items-center justify-center gap-1.5"
                                 @click="applyVehicleDefaultLayout()"
-                                title="Cập nhật bố cục mẫu theo xe đã chọn"
+                                title="Tải lại bố cục mẫu mặc định cho dòng xe đang xem"
                             >
-                                🔄 Tải lại bố cục theo xe
+                                🔄 Tải lại bố cục xe {{ activeVehicleTitle }}
                             </button>
                             <button
                                 type="button"
@@ -349,15 +349,32 @@
                         </div>
                     </div>
 
+                    <!-- Vehicle Sub-Tabs -->
+                    <div v-if="selectedVehicles.length > 1" class="flex items-center px-6 py-0 bg-white border-b border-gray-200 shrink-0 overflow-x-auto">
+                        <button
+                            v-for="v in selectedVehicles"
+                            :key="v.id"
+                            type="button"
+                            class="relative px-4 py-2.5 text-xs font-bold cursor-pointer transition-all duration-200 whitespace-nowrap border-0 bg-transparent"
+                            :class="String(activeVehicleTab) === String(v.id)
+                                ? 'text-[#008060] after:absolute after:bottom-0 after:left-2 after:right-2 after:h-[2.5px] after:bg-[#008060] after:rounded-t'
+                                : 'text-gray-500 hover:text-gray-800 hover:bg-gray-50'"
+                            @click="activeVehicleTab = String(v.id)"
+                        >
+                            🚘 {{ v.title }}
+                        </button>
+                    </div>
+
                     <!-- Fullscreen Workspace -->
                     <div class="flex-1 bg-[#f6f6f7] overflow-hidden relative h-full w-full">
                         <BlockEditor
-                            v-model="form.layout_blocks"
-                            :vehicle-slug="selectedVehicleSlug"
+                            v-model="activeVehicleBlocks"
+                            :vehicle-slug="activeVehicleSlug"
                             :vehicle-data="form"
                             :sales-consultants="salesConsultants"
                             :global-promotions="globalPromotions"
                             :fullscreen="true"
+                            :key="'editor-' + activeVehicleTab"
                         />
                     </div>
                 </div>
@@ -669,10 +686,20 @@
 export default {
     props: ['schema', 'item', 'data'],
     data() {
+        const fd = this.initFormData(this.item);
+        // Xác định activeVehicleTab mặc định = xe đầu tiên
+        let defaultTab = '';
+        if (Array.isArray(fd.vehicle_ids) && fd.vehicle_ids.length > 0) {
+            const first = fd.vehicle_ids[0];
+            defaultTab = String(typeof first === 'object' && first !== null ? (first.id ?? first) : first);
+        } else if (fd.vehicle_id) {
+            defaultTab = String(fd.vehicle_id);
+        }
         return {
-            formData: this.initFormData(this.item),
+            formData: fd,
             currentTab: 'vi',
             activeFormTab: 'general', // tab chính ('general' hoặc 'builder')
+            activeVehicleTab: defaultTab, // sub-tab xe đang thiết kế
             isSaving: false,
             showSuccessNotification: false,
             showHelpModal: false,
@@ -690,6 +717,37 @@ export default {
     watch: {
         item() {
             this.formData = this.initFormData(this.item);
+        },
+        'formData.vehicle_ids': {
+            handler(newIds, oldIds) {
+                if (!Array.isArray(newIds)) return;
+                const blocks = this.formData.layout_blocks;
+                const isMap = blocks && typeof blocks === 'object' && !Array.isArray(blocks);
+                if (!isMap) return;
+
+                // Bổ sung blocks cho xe mới thêm
+                const oldSet = new Set((oldIds || []).map(id => String(typeof id === 'object' ? (id.id ?? id) : id)));
+                newIds.forEach(rawId => {
+                    const id = String(typeof rawId === 'object' ? (rawId.id ?? rawId) : rawId);
+                    if (!oldSet.has(id) && !blocks[id]) {
+                        const vehicle = this.vehicles.find(v => String(v.id) === id);
+                        if (vehicle) {
+                            let vBlocks = vehicle.layout_blocks;
+                            if (typeof vBlocks === 'string') {
+                                try { vBlocks = JSON.parse(vBlocks); } catch(e) { vBlocks = []; }
+                            }
+                            this.formData.layout_blocks = { ...this.formData.layout_blocks, [id]: Array.isArray(vBlocks) ? JSON.parse(JSON.stringify(vBlocks)) : [] };
+                        }
+                    }
+                });
+
+                // Cập nhật activeVehicleTab nếu xe hiện tại bị xóa
+                const currentIds = newIds.map(id => String(typeof id === 'object' ? (id.id ?? id) : id));
+                if (!currentIds.includes(String(this.activeVehicleTab)) && currentIds.length > 0) {
+                    this.activeVehicleTab = currentIds[0];
+                }
+            },
+            deep: true
         }
     },
     computed: {
@@ -702,6 +760,55 @@ export default {
         selectedVehicleSlug() {
             const vehicle = this.getSelectedVehicle();
             return vehicle ? vehicle.slug : '';
+        },
+        // Danh sách object Vehicle đã chọn (theo vehicle_ids)
+        selectedVehicles() {
+            let ids = this.formData.vehicle_ids;
+            if (!Array.isArray(ids) || ids.length === 0) {
+                if (this.formData.vehicle_id) {
+                    ids = [this.formData.vehicle_id];
+                } else {
+                    return [];
+                }
+            }
+            return ids.map(id => {
+                const realId = typeof id === 'object' && id !== null ? (id.id ?? id) : id;
+                return this.vehicles.find(v => String(v.id) === String(realId));
+            }).filter(Boolean);
+        },
+        // Tên xe đang active trong Block Editor
+        activeVehicleTitle() {
+            const v = this.vehicles.find(v => String(v.id) === String(this.activeVehicleTab));
+            return v ? v.title : '';
+        },
+        // Slug xe đang active
+        activeVehicleSlug() {
+            const v = this.vehicles.find(v => String(v.id) === String(this.activeVehicleTab));
+            return v ? v.slug : '';
+        },
+        // Getter/Setter cho blocks của xe đang active
+        activeVehicleBlocks: {
+            get() {
+                const blocks = this.formData.layout_blocks;
+                const tabId = String(this.activeVehicleTab);
+                // Map format
+                if (blocks && typeof blocks === 'object' && !Array.isArray(blocks)) {
+                    return blocks[tabId] || [];
+                }
+                // Legacy flat array
+                return Array.isArray(blocks) ? blocks : [];
+            },
+            set(value) {
+                const blocks = this.formData.layout_blocks;
+                const tabId = String(this.activeVehicleTab);
+                // Map format
+                if (blocks && typeof blocks === 'object' && !Array.isArray(blocks)) {
+                    this.formData.layout_blocks = { ...blocks, [tabId]: value };
+                } else {
+                    // Migrate flat array to map
+                    this.formData.layout_blocks = { [tabId]: value };
+                }
+            }
         }
     },
     methods: {
@@ -747,7 +854,7 @@ export default {
             const data = {
                 status: 'ACTIVE',
                 sort_order: 0,
-                layout_blocks: [],
+                layout_blocks: {},
                 ...item,
                 vehicle_ids: vehicleIds,
                 promotions: (item && item.promotions) || {
@@ -756,33 +863,80 @@ export default {
                 },
             };
 
-            // Ensure default LDP blocks exist in layout_blocks for backwards compatibility and real-time syncing
-            if (data.layout_blocks && Array.isArray(data.layout_blocks)) {
-                const hasConsultant = data.layout_blocks.some(b => b.type === 'LdpSalesConsultant');
-                const hasPromotions = data.layout_blocks.some(b => b.type === 'LdpPromotions');
-                
-                if (!hasConsultant) {
-                    const heroIdx = data.layout_blocks.findIndex(b => b.type === 'HeroBanner');
-                    data.layout_blocks.splice(heroIdx !== -1 ? heroIdx + 1 : 0, 0, {
-                        id: 'sales-consultant-' + Math.random().toString(36).substr(2, 9),
-                        type: 'LdpSalesConsultant',
-                        data: {}
-                    });
-                }
-                
-                if (!hasPromotions) {
-                    const consultantIdx = data.layout_blocks.findIndex(b => b.type === 'LdpSalesConsultant');
-                    data.layout_blocks.splice(consultantIdx !== -1 ? consultantIdx + 1 : 1, 0, {
-                        id: 'ldp-promotions-' + Math.random().toString(36).substr(2, 9),
-                        type: 'LdpPromotions',
-                        data: {
-                            title: 'Chương Trình Khuyến Mãi Đặc Biệt',
-                            description: 'Nhận ưu đãi độc quyền từ Cố vấn khi đăng ký mua xe trong tháng này.'
-                        }
-                    });
-                }
+            // Migrate layout_blocks: flat array → map format theo vehicle_id
+            let blocks = data.layout_blocks;
+            if (typeof blocks === 'string') {
+                try { blocks = JSON.parse(blocks); } catch(e) { blocks = null; }
             }
-            
+
+            const isFlatArray = Array.isArray(blocks);
+            const isMapFormat = blocks && typeof blocks === 'object' && !Array.isArray(blocks);
+
+            if (isFlatArray && blocks.length > 0) {
+                // Migrate: gán flat array cho xe chính (vehicle_id), nạp mẫu cho các xe khác
+                const primaryId = String(data.vehicle_id || vehicleIds[0] || '');
+                const map = {};
+                if (primaryId) {
+                    map[primaryId] = blocks;
+                }
+                // Nạp mẫu mặc định cho các xe còn lại
+                vehicleIds.forEach(vid => {
+                    const vidStr = String(vid);
+                    if (!map[vidStr]) {
+                        const vehicle = (this.data?.vehicles ?? []).find(v => String(v.id) === vidStr);
+                        if (vehicle) {
+                            let vBlocks = vehicle.layout_blocks;
+                            if (typeof vBlocks === 'string') {
+                                try { vBlocks = JSON.parse(vBlocks); } catch(e) { vBlocks = []; }
+                            }
+                            map[vidStr] = Array.isArray(vBlocks) ? JSON.parse(JSON.stringify(vBlocks)) : [];
+                        }
+                    }
+                });
+                data.layout_blocks = map;
+            } else if (isMapFormat) {
+                // Đã đúng map format, bổ sung xe thiếu
+                vehicleIds.forEach(vid => {
+                    const vidStr = String(vid);
+                    if (!blocks[vidStr]) {
+                        const vehicle = (this.data?.vehicles ?? []).find(v => String(v.id) === vidStr);
+                        if (vehicle) {
+                            let vBlocks = vehicle.layout_blocks;
+                            if (typeof vBlocks === 'string') {
+                                try { vBlocks = JSON.parse(vBlocks); } catch(e) { vBlocks = []; }
+                            }
+                            blocks[vidStr] = Array.isArray(vBlocks) ? JSON.parse(JSON.stringify(vBlocks)) : [];
+                        }
+                    }
+                });
+                data.layout_blocks = blocks;
+            } else {
+                // Empty: nạp mẫu cho tất cả xe
+                const map = {};
+                vehicleIds.forEach(vid => {
+                    const vidStr = String(vid);
+                    const vehicle = (this.data?.vehicles ?? []).find(v => String(v.id) === vidStr);
+                    if (vehicle) {
+                        let vBlocks = vehicle.layout_blocks;
+                        if (typeof vBlocks === 'string') {
+                            try { vBlocks = JSON.parse(vBlocks); } catch(e) { vBlocks = []; }
+                        }
+                        map[vidStr] = Array.isArray(vBlocks) ? JSON.parse(JSON.stringify(vBlocks)) : [];
+                    }
+                });
+                data.layout_blocks = map;
+            }
+
+            // Đảm bảo mỗi bộ blocks có LdpSalesConsultant và LdpPromotions
+            const layoutMap = data.layout_blocks;
+            if (layoutMap && typeof layoutMap === 'object' && !Array.isArray(layoutMap)) {
+                Object.keys(layoutMap).forEach(vid => {
+                    const arr = layoutMap[vid];
+                    if (!Array.isArray(arr)) return;
+                    this._ensureLdpBlocks(arr);
+                });
+            }
+
             const locales = ['vi'];
             locales.forEach(loc => {
                 let trans = null;
@@ -802,6 +956,32 @@ export default {
             });
 
             return data;
+        },
+        // Helper: đảm bảo mỗi bộ blocks có LdpSalesConsultant và LdpPromotions
+        _ensureLdpBlocks(blocks) {
+            if (!Array.isArray(blocks)) return;
+            const hasConsultant = blocks.some(b => b.type === 'LdpSalesConsultant');
+            const hasPromotions = blocks.some(b => b.type === 'LdpPromotions');
+
+            if (!hasConsultant) {
+                const heroIdx = blocks.findIndex(b => b.type === 'HeroBanner');
+                blocks.splice(heroIdx !== -1 ? heroIdx + 1 : 0, 0, {
+                    id: 'sales-consultant-' + Math.random().toString(36).substr(2, 9),
+                    type: 'LdpSalesConsultant',
+                    data: {}
+                });
+            }
+            if (!hasPromotions) {
+                const consultantIdx = blocks.findIndex(b => b.type === 'LdpSalesConsultant');
+                blocks.splice(consultantIdx !== -1 ? consultantIdx + 1 : 1, 0, {
+                    id: 'ldp-promotions-' + Math.random().toString(36).substr(2, 9),
+                    type: 'LdpPromotions',
+                    data: {
+                        title: 'Chương Trình Khuyến Mãi Đặc Biệt',
+                        description: 'Nhận ưu đãi độc quyền từ Cố vấn khi đăng ký mua xe trong tháng này.'
+                    }
+                });
+            }
         },
         addCustomPromo() {
             if (!this.formData.promotions.custom_promotions) {
@@ -903,7 +1083,9 @@ export default {
                 .replace(/-+$/, '');            // Trim - from end of text
         },
         applyVehicleDefaultLayout(quiet = false) {
-            const vehicle = this.getSelectedVehicle();
+            // Tìm xe đang active trong Block Editor
+            const vehicleId = this.activeVehicleTab;
+            const vehicle = this.vehicles.find(v => String(v.id) === String(vehicleId));
             if (!vehicle) {
                 if (!quiet) this.triggerToast('Vui lòng chọn ít nhất 1 dòng xe trước.', 'warning');
                 return;
@@ -920,7 +1102,8 @@ export default {
         executeApplyVehicleLayout(quiet = false) {
             this.showConfirmLayoutModal = false;
 
-            const vehicle = this.getSelectedVehicle();
+            const vehicleId = this.activeVehicleTab;
+            const vehicle = this.vehicles.find(v => String(v.id) === String(vehicleId));
             if (!vehicle) return;
 
             let blocks = vehicle.layout_blocks;
@@ -952,31 +1135,18 @@ export default {
                 ];
             }
 
-            const hasConsultant = clonedBlocks.some(b => b.type === 'LdpSalesConsultant');
-            const hasPromotions = clonedBlocks.some(b => b.type === 'LdpPromotions');
+            // Đảm bảo có LdpSalesConsultant và LdpPromotions
+            this._ensureLdpBlocks(clonedBlocks);
 
-            if (!hasConsultant) {
-                const heroIdx = clonedBlocks.findIndex(b => b.type === 'HeroBanner');
-                clonedBlocks.splice(heroIdx !== -1 ? heroIdx + 1 : 0, 0, {
-                    id: 'sales-consultant-' + Math.random().toString(36).substr(2, 9),
-                    type: 'LdpSalesConsultant',
-                    data: {}
-                });
+            // Gán vào map cho xe đang active
+            const tabId = String(vehicleId);
+            const currentBlocks = this.formData.layout_blocks;
+            if (currentBlocks && typeof currentBlocks === 'object' && !Array.isArray(currentBlocks)) {
+                this.formData.layout_blocks = { ...currentBlocks, [tabId]: clonedBlocks };
+            } else {
+                this.formData.layout_blocks = { [tabId]: clonedBlocks };
             }
 
-            if (!hasPromotions) {
-                const consultantIdx = clonedBlocks.findIndex(b => b.type === 'LdpSalesConsultant');
-                clonedBlocks.splice(consultantIdx !== -1 ? consultantIdx + 1 : 1, 0, {
-                    id: 'ldp-promotions-' + Math.random().toString(36).substr(2, 9),
-                    type: 'LdpPromotions',
-                    data: {
-                        title: 'Chương Trình Khuyến Mãi Đặc Biệt',
-                        description: 'Nhận ưu đãi độc quyền từ Cố vấn khi đăng ký mua xe trong tháng này.'
-                    }
-                });
-            }
-
-            this.formData.layout_blocks = clonedBlocks;
             if (!quiet) {
                 this.triggerToast(`Đã nạp bộ khối giao diện mẫu của "${vehicle.title}" thành công!`, 'success');
             }
