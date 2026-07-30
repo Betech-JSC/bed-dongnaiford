@@ -695,10 +695,10 @@ export default {
             const data = {
                 status: 'ACTIVE',
                 sort_order: 0,
-                vehicle_ids: vehicleIds,
                 layout_blocks: [],
                 ...item,
-                promotions: item.promotions || {
+                vehicle_ids: vehicleIds,
+                promotions: (item && item.promotions) || {
                     global_promotion_ids: [],
                     custom_promotions: []
                 },

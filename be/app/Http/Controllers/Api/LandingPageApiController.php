@@ -132,8 +132,19 @@ class LandingPageApiController extends Controller
 
         // 6. Lấy toàn bộ danh sách các dòng xe được áp dụng cho LDP này
         $vehicleIds = $ldp->vehicle_ids;
-        if (empty($vehicleIds) && $ldp->vehicle_id) {
-            $vehicleIds = [(int)$ldp->vehicle_id];
+        if (empty($vehicleIds)) {
+            $consultantVehicleIds = LandingPage::query()
+                ->where('status', LandingPage::STATUS_ACTIVE)
+                ->where('sales_consultant_id', $consultant->id)
+                ->pluck('vehicle_id')
+                ->filter()
+                ->toArray();
+
+            if (!empty($consultantVehicleIds)) {
+                $vehicleIds = array_values(array_unique(array_map('intval', $consultantVehicleIds)));
+            } elseif ($ldp->vehicle_id) {
+                $vehicleIds = [(int)$ldp->vehicle_id];
+            }
         }
 
         $allVehiclesData = [];

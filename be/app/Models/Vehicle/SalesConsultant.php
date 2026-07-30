@@ -182,7 +182,8 @@ class SalesConsultant extends BaseModel
                     : (isset($g['path']) ? static_url($g['path']) : ($g['image_url'] ?? null)),
                 'caption'   => $g['caption'] ?? null,
             ])->values()->all(),
-            'email'      => $this->email,
+            'email'          => $this->email,
+            'custom_domain'  => $this->custom_domain,
         ];
     }
 }
