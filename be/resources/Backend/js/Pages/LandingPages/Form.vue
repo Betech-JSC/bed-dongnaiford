@@ -703,6 +703,13 @@ export default {
     methods: {
         getFirstVehicleId() {
             let ids = this.formData.vehicle_ids;
+            if (typeof ids === 'string') {
+                try {
+                    ids = JSON.parse(ids);
+                } catch (e) {
+                    ids = ids ? [ids] : [];
+                }
+            }
             if (!ids || (Array.isArray(ids) && ids.length === 0)) {
                 ids = this.formData.vehicle_id ? [this.formData.vehicle_id] : [];
             }
