@@ -26,7 +26,7 @@ class File
 
     public function __construct($path = '/', $disk = null)
     {
-        $path = urldecode($path);
+        $path = rawurldecode($path);
         $this->disk = $disk ?? 'uploads';
         if ($this->disk === 'uploads') {
             $cleanedPath = ltrim($path, '/');
