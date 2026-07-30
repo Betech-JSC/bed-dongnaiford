@@ -581,11 +581,11 @@
                                 <h4 class="font-bold text-gray-900">Cách thiết lập ban đầu cho một trang LDP:</h4>
                                 <ol class="list-decimal pl-5 space-y-2">
                                     <li>Nhấp vào nút <span class="font-semibold">Tạo mới Landing Page</span>.</li>
-                                    <li>Nhập <span class="font-semibold">Tiêu đề Landing Page</span> (Tiêu đề này hiển thị trên đầu tab trình duyệt, nên đặt thu hút như: <i>"Ford Territory Thế Thế Mới - Ưu Đãi Trả Góp 5.9% | Đồng Nai Ford"</i>).</li>
+                                    <li>Nhập <span class="font-semibold">Tiêu đề Landing Page</span> (Tiêu đề này hiển thị trên đầu tab trình duyệt, nên đặt thu hút như: <i>"Ford Territory Thế Hệ Mới - Ưu Đãi Trả Góp 5.9% | Đồng Nai Ford"</i>).</li>
                                     <li>Ở phần <span class="font-semibold">Liên kết trang (bên cột tay phải)</span>:
                                         <ul class="list-disc pl-5 mt-1 space-y-1 text-xs">
                                             <li><span class="font-semibold">Cố vấn phụ trách (Sales)</span>: Chọn đúng tên của bạn.</li>
-                                            <li><span class="font-semibold">Dòng xe áp dụng</span>: Chọn đúng chiếc xe bạn muốn chạy chiến dịch quảng cáo (ví dụ: Ford Everest, Ford Ranger...).</li>
+                                            <li><span class="font-semibold">Dòng xe áp dụng</span>: <span class="text-blue-700 font-bold">Có thể chọn nhiều dòng xe cùng lúc</span> (ví dụ: Ford Everest, Ford Ranger, Ford Transit...). Mỗi dòng xe sẽ tự động tạo một đường dẫn riêng và nạp giao diện chuẩn tương ứng!</li>
                                             <li><span class="font-semibold">Trạng thái LDP</span>: Chọn <span class="font-semibold">Hoạt động</span>.</li>
                                         </ul>
                                     </li>
@@ -594,19 +594,23 @@
 
                             <!-- TAB 3: Bố cục & Ưu đãi -->
                             <div v-show="activeHelpTab === 3" class="space-y-3">
+                                <div class="bg-blue-50 border-l-4 border-blue-500 p-3 rounded text-xs text-blue-800 font-semibold mb-2">
+                                    ✨ <span class="font-bold">Thiết kế riêng cho từng xe:</span> Khi chọn nhiều dòng xe, màn hình thiết kế sẽ có các thẻ chuyển đổi (🚘 Territory, 🚘 Everest, 🚘 Ranger...). Bạn có thể chuyển qua từng xe để chỉnh sửa bố cục riêng cho xe đó!
+                                </div>
                                 <h4 class="font-bold text-gray-900">Cách thiết kế giao diện bằng kéo thả (Block Editor):</h4>
                                 <ol class="list-decimal pl-5 space-y-2">
                                     <li>Bấm nút <span class="font-semibold">🎨 Thiết kế Giao diện (Block Editor)</span> ở góc trên bên phải.</li>
-                                    <li>Một màn hình lớn sẽ mở ra. Cột bên trái là danh sách các khối giao diện (Blocks), bên phải là màn hình xem trước (Live Preview).</li>
+                                    <li>Nếu chọn nhiều dòng xe, bấm vào <span class="font-semibold">thẻ tên xe ở hàng trên cùng</span> để chọn xe bạn muốn tùy biến giao diện.</li>
                                     <li><span class="font-semibold">Quy tắc bố cục chuẩn (khuyên dùng):</span>
                                         <ul class="list-disc pl-5 mt-1 space-y-1 text-xs">
-                                            <li><span class="font-semibold">Khối 1: Banner lớn (Hero Banner)</span>: Nên là banner đầu trang hiển thị tên xe, nút bấm nhận ưu đãi.</li>
-                                            <li><span class="font-semibold">Khối 2: Cố vấn bán hàng (LdpSalesConsultant)</span>: Khối thông tin liên hệ của bạn (Avatar, Hotline, Zalo).</li>
+                                            <li><span class="font-semibold">Khối 1: Banner lớn (Hero Banner)</span>: Banner đầu trang hiển thị tên xe, hình ảnh thực tế và nút nhận ưu đãi.</li>
+                                            <li><span class="font-semibold">Khối 2: Cố vấn bán hàng (LdpSalesConsultant)</span>: Khối thông tin liên hệ cá nhân của bạn (Avatar, Hotline, Zalo).</li>
                                             <li><span class="font-semibold">Khối 3: Khuyến mãi (LdpPromotions)</span>: Khối hiển thị các chương trình khuyến mãi/quà tặng của dòng xe.</li>
-                                            <li><span class="font-semibold">Khối 4: Form đăng ký (Báo giá/Lái thử)</span>: Để khách hàng điền số điện thoại nhận thông tin tư vấn.</li>
+                                            <li><span class="font-semibold">Khối 4: Form đăng ký (Báo giá/Lái thử)</span>: Khách hàng điền số điện thoại nhận thông tin tư vấn.</li>
                                         </ul>
                                     </li>
-                                    <li>Bạn có thể bấm biểu tượng bút chì ✏️ trên mỗi khối để thay đổi tiêu đề, màu sắc, nút bấm. Sau đó bấm <span class="font-semibold">💾 Lưu trang</span> ở góc trên bên phải để lưu lại.</li>
+                                    <li>Bạn có thể bấm biểu tượng bút chì ✏️ trên mỗi khối để thay đổi tiêu đề, màu sắc, nút bấm. Nếu muốn khôi phục về mẫu gốc của hãng, bấm nút <span class="font-semibold">🔄 Tải lại bố cục xe...</span>.</li>
+                                    <li>Sau khi chỉnh sửa xong, bấm <span class="font-semibold">💾 Lưu trang</span> ở góc trên bên phải để lưu lại.</li>
                                 </ol>
                             </div>
 
@@ -615,12 +619,12 @@
                                 <div class="bg-emerald-50 border-l-4 border-emerald-500 p-3 rounded text-xs text-emerald-800 font-semibold mb-2">
                                     Trang LDP của Sale đã được tối ưu hóa: Ẩn hoàn toàn Header/Footer chung của hãng, chỉ hiển thị thông tin và hotline của riêng bạn để tối đa tỉ lệ khách điền form!
                                 </div>
-                                <h4 class="font-bold text-gray-900">Cách lấy link LDP sạch để chạy quảng cáo:</h4>
+                                <h4 class="font-bold text-gray-900">Cách lấy link LDP từng dòng xe để chạy quảng cáo:</h4>
                                 <ol class="list-decimal pl-5 space-y-2">
                                     <li>Sau khi bấm <span class="font-semibold">💾 Lưu trang</span> và <span class="font-semibold">Đóng</span>.</li>
-                                    <li>Ở góc dưới bên phải trang thông tin chung, bạn sẽ thấy ô <span class="font-semibold">👁️ Xem trước Landing Page</span>.</li>
-                                    <li>Bấm vào nút <span class="font-semibold">🔗 Mở trang LDP thực tế</span>.</li>
-                                    <li>Trình duyệt sẽ mở ra một trang LDP thực tế của riêng bạn. Bạn chỉ cần <span class="font-semibold">Copy đường dẫn này trên thanh địa chỉ</span> để mang đi chạy Facebook Ads, Google Ads hoặc gửi trực tiếp cho khách hàng qua Zalo/Messenger!</li>
+                                    <li>Ở góc dưới bên phải trang thông tin chung, mục <span class="font-semibold">👁️ Xem trước Landing Page các dòng xe</span> sẽ hiển thị danh sách tất cả dòng xe bạn đã chọn.</li>
+                                    <li>Bấm nút <span class="font-semibold">📋 COPY</span> bên cạnh dòng xe tương ứng để copy link xe đó, hoặc bấm <span class="font-semibold">🔗 XEM</span> để mở trực tiếp trên trình duyệt.</li>
+                                    <li>Dán đường dẫn đã copy vào bài chạy Facebook Ads, Google Ads hoặc gửi trực tiếp cho khách hàng qua Zalo/Messenger!</li>
                                     <li>Link chuẩn sẽ có dạng: <code>https://dongnaiford.com.vn/ldp/ten-cua-ban/ten-dong-xe</code></li>
                                 </ol>
                             </div>
