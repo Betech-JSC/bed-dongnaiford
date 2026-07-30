@@ -619,7 +619,43 @@
                                 Đã hiểu, đóng hướng dẫn
                             </button>
                         </div>
+            <!-- ===== MODAL XÁC NHẬN TẢI LẠI GIAO DIỆN MẪU ===== -->
+            <transition name="fade-scale">
+                <div v-if="showConfirmLayoutModal" class="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+                    <div class="bg-white rounded-2xl p-6 shadow-2xl border border-gray-150 max-w-sm w-full text-center transform transition-all duration-300 scale-100 flex flex-col items-center">
+                        <div class="w-14 h-14 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center mb-3 ring-8 ring-amber-50/50">
+                            <span class="text-2xl">🔄</span>
+                        </div>
+                        <h3 class="text-base font-bold text-gray-900 mb-1.5">Tải lại giao diện mẫu?</h3>
+                        <p class="text-xs text-gray-600 leading-relaxed mb-5">
+                            Bạn có chắc chắn muốn nạp lại toàn bộ khối thiết kế mẫu của dòng xe <strong class="text-gray-900">"{{ targetVehicleTitle }}"</strong>?
+                        </p>
+                        <div class="flex items-center space-x-2.5 w-full">
+                            <button 
+                                type="button" 
+                                @click="showConfirmLayoutModal = false" 
+                                class="w-1/2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold py-2.5 rounded-lg transition duration-200 cursor-pointer border border-gray-300"
+                            >
+                                Hủy bỏ
+                            </button>
+                            <button 
+                                type="button" 
+                                @click="executeApplyVehicleLayout()" 
+                                class="w-1/2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold py-2.5 rounded-lg transition duration-200 cursor-pointer border-0 shadow-xs"
+                            >
+                                Đồng ý tải lại
+                            </button>
+                        </div>
                     </div>
+                </div>
+            </transition>
+
+            <!-- ===== TOAST NOTIFICATION THÔNG BÁO ===== -->
+            <transition name="toast-slide">
+                <div v-if="showToast" class="fixed bottom-6 right-6 z-[999999] bg-gray-900/90 text-white text-xs font-semibold px-4 py-3 rounded-xl shadow-2xl border border-white/10 flex items-center gap-2.5 backdrop-blur-md">
+                    <span v-if="toastType === 'success'" class="text-emerald-400 text-base">✅</span>
+                    <span v-else-if="toastType === 'warning'" class="text-amber-400 text-base">⚠️</span>
+                    <span>{{ toastMessage }}</span>
                 </div>
             </transition>
         </template>
@@ -636,6 +672,11 @@ export default {
             isSaving: false,
             showSuccessNotification: false,
             showHelpModal: false,
+            showConfirmLayoutModal: false,
+            showToast: false,
+            toastMessage: '',
+            toastType: 'success',
+            targetVehicleTitle: '',
             activeHelpTab: 1,
             salesConsultants: this.data?.sales_consultants ?? [],
             vehicles: this.data?.vehicles ?? [],
@@ -822,12 +863,20 @@ export default {
                 };
             });
         },
+        triggerToast(msg, type = 'success') {
+            this.toastMessage = msg;
+            this.toastType = type;
+            this.showToast = true;
+            setTimeout(() => {
+                this.showToast = false;
+            }, 3000);
+        },
         copyToClipboard(text) {
             if (!text) return;
             navigator.clipboard.writeText(text).then(() => {
-                alert('Đã sao chép đường dẫn LDP vào bộ nhớ tạm!');
+                this.triggerToast('Đã sao chép đường dẫn LDP vào bộ nhớ tạm!', 'success');
             }).catch(() => {
-                alert('Không thể tự động sao chép. Vui lòng chọn thủ công.');
+                this.triggerToast('Không thể tự động sao chép. Vui lòng chọn thủ công.', 'warning');
             });
         },
         getLdpPreviewUrl() {
@@ -845,9 +894,23 @@ export default {
         applyVehicleDefaultLayout(quiet = false) {
             const vehicle = this.getSelectedVehicle();
             if (!vehicle) {
-                if (!quiet) alert('Vui lòng chọn ít nhất 1 dòng xe trước.');
+                if (!quiet) this.triggerToast('Vui lòng chọn ít nhất 1 dòng xe trước.', 'warning');
                 return;
             }
+
+            if (quiet) {
+                this.executeApplyVehicleLayout(quiet);
+                return;
+            }
+
+            this.targetVehicleTitle = vehicle.title || '';
+            this.showConfirmLayoutModal = true;
+        },
+        executeApplyVehicleLayout(quiet = false) {
+            this.showConfirmLayoutModal = false;
+
+            const vehicle = this.getSelectedVehicle();
+            if (!vehicle) return;
 
             let blocks = vehicle.layout_blocks;
             if (typeof blocks === 'string') {
@@ -859,10 +922,6 @@ export default {
             }
             if (!Array.isArray(blocks)) {
                 blocks = [];
-            }
-
-            if (!quiet && !confirm(`Bạn có chắc chắn muốn tải lại giao diện mẫu của dòng xe "${vehicle.title}"? Các thay đổi khối hiện tại sẽ được cập nhật theo mẫu của dòng xe này.`)) {
-                return;
             }
 
             let clonedBlocks = JSON.parse(JSON.stringify(blocks));
@@ -908,7 +967,7 @@ export default {
 
             this.formData.layout_blocks = clonedBlocks;
             if (!quiet) {
-                alert(`Đã cập nhật bộ khối giao diện theo dòng xe "${vehicle.title}" thành công! (${clonedBlocks.length} khối)`);
+                this.triggerToast(`Đã nạp bộ khối giao diện mẫu của "${vehicle.title}" thành công!`, 'success');
             }
         },
         saveFromBuilder(submitFn) {
@@ -935,5 +994,12 @@ export default {
 .fade-scale-enter-from, .fade-scale-leave-to {
     opacity: 0;
     transform: scale(0.95);
+}
+.toast-slide-enter-active, .toast-slide-leave-active {
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.toast-slide-enter-from, .toast-slide-leave-to {
+    opacity: 0;
+    transform: translateY(16px);
 }
 </style>
