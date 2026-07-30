@@ -412,19 +412,7 @@
                         }"
                     />
 
-                    <!-- Nút cập nhật lại bố cục theo dòng xe đã chọn -->
-                    <div v-if="hasVehicleSelected" class="mt-2.5 p-2.5 bg-blue-50/70 border border-blue-200/80 rounded-lg">
-                        <button
-                            type="button"
-                            class="text-blue-700 hover:text-blue-900 font-bold text-xs cursor-pointer flex items-center gap-1.5 border-0 bg-transparent p-0"
-                            @click="applyVehicleDefaultLayout()"
-                        >
-                            <span>🔄</span> Tải lại giao diện mẫu theo dòng xe đã chọn
-                        </button>
-                        <p class="text-[11px] text-gray-500 mt-1 leading-snug">
-                            Khi bạn chọn dòng xe mới, bấm nút này để nạp lại toàn bộ khối thiết kế mẫu tương ứng của xe đó.
-                        </p>
-                    </div>
+
 
                     <!-- Trạng thái hoạt động -->
                     <Field
