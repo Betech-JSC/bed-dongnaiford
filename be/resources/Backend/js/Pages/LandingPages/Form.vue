@@ -619,6 +619,10 @@
                                 Đã hiểu, đóng hướng dẫn
                             </button>
                         </div>
+                    </div>
+                </div>
+            </transition>
+
             <!-- ===== MODAL XÁC NHẬN TẢI LẠI GIAO DIỆN MẪU ===== -->
             <transition name="fade-scale">
                 <div v-if="showConfirmLayoutModal" class="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
