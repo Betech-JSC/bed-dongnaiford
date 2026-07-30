@@ -2,13 +2,11 @@ import type { NextConfig } from "next";
 
 const nextConfig = {
   output: "standalone",
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   typescript: {
     ignoreBuildErrors: true,
   },
   images: {
+    unoptimized: true,
     dangerouslyAllowLocalIP: true,
     remotePatterns: [
       {
@@ -42,7 +40,19 @@ const nextConfig = {
         pathname: "/**",
       },
       {
+        protocol: "http",
+        hostname: "cms.dnf.betech-digital.com",
+        port: "",
+        pathname: "/**",
+      },
+      {
         protocol: "https",
+        hostname: "cms.dongnaiford.com.vn",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "http",
         hostname: "cms.dongnaiford.com.vn",
         port: "",
         pathname: "/**",
