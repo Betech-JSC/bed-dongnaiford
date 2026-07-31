@@ -321,6 +321,60 @@ const nextConfig = {
         destination: "/chuyen-muc/:slug",
         permanent: true,
       },
+      // --- MIGRATION FIXES: Chuyển hướng cấu trúc WordPress cũ sang cấu trúc mới ---
+      // 1. Bài viết cũ dạng Ngày/Tháng/Năm (/%year%/%month%/%day%/:slug)
+      {
+        source: "/:year(\\d{4})/:month(\\d{2})/:day(\\d{2})/:slug",
+        destination: "/:slug",
+        permanent: true,
+      },
+      // 2. Bài viết cũ dạng Năm/Tháng (/%year%/%month%/:slug)
+      {
+        source: "/:year(\\d{4})/:month(\\d{2})/:slug",
+        destination: "/:slug",
+        permanent: true,
+      },
+      // 3. Trang lưu trữ theo năm/tháng về trang tin tức
+      {
+        source: "/:year(\\d{4})/:path*",
+        destination: "/tin-tuc",
+        permanent: true,
+      },
+      // 4. Các trang Thẻ (Tag) cũ về trang tin tức
+      {
+        source: "/tag/:slug*",
+        destination: "/tin-tuc",
+        permanent: true,
+      },
+      // 5. Trang Tác giả (Author) cũ về trang giới thiệu
+      {
+        source: "/author/:slug*",
+        destination: "/gioi-thieu",
+        permanent: true,
+      },
+      // 6. Phân trang cũ /page/2, /page/3... về /tin-tuc
+      {
+        source: "/page/:num*",
+        destination: "/tin-tuc",
+        permanent: true,
+      },
+      // 7. RSS Feed cũ về /tin-tuc
+      {
+        source: "/feed",
+        destination: "/tin-tuc",
+        permanent: true,
+      },
+      {
+        source: "/:path*/feed",
+        destination: "/tin-tuc",
+        permanent: true,
+      },
+      // 8. index.php cũ
+      {
+        source: "/index.php/:path*",
+        destination: "/:path*",
+        permanent: true,
+      },
     ];
   },
   async rewrites() {
