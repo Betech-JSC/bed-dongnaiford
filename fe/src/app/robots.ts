@@ -19,6 +19,11 @@ export default function robots(): MetadataRoute.Robots {
             "/tim-kiem",      // Search results page (thin content)
           ],
         },
+        // Block AI training crawlers (keeps search + citation access)
+        { userAgent: "GPTBot", disallow: "/" },
+        { userAgent: "Google-Extended", disallow: "/" },
+        { userAgent: "Bytespider", disallow: "/" },
+        { userAgent: "CCBot", disallow: "/" },
       ],
       sitemap: `${siteUrl}/sitemap.xml`,
     };

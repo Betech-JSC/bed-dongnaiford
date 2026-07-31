@@ -356,30 +356,30 @@ export default function Navbar() {
       <div className="hidden lg:block bg-[#00095b] text-white text-xs py-2">
         <div className="max-w-[1440px] mx-auto px-4 xl:px-[128px] flex justify-between items-center font-medium">
           <div className="flex items-center gap-6">
-            <button 
-              onClick={() => { window.location.href = "tel:1800556858"; }}
-              className="flex items-center gap-1.5 text-white hover:text-white/85 transition-colors cursor-pointer bg-transparent border-0 p-0 font-medium text-xs"
+            <a 
+              href="tel:1800556858"
+              className="flex items-center gap-1.5 text-white hover:text-white/85 transition-colors cursor-pointer bg-transparent border-0 p-0 font-medium text-xs no-underline"
             >
               <Phone className="w-3.5 h-3.5 text-white/90 flex-shrink-0" />
               <span>Tổng đài &amp; CSKH: 1800 55 68 58</span>
-            </button>
+            </a>
             <span className="text-white/30">|</span>
-            <button 
-              onClick={() => { window.location.href = "tel:0938229994"; }}
-              className="flex items-center gap-1.5 text-white hover:text-white/85 transition-colors cursor-pointer bg-transparent border-0 p-0 font-medium text-xs"
+            <a 
+              href="tel:0938229994"
+              className="flex items-center gap-1.5 text-white hover:text-white/85 transition-colors cursor-pointer bg-transparent border-0 p-0 font-medium text-xs no-underline"
             >
               <Phone className="w-3.5 h-3.5 text-red-400 flex-shrink-0 animate-pulse" />
               <span>Cứu hộ 24/7: 0938 229 994</span>
-            </button>
+            </a>
           </div>
           <div className="flex items-center gap-6">
-            <button 
-              onClick={() => { window.location.href = "tel:0918909060"; }}
-              className="flex items-center gap-1.5 text-white hover:text-white/85 transition-colors cursor-pointer bg-transparent border-0 p-0 font-medium text-xs"
+            <a 
+              href="tel:0918909060"
+              className="flex items-center gap-1.5 text-white hover:text-white/85 transition-colors cursor-pointer bg-transparent border-0 p-0 font-medium text-xs no-underline"
             >
               <Phone className="w-3.5 h-3.5 text-white/90 flex-shrink-0" />
               <span>Hotline kinh doanh: 0918 90 90 60</span>
-            </button>
+            </a>
           </div>
         </div>
       </div>

@@ -74,10 +74,52 @@ export default async function Page({ params }: Props) {
     notFound();
   }
 
+  // ===== JSON-LD Schema: Article + BreadcrumbList =====
+  const siteUrl = "https://dongnaiford.com.vn";
+  const articleUrl = `${siteUrl}/${article.slug}`;
+  const articleImage = article.seo_image || article.image?.url || "";
+
+  const articleJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: article.title,
+    description: article.seo_description || article.description || "",
+    image: articleImage || undefined,
+    datePublished: article.published_at || article.created_at,
+    dateModified: article.updated_at || article.published_at || article.created_at,
+    author: { "@type": "Organization", name: "Đồng Nai Ford" },
+    publisher: {
+      "@type": "Organization",
+      name: "Đồng Nai Ford",
+      logo: { "@type": "ImageObject", url: `${siteUrl}/icon.png` },
+    },
+    mainEntityOfPage: { "@type": "WebPage", "@id": articleUrl },
+  };
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Trang chủ", item: siteUrl },
+      { "@type": "ListItem", position: 2, name: "Tin tức", item: `${siteUrl}/tin-tuc` },
+      { "@type": "ListItem", position: 3, name: article.title, item: articleUrl },
+    ],
+  };
+
   return (
-    <ArticleDetailClient 
-      article={article} 
-      relatedArticles={relatedArticles} 
-    />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+      <ArticleDetailClient 
+        article={article} 
+        relatedArticles={relatedArticles} 
+      />
+    </>
   );
 }

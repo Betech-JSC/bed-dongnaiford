@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig = {
   output: "standalone",
+  poweredByHeader: false,
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -71,6 +72,19 @@ const nextConfig = {
       },
     ],
   },
+  async headers() {
+    return [
+      {
+        source: "/(.*)",
+        headers: [
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(self)" },
+        ],
+      },
+    ];
+  },
   async redirects() {
     return [
       // Chuyển hướng 301 dịch vụ WordPress cũ duy nhất sang cấu trúc mới
@@ -82,6 +96,50 @@ const nextConfig = {
       {
         source: "/accessories",
         destination: "/phu-kien",
+        permanent: true,
+      },
+      // --- SEO CLEANUP: Redirect xe đã ngừng bán + nội dung trùng lặp ---
+      // EcoSport (đã ngừng bán tại VN)
+      {
+        source: "/bang-gia-xe-ford-ecosport-2017",
+        destination: "/bang-gia",
+        permanent: true,
+      },
+      {
+        source: "/bang-gia-xe-ford-ecosport-2019",
+        destination: "/bang-gia",
+        permanent: true,
+      },
+      {
+        source: "/bang-gia-xe-ford-ecosport",
+        destination: "/bang-gia",
+        permanent: true,
+      },
+      {
+        source: "/co-nen-mua-xe-ford-ecosport",
+        destination: "/tin-tuc",
+        permanent: true,
+      },
+      // Bài trùng nội dung (suffix -2, -3)
+      {
+        source: "/chuong-trinh-sua-chua-luu-dong-2",
+        destination: "/chuong-trinh-sua-chua-luu-dong",
+        permanent: true,
+      },
+      {
+        source: "/chuong-trinh-tri-an-khach-hang-2",
+        destination: "/chuong-trinh-tri-an-khach-hang",
+        permanent: true,
+      },
+      {
+        source: "/chuong-trinh-tri-an-khach-hang-3",
+        destination: "/chuong-trinh-tri-an-khach-hang",
+        permanent: true,
+      },
+      // Bảo hành trùng
+      {
+        source: "/chinh-sach-bao-hanh-xe-ford-2023",
+        destination: "/chinh-sach-bao-hanh-xe-ford",
         permanent: true,
       },
       // Redirect các link 404 phát hiện từ Google Search Console (Migration fixes)
