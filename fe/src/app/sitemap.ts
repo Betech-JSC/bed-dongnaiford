@@ -6,29 +6,30 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = "https://dongnaiford.com.vn";
 
   // ===== STATIC PAGES (always included) =====
+  // Use fixed dates instead of new Date() to avoid false freshness signals
   const staticPages: MetadataRoute.Sitemap = [
-    { url: siteUrl, lastModified: new Date(), changeFrequency: "daily", priority: 1.0 },
-    { url: `${siteUrl}/gioi-thieu`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.8 },
-    { url: `${siteUrl}/lien-he`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.8 },
-    { url: `${siteUrl}/bang-gia`, lastModified: new Date(), changeFrequency: "daily", priority: 0.9 },
-    { url: `${siteUrl}/dang-ky-lai-thu`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.8 },
-    { url: `${siteUrl}/xe-da-qua-su-dung`, lastModified: new Date(), changeFrequency: "daily", priority: 0.7 },
-    { url: `${siteUrl}/dich-vu`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.9 },
-    { url: `${siteUrl}/dich-vu/bao-duong-nhanh`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.7 },
-    { url: `${siteUrl}/dich-vu/bao-duong-dinh-ky`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.7 },
-    { url: `${siteUrl}/dich-vu/cham-soc-khach-hang`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.7 },
-    { url: `${siteUrl}/dich-vu/giao-nhan-xe-tan-noi`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.7 },
-    { url: `${siteUrl}/san-pham`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.9 },
-    { url: `${siteUrl}/khuyen-mai`, lastModified: new Date(), changeFrequency: "daily", priority: 0.8 },
-    { url: `${siteUrl}/tin-tuc`, lastModified: new Date(), changeFrequency: "daily", priority: 0.8 },
-    { url: `${siteUrl}/thu-vien-media`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.6 },
-    { url: `${siteUrl}/tuyen-dung`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.5 },
-    { url: `${siteUrl}/cong-cu/uoc-tinh-lan-banh`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.7 },
-    { url: `${siteUrl}/cong-cu/uoc-tinh-tra-gop`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.7 },
-    { url: `${siteUrl}/cong-cu/so-sanh-xe`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.6 },
-    { url: `${siteUrl}/chinh-sach`, lastModified: new Date(), changeFrequency: "yearly", priority: 0.3 },
-    { url: `${siteUrl}/chinh-sach-bao-mat`, lastModified: new Date(), changeFrequency: "yearly", priority: 0.3 },
-    { url: `${siteUrl}/dieu-khoan-su-dung`, lastModified: new Date(), changeFrequency: "yearly", priority: 0.3 },
+    { url: siteUrl, lastModified: new Date("2026-07-31"), changeFrequency: "daily", priority: 1.0 },
+    { url: `${siteUrl}/gioi-thieu`, lastModified: new Date("2026-07-15"), changeFrequency: "monthly", priority: 0.8 },
+    { url: `${siteUrl}/lien-he`, lastModified: new Date("2026-07-15"), changeFrequency: "monthly", priority: 0.8 },
+    { url: `${siteUrl}/bang-gia`, lastModified: new Date("2026-07-31"), changeFrequency: "daily", priority: 0.9 },
+    { url: `${siteUrl}/dang-ky-lai-thu`, lastModified: new Date("2026-07-15"), changeFrequency: "weekly", priority: 0.8 },
+    { url: `${siteUrl}/xe-da-qua-su-dung`, lastModified: new Date("2026-07-31"), changeFrequency: "daily", priority: 0.7 },
+    { url: `${siteUrl}/dich-vu`, lastModified: new Date("2026-07-20"), changeFrequency: "weekly", priority: 0.9 },
+    { url: `${siteUrl}/dich-vu/bao-duong-nhanh`, lastModified: new Date("2026-07-20"), changeFrequency: "monthly", priority: 0.7 },
+    { url: `${siteUrl}/dich-vu/bao-duong-dinh-ky`, lastModified: new Date("2026-07-20"), changeFrequency: "monthly", priority: 0.7 },
+    { url: `${siteUrl}/dich-vu/cham-soc-khach-hang`, lastModified: new Date("2026-07-20"), changeFrequency: "monthly", priority: 0.7 },
+    { url: `${siteUrl}/dich-vu/giao-nhan-xe-tan-noi`, lastModified: new Date("2026-07-20"), changeFrequency: "monthly", priority: 0.7 },
+    { url: `${siteUrl}/san-pham`, lastModified: new Date("2026-07-31"), changeFrequency: "weekly", priority: 0.9 },
+    { url: `${siteUrl}/khuyen-mai`, lastModified: new Date("2026-07-31"), changeFrequency: "daily", priority: 0.8 },
+    { url: `${siteUrl}/tin-tuc`, lastModified: new Date("2026-07-31"), changeFrequency: "daily", priority: 0.8 },
+    { url: `${siteUrl}/thu-vien-media`, lastModified: new Date("2026-07-15"), changeFrequency: "weekly", priority: 0.6 },
+    { url: `${siteUrl}/tuyen-dung`, lastModified: new Date("2026-07-15"), changeFrequency: "weekly", priority: 0.5 },
+    { url: `${siteUrl}/cong-cu/uoc-tinh-lan-banh`, lastModified: new Date("2026-06-01"), changeFrequency: "monthly", priority: 0.7 },
+    { url: `${siteUrl}/cong-cu/uoc-tinh-tra-gop`, lastModified: new Date("2026-06-01"), changeFrequency: "monthly", priority: 0.7 },
+    { url: `${siteUrl}/cong-cu/so-sanh-xe`, lastModified: new Date("2026-06-01"), changeFrequency: "monthly", priority: 0.6 },
+    { url: `${siteUrl}/chinh-sach`, lastModified: new Date("2026-01-01"), changeFrequency: "yearly", priority: 0.3 },
+    { url: `${siteUrl}/chinh-sach-bao-mat`, lastModified: new Date("2026-01-01"), changeFrequency: "yearly", priority: 0.3 },
+    { url: `${siteUrl}/dieu-khoan-su-dung`, lastModified: new Date("2026-01-01"), changeFrequency: "yearly", priority: 0.3 },
   ];
 
   // ===== DYNAMIC DATA FROM API =====
@@ -70,9 +71,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         const isStaticPage = staticPages.some(sp => sp.url === locUrl);
         if (isStaticPage) continue;
         
-        // Skip bad URLs: emoji-encoded, numeric-only slugs, overly long
+        // Skip bad URLs: emoji-encoded, numeric-only slugs, overly long, discontinued
         if (pathname.includes('%f0%9f') || pathname.includes('%e2%9c')) continue; // emoji URLs
         if (/^\/\d+$/.test(pathname)) continue; // numeric-only slugs like /3354
+        if (pathname.length > 100) continue; // overly long slugs
+        if (pathname.includes('ecosport') || pathname.includes('ford-focus')) continue; // discontinued
 
         apiUrls.push({
           url: locUrl,

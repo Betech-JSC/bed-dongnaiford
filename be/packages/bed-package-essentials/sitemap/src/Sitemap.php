@@ -97,10 +97,12 @@ class Sitemap
             }
             return $urls;
         } else {
+            // Use updated_at for accurate lastmod (fallback to created_at)
+            $lastModDate = $item->updated_at ?? $item->created_at;
             return [
                 'url' => $item->url,
-                'lastModificationDate' => Carbon::create($item->created_at)->toAtomString(),
-                'changeFrequency' => self::CHANGE_FREQUENCY_DAILY,
+                'lastModificationDate' => Carbon::create($lastModDate)->toAtomString(),
+                'changeFrequency' => $item->changeFrequency ?? self::CHANGE_FREQUENCY_DAILY,
                 'priority' => $item->priority ?? self::PRIORITY,
             ];
         }
