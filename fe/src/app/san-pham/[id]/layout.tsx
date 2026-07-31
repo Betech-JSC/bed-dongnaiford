@@ -112,7 +112,22 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     if (!apiVehicle) return {};
 
     const title = `${apiVehicle.title} | Giá & Thông số | Đồng Nai Ford`;
-    const description = apiVehicle.tagline || `Khám phá chi tiết dòng xe Ford ${apiVehicle.title} chính hãng tại Đồng Nai Ford. Nhận báo giá lăn bánh mới nhất.`;
+    
+    // Build meaningful meta description with price + USP (120-160 chars target)
+    const basePrice = apiVehicle.base_price 
+      ? `Giá từ ${Number(apiVehicle.base_price).toLocaleString('vi-VN')} triệu.`
+      : '';
+    const vehicleType = apiVehicle.type === 'suv' ? 'SUV' : apiVehicle.type === 'pickup' ? 'Bán tải' : 'Xe thương mại';
+    const description = apiVehicle.seo_description 
+      || `${apiVehicle.title} ${vehicleType} chính hãng tại Đồng Nai Ford. ${basePrice} Xem thông số kỹ thuật, màu sắc, phiên bản. Hỗ trợ trả góp 80%, giao xe tận nơi.`
+      || apiVehicle.tagline;
+    
+    // Resolve OG image to main domain
+    let ogImage = apiVehicle.image_url || '';
+    if (ogImage && !ogImage.startsWith('https://dongnaiford.com.vn')) {
+      // Keep CMS image URL as-is since it's a different server
+      // but prefer site-hosted images when available
+    }
 
     return {
       title,
@@ -125,7 +140,13 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
         description,
         type: "website",
         locale: "vi_VN",
-        images: apiVehicle.image_url ? [{ url: apiVehicle.image_url }] : [],
+        images: ogImage ? [{ url: ogImage, width: 1200, height: 630, alt: `${apiVehicle.title} - Đồng Nai Ford` }] : [],
+      },
+      twitter: {
+        card: "summary_large_image",
+        title,
+        description,
+        images: ogImage ? [ogImage] : [],
       },
     };
   } catch (error) {
@@ -257,12 +278,70 @@ export default async function VehicleDetailLayout({
     });
   }
 
+  // ===== JSON-LD Schema: Vehicle + BreadcrumbList =====
+  const siteUrl = "https://dongnaiford.com.vn";
+  const vehicleSlug = apiVehicle.slug || id;
+  const vehicleUrl = `${siteUrl}/${vehicleSlug}`;
+  const vehicleImage = apiVehicle.image_url || resolveFileUrl(apiVehicle.image) || '';
+  const lowestPrice = normalizedVehicle.versions?.length
+    ? Math.min(...normalizedVehicle.versions.map((v: any) => v.price).filter(Boolean))
+    : normalizedVehicle.basePrice;
+  const highestPrice = normalizedVehicle.versions?.length
+    ? Math.max(...normalizedVehicle.versions.map((v: any) => v.price).filter(Boolean))
+    : normalizedVehicle.basePrice;
+
+  const vehicleJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Vehicle",
+    name: apiVehicle.title,
+    description: apiVehicle.tagline || `Xe Ford ${apiVehicle.title} chính hãng tại Đồng Nai Ford`,
+    brand: { "@type": "Brand", name: "Ford" },
+    manufacturer: { "@type": "Organization", name: "Ford Motor Company" },
+    model: apiVehicle.title?.replace(/^FORD\s+/i, '') || apiVehicle.title,
+    vehicleConfiguration: normalizedVehicle.versions?.map((v: any) => v.name).join(', ') || undefined,
+    image: vehicleImage || undefined,
+    url: vehicleUrl,
+    offers: lowestPrice ? {
+      "@type": "AggregateOffer",
+      priceCurrency: "VND",
+      lowPrice: lowestPrice * 1000000,
+      highPrice: highestPrice ? highestPrice * 1000000 : undefined,
+      offerCount: normalizedVehicle.versions?.length || 1,
+      availability: "https://schema.org/InStock",
+      seller: {
+        "@type": "AutoDealer",
+        name: "Ford Đồng Nai (Đại lý Tấn Phát Đạt)",
+        url: siteUrl,
+      },
+    } : undefined,
+  };
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Trang chủ", item: siteUrl },
+      { "@type": "ListItem", position: 2, name: "Sản phẩm", item: `${siteUrl}/san-pham` },
+      { "@type": "ListItem", position: 3, name: apiVehicle.title, item: vehicleUrl },
+    ],
+  };
+
   return (
-    <VehicleLayoutClient 
-      initialVehicle={normalizedVehicle} 
-      allVehicles={normalizedAllVehicles}
-    >
-      {children}
-    </VehicleLayoutClient>
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(vehicleJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+      <VehicleLayoutClient 
+        initialVehicle={normalizedVehicle} 
+        allVehicles={normalizedAllVehicles}
+      >
+        {children}
+      </VehicleLayoutClient>
+    </>
   );
 }

@@ -122,22 +122,8 @@ export default async function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        {/* Google Analytics (gtag.js) */}
-        <script
-          async
-          src="https://www.googletagmanager.com/gtag/js?id=G-QLXYRG7WSJ"
-        />
-        <script
-          id="google-analytics"
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', 'G-QLXYRG7WSJ');
-            `
-          }}
-        />
+        {/* Google Analytics: Managed via CMS inject_head (Settings > General > Head Scripts).
+            DO NOT add GA here — it will cause double-counting of pageviews/events. */}
         {/* Dynamic Head Inject Code from CMS */}
         {injectHead && (
           <script
