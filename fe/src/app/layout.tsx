@@ -36,6 +36,20 @@ export const metadata: Metadata = {
     description: "Đại lý ủy quyền chính thức của Ford Việt Nam tại Đồng Nai. Cung cấp các dòng xe Ford Everest, Ranger, Territory, Raptor chính hãng giá ưu đãi.",
     type: "website",
     locale: "vi_VN",
+    images: [
+      {
+        url: "/showroom_bg.png",
+        width: 1200,
+        height: 630,
+        alt: "Showroom Đồng Nai Ford — Đại lý ủy quyền Ford Việt Nam",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Đồng Nai Ford | Đại lý xe Ford chính hãng lớn nhất Đồng Nai",
+    description: "Đại lý ủy quyền chính thức của Ford Việt Nam tại Đồng Nai. Cung cấp các dòng xe Ford Everest, Ranger, Territory, Raptor chính hãng giá ưu đãi.",
+    images: ["/showroom_bg.png"],
   },
 };
 
@@ -117,6 +131,8 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <head>
+        <link rel="preconnect" href="https://cms.dongnaiford.com.vn" />
+        <link rel="dns-prefetch" href="https://cms.dongnaiford.com.vn" />
         <script
           suppressHydrationWarning
           type="application/ld+json"
