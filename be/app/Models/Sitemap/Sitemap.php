@@ -132,6 +132,7 @@ class Sitemap
 
     private function transformUrl($item)
     {
+        $modDate = $item->updated_at ?? $item->created_at ?? now();
         if (is_array($item->url)) {
             $urls = [];
             foreach ($item->url as $locale => $url) {
@@ -140,7 +141,7 @@ class Sitemap
                 }
                 $urls[] = [
                     'url' => $url,
-                    'lastModificationDate' => Carbon::create($item->created_at)->toAtomString(),
+                    'lastModificationDate' => Carbon::create($modDate)->toAtomString(),
                     'changeFrequency' => self::CHANGE_FREQUENCY_DAILY,
                     'priority' => $item->priority ?? self::PRIORITY,
                 ];
@@ -149,7 +150,7 @@ class Sitemap
         } else {
             return [
                 'url' => $item->url,
-                'lastModificationDate' => Carbon::create($item->created_at)->toAtomString(),
+                'lastModificationDate' => Carbon::create($modDate)->toAtomString(),
                 'changeFrequency' => self::CHANGE_FREQUENCY_DAILY,
                 'priority' => $item->priority ?? self::PRIORITY,
             ];
