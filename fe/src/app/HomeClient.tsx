@@ -146,20 +146,63 @@ const techSlides = [
 ];
 
 type HomeClientProps = {
+  initialBanners?: any[];
+  initialCategories?: any[];
   initialVehicles?: any[];
+  initialServices?: any[];
+  initialHandovers?: any[];
+  initialArticles?: any[];
 };
 
-export default function HomeClient({ initialVehicles = [] }: HomeClientProps) {
+const formatBannersList = (items: any[]) => {
+  if (Array.isArray(items) && items.length > 0) {
+    return items.map((item: any) => ({
+      title: item.title || "",
+      subtitle: item.subtitle || "",
+      tagline: "",
+      image: item.image_url || siteAssets.heroSlides[0],
+      imageMobile: item.image_mobile_url || item.image_url || siteAssets.heroSlides[0],
+      linkVehicleId: item.button_link || ""
+    }));
+  }
+  return [];
+};
+
+const formatArticlesList = (items: any[]) => {
+  if (Array.isArray(items) && items.length > 0) {
+    return items.map((item: any) => ({
+      id: item.slug || item.id || String(Math.random()),
+      title: item.title || "",
+      image: item.image?.url || "/placeholder-news.jpg",
+      published_at: item.published_at || "",
+      category: item.category ? { title: item.category.title } : undefined,
+      description: item.description || "",
+    }));
+  }
+  return [];
+};
+
+export default function HomeClient({
+  initialBanners = [],
+  initialCategories = [],
+  initialVehicles = [],
+  initialServices = [],
+  initialHandovers = [],
+  initialArticles = [],
+}: HomeClientProps) {
   const router = useRouter();
 
-  const [heroSlides, setHeroSlides] = useState<any[]>([]);
-  const [homeArticles, setHomeArticles] = useState<any[]>([]);
+  const [heroSlides, setHeroSlides] = useState<any[]>(() => formatBannersList(initialBanners));
+  const [homeArticles, setHomeArticles] = useState<any[]>(() => formatArticlesList(initialArticles));
   const [activeNewsTab, setActiveNewsTab] = useState<number>(3); // Default: 3 (Tin Khuyến Mãi)
-  const [categories, setCategories] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>(initialCategories);
   const [vehiclesList, setVehiclesList] = useState<any[]>(initialVehicles);
-  const [servicesList, setServicesList] = useState<any[]>([]);
-  const [customerHandovers, setCustomerHandovers] = useState<any[]>([]);
-  const [isVehiclesLoading, setIsVehiclesLoading] = useState(initialVehicles.length === 0);
+  const [servicesList, setServicesList] = useState<any[]>(initialServices);
+  const [customerHandovers, setCustomerHandovers] = useState<any[]>(initialHandovers);
+  const [isVehiclesLoading, setIsVehiclesLoading] = useState(
+    initialVehicles.length === 0 && initialBanners.length === 0
+  );
+  const isInitialPostsMount = useRef(true);
 
   // Technology section states
   const [activeTechTab, setActiveTechTab] = useState(0);
@@ -169,6 +212,17 @@ export default function HomeClient({ initialVehicles = [] }: HomeClientProps) {
   const [isTechInteracted, setIsTechInteracted] = useState(false);
 
   useEffect(() => {
+    // Skip client fetch if SSR data was provided
+    if (
+      initialBanners.length > 0 ||
+      initialVehicles.length > 0 ||
+      initialServices.length > 0 ||
+      initialHandovers.length > 0
+    ) {
+      setIsVehiclesLoading(false);
+      return;
+    }
+
     const fetchData = async () => {
       try {
         const [bannersData, categoriesData, vehiclesData, servicesData, handoversData] = await Promise.all([
@@ -181,14 +235,7 @@ export default function HomeClient({ initialVehicles = [] }: HomeClientProps) {
 
         const bannersItems = (bannersData as any)?.data || bannersData;
         if (Array.isArray(bannersItems) && bannersItems.length > 0) {
-          setHeroSlides(bannersItems.map((item: any) => ({
-            title: item.title || "",
-            subtitle: item.subtitle || "",
-            tagline: "",
-            image: item.image_url || siteAssets.heroSlides[0],
-            imageMobile: item.image_mobile_url || item.image_url || siteAssets.heroSlides[0],
-            linkVehicleId: item.button_link || ""
-          })));
+          setHeroSlides(formatBannersList(bannersItems));
         }
 
         const categoriesItems = (categoriesData as any)?.data || categoriesData;
@@ -236,20 +283,19 @@ export default function HomeClient({ initialVehicles = [] }: HomeClientProps) {
 
   // Load posts dynamically when activeNewsTab changes
   useEffect(() => {
+    if (isInitialPostsMount.current) {
+      isInitialPostsMount.current = false;
+      if (initialArticles.length > 0 && activeNewsTab === 3) {
+        return;
+      }
+    }
+
     const fetchTabPosts = async () => {
       try {
         const postsData = await postsAPI.getAll({ categories: activeNewsTab });
         const postsItems = (postsData as any)?.posts?.data || (postsData as any)?.data || postsData;
         if (Array.isArray(postsItems)) {
-          const formatted = postsItems.map((item: any) => ({
-            id: item.slug || item.id || String(Math.random()),
-            title: item.title || "",
-            image: item.image?.url || "/placeholder-news.jpg",
-            published_at: item.published_at || "",
-            category: item.category ? { title: item.category.title } : undefined,
-            description: item.description || "",
-          }));
-          setHomeArticles(formatted);
+          setHomeArticles(formatArticlesList(postsItems));
         } else {
           setHomeArticles([]);
         }

@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { vehiclesAPI } from "@/lib/api";
-import ProductsPage from "../../san-pham/page";
+import ProductsClient from "../../san-pham/ProductsClient";
 
 type Props = {
   params: Promise<{
@@ -63,5 +63,20 @@ export default async function Page({ params }: Props) {
     notFound();
   }
 
-  return <ProductsPage initialCategory={slug} />;
+  // Pre-fetch vehicles for SSR
+  const [vehiclesData, categoriesData] = await Promise.all([
+    vehiclesAPI.getAll({ with_versions: true }).catch(() => null),
+    Promise.resolve(categories),
+  ]);
+
+  const vItems = (vehiclesData as any)?.data || vehiclesData;
+  const initialVehicles = Array.isArray(vItems) ? vItems : [];
+
+  return (
+    <ProductsClient
+      initialCategory={slug}
+      initialVehicles={initialVehicles}
+      initialCategories={categories}
+    />
+  );
 }
