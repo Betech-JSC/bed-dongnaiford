@@ -2,14 +2,11 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { headers } from "next/headers";
+import LazyWidgets from "@/components/layout/LazyWidgets";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { settingsAPI } from "@/lib/api";
-import AIChatWidget from "@/components/shared/AIChatWidget";
-import CompareDrawer from "@/components/shared/CompareDrawer";
-import QuickAccessToolbar from "@/components/shared/QuickAccessToolbar";
 import PageTransitionLoader from "@/components/shared/PageTransitionLoader";
-import CookieConsent from "@/components/shared/CookieConsent";
 import "./globals.css";
 
 const inter = Inter({
@@ -217,10 +214,7 @@ export default async function RootLayout({
         ) : (
           <Footer />
         )}
-        {!isLdp && <AIChatWidget />}
-        {!isLdp && <CompareDrawer />}
-        {!isLdp && <QuickAccessToolbar />}
-        <CookieConsent />
+        <LazyWidgets isLdp={isLdp} />
         {/* Dynamic Body End Inject Code from CMS */}
         {injectBodyEnd && (
           <div

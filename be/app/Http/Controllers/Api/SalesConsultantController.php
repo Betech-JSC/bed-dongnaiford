@@ -32,7 +32,7 @@ class SalesConsultantController extends Controller
             ->get()
             ->map(fn($t) => $t->toLocalizedSummary($locale));
 
-        return $this->success($consultants);
+        return $this->success($consultants)->header('Cache-Control', 'public, max-age=600, s-maxage=3600');
     }
 
     /**

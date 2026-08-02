@@ -78,7 +78,7 @@ class VehicleController extends Controller
         $vehicles = $query->get()
             ->map(fn($v) => $this->formatList($v));
 
-        return $this->success($vehicles);
+        return $this->success($vehicles)->header('Cache-Control', 'public, max-age=600, s-maxage=3600');
     }
 
     /**
@@ -94,7 +94,7 @@ class VehicleController extends Controller
             ->get()
             ->map(fn($v) => $this->formatList($v));
 
-        return $this->success($vehicles);
+        return $this->success($vehicles)->header('Cache-Control', 'public, max-age=600, s-maxage=3600');
     }
 
     /**

@@ -8,11 +8,24 @@ type Props = {
   }>;
 };
 
+export const revalidate = 3600;
+
 const staticCategories = [
   { slug: "suv", title: "SUV" },
   { slug: "ban-tai", title: "Bán tải" },
   { slug: "thuong-mai", title: "Thương mại" },
 ];
+
+export async function generateStaticParams() {
+  try {
+    const res = await vehiclesAPI.getCategories().catch(() => null);
+    const categories = res?.data || res || [];
+    const allSlugs = [...new Set([...categories.map((c: any) => c.slug), ...staticCategories.map(c => c.slug)])];
+    return allSlugs.map((slug) => ({ slug }));
+  } catch (error) {
+    return staticCategories.map((c) => ({ slug: c.slug }));
+  }
+}
 
 export async function generateMetadata({ params }: Props) {
   try {

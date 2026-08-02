@@ -10,11 +10,17 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/a
  */
 async function fetchAPI<T = any>(endpoint: string, options?: RequestInit): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`;
+  const method = options?.method?.toUpperCase() || 'GET';
   
+  // Mặc định cache 1 giờ (3600s) cho GET requests trừ khi được chỉ định khác
+  const defaultCacheOption = method === 'GET' && !options?.cache && !options?.next
+    ? { next: { revalidate: 3600 } }
+    : {};
+
   try {
     const response = await fetch(url, {
+      ...defaultCacheOption,
       ...options,
-      cache: 'no-store',
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',

@@ -847,17 +847,27 @@ export default function HomeClient({
                 }`}
             >
               {/* Desktop Image */}
-              <img
-                src={slide.image}
-                alt={slide.title}
-                className="hidden md:block object-cover w-full h-full object-top transform transition-transform duration-10000"
-              />
+              <div className="hidden md:block relative w-full h-full">
+                <Image
+                  src={slide.image}
+                  alt={slide.title}
+                  fill
+                  priority={idx === 0}
+                  sizes="100vw"
+                  className="object-cover w-full h-full object-top transform transition-transform duration-10000"
+                />
+              </div>
               {/* Mobile Image */}
-              <img
-                src={slide.imageMobile || slide.image}
-                alt={slide.title}
-                className="block md:hidden object-cover w-full h-full object-top transform transition-transform duration-10000"
-              />
+              <div className="block md:hidden relative w-full h-full">
+                <Image
+                  src={slide.imageMobile || slide.image}
+                  alt={slide.title}
+                  fill
+                  priority={idx === 0}
+                  sizes="100vw"
+                  className="object-cover w-full h-full object-top transform transition-transform duration-10000"
+                />
+              </div>
               {/* Linear dark gradient overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
             </div>
