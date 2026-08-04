@@ -1,6 +1,7 @@
 import { notFound, permanentRedirect } from "next/navigation";
 import { vehiclesAPI, postsAPI, servicesAPI } from "@/lib/api";
 import VehicleLayoutClient from "@/components/vehicle/VehicleLayoutClient";
+import ArticleDetailClient from "@/components/news/ArticleDetailClient";
 import { resolveImageUrl as resolveFileUrl } from "@/lib/site-assets";
 
 // Re-export client parts so children can import them from "../layout"
@@ -81,27 +82,54 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     const res = await vehiclesAPI.getBySlug(id).catch(() => null);
     const apiVehicle = res?.data || (res?.id ? res : null);
 
-    if (!apiVehicle) return {};
+    if (apiVehicle) {
+      const title = `${apiVehicle.title} | Giá & Thông số | Đồng Nai Ford`;
+      const description = apiVehicle.tagline || `Khám phá chi tiết dòng xe Ford ${apiVehicle.title} chính hãng tại Đồng Nai Ford. Nhận báo giá lăn bánh mới nhất.`;
 
-    const title = `${apiVehicle.title} | Giá & Thông số | Đồng Nai Ford`;
-    const description = apiVehicle.tagline || `Khám phá chi tiết dòng xe Ford ${apiVehicle.title} chính hãng tại Đồng Nai Ford. Nhận báo giá lăn bánh mới nhất.`;
-
-    return {
-      title,
-      description,
-      alternates: {
-        canonical: `/${id}`,
-      },
-      openGraph: {
+      return {
         title,
         description,
-        type: "website",
-        locale: "vi_VN",
-        images: apiVehicle.image_url ? [{ url: apiVehicle.image_url }] : [],
-      },
-    };
+        alternates: {
+          canonical: `/${id}`,
+        },
+        openGraph: {
+          title,
+          description,
+          type: "website",
+          locale: "vi_VN",
+          images: apiVehicle.image_url ? [{ url: apiVehicle.image_url }] : [],
+        },
+      };
+    }
+
+    // Check if it's a blog post / article slug
+    const postRes = await postsAPI.getBySlug(id).catch(() => null);
+    const article = postRes?.post;
+    if (article) {
+      const title = article.seo_title || `${article.title} | Tin tức | Đồng Nai Ford`;
+      const description = article.seo_description || article.description || "";
+      const imageUrl = article.seo_image || article.image?.url || "";
+
+      return {
+        title,
+        description,
+        keywords: article.seo_keywords || "",
+        alternates: {
+          canonical: `/${id}`,
+        },
+        openGraph: {
+          title,
+          description,
+          type: "article",
+          locale: "vi_VN",
+          images: imageUrl ? [{ url: imageUrl }] : [],
+        },
+      };
+    }
+
+    return {};
   } catch (error) {
-    console.error("Error generating metadata for product layout:", error);
+    console.error("Error generating metadata for dynamic layout:", error);
     return {};
   }
 }
@@ -136,11 +164,60 @@ export default async function VehicleDetailLayout({
   }
 
   if (!apiVehicle) {
-    // Check if it's a blog post / article slug
+    // Check if it's a blog post / article slug -> Render Article directly at root level!
     const postRes = await postsAPI.getBySlug(id).catch(() => null);
-    if (postRes?.post || postRes?.redirect_to) {
-      const targetSlug = postRes.redirect_to || id;
-      permanentRedirect(`/tin-tuc/${targetSlug}`);
+    if (postRes?.post) {
+      const article = postRes.post;
+      const siteUrl = "https://dongnaiford.com.vn";
+      const articleUrl = `${siteUrl}/${article.slug || id}`;
+      const articleImage = article.seo_image || article.image?.url || "";
+
+      const articleJsonLd = {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        headline: article.title,
+        description: article.seo_description || article.description || "",
+        image: articleImage || undefined,
+        datePublished: article.published_at || article.created_at,
+        dateModified: article.updated_at || article.published_at || article.created_at,
+        author: { "@type": "Organization", name: "Đồng Nai Ford" },
+        publisher: {
+          "@type": "Organization",
+          name: "Đồng Nai Ford",
+          logo: { "@type": "ImageObject", url: `${siteUrl}/icon.png` },
+        },
+        mainEntityOfPage: { "@type": "WebPage", "@id": articleUrl },
+      };
+
+      const breadcrumbJsonLd = {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Trang chủ", item: siteUrl },
+          { "@type": "ListItem", position: 2, name: "Tin tức", item: `${siteUrl}/tin-tuc` },
+          { "@type": "ListItem", position: 3, name: article.title, item: articleUrl },
+        ],
+      };
+
+      return (
+        <>
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+          />
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+          />
+          <ArticleDetailClient
+            article={article}
+            relatedArticles={postRes.related_posts || []}
+          />
+        </>
+      );
+    }
+    if (postRes?.redirect_to) {
+      permanentRedirect(`/${postRes.redirect_to}`);
     }
 
     // Check if it's a service slug
