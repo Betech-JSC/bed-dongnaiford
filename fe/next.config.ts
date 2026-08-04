@@ -98,7 +98,17 @@ const nextConfig = {
       // Chuyển hướng 301 dịch vụ WordPress cũ duy nhất sang cấu trúc mới
       {
         source: "/nhan-va-giao-xe-tan-noi",
-        destination: "/dich-vu/nhan-va-giao-xe-tan-noi",
+        destination: "/dich-vu/giao-nhan-xe-tan-noi",
+        permanent: true,
+      },
+      {
+        source: "/bao-duong-xe-ford-dinh-ky",
+        destination: "/dich-vu/bao-duong-dinh-ky",
+        permanent: true,
+      },
+      {
+        source: "/tien-bam-lung-lui-bam-bung",
+        destination: "/tin-tuc",
         permanent: true,
       },
       {
