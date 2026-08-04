@@ -95,111 +95,10 @@ const nextConfig = {
   },
   async redirects() {
     return [
-      // Chuyển hướng 301 dịch vụ WordPress cũ duy nhất sang cấu trúc mới
-      {
-        source: "/nhan-va-giao-xe-tan-noi",
-        destination: "/dich-vu/giao-nhan-xe-tan-noi",
-        permanent: true,
-      },
-      {
-        source: "/bao-duong-xe-ford-dinh-ky",
-        destination: "/dich-vu/bao-duong-dinh-ky",
-        permanent: true,
-      },
-      {
-        source: "/tien-bam-lung-lui-bam-bung",
-        destination: "/tin-tuc",
-        permanent: true,
-      },
+      // --- QUY TẮC CẤU TRÚC NHÓM (CATCH-ALL GROUP REDIRECTS) ---
       {
         source: "/accessories",
         destination: "/phu-kien",
-        permanent: true,
-      },
-      // --- SEO CLEANUP: Redirect xe đã ngừng bán + nội dung trùng lặp ---
-      // EcoSport (đã ngừng bán tại VN)
-      {
-        source: "/bang-gia-xe-ford-ecosport-2017",
-        destination: "/bang-gia",
-        permanent: true,
-      },
-      {
-        source: "/bang-gia-xe-ford-ecosport-2019",
-        destination: "/bang-gia",
-        permanent: true,
-      },
-      {
-        source: "/bang-gia-xe-ford-ecosport",
-        destination: "/bang-gia",
-        permanent: true,
-      },
-      {
-        source: "/co-nen-mua-xe-ford-ecosport",
-        destination: "/tin-tuc",
-        permanent: true,
-      },
-      // Bài trùng nội dung (suffix -2, -3)
-      {
-        source: "/chuong-trinh-sua-chua-luu-dong-2",
-        destination: "/chuong-trinh-sua-chua-luu-dong",
-        permanent: true,
-      },
-      {
-        source: "/chuong-trinh-tri-an-khach-hang-2",
-        destination: "/chuong-trinh-tri-an-khach-hang",
-        permanent: true,
-      },
-      {
-        source: "/chuong-trinh-tri-an-khach-hang-3",
-        destination: "/chuong-trinh-tri-an-khach-hang",
-        permanent: true,
-      },
-      // Bảo hành trùng
-      {
-        source: "/chinh-sach-bao-hanh-xe-ford-2023",
-        destination: "/chinh-sach-bao-hanh-xe-ford",
-        permanent: true,
-      },
-      // Redirect các link 404 phát hiện từ Google Search Console (Migration fixes)
-      {
-        source: "/bao-hiem-than-vo-o-to.html/feed",
-        destination: "/tin-tuc",
-        permanent: true,
-      },
-      {
-        source: "/tinh-nang-chieu-sang-thong-minh-tren-ford-",
-        destination: "/tin-tuc",
-        permanent: true,
-      },
-      {
-        source: "/dai-ly-ford-vung-tau",
-        destination: "/",
-        permanent: true,
-      },
-      {
-        source: "/dai-ly-ford-tphcm",
-        destination: "/",
-        permanent: true,
-      },
-      {
-        source: "/dongnaiford.com.vn",
-        destination: "/",
-        permanent: true,
-      },
-      {
-        source: "/sbz/app.js",
-        destination: "/",
-        permanent: true,
-      },
-      {
-        source: "/ford-escape-gia-bao-nhieu.html",
-        destination: "/bang-gia",
-        permanent: true,
-      },
-      // --- REDIRECTS CỦA BÁO CÁO 404 TỪ GOOGLE SEARCH CONSOLE ---
-      {
-        source: "/tuyen-dung/:slug+",
-        destination: "/tuyen-dung",
         permanent: true,
       },
       {
@@ -218,38 +117,13 @@ const nextConfig = {
         permanent: true,
       },
       {
-        source: "/ford-territory-sport-2024",
-        destination: "/ford-territory",
-        permanent: true,
-      },
-      {
         source: "/eco-sport/:path*",
         destination: "/bang-gia",
         permanent: true,
       },
       {
-        source: "/dich-vu/lich-bao-duong-dinh-ky",
-        destination: "/dich-vu/bao-duong-dinh-ky",
-        permanent: true,
-      },
-      {
-        source: "/ford-transit-hoan-toan-moi",
-        destination: "/ford-transit",
-        permanent: true,
-      },
-      {
-        source: "/tu-van-mua-xe-5-cho-tai-dong-nai",
-        destination: "/tin-tuc",
-        permanent: true,
-      },
-      {
-        source: "/kich-thuoc-xe-ford-transit-2",
-        destination: "/ford-transit",
-        permanent: true,
-      },
-      {
-        source: "/phu-kien-xe-ford",
-        destination: "/phu-kien",
+        source: "/tuyen-dung/:slug+",
+        destination: "/tuyen-dung",
         permanent: true,
       },
       // --- CHUYỂN HƯỚNG URL SẢN PHẨM XE CÓ CHỨA /SAN-PHAM SANG URL NGẮN ---
