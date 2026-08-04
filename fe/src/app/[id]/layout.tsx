@@ -1,5 +1,5 @@
-import { notFound } from "next/navigation";
-import { vehiclesAPI } from "@/lib/api";
+import { notFound, redirect } from "next/navigation";
+import { vehiclesAPI, postsAPI, servicesAPI } from "@/lib/api";
 import VehicleLayoutClient from "@/components/vehicle/VehicleLayoutClient";
 import { resolveImageUrl as resolveFileUrl } from "@/lib/site-assets";
 
@@ -136,6 +136,19 @@ export default async function VehicleDetailLayout({
   }
 
   if (!apiVehicle) {
+    // Check if it's a blog post / article slug
+    const postRes = await postsAPI.getBySlug(id).catch(() => null);
+    if (postRes?.post || postRes?.redirect_to) {
+      const targetSlug = postRes.redirect_to || id;
+      redirect(`/tin-tuc/${targetSlug}`);
+    }
+
+    // Check if it's a service slug
+    const serviceRes = await servicesAPI.getBySlug(id).catch(() => null);
+    if (serviceRes?.service || serviceRes?.title || serviceRes?.id) {
+      redirect(`/dich-vu/${id}`);
+    }
+
     notFound();
   }
 
