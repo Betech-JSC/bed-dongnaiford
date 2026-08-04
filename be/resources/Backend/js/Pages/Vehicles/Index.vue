@@ -1,8 +1,24 @@
 <template layout>
-    <Table
-        :schema="schema"
-        :columns="displayColumns"
-    />
+    <div>
+        <div class="mb-2 flex items-center justify-end">
+            <a
+                :href="route('admin.vehicles.export-template')"
+                class="btn btn-outline-secondary inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 transition shadow-sm"
+                target="_blank"
+                title="Tải file mẫu Excel (.xlsx) để điền dữ liệu"
+            >
+                <span>📥 Tải File Mẫu (.xlsx)</span>
+            </a>
+        </div>
+        <Table
+            :schema="schema"
+            :config="{
+                canExport: true,
+                canImport: true
+            }"
+            :columns="displayColumns"
+        />
+    </div>
 </template>
 <script>
 export default {

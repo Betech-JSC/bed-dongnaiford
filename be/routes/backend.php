@@ -61,6 +61,9 @@ Route::localized(function () {
         // Ford DNF Modules
         Route::module(BannerController::class);
         Route::module(VehicleCategoryController::class);
+        Route::get('vehicles/export', [VehicleController::class, 'export'])->name('vehicles.export');
+        Route::get('vehicles/export-template', [VehicleController::class, 'exportTemplate'])->name('vehicles.export-template');
+        Route::post('vehicles/import', [VehicleController::class, 'import'])->name('vehicles.import');
         Route::module(VehicleController::class);
         Route::module(LandingPageController::class);
         Route::module(UsedVehicleController::class);

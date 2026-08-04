@@ -7,6 +7,8 @@ use App\Models\Vehicle\Vehicle;
 use App\Models\Vehicle\VehicleCategory;
 use App\Models\Vehicle\CustomerReview;
 use App\Models\Vehicle\Accessory;
+use App\Exports\VehicleExport;
+use App\Imports\VehicleImport;
 use App\Traits\HasCrudActions;
 use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
@@ -17,6 +19,41 @@ class VehicleController extends Controller
     use HasCrudActions;
 
     public $model = Vehicle::class;
+
+    public function export()
+    {
+        $this->checkAuthorize();
+        return (new VehicleExport)->download();
+    }
+
+    public function exportTemplate()
+    {
+        $this->checkAuthorize();
+        return (new VehicleExport)->downloadTemplate();
+    }
+
+    public function import(Request $request)
+    {
+        $this->checkAuthorize();
+
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls,csv'
+        ]);
+
+        $file = $request->file('file');
+        $importer = new VehicleImport();
+        $result = $importer->import($file->getPathname());
+
+        if (request()->wantsJson()) {
+            return response()->json($result);
+        }
+
+        if ($result['success']) {
+            return back()->with('success', $result['message']);
+        }
+
+        return back()->with('error', $result['message'] ?? 'Import thất bại!');
+    }
 
     private $originalVehicleTitle = null;
 
