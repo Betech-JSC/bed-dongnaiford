@@ -196,6 +196,47 @@ const nextConfig = {
         destination: "/bang-gia",
         permanent: true,
       },
+      // --- REDIRECTS CỦA BÁO CÁO 404 TỪ GOOGLE SEARCH CONSOLE ---
+      {
+        source: "/tuyen-dung/:slug+",
+        destination: "/tuyen-dung",
+        permanent: true,
+      },
+      {
+        source: "/wpm-team/:path*",
+        destination: "/gioi-thieu",
+        permanent: true,
+      },
+      {
+        source: "/nhan-vien",
+        destination: "/gioi-thieu",
+        permanent: true,
+      },
+      {
+        source: "/phu-tung-ford-chinh-hang",
+        destination: "/phu-kien",
+        permanent: true,
+      },
+      {
+        source: "/ford-territory-sport-2024",
+        destination: "/ford-territory",
+        permanent: true,
+      },
+      {
+        source: "/eco-sport/:path*",
+        destination: "/bang-gia",
+        permanent: true,
+      },
+      {
+        source: "/dich-vu/lich-bao-duong-dinh-ky",
+        destination: "/dich-vu/bao-duong-dinh-ky",
+        permanent: true,
+      },
+      {
+        source: "/ford-transit-hoan-toan-moi",
+        destination: "/ford-transit",
+        permanent: true,
+      },
       {
         source: "/tu-van-mua-xe-5-cho-tai-dong-nai",
         destination: "/tin-tuc",
