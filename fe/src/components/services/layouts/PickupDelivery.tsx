@@ -1,8 +1,13 @@
-import Image from "next/image";
+"use client";
+
 import Link from "next/link";
+import { ShieldCheck, MapPin, Car, ChevronRight, Navigation } from "lucide-react";
 import BookingBanner from "@/components/services/BookingBanner";
 import FaqAccordion from "@/components/services/FaqAccordion";
 import ServicePageBanner from "@/components/services/ServicePageBanner";
+import ScrollReveal from "@/components/common/ScrollReveal";
+import CountUpNumber from "@/components/common/CountUpNumber";
+import { siteAssets } from "@/lib/site-assets";
 
 type StepItem = {
   title: string;
@@ -13,149 +18,191 @@ type StepItem = {
 
 const steps: StepItem[] = [
   {
-    title: "Liên hệ",
+    title: "1. Liên Hệ Đặt Hẹn",
     icon: "/assets/icon-contact.svg",
     bullets: [
-      "Khách hàng liên hệ Đồng Nai Ford online hoặc gọi điện thoại đến Đồng Nai Ford.",
-      "Nhân viên Đồng Nai Ford sẽ giới thiệu chi tiết về các Dịch vụ và tư vấn cho Khách hàng.",
-      "Giới thiệu Phương thức thanh toán không dùng tiền mặt an toàn."
+      "Khách hàng liên hệ hotline 0918 90 90 60 hoặc đăng ký hẹn trực tuyến.",
+      "Cố vấn dịch vụ xác nhận địa điểm và khung giờ lấy xe tận nhà mong muốn.",
+      "Thông báo danh tính & hình ảnh tài xế phụ trách nhận xe."
     ]
   },
   {
-    title: "Đặt hẹn",
+    title: "2. Tiếp Nhận & Khử Khuẩn Tận Nơi",
     icon: "/assets/icon-booking.svg",
     bullets: [
-      "Khách hàng gọi điện thoại đặt hẹn với Đồng Nai Ford qua đường dây Chăm sóc Khách hàng (*).",
-      "Chọn Dịch vụ “ Nhận và Giao xe Tận nơi Miễn phí (**).",
-      "Nhân viên Đồng Nai Ford sẽ giới thiệu chi tiết về Dịch vụ và tư vấn cho Khách hàng.",
-      "Nhân viên Đồng Nai Ford xác nhận cuộc hẹn với khách hàng."
-    ],
-    note: "(*) Tham khảo Hotline 0918 90 90 60 | (**) Liên hệ Đồng Nai Ford để có thêm chi tiết."
+      "Tài xế mặc phục trang chuẩn Ford đến tận nơi tiếp nhận chìa khóa.",
+      "Chụp ảnh 360 độ kiểm kê tài sản & khử khuẩn tay nắm cửa, vô lăng.",
+      "Bàn giao biên bản tiếp nhận điện tử trực tiếp qua SMS/Zalo."
+    ]
   },
   {
-    title: "Tiếp nhận xe tại nhà",
+    title: "3. Di Chuyển An Toàn Về Xưởng 3S",
     icon: "/assets/icon-delivery.svg",
     bullets: [
-      "Nhân viên Đồng Nai Ford đến nhà Khách hàng nhận xe.",
-      "Tiếp nhận xe và tiến hành khử khuẩn nhanh tại chỗ.",
-      "Lái xe của Khách hàng an toàn về xưởng Dịch vụ."
+      "Tài xế di chuyển xe tuân thủ 100% luật giao thông và giới hạn tốc độ.",
+      "Bảo hiểm trách nhiệm phương tiện được kích hoạt trong toàn bộ hành trình.",
+      "Hệ thống định vị GPS cập nhật trạng thái di chuyển theo thời gian thực."
     ]
   },
   {
-    title: "Tiến hành sửa chữa",
+    title: "4. Tiến Hành Bảo Dưỡng & Vệ Sinh",
     icon: "/assets/icon-service.svg",
     bullets: [
-      "Cố vấn Dịch vụ kiểm tra xe và gọi điện thoại thông báo / báo giá chi tiết cho Khách hàng.",
-      "Kỹ thuật viên lành nghề thực hiện sửa chữa, bảo dưỡng.",
-      "Vệ sinh và khử khuẩn toàn bộ xe sau khi hoàn tất sửa chữa.",
-      "Xác nhận phương thức thanh toán và thời gian giao xe cụ thể."
+      "Kỹ thuật viên thực hiện các hạng mục bảo dưỡng theo đúng yêu cầu.",
+      "Cố vấn gửi video/hình ảnh chẩn đoán trực tiếp cho khách hàng phê duyệt.",
+      "Rửa xe hút bụi và vệ sinh khoang lái chu đáo sau khi hoàn tất."
     ]
   },
   {
-    title: "Bàn giao xe tại nhà",
+    title: "5. Giao Xe Tận Nhà & Thanh Toán QR",
     icon: "/assets/icon-handover.svg",
     bullets: [
-      "Nhân viên Đồng Nai Ford lái xe đến bàn giao tận nhà cho Khách hàng.",
-      "Giao xe and tiến hành khử khuẩn nhanh lần cuối tại chỗ.",
-      "Khách hàng xác nhận và hoàn tất thanh toán trực tuyến an toàn."
-    ]
-  },
-  {
-    title: "Thanh toán không bằng tiền mặt",
-    icon: "/assets/icon-payment.svg",
-    bullets: [
-      "Khuyến khích Khách hàng sử dụng các phương thức thanh toán không tiền mặt."
+      "Tài xế đưa xe về đúng địa điểm ban đầu theo đúng khung giờ hẹn.",
+      "Khách hàng kiểm tra nghiệm thu tình trạng xe thực tế.",
+      "Hỗ trợ thanh toán không dùng tiền mặt qua mã QR / Chuyển khoản an toàn."
     ]
   }
 ];
 
+const coverageAreas = [
+  { region: "TP. Biên Hòa", desc: "Tất cả các phường Amata, Trảng Dài, Hố Nai, Tân Phong, Quyết Thắng, Thống Nhất..." },
+  { region: "Huyện Long Thành", desc: "Thị trấn Long Thành, An Phước, Bình Sơn, Lộc An..." },
+  { region: "Huyện Nhơn Trạch", desc: "Hiệp Phước, Đại Phước, Phú Hữu, Phước An..." },
+  { region: "TP. Long Khánh", desc: "Xuân An, Xuân Bình, Xuân Hòa, Phú Bình, Bảo Vinh..." },
+  { region: "Huyện Trảng Bom", desc: "Thị trấn Trảng Bom, Hố Nai 3, Bắc Sơn, Bình Minh..." },
+  { region: "Khu vực lân cận", desc: "Hỗ trợ giao nhận linh hoạt theo yêu cầu riêng của Quý khách." }
+];
+
 export default function PickupDeliveryLayout({ service }: { service?: any }) {
   return (
-    <div className="w-full bg-[#fafafa] min-h-screen flex flex-col">
-      <ServicePageBanner title={service?.title || "Dịch vụ nhận và giao xe tận nơi"} backgroundImage={service?.banner_image?.url}>
-        <div className="flex flex-wrap gap-4 justify-center">
-          <Link
-            href="/lien-he"
-            className="bg-[#0562d2] hover:bg-[#044ea7] border border-[#0562d2] transition-colors text-white font-bold px-6 py-3 rounded-full text-sm"
-          >
-            Đặt hẹn
-          </Link>
-          <a
-            href="tel:0918909060"
-            className="border border-white hover:bg-white/10 transition-colors text-white font-bold px-6 py-3 rounded-full text-sm"
-          >
-            Liên hệ hỗ trợ
-          </a>
-        </div>
-      </ServicePageBanner>
+    <div className="w-full bg-[#F8F8F8] min-h-screen flex flex-col items-center">
+      {/* Concierge VIP Banner */}
+      <ServicePageBanner title={service?.title || "Dịch Vụ Nhận & Giao Xe Tận Nơi Đẳng Cấp Concierge"} backgroundImage={service?.banner_image?.url || siteAssets.serviceDelivery} />
 
-      {/* Intro / COVID-19 Safety Statement Segment */}
-      <div className="max-w-[1440px] w-full mx-auto px-4 lg:px-[128px] py-16">
-        {service?.content ? (
-          <div 
-            className="bg-white border border-gray-100 rounded-2xl p-8 shadow-sm text-gray-800 text-base md:text-lg leading-relaxed font-normal prose max-w-none"
-            dangerouslySetInnerHTML={{ __html: service.content }}
-          />
-        ) : (
-          <div className="bg-white border border-gray-100 rounded-2xl p-8 shadow-sm text-gray-800 text-base md:text-lg leading-relaxed font-normal">
-            <p className="mb-4 font-semibold text-gray-900 text-lg md:text-xl">
-              Sức khỏe và sự an toàn của Quý Khách hàng luôn là ưu tiên hàng đầu với Đồng Nai Ford!
-            </p>
-            Trong giai đoạn diễn biến phức tạp của dịch bệnh, để thuận tiện và an toàn cho Khách hàng, Đồng Nai Ford đang cung cấp Dịch vụ Nhận và Giao xe Tận nơi miễn phí (*) cho Quý Khách hàng để giúp giảm thiểu giao tiếp trực tiếp với nhân viên của chúng tôi và các khách hàng khác. Để đảm bảo mọi biện pháp phòng ngừa được thực hiện nghiêm ngặt, xe của Quý khách hàng sẽ được người lái xe khử khuẩn tại thời điểm chúng tôi tiếp nhận xe và tại thời điểm giao xe cho Quý Khách hàng. Quý Khách hàng vui lòng xem thông tin phía dưới cho quy trình Nhận và Giao xe Tận nơi miễn phí (*).
+      {/* Pickup & Delivery Metrics Banner */}
+      <section className="w-full bg-[#002F6C] text-white py-8 border-b border-[#066fef]/30 font-antenna">
+        <div className="max-w-[1440px] mx-auto px-4 lg:px-[80px]">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+            {[
+              { target: 0, suffix: " đ", label: "Phí Giao Nhận Nội Thành" },
+              { target: 100, suffix: "%", label: "Bảo Hiểm Trách Nhiệm" },
+              { target: 15, suffix: " Phút", label: "Phản Hồi Xác Nhận" },
+              { target: 360, suffix: "°", label: "Kiểm Kê Xe Điện Tử" },
+            ].map((metric, i) => (
+              <ScrollReveal key={i} direction="up" delay={i * 100}>
+                <div className="p-2 border-r border-white/10 last:border-0">
+                  <div className="text-3xl md:text-4xl font-bold text-[#38bdf8] mb-1">
+                    <CountUpNumber target={metric.target} suffix={metric.suffix} />
+                  </div>
+                  <div className="text-xs text-white/80 uppercase tracking-wider font-medium">{metric.label}</div>
+                </div>
+              </ScrollReveal>
+            ))}
           </div>
-        )}
-      </div>
+        </div>
+      </section>
 
-      {/* 5-Step Process Cards Grid */}
-      <div className="max-w-[1440px] w-full mx-auto px-4 lg:px-[128px] pb-20 mt-4 flex flex-col gap-10">
-        <h2 className="font-['Ford_Antenna',sans-serif] font-bold text-2xl md:text-3xl text-gray-900 tracking-tight">
-          QUY TRÌNH DỊCH VỤ NHẬN VÀ GIAO XE TẬN NƠI
-        </h2>
+      {/* 3-Layer Security Guarantees Banner */}
+      <section className="max-w-[1440px] w-full mx-auto px-4 lg:px-[80px] pt-16 pb-12 font-antenna">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="bg-white p-8 border border-gray-200 rounded-none shadow-xs">
+            <div className="w-12 h-12 bg-[#002F6C] text-white flex items-center justify-center rounded-[4px] mb-5">
+              <ShieldCheck className="w-6 h-6" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-900 mb-2 uppercase">Bảo Hiểm Trách Nhiệm 100%</h3>
+            <p className="text-sm text-gray-600 leading-relaxed">
+              Toàn bộ quá trình di chuyển của xe được bảo vệ bởi gói bảo hiểm trách nhiệm phương tiện trong suốt hành trình.
+            </p>
+          </div>
+          <div className="bg-white p-8 border border-gray-200 rounded-none shadow-xs">
+            <div className="w-12 h-12 bg-[#066fef] text-white flex items-center justify-center rounded-[4px] mb-5">
+              <Navigation className="w-6 h-6" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-900 mb-2 uppercase">Kiểm Kê 360° Minh Bạch</h3>
+            <p className="text-sm text-gray-600 leading-relaxed">
+              Tài xế tiến hành chụp ảnh xác nhận tình trạng xe và số ODO ngay lúc bàn giao biên bản điện tử cho khách hàng.
+            </p>
+          </div>
+          <div className="bg-white p-8 border border-gray-200 rounded-none shadow-xs">
+            <div className="w-12 h-12 bg-[#00095B] text-white flex items-center justify-center rounded-[4px] mb-5">
+              <Car className="w-6 h-6" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-900 mb-2 uppercase">Khử Khuẩn & Sạch Sẽ</h3>
+            <p className="text-sm text-gray-600 leading-relaxed">
+              Xe được vệ sinh khử khuẩn khu vực khoang lái và rửa sạch ngoại thất trước khi trả lại tận tay gia chủ.
+            </p>
+          </div>
+        </div>
+      </section>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {/* 5-Step Process Timeline Cards */}
+      <section className="max-w-[1440px] w-full mx-auto px-4 lg:px-[80px] py-12 font-antenna">
+        <div className="text-center max-w-3xl mx-auto mb-12">
+          <span className="text-[#066fef] font-bold text-xs uppercase tracking-widest block mb-2">Quy Trình 5 Bước An Toàn</span>
+          <h2 className="text-2xl md:text-3.5xl font-bold text-gray-900 uppercase tracking-tight">
+            CÁCH THỨC DỊCH VỤ NHẬN VÀ GIAO XE TẬN NƠI
+          </h2>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
           {steps.map((step, idx) => (
             <div 
               key={idx}
-              className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col gap-5"
+              className="bg-white border border-gray-200 p-6 rounded-none shadow-xs flex flex-col justify-between hover:border-[#066fef] transition-all"
             >
-              {/* Icon Container */}
-              <div 
-                className="bg-[#003478] rounded-xl flex items-center justify-center p-3.5 size-16 shadow-sm relative overflow-hidden shrink-0"
-                aria-label={step.title}
-              >
-                <Image
-                  src={step.icon}
-                  alt={step.title}
-                  width={40}
-                  height={40}
-                  className="object-contain"
-                />
-              </div>
-
-              {/* Title & Bullets */}
-              <div className="flex flex-col gap-3 flex-1 justify-between">
-                <div className="space-y-3">
-                  <h3 className="font-['Ford_Antenna',sans-serif] font-bold text-xl text-[#00095b]">
-                    {step.title}
-                  </h3>
-                  <ul className="space-y-2 text-sm text-gray-600 list-disc pl-5 leading-relaxed">
-                    {step.bullets.map((bullet, bidx) => (
-                      <li key={bidx}>{bullet}</li>
-                    ))}
-                  </ul>
+              <div>
+                <div className="w-10 h-10 bg-[#066fef]/10 text-[#066fef] rounded-[4px] flex items-center justify-center font-bold text-sm mb-4">
+                  {idx + 1}
                 </div>
-
-                {/* Optional Footnote */}
-                {step.note && (
-                  <p className="text-xs text-gray-400 italic mt-3 pt-3 border-t border-gray-50 leading-relaxed">
-                    {step.note}
-                  </p>
-                )}
+                <h3 className="font-bold text-base text-gray-900 mb-3 uppercase tracking-wide">
+                  {step.title}
+                </h3>
+                <ul className="space-y-2 text-xs text-gray-600 leading-relaxed">
+                  {step.bullets.map((b, bidx) => (
+                    <li key={bidx} className="flex items-start gap-1.5">
+                      <span className="text-[#066fef] mt-1 shrink-0 size-1 bg-[#066fef] rounded-full" />
+                      <span>{b}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
             </div>
           ))}
         </div>
-      </div>
+      </section>
+
+      {/* Service Coverage Area Section */}
+      <section className="max-w-[1440px] w-full mx-auto px-4 lg:px-[80px] py-16 font-antenna">
+        <div className="bg-white border border-gray-200 p-8 lg:p-12 shadow-xs">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-10 gap-6 border-b border-gray-150 pb-6">
+            <div>
+              <span className="text-[#066fef] font-bold text-xs uppercase tracking-widest block mb-2">Phạm Vi Phục Vụ Rộng Khắp</span>
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 uppercase tracking-tight">
+                KHU VỰC HỖ TRỢ GIAO NHẬN TẠI ĐỒNG NAI
+              </h2>
+            </div>
+            <Link
+              href={`/lien-he?reason=Đặt lịch dịch vụ&note=${encodeURIComponent("Đăng ký tư vấn dịch vụ nhận & giao xe bảo dưỡng tận nơi (Pickup & Delivery)")}`}
+              className="bg-[#002F6C] hover:bg-[#066fef] text-white text-xs font-bold uppercase px-6 py-3 rounded-[4px] transition-colors inline-flex items-center gap-2"
+            >
+              <span>Kiểm Tra Địa Chỉ Của Bạn</span>
+              <ChevronRight className="w-4 h-4" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {coverageAreas.map((area, idx) => (
+              <div key={idx} className="bg-[#F8F8F8] border border-gray-150 p-6 rounded-none flex items-start gap-3">
+                <MapPin className="w-5 h-5 text-[#066fef] shrink-0 mt-1" />
+                <div>
+                  <h4 className="font-bold text-base text-gray-900 mb-1 uppercase">{area.region}</h4>
+                  <p className="text-xs text-gray-600 leading-relaxed">{area.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       <BookingBanner />
       <FaqAccordion />

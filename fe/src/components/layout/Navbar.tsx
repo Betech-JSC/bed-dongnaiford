@@ -10,6 +10,7 @@ import { vehiclesAPI, accessoriesAPI, servicesAPI, usedVehiclesAPI } from "@/lib
 type DropdownItem = {
   name: string;
   href: string;
+  subItems?: DropdownItem[];
 };
 
 type NavLink = {
@@ -34,10 +35,23 @@ export default function Navbar() {
   const [accessoriesList, setAccessoriesList] = useState<any[]>([]);
   const [usedVehiclesList, setUsedVehiclesList] = useState<any[]>([]);
   const [servicesMenuList, setServicesMenuList] = useState<DropdownItem[]>([
-    { name: "Chăm sóc khách hàng", href: "/dich-vu/cham-soc-khach-hang" },
-    { name: "Bảo dưỡng nhanh 60 phút", href: "/dich-vu/bao-duong-nhanh" },
     { name: "Bảo dưỡng định kỳ", href: "/dich-vu/bao-duong-dinh-ky" },
-    { name: "Nhận & Giao xe tận nơi", href: "/dich-vu/giao-nhan-xe-tan-noi" },
+    { name: "Bảo dưỡng nhanh 60 phút", href: "/dich-vu/bao-duong-nhanh" },
+    { name: "Dịch vụ sửa chữa chung", href: "/dich-vu/dich-vu-sua-chua" },
+    { name: "Cứu hộ giao thông 24/7", href: "/dich-vu/dich-vu-cuu-ho-247" },
+    { name: "Dịch vụ nâng cấp xe", href: "/dich-vu/dich-vu-nang-cap-xe" },
+    { name: "Chăm sóc khách hàng", href: "/dich-vu/cham-soc-khach-hang" },
+    {
+      name: "Các Dịch Vụ Khác",
+      href: "#",
+      subItems: [
+        { name: "Nhận & Giao xe tận nơi miễn phí", href: "/dich-vu/nhan-giao-xe-mien-phi" },
+        { name: "Công nghệ Ford SYNC®", href: "/dich-vu/ford-sync" },
+        { name: "Ứng dụng FordPass™", href: "/dich-vu/ung-dung-ford" },
+        { name: "Bảo hiểm Ford Ensure", href: "/dich-vu/ford-ensure" },
+        { name: "Cảnh báo thay dầu (IOLM)", href: "/dich-vu/intelligent-oil-life-monitor" },
+      ]
+    }
   ]);
   const [loading, setLoading] = useState(true);
 
@@ -108,15 +122,67 @@ export default function Navbar() {
           setUsedVehiclesList(usedVehs);
         }
         if (Array.isArray(services) && services.length > 0) {
-          setServicesMenuList(services.map((srv: any) => {
+          const subServiceSlugs = [
+            "nhan-giao-xe-mien-phi",
+            "nhan-giao-xe-tan-noi-mien-phi",
+            "giao-nhan-xe-tan-noi",
+            "dich-vu-giao-nhan-xe-tan-noi",
+            "nhan-va-giao-xe-tan-noi-mien-phi",
+            "ford-sync",
+            "ung-dung-ford",
+            "fordpass",
+            "ford-ensure",
+            "ensure",
+            "intelligent-oil-life-monitor",
+            "intelligent-oil-life-monitoring",
+            "canh-bao-thay-dau-iolm"
+          ];
+
+          const mainItems: DropdownItem[] = [];
+          const otherItems: DropdownItem[] = [];
+
+          services.forEach((srv: any) => {
+            const slug = srv.slug;
             const href = (srv.custom_link && srv.custom_link.startsWith('/dich-vu/'))
               ? srv.custom_link
-              : `/dich-vu/${srv.slug}`;
-            return {
-              name: srv.title || srv.name || "",
-              href: href,
-            };
-          }));
+              : `/dich-vu/${slug}`;
+            
+            const name = srv.title || srv.name || "";
+            const item = { name, href };
+
+            if (subServiceSlugs.includes(slug)) {
+              otherItems.push(item);
+            } else {
+              mainItems.push(item);
+            }
+          });
+
+          const defaultSubServices = [
+            { name: "Nhận & Giao xe tận nơi miễn phí", href: "/dich-vu/nhan-giao-xe-mien-phi", slugs: ["nhan-giao-xe-mien-phi", "nhan-giao-xe-tan-noi-mien-phi", "giao-nhan-xe-tan-noi"] },
+            { name: "FORD SYNC", href: "/dich-vu/ford-sync", slugs: ["ford-sync"] },
+            { name: "Ứng dụng Ford", href: "/dich-vu/ung-dung-ford", slugs: ["ung-dung-ford", "fordpass"] },
+            { name: "Ford Ensure", href: "/dich-vu/ford-ensure", slugs: ["ford-ensure", "ensure"] },
+            { name: "Cảnh báo thay dầu (IOLM)", href: "/dich-vu/intelligent-oil-life-monitor", slugs: ["intelligent-oil-life-monitor", "intelligent-oil-life-monitoring", "canh-bao-thay-dau-iolm"] }
+          ];
+
+          defaultSubServices.forEach(defaultSrv => {
+            const exists = otherItems.some(item => 
+              defaultSrv.slugs.some(s => item.href.includes(s))
+            );
+            if (!exists) {
+              otherItems.push({ name: defaultSrv.name, href: defaultSrv.href });
+            }
+          });
+
+          if (otherItems.length > 0) {
+            mainItems.push({
+              name: "Các Dịch Vụ Khác",
+              href: "#",
+              subItems: otherItems
+            });
+          }
+
+          setServicesMenuList(mainItems);
         }
       } catch (err) {
         console.error("Error fetching menu categories/vehicles/accessories/services:", err);
@@ -455,15 +521,40 @@ export default function Navbar() {
 
                     {/* Hover Dropdown Menu */}
                     <div className="absolute top-full left-1/2 -translate-x-1/2 w-64 bg-white shadow-[0px_4px_4px_rgba(16,24,40,0.1),0px_2px_2px_rgba(16,24,40,0.06)] py-0 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 z-50 before:absolute before:-top-3 before:left-0 before:right-0 before:h-3 before:content-[''] rounded-b-[12px] rounded-t-none">
-                      {link.dropdownItems?.map((subItem) => (
-                        <Link
-                          key={subItem.name}
-                          href={subItem.href}
-                          className="block px-5 py-3 text-sm font-['Ford_Antenna',sans-serif] font-medium text-[#333333] hover:bg-[#f0f0f0] hover:text-gray-900 transition-colors first:rounded-t-none last:rounded-b-[12px]"
-                        >
-                          {subItem.name}
-                        </Link>
-                      ))}
+                      {link.dropdownItems?.map((subItem, index) => {
+                        const isLast = index === (link.dropdownItems?.length ?? 0) - 1;
+                        if (subItem.subItems && subItem.subItems.length > 0) {
+                          return (
+                            <div key={subItem.name} className={`relative group/sub ${isLast ? "rounded-b-[12px]" : ""}`}>
+                              <div className={`w-full flex items-center justify-between px-5 py-3 text-sm font-['Ford_Antenna',sans-serif] font-medium text-[#333333] hover:bg-[#f0f0f0] hover:text-gray-900 transition-colors cursor-pointer ${isLast ? "rounded-b-[12px]" : ""}`}>
+                                <span>{subItem.name}</span>
+                                <ChevronRight className="w-4 h-4 opacity-60" />
+                              </div>
+                              <div className="absolute top-0 left-full w-64 bg-white shadow-[0px_4px_4px_rgba(16,24,40,0.1),0px_2px_2px_rgba(16,24,40,0.06)] py-0 opacity-0 invisible group-hover/sub:opacity-100 group-hover/sub:visible transition-all duration-300 transform translate-x-2 group-hover/sub:translate-x-0 z-50 rounded-[12px] border border-gray-100 overflow-hidden">
+                                {subItem.subItems.map((nestedItem) => (
+                                  <Link
+                                    key={nestedItem.name}
+                                    href={nestedItem.href}
+                                    className="block px-5 py-3 text-sm font-['Ford_Antenna',sans-serif] font-medium text-[#333333] hover:bg-[#f0f0f0] hover:text-gray-900 transition-colors first:rounded-t-[12px] last:rounded-b-[12px]"
+                                  >
+                                    {nestedItem.name}
+                                  </Link>
+                                ))}
+                              </div>
+                            </div>
+                          );
+                        }
+
+                        return (
+                          <Link
+                            key={subItem.name}
+                            href={subItem.href}
+                            className={`block px-5 py-3 text-sm font-['Ford_Antenna',sans-serif] font-medium text-[#333333] hover:bg-[#f0f0f0] hover:text-gray-900 transition-colors first:rounded-t-none ${isLast ? "rounded-b-[12px]" : ""}`}
+                          >
+                            {subItem.name}
+                          </Link>
+                        );
+                      })}
                     </div>
                   </div>
                 );
@@ -915,14 +1006,35 @@ export default function Navbar() {
                 {link.dropdownItems && (
                   <div className="pl-6 border-l border-gray-100 flex flex-col gap-1.5 py-1">
                     {link.dropdownItems.map((subItem) => (
-                      <Link
-                        key={subItem.name}
-                        href={subItem.href}
-                        onClick={() => setIsOpen(false)}
-                        className="text-sm font-medium text-gray-550 hover:text-[#0562d2] py-1 block"
-                      >
-                        {subItem.name}
-                      </Link>
+                      <div key={subItem.name} className="space-y-1">
+                        {subItem.subItems && subItem.subItems.length > 0 ? (
+                          <>
+                            <div className="text-xs font-bold uppercase tracking-wider text-gray-400 py-1">
+                              {subItem.name}
+                            </div>
+                            <div className="pl-3 border-l border-gray-100 flex flex-col gap-1">
+                              {subItem.subItems.map((nestedItem) => (
+                                <Link
+                                  key={nestedItem.name}
+                                  href={nestedItem.href}
+                                  onClick={() => setIsOpen(false)}
+                                  className="text-sm font-medium text-gray-550 hover:text-[#0562d2] py-1 block"
+                                >
+                                  {nestedItem.name}
+                                </Link>
+                              ))}
+                            </div>
+                          </>
+                        ) : (
+                          <Link
+                            href={subItem.href}
+                            onClick={() => setIsOpen(false)}
+                            className="text-sm font-medium text-gray-550 hover:text-[#0562d2] py-1 block"
+                          >
+                            {subItem.name}
+                          </Link>
+                        )}
+                      </div>
                     ))}
                   </div>
                 )}

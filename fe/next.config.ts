@@ -38,18 +38,7 @@ const nextConfig = {
         port: "",
         pathname: "/**",
       },
-      {
-        protocol: "https",
-        hostname: "cms.dnf.betech-digital.com",
-        port: "",
-        pathname: "/**",
-      },
-      {
-        protocol: "http",
-        hostname: "cms.dnf.betech-digital.com",
-        port: "",
-        pathname: "/**",
-      },
+
       {
         protocol: "https",
         hostname: "cms.dongnaiford.com.vn",
@@ -377,29 +366,28 @@ const nextConfig = {
   },
   async rewrites() {
     return [
-      // Chuyển hướng nội bộ cho các dòng xe Ford (rút ngắn URL)
-      {
-        source: "/:slug(ford-ranger|ford-everest|ford-territory|ford-transit|ford-mustang-mach-e|ford-explorer)",
-        destination: "/san-pham/:slug",
-      },
-      {
-        source: "/:slug(ford-ranger|ford-everest|ford-territory|ford-transit|ford-mustang-mach-e|ford-explorer)/:subpath*",
-        destination: "/san-pham/:slug/:subpath*",
-      },
       // Chuyển hướng nội bộ đường dẫn /khuyen-mai sang trang /tin-tuc
       {
         source: "/khuyen-mai",
         destination: "/tin-tuc",
+      },
+      {
+        source: "/khuyen-mai/:slug*",
+        destination: "/tin-tuc/:slug*",
       },
       // Giữ nguyên cấu trúc danh mục bài viết từ WordPress cũ
       {
         source: "/chuyen-muc/:slug",
         destination: "/tin-tuc",
       },
-      // Định tuyến chung cho các bài viết không có /tin-tuc (loại trừ các đường dẫn tĩnh hệ thống)
+      // Proxy CMS images to inject Cache-Control headers
       {
-        source: "/:slug((?!tin-tuc$|khuyen-mai$|chuyen-muc$|category$|san-pham$|admin$|api$|lien-he$|gioi-thieu$|bang-gia$|dang-ky-lai-thu$|tim-kiem$|thu-vien-media$|xe-da-qua-su-dung$|phu-kien$|tuyen-dung$|dich-vu$)[^/]+)",
-        destination: "/tin-tuc/:slug",
+        source: "/cms-storage/:path*",
+        destination: "https://cms.dongnaiford.com.vn/storage/:path*",
+      },
+      {
+        source: "/cms-uploads/:path*",
+        destination: "https://cms.dongnaiford.com.vn/uploads/:path*",
       },
     ];
   },

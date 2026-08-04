@@ -10,7 +10,8 @@ const CookieConsent = dynamic(() => import("@/components/shared/CookieConsent"),
 export default function LazyWidgets({ isLdp }: { isLdp?: boolean }) {
   return (
     <>
-      {!isLdp && <AIChatWidget />}
+      {/* Tạm thời ẩn AI Chatbot */}
+      {/* {!isLdp && <AIChatWidget />} */}
       {!isLdp && <CompareDrawer />}
       {!isLdp && <QuickAccessToolbar />}
       <CookieConsent />

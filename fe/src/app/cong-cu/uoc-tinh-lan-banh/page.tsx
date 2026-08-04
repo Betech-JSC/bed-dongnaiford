@@ -19,6 +19,7 @@ import { resolveImageUrl } from "@/components/blocks/Blocks";
 
 // Helper function to group individual dynamic variants into parent model series
 function groupVehiclesBySeries(apiVehicles: any[]) {
+  if (!Array.isArray(apiVehicles)) return [];
   const groups: { [key: string]: {
     id: string;
     name: string;
@@ -29,11 +30,13 @@ function groupVehiclesBySeries(apiVehicles: any[]) {
   }} = {};
 
   apiVehicles.forEach((vehicle) => {
+    if (!vehicle) return;
+    const title = vehicle.title || vehicle.name || "";
+    const titleLower = title.toLowerCase();
     let seriesKey = "";
     let seriesName = "";
     let typeName = "";
     
-    const titleLower = vehicle.title.toLowerCase();
     if (titleLower.includes("territory")) {
       seriesKey = "ford-territory";
       seriesName = "FORD TERRITORY";
@@ -55,13 +58,12 @@ function groupVehiclesBySeries(apiVehicles: any[]) {
       seriesName = "FORD TOURNEO";
       typeName = "MPV 7 Chỗ";
     } else {
-      seriesKey = vehicle.slug || `vehicle-${vehicle.id}`;
-      seriesName = vehicle.title;
+      seriesKey = vehicle.slug || `vehicle-${vehicle.id || Math.random()}`;
+      seriesName = title || "Xe Ford";
       seriesKey = seriesKey === "ranger-wildtrak" ? "ford-ranger" : seriesKey;
       seriesKey = seriesKey === "everest-titanium-plus" ? "ford-everest" : seriesKey;
       seriesKey = seriesKey === "territory-titanium-x" ? "ford-territory" : seriesKey;
       seriesKey = seriesKey === "transit-premium" ? "ford-transit-2024" : seriesKey;
-      seriesName = vehicle.title;
       typeName = vehicle.type === "suv" ? "SUV" : vehicle.type === "pickup" ? "Bán tải" : "Thương mại";
     }
 
@@ -71,25 +73,26 @@ function groupVehiclesBySeries(apiVehicles: any[]) {
         name: seriesName,
         type: vehicle.type || "suv",
         typeName: typeName,
-        image_url: vehicle.image_thumbnail_url || vehicle.image_url || "",
+        image_url: vehicle.image_thumbnail_url || vehicle.image_url || resolveImageUrl(vehicle.image) || "",
         versions: []
       };
     }
 
-    const vehicleVersions = vehicle.versions && vehicle.versions.length > 0
+    const vehicleVersions = Array.isArray(vehicle.versions) && vehicle.versions.length > 0
       ? vehicle.versions
       : [{
           id: vehicle.slug || `version-${vehicle.id}`,
-          name: vehicle.title,
+          name: title || "Phiên bản chuẩn",
           price: typeof vehicle.base_price === 'string' ? parseFloat(vehicle.base_price) : (vehicle.base_price || 0),
           specs: vehicle.specs || {},
-          image_url: vehicle.image_thumbnail_url || vehicle.image_url || ""
+          image_url: vehicle.image_thumbnail_url || vehicle.image_url || resolveImageUrl(vehicle.image) || ""
         }];
 
     vehicleVersions.forEach((v: any) => {
+      if (!v) return;
       groups[seriesKey].versions.push({
-        id: String(v.slug || v.id || `v-${v.name}`),
-        name: v.name || v.title || vehicle.title,
+        id: String(v.slug || v.id || `v-${v.name || 'default'}`),
+        name: v.name || v.title || title || "Phiên bản chuẩn",
         price: typeof v.price === 'string' ? parseFloat(v.price) : (v.price || 0),
         specs: v.specs || {},
         image_url: v.image_url || resolveImageUrl(v.image) || v.image_thumbnail_url || resolveImageUrl(v.image_thumbnail) || ""
@@ -128,34 +131,37 @@ function RollingCostContent() {
   useEffect(() => {
     regionsAPI.getProvinces()
       .then((res) => {
-        if (res && res.success && Array.isArray(res.data) && res.data.length > 0) {
-          setProvinces(res.data);
-          const hasDongNai = res.data.some(p => p.name.includes("Đồng Nai"));
+        const provincesList = Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : [];
+        if (provincesList.length > 0) {
+          setProvinces(provincesList);
+          const hasDongNai = provincesList.some((p: any) => p?.name?.includes("Đồng Nai"));
           if (hasDongNai) {
             setSelectedProvince("Đồng Nai");
-          } else if (res.data.length > 0) {
-            setSelectedProvince(res.data[0].name);
+          } else {
+            setSelectedProvince(provincesList[0].name || "Đồng Nai");
           }
         } else {
-          throw new Error("Invalid format or empty provinces data");
+          setProvinces([
+            { id: "dongnai", name: "Đồng Nai" },
+            { id: "hcm", name: "TP. Hồ Chí Minh" },
+            { id: "binhduong", name: "Bình Dương" },
+            { id: "vungtau", name: "Bà Rịa - Vũng Tàu" },
+            { id: "longan", name: "Long An" },
+            { id: "hanoi", name: "Hà Nội" },
+          ]);
+          setSelectedProvince("Đồng Nai");
         }
       })
       .catch((err) => {
-        console.error("Error loading provinces:", err);
-        const fallbackProvinces = [
+        console.warn("Notice loading provinces:", err);
+        setProvinces([
           { id: "dongnai", name: "Đồng Nai" },
           { id: "hcm", name: "TP. Hồ Chí Minh" },
           { id: "binhduong", name: "Bình Dương" },
           { id: "vungtau", name: "Bà Rịa - Vũng Tàu" },
           { id: "longan", name: "Long An" },
-          { id: "tayninh", name: "Tây Ninh" },
-          { id: "binhphuoc", name: "Bình Phước" },
-          { id: "binhthuan", name: "Bình Thuận" },
-          { id: "lamdong", name: "Lâm Đồng" },
           { id: "hanoi", name: "Hà Nội" },
-          { id: "danang", name: "Đà Nẵng" },
-        ];
-        setProvinces(fallbackProvinces);
+        ]);
         setSelectedProvince("Đồng Nai");
       });
 
@@ -166,52 +172,55 @@ function RollingCostContent() {
         }
       })
       .catch((err) => {
-        console.error("Error loading registration fees:", err);
+        console.warn("Notice loading registration fees:", err);
         setRegistrationFees([]);
       });
   }, []);
 
   // Fetch dynamic vehicles from API
   useEffect(() => {
+    setLoading(true);
     vehiclesAPI
       .getAll({ with_versions: 1 })
       .then((res) => {
-        if (res && res.success && Array.isArray(res.data) && res.data.length > 0) {
-          const grouped = groupVehiclesBySeries(res.data);
+        const rawVehicles = res?.data || (Array.isArray(res) ? res : null);
+        let grouped: any[] = [];
+        if (Array.isArray(rawVehicles) && rawVehicles.length > 0) {
+          grouped = groupVehiclesBySeries(rawVehicles);
+        }
+        if (grouped.length === 0) {
+          grouped = groupVehiclesBySeries(staticVehicles);
+        }
+        
+        if (grouped.length > 0) {
           setVehicles(grouped);
           
-          // Set initial vehicle selection
           const defaultVehicleId = urlVehicleId && grouped.some((v) => v.id === urlVehicleId)
             ? urlVehicleId
             : grouped[0]?.id || "";
           setSelectedVehicleId(defaultVehicleId);
 
-          // Set initial version selection
           const vehicle = grouped.find((v) => v.id === defaultVehicleId);
-          if (vehicle) {
+          if (vehicle && Array.isArray(vehicle.versions) && vehicle.versions.length > 0) {
             const matchVersion =
               urlVersionId && vehicle.versions.some((v: any) => String(v.id) === String(urlVersionId))
                 ? urlVersionId
                 : vehicle.versions[0]?.id || "";
             setSelectedVersionId(String(matchVersion));
           }
-        } else {
-          throw new Error("Invalid or empty vehicles data from API");
         }
       })
       .catch((err) => {
-        console.error("Error loading vehicles for estimator:", err);
-        // Fallback to static vehicles
+        console.warn("Notice loading vehicles for estimator:", err);
         const grouped = groupVehiclesBySeries(staticVehicles);
         setVehicles(grouped);
-        
         const defaultVehicleId = urlVehicleId && grouped.some((v) => v.id === urlVehicleId)
           ? urlVehicleId
           : grouped[0]?.id || "";
         setSelectedVehicleId(defaultVehicleId);
 
         const vehicle = grouped.find((v) => v.id === defaultVehicleId);
-        if (vehicle) {
+        if (vehicle && Array.isArray(vehicle.versions) && vehicle.versions.length > 0) {
           const matchVersion =
             urlVersionId && vehicle.versions.some((v: any) => String(v.id) === String(urlVersionId))
               ? urlVersionId

@@ -17,37 +17,8 @@ const formatUploadError = (err: any): string => {
   return "Đã xảy ra lỗi không xác định";
 };
 
-export const resolveImageUrl = (img: any): string => {
-  if (!img) return "/assets/img-gradient-1.png";
-  let path = "";
-  if (typeof img === "string") {
-    path = img;
-  } else if (typeof img === "object") {
-    path = img.url || img.path || "";
-  }
-  if (!path) return "/assets/img-gradient-1.png";
-  if (path.startsWith("http://") || path.startsWith("https://") || path.startsWith("/") || path.startsWith("//")) {
-    return encodeURI(path);
-  }
-  if (/^([a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}|localhost)(:[0-9]+)?\//.test(path)) {
-    return encodeURI(`https://${path}`);
-  }
-  const cleanPath = path.startsWith("uploads/") ? path.replace("uploads/", "") : path;
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
-  const baseDomain = apiUrl.replace(/\/api$/, "");
-  return encodeURI(`${baseDomain}/static/${cleanPath}`);
-};
-
-export const hasImageField = (img: any): boolean => {
-  if (!img) return false;
-  let path = "";
-  if (typeof img === "string") {
-    path = img;
-  } else if (typeof img === "object") {
-    path = img.url || img.path || "";
-  }
-  return typeof path === "string" && path.trim() !== "";
-};
+import { resolveImageUrl, hasImageField } from "@/lib/site-assets";
+export { resolveImageUrl, hasImageField };
 
 export const getYoutubeId = (url: string | null | undefined): string | null => {
   if (!url) return null;

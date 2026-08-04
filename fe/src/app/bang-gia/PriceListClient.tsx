@@ -10,6 +10,7 @@ import BookingBanner from "@/components/services/BookingBanner";
 
 // Helper function to group individual dynamic variants into parent model series
 function groupVehiclesBySeries(apiVehicles: any[]) {
+  if (!Array.isArray(apiVehicles)) return [];
   const groups: { [key: string]: {
     id: string;
     name: string;
@@ -20,11 +21,13 @@ function groupVehiclesBySeries(apiVehicles: any[]) {
   }} = {};
 
   apiVehicles.forEach((vehicle) => {
+    if (!vehicle) return;
+    const title = vehicle.title || vehicle.name || "";
+    const titleLower = title.toLowerCase();
     let seriesKey = "";
     let seriesName = "";
     let typeName = "";
     
-    const titleLower = vehicle.title.toLowerCase();
     if (titleLower.includes("territory")) {
       seriesKey = "ford-territory";
       seriesName = "FORD TERRITORY";
@@ -46,13 +49,12 @@ function groupVehiclesBySeries(apiVehicles: any[]) {
       seriesName = "FORD TOURNEO";
       typeName = "MPV 7 Chỗ";
     } else {
-      seriesKey = vehicle.slug || `vehicle-${vehicle.id}`;
-      seriesName = vehicle.title;
+      seriesKey = vehicle.slug || `vehicle-${vehicle.id || Math.random()}`;
+      seriesName = title || "Xe Ford";
       seriesKey = seriesKey === "ranger-wildtrak" ? "ford-ranger" : seriesKey;
       seriesKey = seriesKey === "everest-titanium-plus" ? "ford-everest" : seriesKey;
       seriesKey = seriesKey === "territory-titanium-x" ? "ford-territory" : seriesKey;
       seriesKey = seriesKey === "transit-premium" ? "ford-transit-2024" : seriesKey;
-      seriesName = vehicle.title;
       typeName = vehicle.type === "suv" ? "SUV" : vehicle.type === "pickup" ? "Bán tải" : "Thương mại";
     }
 

@@ -1,123 +1,162 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
-import { Download } from "lucide-react";
+import { PhoneCall, HeartHandshake, Award, ChevronRight } from "lucide-react";
 import BookingBanner from "@/components/services/BookingBanner";
 import FaqAccordion from "@/components/services/FaqAccordion";
 import ServicePageBanner from "@/components/services/ServicePageBanner";
+import ScrollReveal from "@/components/common/ScrollReveal";
 import { siteAssets } from "@/lib/site-assets";
+
+// Detailing & Car Care Packages
+const detailingPackages = [
+  {
+    title: "Phủ Ceramic Bảo Vệ Sơn",
+    desc: "Công nghệ phủ bóng gương Nano Ceramic nhập khẩu giúp bảo vệ lớp sơn zin chống trầy xước nhẹ & chống tia UV.",
+    badge: "Bảo vệ 3-5 năm"
+  },
+  {
+    title: "Dán Phim Cách Nhiệt 3M Chính Hãng",
+    desc: "Cản 99% tia hồng ngoại & UV, giữ cabin luôn mát mẻ và nâng cao tính riêng tư đẳng cấp.",
+    badge: "Bảo hành 10 năm"
+  },
+  {
+    title: "Vệ Sinh Nội Thất & Diệt Khuẩn Ozone",
+    desc: "Làm sạch sâu ghế da, trần nỉ, thảm sàn và diệt 99.9% vi khuẩn bằng máy tạo khí Ozone chuyên dụng.",
+    badge: "Chăm sóc toàn diện"
+  },
+  {
+    title: "Phủ Gầm Chống Rỉ & Giảm Ồn",
+    desc: "Sử dụng dung dịch cao su non nhập khẩu Đức bảo vệ gầm xe khỏi đá văng & mặn kiềm vùng bãi biển.",
+    badge: "Chống rỉ sét"
+  }
+];
 
 export default function CustomerCareLayout({ service }: { service?: any }) {
   return (
-    <div className="w-full bg-[#fafafa] min-h-screen flex flex-col">
-      <ServicePageBanner title={service?.title || "Dịch vụ chăm sóc khách hàng"} backgroundImage={service?.banner_image?.url}>
-        <div className="flex flex-wrap gap-4 justify-center">
-          <Link
-            href="/lien-he"
-            className="bg-[#0562d2] hover:bg-[#044ea7] border border-[#0562d2] transition-colors text-white font-bold px-6 py-3 rounded-full text-sm"
-          >
-            Đặt hẹn
-          </Link>
-          <a
-            href="tel:0918909060"
-            className="border border-white hover:bg-white/10 transition-colors text-white font-bold px-6 py-3 rounded-full text-sm"
-          >
-            Liên hệ hỗ trợ
-          </a>
-        </div>
-      </ServicePageBanner>
+    <div className="w-full bg-[#F8F8F8] min-h-screen flex flex-col items-center">
+      {/* Hero Banner */}
+      <ServicePageBanner title={service?.title || "Dịch Vụ Chăm Sóc Khách Hàng & Cứu Hộ 24/7"} backgroundImage={service?.banner_image?.url || siteAssets.serviceCustomerCare} />
 
-      {/* Intro Description */}
-      <div className="max-w-[1440px] w-full mx-auto px-4 lg:px-[128px] py-16 text-center">
-        {service?.content ? (
-          <div 
-            className="prose max-w-none text-xl md:text-2xl text-gray-900 leading-relaxed font-normal text-left md:text-center"
-            dangerouslySetInnerHTML={{ __html: service.content }}
-          />
-        ) : (
-          <div className="max-w-[1000px] mx-auto text-xl md:text-2xl text-gray-900 leading-relaxed font-normal">
-            Quy trình dịch vụ tiêu chuẩn Ford toàn cầu Quality Care service được áp dụng tại tất cả các đại lý ủy quyền. Hàng năm, Ford tổ chức đánh giá và củng cố việc tuân thủ quy trình tại đại lý nhằm đảm bảo chất lượng dịch vụ cao nhất.
+      {/* Emergency Roadside Assistance Callout Banner */}
+      <section className="w-full bg-white py-8 border-b border-gray-200 font-antenna">
+        <div className="max-w-[1440px] mx-auto px-4 lg:px-[80px]">
+          <div className="bg-[#002F6C] text-white p-6 lg:p-8 rounded-none shadow-md flex flex-col md:flex-row items-center justify-between gap-6 border-l-4 border-[#066fef]">
+            <div className="flex items-center gap-5">
+              <div className="w-12 h-12 bg-white/10 text-white rounded-[4px] flex items-center justify-center shrink-0 border border-white/20">
+                <PhoneCall className="w-6 h-6 text-[#38bdf8]" />
+              </div>
+              <div>
+                <span className="text-[11px] font-extrabold text-[#38bdf8] uppercase tracking-widest block mb-1">
+                  Hỗ Trợ Sự Cố Đường Bộ 24/7
+                </span>
+                <h3 className="text-xl md:text-2xl font-bold uppercase tracking-tight text-white">
+                  ĐỘI CỨU HỘ GIAO THÔNG ĐỒNG NAI FORD
+                </h3>
+                <p className="text-xs md:text-sm text-gray-300 mt-1">
+                  Cứu hộ xe chết máy, kích bình ắc quy, kéo xe gặp sự cố về xưởng 3S an toàn.
+                </p>
+              </div>
+            </div>
+            <a
+              href="tel:0918909060"
+              className="bg-[#066fef] hover:bg-white hover:text-[#002F6C] text-white text-xs font-bold uppercase px-7 py-3.5 rounded-[4px] transition-all duration-300 shrink-0 tracking-wider shadow-sm flex items-center gap-2"
+            >
+              <PhoneCall className="w-4 h-4" />
+              <span>Gọi Cứu Hộ: 0918 90 90 60</span>
+            </a>
           </div>
-        )}
-      </div>
-
-      {/* Quality Care Badge Image Display */}
-      <div className="max-w-[1440px] w-full mx-auto px-4 lg:px-[128px] py-[6px] flex justify-center">
-        <div className="relative w-[500px] h-[500px] max-w-full">
-          <Image
-            src={siteAssets.qualityCareBadge}
-            alt="Ford Quality Care Badge"
-            fill
-            sizes="(max-width: 768px) 100vw, 500px"
-            className="object-contain"
-          />
         </div>
-      </div>
+      </section>
 
-      {/* Core Detailed Columns */}
-      <div className="max-w-[1440px] w-full mx-auto px-4 lg:px-[128px] py-16 grid grid-cols-1 md:grid-cols-3 gap-12">
-        {service?.benefits && Array.isArray(service.benefits) && service.benefits.length > 0 && service.benefits.some((b: any) => b && (b.title || b.description)) ? (
-          service.benefits.filter((b: any) => b && (b.title || b.description)).map((benefit: any, bidx: number) => (
-            <div key={bidx} className="flex flex-col gap-5">
-              <h3 className="font-['Ford_Antenna',sans-serif] font-bold text-lg text-gray-900 border-b border-gray-200 pb-3">
-                {benefit.title}
-              </h3>
-              {benefit.description && (
-                <div 
-                  className="text-sm text-gray-600 leading-relaxed space-y-2 prose"
-                  dangerouslySetInnerHTML={{ __html: benefit.description }}
+      {/* Quality Care Global Standard Showcase */}
+      <section className="max-w-[1440px] w-full mx-auto px-4 lg:px-[80px] py-16 font-antenna">
+        <div className="bg-white border border-gray-200 p-8 lg:p-12 shadow-xs">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            <div className="lg:col-span-7 space-y-6">
+              <span className="text-[#066fef] font-bold text-xs uppercase tracking-widest block">Quy Trình Chuẩn Quốc Tế</span>
+              <h2 className="text-2xl md:text-3.5xl font-bold text-gray-900 uppercase tracking-tight leading-tight">
+                TIÊU CHUẨN DỊCH VỤ FORD QUALITY CARE TOÀN CẦU
+              </h2>
+              <p className="text-gray-600 text-base leading-relaxed">
+                Quy trình dịch vụ tiêu chuẩn Ford Quality Care được áp dụng nghiêm ngặt tại xưởng 3S Đồng Nai Ford. Hàng năm, các chuyên gia Ford Châu Á Thái Bình Dương tiến hành khảo sát và đánh giá nhằm đảm bảo mức độ hài lòng cao nhất từ phía khách hàng.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                <div className="flex items-start gap-3 bg-[#F8F8F8] p-4 border border-gray-150">
+                  <Award className="w-5 h-5 text-[#066fef] shrink-0 mt-0.5" />
+                  <div>
+                    <h4 className="font-bold text-sm text-gray-900 uppercase">Top 1 Chất Lượng CVP</h4>
+                    <p className="text-xs text-gray-500 mt-0.5">Xếp hạng cao về chỉ số hài lòng khách hàng.</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 bg-[#F8F8F8] p-4 border border-gray-150">
+                  <HeartHandshake className="w-5 h-5 text-[#066fef] shrink-0 mt-0.5" />
+                  <div>
+                    <h4 className="font-bold text-sm text-gray-900 uppercase">Cam Kết Đồng Hành</h4>
+                    <p className="text-xs text-gray-500 mt-0.5">Lắng nghe và giải quyết mọi phản hồi nhanh nhất.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="lg:col-span-5 flex justify-center">
+              <div className="relative w-[380px] h-[380px] max-w-full">
+                <Image
+                  src={siteAssets.qualityCareBadge}
+                  alt="Ford Quality Care Badge"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 380px"
+                  className="object-contain"
+                  unoptimized
                 />
-              )}
+              </div>
             </div>
-          ))
-        ) : (
-          <>
-            {/* Column 1 */}
-            <div className="flex flex-col gap-5">
-              <h3 className="font-['Ford_Antenna',sans-serif] font-bold text-lg text-gray-900 border-b border-gray-200 pb-3">
-                Hài lòng khách hàng là mục tiêu hàng đầu
-              </h3>
-              <ul className="space-y-3 text-sm text-gray-600 list-disc pl-5 leading-relaxed">
-                <li>Quy trình chăm sóc khách hàng theo tiêu chuẩn Ford toàn cầu</li>
-                <li>Hệ thống đánh giá hài lòng khách hàng: CVP và GQRS</li>
-                <li>Năm 2015, Ford Việt Nam đứng vị trí số 1 tại khu vực Ford Châu Á Thái Bình Dương về chất lượng dịch vụ (CVP)</li>
-                <li>Chúng tôi luôn cam kết mang đến chất lượng dịch vụ tốt nhất hướng tới sự hài lòng khách hàng cao nhất</li>
-              </ul>
-            </div>
+          </div>
+        </div>
+      </section>
 
-            {/* Column 2 */}
-            <div className="flex flex-col gap-5 items-start">
-              <h3 className="font-['Ford_Antenna',sans-serif] font-bold text-lg text-gray-900 border-b border-gray-200 pb-3 w-full">
-                Phiếu kiểm tra tình trạng xe
-              </h3>
-              <ul className="space-y-3 text-sm text-gray-600 list-disc pl-5 leading-relaxed">
-                <li>Tại các Đại lý ủy quyền của Ford, các kỹ thuật viên luôn ghi lại việc kiểm tra, đo đạc phụ tùng lên phiếu kiểm tra xe và đánh dấu theo màu các trạng thái.</li>
-                <li>Thẻ kiểm tra như 1 bản tóm tắt thông tin nhanh về tình trạng xe.</li>
-                <li>Việc này giúp khách hàng biết rõ tình trạng các phụ tùng trên xe, kiểm soát và đưa ra các quyết định phù hợp.</li>
-              </ul>
-              <a
-                href="/assets/express-maintenance-flow.png"
-                download
-                className="flex items-center gap-2 text-[#0562d2] font-bold text-sm hover:underline mt-2"
-              >
-                <Download className="w-5 h-5" />
-                <span>Tải phiếu tại đây</span>
-              </a>
-            </div>
+      {/* Auto Detailing & Car Care Packages */}
+      <section className="max-w-[1440px] w-full mx-auto px-4 lg:px-[80px] py-12 font-antenna">
+        <ScrollReveal direction="up">
+          <div className="text-center max-w-3xl mx-auto mb-12">
+            <span className="text-[#066fef] font-bold text-xs uppercase tracking-widest block mb-2">Chăm Sóc & Làm Đẹp Xe</span>
+            <h2 className="text-2xl md:text-3.5xl font-bold text-gray-900 uppercase tracking-tight">
+              GÓI DỊCH VỤ AUTO DETAILING CAO CẤP
+            </h2>
+            <p className="text-gray-600 text-sm mt-3">
+              Giữ cho xế cưng của bạn luôn sạch sẽ, sang trọng và giữ giá trị lâu dài theo thời gian.
+            </p>
+          </div>
+        </ScrollReveal>
 
-            {/* Column 3 */}
-            <div className="flex flex-col gap-5">
-              <h3 className="font-['Ford_Antenna',sans-serif] font-bold text-lg text-gray-900 border-b border-gray-200 pb-3">
-                Mạng lưới dịch vụ ủy quyền
-              </h3>
-              <ul className="space-y-3 text-sm text-gray-600 list-disc pl-5 leading-relaxed">
-                <li>Mạng lưới phân phối & cung cấp dịch vụ của Ford liên tục được mở rộng</li>
-                <li>Năm 2016, Ford Việt Nam có hơn 29 trung tâm dịch vụ ủy quyền trên toàn quốc.</li>
-                <li>Các xưởng dịch vụ được xây dựng theo tiêu chuẩn của Ford Châu Á Thái Bình Dương</li>
-              </ul>
-            </div>
-          </>
-        )}
-      </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {detailingPackages.map((pkg, idx) => (
+            <ScrollReveal key={idx} direction="up" delay={idx * 100}>
+              <div className="bg-white border border-gray-200 p-6 rounded-none shadow-xs flex flex-col justify-between hover:border-[#066fef] transition-all group h-full">
+                <div>
+                  <span className="bg-[#066fef]/10 text-[#066fef] text-[11px] font-bold px-3 py-1 rounded-[4px] inline-block mb-4 uppercase tracking-wider">
+                    {pkg.badge}
+                  </span>
+                  <h3 className="font-bold text-base text-gray-900 mb-2 uppercase group-hover:text-[#066fef] transition-colors">
+                    {pkg.title}
+                  </h3>
+                  <p className="text-xs text-gray-600 leading-relaxed mb-6">
+                    {pkg.desc}
+                  </p>
+                </div>
+                <Link
+                  href={`/lien-he?reason=Đặt lịch dịch vụ&note=${encodeURIComponent(`Đăng ký tư vấn gói chăm sóc xe (Detailing): ${pkg.title} (${pkg.badge})`)}`}
+                  className="text-[#066fef] font-bold text-xs uppercase tracking-wider inline-flex items-center gap-1 hover:gap-2 transition-all border-t border-gray-100 pt-4"
+                >
+                  <span>Tư vấn chi tiết</span>
+                  <ChevronRight className="w-4 h-4" />
+                </Link>
+              </div>
+            </ScrollReveal>
+          ))}
+        </div>
+      </section>
 
       <BookingBanner />
       <FaqAccordion />

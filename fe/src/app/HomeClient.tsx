@@ -258,7 +258,7 @@ export default function HomeClient({
           setCustomerHandovers(handoversItems);
         }
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.warn("Notice fetching data:", error);
       } finally {
         setIsVehiclesLoading(false);
       }
@@ -300,7 +300,7 @@ export default function HomeClient({
           setHomeArticles([]);
         }
       } catch (error) {
-        console.error("Error fetching tab posts:", error);
+        console.warn("Notice fetching tab posts:", error);
         setHomeArticles([]);
       }
     };

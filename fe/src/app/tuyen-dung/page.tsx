@@ -70,9 +70,10 @@ export default function JobsPage() {
   }, []);
 
   // Reset page to 1 when filters change
-  useEffect(() => {
+  const handleSearchChange = (val: string) => {
+    setSearchTerm(val);
     setCurrentPage(1);
-  }, [searchTerm, selectedLocation, selectedType]);
+  };
 
   // Format date helper (dd/mm/yyyy)
   const formatDate = (dateString?: string) => {

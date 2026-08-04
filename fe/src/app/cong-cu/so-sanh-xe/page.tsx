@@ -5,11 +5,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { ChevronDown, X, Plus, ArrowRight, Trash2, GitCompare } from "lucide-react";
 import { type Vehicle, type Specs } from "@/data/vehicles";
-import { getPopularVehicleImage, handleImageError } from "@/lib/site-assets";
+import { getPopularVehicleImage, handleImageError, resolveImageUrl } from "@/lib/site-assets";
 import { formatPriceShort } from "@/lib/rolling-cost";
 import BookingBanner from "@/components/services/BookingBanner";
 import { vehiclesAPI } from "@/lib/api";
-import { resolveImageUrl } from "@/components/blocks/Blocks";
 
 const mapSpecKey = (key: string, val: string, result: Record<string, string>) => {
   const k = key.trim().toLowerCase();
@@ -310,6 +309,17 @@ export default function ComparePage() {
             }
           });
           setAllCompareOptions(options);
+
+          // Auto-select initial 2 options from CMS if none are selected or invalid
+          if (options.length >= 1) {
+            setSelectedIds((prev) => {
+              if (prev.length >= 1) {
+                const validPrev = prev.filter((id) => options.some((opt) => opt.key === id || opt.vehicleId === id));
+                if (validPrev.length >= 1) return validPrev;
+              }
+              return [options[0]?.key, options[1]?.key].filter(Boolean) as string[];
+            });
+          }
         }
       } catch (err) {
         console.error("Error loading vehicles in ComparePage:", err);
@@ -356,7 +366,7 @@ export default function ComparePage() {
     }
   }, [allCompareOptions, selectedIds, hasClearedAll]);
 
-  // Sync URL query params with selectedIds
+  // Sync URL query params & localStorage with selectedIds
   useEffect(() => {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
@@ -368,6 +378,13 @@ export default function ComparePage() {
       const newSearch = params.toString();
       const newPath = newSearch ? `?${newSearch}` : window.location.pathname;
       window.history.replaceState(null, "", newPath);
+
+      if (selectedIds.length > 0) {
+        localStorage.setItem("compare-vehicles", JSON.stringify(selectedIds.filter(Boolean)));
+      } else {
+        localStorage.removeItem("compare-vehicles");
+      }
+      window.dispatchEvent(new Event("compare-updated"));
     }
   }, [selectedIds]);
 
@@ -393,18 +410,14 @@ export default function ComparePage() {
     setSelectedIds((prev) => {
       const updated = [...prev];
       updated[index] = optionKey;
-      localStorage.setItem("compare-vehicles", JSON.stringify(updated.filter(Boolean)));
-      window.dispatchEvent(new Event("compare-updated"));
-      setHasClearedAll(false);
       return updated;
     });
+    setHasClearedAll(false);
   };
 
   const handleRemove = (index: number) => {
     setSelectedIds((prev) => {
       const updated = prev.filter((_, i) => i !== index);
-      localStorage.setItem("compare-vehicles", JSON.stringify(updated.filter(Boolean)));
-      window.dispatchEvent(new Event("compare-updated"));
       if (updated.length === 0) {
         setHasClearedAll(true);
       }
@@ -416,22 +429,15 @@ export default function ComparePage() {
     if (selectedIds.length < MAX_COMPARE) {
       const available = allCompareOptions.find((opt) => !selectedIds.includes(opt.key));
       if (available) {
-        setSelectedIds((prev) => {
-          const updated = [...prev, available.key];
-          localStorage.setItem("compare-vehicles", JSON.stringify(updated));
-          window.dispatchEvent(new Event("compare-updated"));
-          setHasClearedAll(false);
-          return updated;
-        });
+        setSelectedIds((prev) => [...prev, available.key]);
+        setHasClearedAll(false);
       }
     }
   };
 
   const handleClearAll = () => {
-    localStorage.removeItem("compare-vehicles");
     setSelectedIds([]);
     setHasClearedAll(true);
-    window.dispatchEvent(new Event("compare-updated"));
   };
 
   const isAnyElectric = selectedCompareOptions.some(opt => {
@@ -531,35 +537,39 @@ export default function ComparePage() {
                 Vui lòng chọn từ danh sách xe bên dưới để bắt đầu so sánh thông số kỹ thuật chi tiết.
               </p>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-left">
-                {allCompareOptions.slice(0, 6).map((opt) => (
-                  <button
-                    key={opt.key}
-                    onClick={() => {
-                      setSelectedIds([opt.key]);
-                      localStorage.setItem("compare-vehicles", JSON.stringify([opt.key]));
-                      window.dispatchEvent(new Event("compare-updated"));
-                      setHasClearedAll(false);
-                    }}
-                    className="p-4 rounded-xl border border-gray-100 hover:border-[#0562d2] hover:bg-blue-50/10 transition-all text-left flex flex-col items-center justify-center gap-2 group cursor-pointer bg-white"
-                  >
-                    <div className="relative w-full h-[60px]">
-                      <Image
-                        src={resolveImageUrl(opt.image)}
-                        alt={opt.displayName}
-                        fill
-                        sizes="120px"
-                        className="object-contain group-hover:scale-105 transition-transform"
-                        onError={handleImageError}
-                      />
-                    </div>
-                    <span className="text-xs font-bold text-[#1a1a1a] uppercase text-center truncate w-full mt-1">
-                      {opt.displayName}
-                    </span>
-                    <span className="text-[10px] font-semibold text-[#0562D2] bg-blue-50 px-2 py-0.5 rounded-full">
-                      + Thêm so sánh
-                    </span>
-                  </button>
-                ))}
+                {allVehicles.map((vehicle) => {
+                  const matchingOpt = allCompareOptions.find(o => o.vehicleId === vehicle.id || o.key === vehicle.id) || allCompareOptions[0];
+                  const imgSrc = resolveImageUrl(vehicle.image_thumbnail_url || vehicle.image_url || vehicle.image_featured_url || vehicle.image) || getPopularVehicleImage(vehicle.slug || vehicle.name);
+                  return (
+                    <button
+                      key={vehicle.id}
+                      onClick={() => {
+                        if (matchingOpt) {
+                          setSelectedIds([matchingOpt.key]);
+                          setHasClearedAll(false);
+                        }
+                      }}
+                      className="p-4 rounded-xl border border-gray-100 hover:border-[#0562d2] hover:bg-blue-50/10 transition-all text-left flex flex-col items-center justify-center gap-2 group cursor-pointer bg-white"
+                    >
+                      <div className="relative w-full h-[65px]">
+                        <Image
+                          src={imgSrc}
+                          alt={vehicle.name}
+                          fill
+                          sizes="140px"
+                          className="object-contain group-hover:scale-105 transition-transform"
+                          onError={handleImageError}
+                        />
+                      </div>
+                      <span className="text-xs font-bold text-[#1a1a1a] uppercase text-center truncate w-full mt-1">
+                        {vehicle.name}
+                      </span>
+                      <span className="text-[10px] font-semibold text-[#0562D2] bg-blue-50 px-2.5 py-1 rounded-full">
+                        + Thêm so sánh
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
           ) : (

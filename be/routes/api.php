@@ -97,7 +97,20 @@ Route::localized(function () {
 
     // Lấy cấu hình chung và mã inject code cho frontend (GA4, Tag Manager...)
     Route::get('settings/general', function () {
-        $generalSettings = settings()->group('general')->all();
+        $generalSettings = settings()->group('general')->all(true);
+        $aboutTeamImages = $generalSettings['about_team_images'] ?? [];
+        while (is_string($aboutTeamImages)) {
+            $decoded = json_decode($aboutTeamImages, true);
+            if (json_last_error() === JSON_ERROR_NONE && $decoded !== null) {
+                $aboutTeamImages = $decoded;
+            } else {
+                break;
+            }
+        }
+        if (!is_array($aboutTeamImages)) {
+            $aboutTeamImages = [];
+        }
+
         return response()->json([
             'success' => true,
             'data' => [
@@ -110,6 +123,7 @@ Route::localized(function () {
                 'general_company_tax_code' => $generalSettings['general_company_tax_code'] ?? '',
                 'general_company_working_hours' => $generalSettings['general_company_working_hours'] ?? '',
                 'general_company_copyright' => $generalSettings['general_company_copyright'] ?? '',
+                'about_team_images' => $aboutTeamImages,
             ],
             'message' => 'OK'
         ]);

@@ -1470,8 +1470,6 @@ export default {
             const hostname = window.location.hostname;
             if (hostname === 'localhost' || hostname === '127.0.0.1') {
                 host = 'http://localhost:3000';
-            } else if (hostname === 'cms.dnf.betech-digital.com') {
-                host = 'https://client.dnf.betech-digital.com';
             } else if (hostname === 'cms.dongnaiford.com.vn') {
                 host = 'https://dongnaiford.com.vn';
             } else {

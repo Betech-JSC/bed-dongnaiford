@@ -232,7 +232,21 @@ class VehicleController extends Controller
             // Sync categories
             $categoryIds = $request->input('category_ids', []);
             if (is_array($categoryIds)) {
-                $resource->categories()->sync($categoryIds);
+                $cleanCategoryIds = collect($categoryIds)
+                    ->map(function ($item) {
+                        if (is_array($item)) {
+                            return $item['id'] ?? null;
+                        }
+                        if (is_object($item)) {
+                            return $item->id ?? null;
+                        }
+                        return is_numeric($item) ? (int) $item : null;
+                    })
+                    ->filter(fn($id) => !is_null($id) && $id > 0)
+                    ->values()
+                    ->toArray();
+
+                $resource->categories()->sync($cleanCategoryIds);
             }
 
             $versionsData = $request->input('versions', []);
@@ -283,10 +297,23 @@ class VehicleController extends Controller
 
             // Sync accessories Many-to-Many
             $selectedIds = $request->input('accessories', []);
-            if (!is_array($selectedIds)) {
-                $selectedIds = [];
+            if (is_array($selectedIds)) {
+                $cleanAccessoryIds = collect($selectedIds)
+                    ->map(function ($item) {
+                        if (is_array($item)) {
+                            return $item['id'] ?? null;
+                        }
+                        if (is_object($item)) {
+                            return $item->id ?? null;
+                        }
+                        return is_numeric($item) ? (int) $item : null;
+                    })
+                    ->filter(fn($id) => !is_null($id) && $id > 0)
+                    ->values()
+                    ->toArray();
+
+                $resource->accessories()->sync($cleanAccessoryIds);
             }
-            $resource->accessories()->sync($selectedIds);
         });
     }
 

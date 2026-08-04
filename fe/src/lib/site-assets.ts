@@ -5,11 +5,13 @@ export const siteAssets = {
     "/assets/car-mach-e.png",
   ],
   showroomBg: "/showroom_bg.png",
-  serviceBannerBg: "/assets/service-banner-bg.png",
+  serviceBannerBg: "/images-services/service-maintenance-banner.png",
   serviceBannerFg: "/assets/service-banner-fg.png",
-  serviceCustomerCare: "/service-support-customer.jpg",
-  serviceMaintenance: "/service-fixed-car.jpg",
-  serviceDelivery: "/service-delivery.png",
+  serviceCustomerCare: "/images-services/service-detailing-banner.png",
+  serviceMaintenance: "/images-services/service-maintenance-banner.png",
+  serviceDelivery: "/images-services/service-delivery-banner.png",
+  serviceRescue: "/images-services/service-rescue-banner.png",
+  serviceUpgrade: "/images-services/service-upgrade-banner.png",
   bookingCar: "/assets/booking-car.png",
   qualityCareBadge: "/assets/quality-care-circle.png",
   expressFlow: "/assets/express-maintenance-flow.png",
@@ -42,19 +44,52 @@ export const popularVehicleImages: Record<string, string> = {
   "mustang-fastback": "/assets/mustang-hero.png",
 };
 
-export function getPopularVehicleImage(vehicleId: string, fallback?: string) {
-  return (
-    popularVehicleImages[vehicleId] ??
-    (fallback && fallback !== "" ? fallback : undefined) ??
-    siteAssets.carPlaceholder
-  );
+export function getPopularVehicleImage(slugOrName: string, fallback?: string): string {
+  if (!slugOrName) return fallback || popularVehicleImages["ford-territory"];
+  const key = slugOrName.toLowerCase();
+  for (const [k, v] of Object.entries(popularVehicleImages)) {
+    if (key.includes(k.replace("ford-", ""))) return v;
+  }
+  return fallback || popularVehicleImages["ford-territory"];
 }
 
-export const imageFallbackSvg = "/images/ford_placeholder.png";
+export const imageFallbackSvg = "/assets/img-gradient-1.png";
 
-export function handleImageError(e: React.SyntheticEvent<HTMLImageElement, Event>) {
-  e.currentTarget.onerror = null;
-  e.currentTarget.srcset = "";
-  e.currentTarget.src = imageFallbackSvg;
-}
+export const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+  const target = e.currentTarget;
+  if (!target.src.includes("car-mach-e.png")) {
+    target.src = siteAssets.carPlaceholder;
+  }
+};
 
+export const resolveImageUrl = (img: any): string => {
+  if (!img) return "/assets/img-gradient-1.png";
+  let path = "";
+  if (typeof img === "string") {
+    path = img;
+  } else if (typeof img === "object") {
+    path = img.url || img.path || "";
+  }
+  if (!path) return "/assets/img-gradient-1.png";
+  if (path.startsWith("http://") || path.startsWith("https://") || path.startsWith("/") || path.startsWith("//")) {
+    return encodeURI(path);
+  }
+  if (/^([a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}|localhost)(:[0-9]+)?\//.test(path)) {
+    return encodeURI(`https://${path}`);
+  }
+  const cleanPath = path.startsWith("uploads/") ? path.replace("uploads/", "") : path;
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
+  const baseDomain = apiUrl.replace(/\/api$/, "");
+  return encodeURI(`${baseDomain}/static/${cleanPath}`);
+};
+
+export const hasImageField = (img: any): boolean => {
+  if (!img) return false;
+  let path = "";
+  if (typeof img === "string") {
+    path = img;
+  } else if (typeof img === "object") {
+    path = img.url || img.path || "";
+  }
+  return typeof path === "string" && path.trim() !== "";
+};

@@ -1,15 +1,20 @@
-/**
- * API utility for fetching data from Laravel backend
- * Base URL should be configured via environment variable
- */
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+function getApiBaseUrl(): string {
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL;
+  }
+  if (typeof window !== 'undefined') {
+    if (window.location.hostname.includes('dongnaiford')) {
+      return 'https://cms.dongnaiford.com.vn/api';
+    }
+  }
+  return 'http://localhost:8000/api';
+}
 
 /**
  * Generic fetch wrapper with error handling
  */
 async function fetchAPI<T = any>(endpoint: string, options?: RequestInit): Promise<T> {
-  const url = `${API_BASE_URL}${endpoint}`;
+  const url = `${getApiBaseUrl()}${endpoint}`;
   const method = options?.method?.toUpperCase() || 'GET';
   
   // Mặc định cache 1 giờ (3600s) cho GET requests trừ khi được chỉ định khác
@@ -30,21 +35,15 @@ async function fetchAPI<T = any>(endpoint: string, options?: RequestInit): Promi
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => null);
-      throw {
-        status: response.status,
-        statusText: response.statusText,
-        data: errorData,
-      };
+      console.warn(`[API ${response.status}] ${endpoint}:`, errorData);
+      return null as any;
     }
 
     const data = await response.json();
     return data;
   } catch (error: any) {
-    if (error && error.status) {
-      throw error;
-    }
-    console.error(`Failed to fetch ${endpoint}:`, error);
-    throw error;
+    console.warn(`[API Network Error] ${endpoint}:`, error?.message || error);
+    return null as any;
   }
 }
 
@@ -266,7 +265,7 @@ export const mediaAPI = {
     const formData = new FormData();
     formData.append('file', file);
 
-    const url = `${API_BASE_URL}/upload`;
+    const url = `${getApiBaseUrl()}/upload`;
     const response = await fetch(url, {
       method: 'POST',
       body: formData,

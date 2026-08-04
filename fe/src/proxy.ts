@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-pathname", request.nextUrl.pathname);
 
@@ -49,7 +49,7 @@ export async function middleware(request: NextRequest) {
         }
       }
     } catch (err) {
-      console.error("Middleware domain lookup error:", err);
+      console.error("Proxy domain lookup error:", err);
     }
   }
 

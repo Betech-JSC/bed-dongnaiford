@@ -219,7 +219,7 @@ export default function Footer() {
 
             <div className="space-y-4">
               <h4 className="text-sm font-bold tracking-wider text-white uppercase font-display border-b border-white/10 pb-2">
-                FORD ĐỒNG NAI
+                ĐỒNG NAI FORD
               </h4>
               <ul className="space-y-2.5 text-xs text-white/70">
                 <li>
@@ -326,7 +326,7 @@ export default function Footer() {
       <div className="max-w-[1152px] mx-auto border-t border-white/10 pt-6">
         <div className="flex flex-col sm:flex-row justify-between items-center text-xs text-white/50 gap-4">
           <p>
-            Copyright © 2026 Ford Đồng Nai. Tất cả quyền được bảo lưu.
+            Copyright © 2026 Đồng Nai Ford. Tất cả quyền được bảo lưu.
           </p>
           <div className="flex gap-6">
             <Link href="/dieu-khoan-su-dung" className="hover:text-white/80 transition-colors">

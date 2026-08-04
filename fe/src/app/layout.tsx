@@ -111,14 +111,14 @@ export default async function RootLayout({
   let injectBodyEnd = "";
 
   try {
-    const settingsRes = await settingsAPI.getGeneral();
+    const settingsRes = await settingsAPI.getGeneral().catch(() => null);
     if (settingsRes && settingsRes.success && settingsRes.data) {
       injectHead = settingsRes.data.inject_head || "";
       injectBodyStart = settingsRes.data.inject_body_start || "";
       injectBodyEnd = settingsRes.data.inject_body_end || "";
     }
   } catch (error) {
-    console.error("Failed to fetch general layout settings:", error);
+    console.warn("Failed to fetch general layout settings:", error);
   }
 
   return (
