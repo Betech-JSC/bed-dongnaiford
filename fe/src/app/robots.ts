@@ -13,7 +13,6 @@ export default function robots(): MetadataRoute.Robots {
           disallow: [
             "/api/",          // Backend API endpoints
             "/test-api/",     // Test API page
-            "/_next/",        // Next.js static assets
             "/ldp/",          // Sales landing pages (ads-only)
             "/khao-sat-*",    // Survey pages
             "/tim-kiem",      // Search results page (thin content)
