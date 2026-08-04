@@ -126,6 +126,27 @@ const nextConfig = {
         destination: "/tuyen-dung",
         permanent: true,
       },
+      // --- REDIRECTS TỪ BÁO CÁO AUDIT SPREADSHEET TÌM THẤY ---
+      {
+        source: "/ford-transit-hoan-toan-moi",
+        destination: "/ford-transit",
+        permanent: true,
+      },
+      {
+        source: "/gia-xe-ford-4-cho.htm",
+        destination: "/bang-gia",
+        permanent: true,
+      },
+      {
+        source: "/policies/:slug*",
+        destination: "/chinh-sach-bao-mat",
+        permanent: true,
+      },
+      {
+        source: "/quy-trinh-cham-soc-khach-hang",
+        destination: "/dich-vu",
+        permanent: true,
+      },
       // --- CHUYỂN HƯỚNG URL SẢN PHẨM XE CÓ CHỨA /SAN-PHAM SANG URL NGẮN ---
       // Redirects từ slug xe cũ không có tiền tố "ford-" sang có tiền tố "ford-"
       {
