@@ -270,34 +270,69 @@ if (!function_exists('setting_bar')) {
 }
 
 if (!function_exists('revalidate_frontend')) {
+    /**
+     * Gửi lệnh revalidate đến Frontend (Vercel/Next.js) để xóa cache ngay lập tức.
+     * 
+     * @param string $path  Đường dẫn cần revalidate (mặc định '/' = toàn bộ site)
+     * @param string $tag   Cache tag cần purge (mặc định 'cms-data')
+     */
     function revalidate_frontend(string $path = '/', string $tag = 'cms-data')
     {
-        try {
-            $frontendUrl = env('NEXT_PUBLIC_SITE_URL', 'https://dongnaiford.com.vn');
+        // Dispatch async để không block CMS response cho người dùng
+        dispatch(function () use ($path, $tag) {
+            $frontendUrl = rtrim(env('NEXT_PUBLIC_SITE_URL', 'https://dongnaiford.com.vn'), '/');
             $secret = env('REVALIDATE_SECRET', 'dnf_revalidate_secret_2026');
+            $payload = [
+                'secret' => $secret,
+                'path'   => $path,
+                'tag'    => $tag,
+            ];
 
-            // 1. Send HTTP request to external domain
-            \Illuminate\Support\Facades\Http::timeout(3)
-                ->post(rtrim($frontendUrl, '/') . '/api/revalidate', [
-                    'secret' => $secret,
-                    'path'   => $path,
-                    'tag'    => $tag,
-                ]);
+            $success = false;
 
-            // 2. Try internal docker network hostname if available
+            // 1. Gửi HTTP request đến domain public (Vercel Edge) — timeout 8s
             try {
-                \Illuminate\Support\Facades\Http::timeout(2)
-                    ->post('http://frontend:3000/api/revalidate', [
-                        'secret' => $secret,
-                        'path'   => $path,
-                        'tag'    => $tag,
+                $response = \Illuminate\Support\Facades\Http::timeout(8)
+                    ->connectTimeout(5)
+                    ->post($frontendUrl . '/api/revalidate', $payload);
+
+                if ($response->successful()) {
+                    $success = true;
+                    \Illuminate\Support\Facades\Log::info('Frontend revalidation OK', [
+                        'url'      => $frontendUrl,
+                        'path'     => $path,
+                        'tag'      => $tag,
+                        'status'   => $response->status(),
+                        'response' => $response->json(),
                     ]);
-            } catch (\Throwable $t) {
-                // Ignore internal docker failure if external succeeded
+                } else {
+                    \Illuminate\Support\Facades\Log::warning('Frontend revalidation HTTP error', [
+                        'url'    => $frontendUrl,
+                        'status' => $response->status(),
+                        'body'   => $response->body(),
+                    ]);
+                }
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Frontend revalidation failed (external): ' . $e->getMessage());
             }
-        } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::warning('Frontend revalidation failed: ' . $e->getMessage());
-        }
+
+            // 2. Retry qua internal docker network nếu external thất bại
+            try {
+                \Illuminate\Support\Facades\Http::timeout(3)
+                    ->connectTimeout(2)
+                    ->post('http://frontend:3000/api/revalidate', $payload);
+            } catch (\Throwable $t) {
+                // Docker internal không khả dụng — bỏ qua nếu external OK
+                if (!$success) {
+                    \Illuminate\Support\Facades\Log::error('Frontend revalidation failed on ALL channels', [
+                        'path'     => $path,
+                        'tag'      => $tag,
+                        'external' => 'failed',
+                        'internal' => $t->getMessage(),
+                    ]);
+                }
+            }
+        })->afterResponse();
 
         return true;
     }

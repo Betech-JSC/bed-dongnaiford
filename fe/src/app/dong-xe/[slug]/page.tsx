@@ -8,7 +8,7 @@ type Props = {
   }>;
 };
 
-export const revalidate = 60;
+export const revalidate = 30;
 
 const staticCategories = [
   { slug: "suv", title: "SUV" },
