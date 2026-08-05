@@ -100,16 +100,26 @@ class VehicleController extends Controller
     /**
      * GET /api/vehicles/{slug}
      */
-    public function show(string $slug): JsonResponse
+    public function show(string $slug, Request $request): JsonResponse
     {
-        $vehicle = Vehicle::query()
-            ->where('status', Vehicle::STATUS_ACTIVE)
-            ->whereSlug($slug)
-            ->with([
+        $isPreview = $request->boolean('preview') || $request->query('preview') === 'true' || $request->query('preview') === '1';
+
+        $query = Vehicle::query()->whereSlug($slug);
+
+        if ($isPreview) {
+            $query->with([
                 'categories',
-                'versions' => fn($q) => $q->where('status', 'ACTIVE')->sortByPosition()
-            ])
-            ->first();
+                'versions' => fn($q) => $q->sortByPosition()
+            ]);
+        } else {
+            $query->where('status', Vehicle::STATUS_ACTIVE)
+                ->with([
+                    'categories',
+                    'versions' => fn($q) => $q->where('status', 'ACTIVE')->sortByPosition()
+                ]);
+        }
+
+        $vehicle = $query->first();
 
         if (!$vehicle) {
             return $this->failure(__('Không tìm thấy xe'), 404);

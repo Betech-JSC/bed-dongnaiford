@@ -28,10 +28,13 @@ const getVersionDisplayName = (verName: string, vehicleName: string) => {
   return verName;
 };
 
-export async function generateMetadata({ params }: Props) {
+export async function generateMetadata({ params, searchParams }: Props) {
   try {
     const { id, versionSlug } = await params;
-    const res = await vehiclesAPI.getBySlug(id).catch(() => null);
+    const search = searchParams ? await searchParams : {};
+    const isPreview = search?.preview === "true" || search?.preview === "1";
+
+    const res = await vehiclesAPI.getBySlug(id, isPreview ? { preview: "true" } : undefined).catch(() => null);
     const vehicle = res?.data || (res?.id ? res : null);
 
     if (!vehicle) return {};
@@ -77,12 +80,15 @@ export async function generateMetadata({ params }: Props) {
   }
 }
 
-export default async function Page({ params }: Props) {
+export default async function Page({ params, searchParams }: Props) {
   const { id } = await params;
+  const search = searchParams ? await searchParams : {};
+  const isPreview = search?.preview === "true" || search?.preview === "1";
+
   let vehicle = null;
 
   try {
-    const res = await vehiclesAPI.getBySlug(id).catch(() => null);
+    const res = await vehiclesAPI.getBySlug(id, isPreview ? { preview: "true" } : undefined).catch(() => null);
     vehicle = res?.data || (res?.id ? res : null);
   } catch (error) {
     console.error("Error loading vehicle in server version page:", error);

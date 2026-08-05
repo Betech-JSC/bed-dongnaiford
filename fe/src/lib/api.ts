@@ -64,7 +64,10 @@ export const vehiclesAPI = {
   getBestSellers: (params?: Record<string, any>) => fetchAPI('/vehicles/featured'),
   
   // Get vehicle by slug
-  getBySlug: (slug: string) => fetchAPI(`/vehicles/${slug}`),
+  getBySlug: (slug: string, params?: Record<string, any>) => {
+    const query = params ? '?' + new URLSearchParams(params as any).toString() : '';
+    return fetchAPI<any>(`/vehicles/${slug}${query}`);
+  },
   
   // Get vehicle categories
   getCategories: () => fetchAPI('/vehicles/categories'),

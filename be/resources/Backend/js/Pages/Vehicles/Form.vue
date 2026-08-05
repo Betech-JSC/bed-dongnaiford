@@ -2,15 +2,28 @@
     <Form v-model="formData" :config="{ wide: activeFormTab === 'builder' }">
         <template #default="{ form, submit }">
 
-            <!-- ===== MAIN FORM TABS ===== -->
-            <div class="mb-5 bg-white p-3 rounded-lg shadow-xs border border-gray-200 flex flex-wrap gap-2">
-                <button v-for="tab in tabs" :key="tab.id" type="button"
-                    class="py-2 px-4 text-xs md:text-sm font-semibold rounded transition-all cursor-pointer border-0"
-                    :class="activeFormTab === tab.id ? 'bg-indigo-600 text-white shadow-xs' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 bg-transparent'"
-                    @click="activeFormTab = tab.id"
+            <!-- ===== MAIN FORM TABS & PREVIEW BUTTON ===== -->
+            <div class="mb-5 bg-white p-3 rounded-lg shadow-xs border border-gray-200 flex flex-wrap items-center justify-between gap-2">
+                <div class="flex flex-wrap gap-2">
+                    <button v-for="tab in tabs" :key="tab.id" type="button"
+                        class="py-2 px-4 text-xs md:text-sm font-semibold rounded transition-all cursor-pointer border-0"
+                        :class="activeFormTab === tab.id ? 'bg-indigo-600 text-white shadow-xs' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 bg-transparent'"
+                        @click="activeFormTab = tab.id"
+                    >
+                        {{ tab.name }}
+                    </button>
+                </div>
+                
+                <a v-if="formData && formData.slug" :href="getPreviewUrl(formData.slug)" target="_blank"
+                    class="py-2 px-4 text-xs md:text-sm font-semibold rounded bg-emerald-600 hover:bg-emerald-700 text-white transition-all shadow-xs flex items-center gap-1.5 no-underline"
+                    title="Xem trước giao diện trang xe trên Frontend trước khi đăng"
                 >
-                    {{ tab.name }}
-                </button>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    <span>Xem trước trang xe (Preview)</span>
+                </a>
             </div>
 
             <!-- Tab 1: Thông tin chung & Ảnh -->
@@ -2366,6 +2379,13 @@ export default {
             } finally {
                 this.isSavingAccessory = false;
             }
+        },
+        getPreviewUrl(slug) {
+            if (!slug) return '#';
+            const feUrl = window.location.origin.includes('dongnaiford.com.vn')
+                ? 'https://dongnaiford.com.vn'
+                : 'http://localhost:3000';
+            return `${feUrl}/${slug}?preview=true`;
         },
         addFeatureCategory() {
             if (!this.newCategoryName || !this.newCategoryName.trim()) return;
