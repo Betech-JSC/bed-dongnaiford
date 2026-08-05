@@ -507,8 +507,139 @@
                         />
                     </div>
                 </div>
+            <!-- Modal Sao Chép Dữ Liệu Xe (Tính năng & Phụ kiện) -->
+            <teleport to="body">
+                <div v-if="showCopyDataModal" class="fixed inset-0 z-[9999] flex items-center justify-center overflow-x-hidden overflow-y-auto outline-none focus:outline-none p-4">
+                    <div class="fixed inset-0 bg-black/50 transition-opacity" @click="showCopyDataModal = false"></div>
+
+                    <div class="relative w-full max-w-xl mx-auto my-6 bg-white rounded-2xl shadow-2xl flex flex-col z-10 border border-gray-200 overflow-hidden">
+                        <!-- Header -->
+                        <div class="flex items-center justify-between p-5 bg-gradient-to-r from-indigo-900 via-indigo-800 to-indigo-700 text-white shrink-0">
+                            <h3 class="text-base font-bold flex items-center gap-2">
+                                📋 Sao Chép Tính Năng & Phụ Kiện Xe
+                            </h3>
+                            <button
+                                type="button"
+                                class="text-white/80 hover:text-white bg-transparent border-0 text-xl font-bold leading-none cursor-pointer"
+                                @click="showCopyDataModal = false"
+                            >
+                                ✕
+                            </button>
+                        </div>
+
+                        <!-- Body -->
+                        <div class="p-6 space-y-5 text-xs text-gray-700 max-h-[75vh] overflow-y-auto">
+                            <!-- Hướng sao chép -->
+                            <div class="space-y-2">
+                                <label class="block font-bold text-gray-900 text-xs uppercase tracking-wider">1. Hướng sao chép dữ liệu</label>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <label 
+                                        class="flex items-center gap-2 p-3 rounded-xl border cursor-pointer transition text-xs"
+                                        :class="copyDirection === 'from_other' ? 'bg-indigo-50/90 border-indigo-400 ring-2 ring-indigo-500/10 font-bold text-indigo-900' : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100'"
+                                    >
+                                        <input type="radio" v-model="copyDirection" value="from_other" class="text-indigo-600 focus:ring-indigo-500" />
+                                        <span>📥 Lấy dữ liệu từ xe khác chép VÀO xe này</span>
+                                    </label>
+                                    <label 
+                                        class="flex items-center gap-2 p-3 rounded-xl border cursor-pointer transition text-xs"
+                                        :class="copyDirection === 'to_others' ? 'bg-indigo-50/90 border-indigo-400 ring-2 ring-indigo-500/10 font-bold text-indigo-900' : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100'"
+                                    >
+                                        <input type="radio" v-model="copyDirection" value="to_others" class="text-indigo-600 focus:ring-indigo-500" />
+                                        <span>📤 Chép dữ liệu từ xe này SANG các xe khác</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Xe nguồn (Nếu chép từ xe khác vào xe này) -->
+                            <div v-if="copyDirection === 'from_other'" class="space-y-2">
+                                <label class="block font-bold text-gray-900 text-xs uppercase tracking-wider">2. Chọn xe nguồn để lấy dữ liệu</label>
+                                <select 
+                                    v-model="selectedSourceVehicleId" 
+                                    class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-gray-800 bg-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 cursor-pointer"
+                                >
+                                    <option :value="null" disabled>-- Chọn dòng xe nguồn --</option>
+                                    <option v-for="v in availableVehiclesForCopy" :key="v.id" :value="v.id">
+                                        {{ v.title }}
+                                    </option>
+                                </select>
+                            </div>
+
+                            <!-- Xe đích (Nếu chép từ xe này sang xe khác) -->
+                            <div v-else class="space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <label class="block font-bold text-gray-900 text-xs uppercase tracking-wider">2. Chọn các xe đích cần sao chép sang</label>
+                                    <button 
+                                        type="button" 
+                                        class="text-[11px] text-indigo-600 hover:text-indigo-800 font-bold bg-transparent border-0 cursor-pointer"
+                                        @click="toggleSelectAllTargetVehicles"
+                                    >
+                                        {{ selectedTargetVehicleIds.length === availableVehiclesForCopy.length ? 'Bỏ chọn tất cả' : 'Chọn tất cả' }}
+                                    </button>
+                                </div>
+                                <div class="max-h-40 overflow-y-auto border border-gray-200 rounded-xl p-3 bg-gray-50 space-y-2">
+                                    <div v-if="availableVehiclesForCopy.length === 0" class="text-gray-400 italic text-center py-2">
+                                        Không có xe nào khác
+                                    </div>
+                                    <label v-for="v in availableVehiclesForCopy" :key="v.id" class="flex items-center gap-2 font-semibold text-gray-700 cursor-pointer hover:text-indigo-700">
+                                        <input type="checkbox" :value="v.id" v-model="selectedTargetVehicleIds" class="rounded text-indigo-600 focus:ring-indigo-500" />
+                                        <span>{{ v.title }}</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Loại dữ liệu sao chép -->
+                            <div class="space-y-2">
+                                <label class="block font-bold text-gray-900 text-xs uppercase tracking-wider">3. Chọn loại dữ liệu sao chép</label>
+                                <div class="flex items-center gap-5 bg-gray-50 p-3 rounded-xl border border-gray-200">
+                                    <label class="flex items-center gap-2 font-bold cursor-pointer text-gray-800">
+                                        <input type="checkbox" v-model="copyOptionFeatures" class="rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4" />
+                                        <span>✨ Tính năng xe (Features)</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 font-bold cursor-pointer text-gray-800">
+                                        <input type="checkbox" v-model="copyOptionAccessories" class="rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4" />
+                                        <span>🎒 Phụ kiện xe (Accessories)</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Phương thức ghi -->
+                            <div class="space-y-2">
+                                <label class="block font-bold text-gray-900 text-xs uppercase tracking-wider">4. Phương thức ghi dữ liệu</label>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-gray-50 p-3 rounded-xl border border-gray-200">
+                                    <label class="flex items-center gap-2 font-semibold cursor-pointer text-gray-800">
+                                        <input type="radio" v-model="copyMode" value="append" class="text-indigo-600 focus:ring-indigo-500" />
+                                        <span>➕ <b>Gộp thêm</b> (Giữ cũ & thêm mới)</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 font-semibold cursor-pointer text-red-700">
+                                        <input type="radio" v-model="copyMode" value="replace" class="text-red-600 focus:ring-red-500" />
+                                        <span>⚠️ <b>Ghi đè</b> (Thay toàn bộ)</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="flex items-center justify-end gap-3 p-4 bg-gray-50 border-t border-gray-200 shrink-0">
+                            <button
+                                type="button"
+                                class="px-4 py-2 text-xs font-semibold text-gray-600 hover:text-gray-800 bg-white border border-gray-300 rounded-xl cursor-pointer hover:bg-gray-100 transition"
+                                @click="showCopyDataModal = false"
+                            >
+                                Hủy
+                            </button>
+                            <button
+                                type="button"
+                                :disabled="isExecutingCopy"
+                                class="px-5 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl cursor-pointer shadow-sm transition disabled:opacity-50 flex items-center gap-1.5"
+                                @click="executeCopyData"
+                            >
+                                <span>{{ isExecutingCopy ? '⏳ Đang sao chép...' : '🚀 Thực Hiện Sao Chép' }}</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </teleport>
-            
+
             <!-- Modal Tạo Phụ Kiện Nhanh -->
             <teleport to="body">
                 <div v-if="showCreateAccessoryModal" class="fixed inset-0 z-[9999] flex items-center justify-center overflow-x-hidden overflow-y-auto outline-none focus:outline-none">
@@ -792,6 +923,13 @@
                             </span>
                             <button 
                                 type="button"
+                                @click="openCopyModal('accessories')"
+                                class="text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-1.5 px-3 rounded-lg shadow-sm transition cursor-pointer focus:outline-none flex items-center gap-1"
+                            >
+                                📋 Sao chép phụ kiện từ xe khác
+                            </button>
+                            <button 
+                                type="button"
                                 @click="form.accessories = []"
                                 class="text-xs text-red-600 hover:text-red-800 font-semibold transition-colors cursor-pointer focus:outline-none"
                             >
@@ -917,8 +1055,15 @@
             <div v-show="activeFormTab === 'features'" class="space-y-4">
                 <!-- Quản lý các nhóm tính năng -->
                 <div class="card bg-white border border-gray-200 rounded-2xl shadow-xs">
-                    <div class="card-header font-bold text-gray-700 bg-gray-50 border-b border-gray-200 p-4 text-sm">
-                        📁 Quản lý các nhóm tính năng
+                    <div class="card-header font-bold text-gray-700 bg-gray-50 border-b border-gray-200 p-4 text-sm flex items-center justify-between">
+                        <span>📁 Quản lý các nhóm tính năng</span>
+                        <button 
+                            type="button"
+                            @click="openCopyModal('features')"
+                            class="text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-1.5 px-3 rounded-lg shadow-sm transition cursor-pointer focus:outline-none flex items-center gap-1"
+                        >
+                            📋 Sao chép tính năng từ xe khác
+                        </button>
                     </div>
                     <div class="card-body p-4 space-y-4">
                         <div class="flex flex-wrap gap-2 items-center">
@@ -1218,6 +1363,14 @@ export default {
             showColorsSection: true,
             showSpecsSection: true,
             newCategoryName: '',
+            showCopyDataModal: false,
+            copyDirection: 'from_other',
+            selectedSourceVehicleId: null,
+            selectedTargetVehicleIds: [],
+            copyOptionFeatures: true,
+            copyOptionAccessories: true,
+            copyMode: 'append',
+            isExecutingCopy: false,
             showCreateAccessoryModal: false,
             isSavingAccessory: false,
             isEditAccessory: false,
@@ -1286,6 +1439,13 @@ export default {
     },
 
     computed: {
+        allVehiclesList() {
+            return this.data?.all_vehicles || [];
+        },
+        availableVehiclesForCopy() {
+            const currentId = this.formData?.id;
+            return this.allVehiclesList.filter(v => String(v.id) !== String(currentId));
+        },
         brandsList() {
             console.log('Brands data:', this.data?.brands);
             return this.data?.brands || [];
@@ -1365,6 +1525,133 @@ export default {
     },
 
     methods: {
+        openCopyModal(defaultTab = 'all') {
+            if (defaultTab === 'features') {
+                this.copyOptionFeatures = true;
+                this.copyOptionAccessories = false;
+            } else if (defaultTab === 'accessories') {
+                this.copyOptionFeatures = false;
+                this.copyOptionAccessories = true;
+            } else {
+                this.copyOptionFeatures = true;
+                this.copyOptionAccessories = true;
+            }
+            this.copyDirection = 'from_other';
+            this.selectedSourceVehicleId = null;
+            this.selectedTargetVehicleIds = [];
+            this.copyMode = 'append';
+            this.showCopyDataModal = true;
+        },
+
+        toggleSelectAllTargetVehicles() {
+            if (this.selectedTargetVehicleIds.length === this.availableVehiclesForCopy.length) {
+                this.selectedTargetVehicleIds = [];
+            } else {
+                this.selectedTargetVehicleIds = this.availableVehiclesForCopy.map(v => v.id);
+            }
+        },
+
+        async executeCopyData() {
+            if (!this.copyOptionFeatures && !this.copyOptionAccessories) {
+                alert('Vui lòng chọn ít nhất một loại dữ liệu cần sao chép (Tính năng hoặc Phụ kiện).');
+                return;
+            }
+
+            if (this.copyDirection === 'from_other') {
+                if (!this.selectedSourceVehicleId) {
+                    alert('Vui lòng chọn xe nguồn để sao chép.');
+                    return;
+                }
+
+                const sourceVehicle = this.allVehiclesList.find(v => String(v.id) === String(this.selectedSourceVehicleId));
+                if (!sourceVehicle) {
+                    alert('Không tìm thấy thông tin xe nguồn.');
+                    return;
+                }
+
+                // 1. Copy Features (client-side form update)
+                if (this.copyOptionFeatures) {
+                    const sourceBlocks = sourceVehicle.layout_blocks || [];
+                    const sourceFeaturesBlock = sourceBlocks.find(b => b.type === 'FeaturesList');
+                    const sourceFeatures = sourceFeaturesBlock?.data?.features || [];
+                    const sourceCategories = sourceFeaturesBlock?.data?.categories || ["Thiết kế", "Vận hành", "Công nghệ", "An toàn"];
+
+                    if (this.copyMode === 'replace') {
+                        this.featureCategories = [...sourceCategories];
+                        this.features = JSON.parse(JSON.stringify(sourceFeatures));
+                    } else { // append
+                        const currentCats = [...this.featureCategories];
+                        sourceCategories.forEach(cat => {
+                            if (!currentCats.includes(cat)) currentCats.push(cat);
+                        });
+                        this.featureCategories = currentCats;
+
+                        const currentFeats = [...this.features];
+                        const existingTitles = currentFeats.map(f => (f.title || '').toLowerCase().trim());
+                        sourceFeatures.forEach(sf => {
+                            const sfTitle = (sf.title || '').toLowerCase().trim();
+                            if (!existingTitles.includes(sfTitle)) {
+                                currentFeats.push(JSON.parse(JSON.stringify(sf)));
+                                existingTitles.push(sfTitle);
+                            }
+                        });
+                        this.features = currentFeats;
+                    }
+                }
+
+                // 2. Copy Accessories (client-side form update)
+                if (this.copyOptionAccessories) {
+                    const sourceAccIds = sourceVehicle.accessories || [];
+                    if (this.copyMode === 'replace') {
+                        this.formData.accessories = [...sourceAccIds];
+                    } else { // append
+                        const currentAccs = this.formData.accessories || [];
+                        sourceAccIds.forEach(id => {
+                            if (!currentAccs.some(existingId => String(existingId) === String(id))) {
+                                currentAccs.push(id);
+                            }
+                        });
+                        this.formData.accessories = [...currentAccs];
+                    }
+                }
+
+                this.showCopyDataModal = false;
+                alert('Đã nạp dữ liệu thành công vào form! Hãy bấm "Lưu thay đổi" để hoàn tất.');
+            } else {
+                // Copy FROM current vehicle TO other vehicles via API
+                if (!this.formData.id) {
+                    alert('Xe hiện tại chưa được lưu. Vui lòng bấm "Lưu thay đổi" trước khi sao chép sang các xe khác.');
+                    return;
+                }
+                if (!this.selectedTargetVehicleIds || this.selectedTargetVehicleIds.length === 0) {
+                    alert('Vui lòng chọn ít nhất 1 xe đích.');
+                    return;
+                }
+
+                this.isExecutingCopy = true;
+                try {
+                    const payload = {
+                        source_vehicle_id: this.formData.id,
+                        target_vehicle_ids: this.selectedTargetVehicleIds,
+                        copy_features: this.copyOptionFeatures,
+                        copy_accessories: this.copyOptionAccessories,
+                        mode: this.copyMode,
+                    };
+                    const response = await this.$axios.post(this.route('admin.vehicles.copy-data'), payload);
+                    if (response.data && response.data.success) {
+                        alert(response.data.message || 'Đã sao chép thành công!');
+                        this.showCopyDataModal = false;
+                    } else {
+                        alert(response.data?.message || 'Có lỗi xảy ra khi sao chép.');
+                    }
+                } catch (err) {
+                    alert(err.response?.data?.message || 'Có lỗi khi kết nối server.');
+                } finally {
+                    this.isExecutingCopy = false;
+                }
+            }
+        },
+
         initFormData(item) {
             const data = {
                 status: 'ACTIVE',

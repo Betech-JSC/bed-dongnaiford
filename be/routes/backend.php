@@ -64,6 +64,8 @@ Route::localized(function () {
         Route::get('vehicles/export', [VehicleController::class, 'export'])->name('vehicles.export');
         Route::get('vehicles/export-template', [VehicleController::class, 'exportTemplate'])->name('vehicles.export-template');
         Route::post('vehicles/import', [VehicleController::class, 'import'])->name('vehicles.import');
+        Route::post('vehicles/copy-data', [VehicleController::class, 'copyData'])->name('vehicles.copy-data');
+        Route::get('vehicles/list-simple', [VehicleController::class, 'listSimple'])->name('vehicles.list-simple');
         Route::module(VehicleController::class);
         Route::module(LandingPageController::class);
         Route::module(UsedVehicleController::class);

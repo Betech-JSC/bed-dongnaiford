@@ -146,6 +146,18 @@ class VehicleController extends Controller
             ->get()
             ->map(fn($b) => ['id' => $b->id, 'title' => $b->title]);
 
+        $data['all_vehicles'] = Vehicle::query()
+            ->with(['translations', 'accessories'])
+            ->orderBy('sort_order')
+            ->orderBy('id', 'desc')
+            ->get()
+            ->map(fn($v) => [
+                'id' => $v->id,
+                'title' => $v->translate('vi')->title ?? $v->title ?? "Xe #{$v->id}",
+                'layout_blocks' => $v->layout_blocks,
+                'accessories' => $v->accessories()->pluck('accessories.id')->toArray(),
+            ]);
+
         return $data;
     }
 
@@ -366,5 +378,139 @@ class VehicleController extends Controller
             return strnatcasecmp($fileA, $fileB);
         });
         return $images;
+    }
+
+    public function listSimple(Request $request)
+    {
+        $this->checkAuthorize();
+        $vehicles = Vehicle::with('translations')
+            ->orderBy('sort_order')
+            ->orderBy('id', 'desc')
+            ->get()
+            ->map(fn($v) => [
+                'id' => $v->id,
+                'title' => $v->translate('vi')->title ?? $v->title ?? "Xe #{$v->id}",
+                'layout_blocks' => $v->layout_blocks,
+                'accessories' => $v->accessories()->pluck('accessories.id')->toArray(),
+            ]);
+
+        return response()->json([
+            'success' => true,
+            'data' => $vehicles
+        ]);
+    }
+
+    public function copyData(Request $request)
+    {
+        $this->checkAuthorize();
+
+        $request->validate([
+            'source_vehicle_id'    => 'required|exists:vehicles,id',
+            'target_vehicle_ids'   => 'required|array|min:1',
+            'target_vehicle_ids.*' => 'exists:vehicles,id',
+            'copy_features'        => 'nullable|boolean',
+            'copy_accessories'     => 'nullable|boolean',
+            'mode'                 => 'nullable|string|in:replace,append',
+        ]);
+
+        $sourceVehicleId  = (int) $request->input('source_vehicle_id');
+        $targetVehicleIds = array_map('intval', $request->input('target_vehicle_ids', []));
+        $copyFeatures     = $request->boolean('copy_features', true);
+        $copyAccessories  = $request->boolean('copy_accessories', true);
+        $mode             = $request->input('mode', 'append');
+
+        $sourceVehicle = Vehicle::with(['accessories'])->find($sourceVehicleId);
+        if (!$sourceVehicle) {
+            return response()->json(['success' => false, 'message' => 'Xe nguồn không tồn tại'], 404);
+        }
+
+        // Extract source features
+        $sourceBlocks = $sourceVehicle->layout_blocks ?? [];
+        $sourceFeaturesBlock = collect($sourceBlocks)->firstWhere('type', 'FeaturesList');
+        $sourceFeatures = $sourceFeaturesBlock['data']['features'] ?? [];
+        $sourceCategories = $sourceFeaturesBlock['data']['categories'] ?? ["Thiết kế", "Vận hành", "Công nghệ", "An toàn"];
+
+        // Extract source accessory IDs
+        $sourceAccessoryIds = $sourceVehicle->accessories()->pluck('accessories.id')->toArray();
+
+        $updatedCount = 0;
+
+        DB::transaction(function () use ($targetVehicleIds, $copyFeatures, $copyAccessories, $mode, $sourceFeatures, $sourceCategories, $sourceAccessoryIds, &$updatedCount) {
+            foreach ($targetVehicleIds as $targetId) {
+                $targetVehicle = Vehicle::find($targetId);
+                if (!$targetVehicle) continue;
+
+                // 1. Handle Copy Features
+                if ($copyFeatures) {
+                    $targetBlocks = $targetVehicle->layout_blocks ?? [];
+                    if (!is_array($targetBlocks)) $targetBlocks = [];
+
+                    $featuresBlockIndex = null;
+                    foreach ($targetBlocks as $idx => $block) {
+                        if (($block['type'] ?? '') === 'FeaturesList') {
+                            $featuresBlockIndex = $idx;
+                            break;
+                        }
+                    }
+
+                    if ($mode === 'replace') {
+                        $newFeatures = $sourceFeatures;
+                        $newCategories = $sourceCategories;
+                    } else { // append mode
+                        $existingBlock = $featuresBlockIndex !== null ? $targetBlocks[$featuresBlockIndex] : null;
+                        $existingFeatures = $existingBlock['data']['features'] ?? [];
+                        $existingCategories = $existingBlock['data']['categories'] ?? ["Thiết kế", "Vận hành", "Công nghệ", "An toàn"];
+
+                        // Merge categories uniquely
+                        $newCategories = array_values(array_unique(array_merge($existingCategories, $sourceCategories)));
+
+                        // Merge features avoiding exact duplicate title
+                        $existingTitles = array_map(fn($f) => mb_strtolower($f['title'] ?? ''), $existingFeatures);
+                        $newFeatures = $existingFeatures;
+                        foreach ($sourceFeatures as $sf) {
+                            $sfTitle = mb_strtolower($sf['title'] ?? '');
+                            if (!in_array($sfTitle, $existingTitles)) {
+                                $newFeatures[] = $sf;
+                                $existingTitles[] = $sfTitle;
+                            }
+                        }
+                    }
+
+                    $newBlockData = [
+                        'type' => 'FeaturesList',
+                        'data' => [
+                            'features' => $newFeatures,
+                            'categories' => $newCategories,
+                        ]
+                    ];
+
+                    if ($featuresBlockIndex !== null) {
+                        $targetBlocks[$featuresBlockIndex] = $newBlockData;
+                    } else {
+                        $targetBlocks[] = $newBlockData;
+                    }
+
+                    $targetVehicle->layout_blocks = $targetBlocks;
+                    $targetVehicle->save();
+                }
+
+                // 2. Handle Copy Accessories
+                if ($copyAccessories) {
+                    if ($mode === 'replace') {
+                        $targetVehicle->accessories()->sync($sourceAccessoryIds);
+                    } else { // append mode
+                        $targetVehicle->accessories()->syncWithoutDetaching($sourceAccessoryIds);
+                    }
+                }
+
+                $updatedCount++;
+            }
+        });
+
+        return response()->json([
+            'success' => true,
+            'message' => "Đã sao chép thành công dữ liệu cho {$updatedCount} dòng xe!",
+            'updated_count' => $updatedCount
+        ]);
     }
 }
