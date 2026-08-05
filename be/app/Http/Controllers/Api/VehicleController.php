@@ -159,6 +159,7 @@ class VehicleController extends Controller
                 return [
                     'name'                => $color['name'] ?? ($color['color_name'] ?? ''),
                     'hex'                 => $color['hex'] ?? ($color['color_code'] ?? ''),
+                    'price'               => (isset($color['price']) && $color['price'] !== '' && is_numeric($color['price'])) ? (float)$color['price'] : null,
                     'image_path'          => $imagePath,
                     'images_360'          => $images360,
                     'image_360_internal'  => $image360Internal,
@@ -208,6 +209,7 @@ class VehicleController extends Controller
                     return [
                         'name'                => $color['name'] ?? ($color['color_name'] ?? ''),
                         'hex'                 => $color['hex'] ?? ($color['color_code'] ?? ''),
+                        'price'               => (isset($color['price']) && $color['price'] !== '' && is_numeric($color['price'])) ? (float)$color['price'] : null,
                         'image_path'          => $imagePath,
                         'images_360'          => $images360,
                         'image_360_internal'  => $image360Internal,

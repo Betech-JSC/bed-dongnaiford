@@ -35,9 +35,13 @@ export function calculateRollingCost(
   vehicle: any,
   version: any,
   province: string,
-  registrationFees?: any[]
+  registrationFees?: any[],
+  customPrice?: number | null
 ): RollingCostBreakdown {
-  const basePrice = typeof version.price === 'string' ? parseFloat(version.price) : (version.price || 0);
+  let basePrice = typeof version?.price === 'string' ? parseFloat(version.price) : (version?.price || vehicle?.basePrice || 0);
+  if (typeof customPrice === 'number' && customPrice > 0) {
+    basePrice = customPrice;
+  }
 
   const vehicleNameLower = (vehicle.name || vehicle.title || "").toLowerCase();
   const vehicleIdLower = String(vehicle.id || "").toLowerCase();

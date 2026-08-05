@@ -154,6 +154,13 @@ export default function VehicleVersionDetailClient() {
   const colors = (selectedVersion?.colors && selectedVersion.colors.length > 0) ? selectedVersion.colors : [];
   const currentColor = (selectedColorIndex !== null && colors.length > 0) ? colors[selectedColorIndex] : null;
 
+  const effectivePrice = useMemo(() => {
+    if (currentColor && typeof currentColor.price === "number" && currentColor.price > 0) {
+      return currentColor.price;
+    }
+    return selectedVersion ? selectedVersion.price : vehicle?.basePrice;
+  }, [currentColor, selectedVersion, vehicle]);
+
   // Detect if external or internal image sequence exists
   const hasExteriorSeq = (currentColor && currentColor.images_360 && currentColor.images_360.length > 0)
     || (vehicle && vehicle.images_360_external && vehicle.images_360_external.length > 0);
@@ -470,9 +477,16 @@ export default function VehicleVersionDetailClient() {
             {/* Spec Sheets Details */}
             <div className="flex flex-col gap-6 text-left w-full mt-6">
               <div className="space-y-1">
-                <span className="text-[11px] text-gray-500 font-bold uppercase tracking-wider block">Giá niêm yết từ</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] text-gray-500 font-bold uppercase tracking-wider block">Giá niêm yết từ</span>
+                  {currentColor && typeof currentColor.price === "number" && currentColor.price > 0 && (
+                    <span className="text-[10px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+                      Giá màu {currentColor.name}
+                    </span>
+                  )}
+                </div>
                 <span className="text-[28px] sm:text-[32px] font-extrabold text-[#00095b] block leading-none">
-                  {selectedVersion ? formatPrice(selectedVersion.price) : formatPrice(vehicle.basePrice)}
+                  {formatPrice(effectivePrice)}
                 </span>
               </div>
             </div>

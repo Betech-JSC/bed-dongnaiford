@@ -12,7 +12,8 @@ export interface Specs {
 export interface ColorOption {
   name: string;
   hex: string;
-  image: string;
+  image?: string;
+  price?: number | null;
 }
 
 export interface Version {

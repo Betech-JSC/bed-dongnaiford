@@ -309,7 +309,6 @@
                                             ＋ Thêm màu mới cho phiên bản
                                         </button>
                                     </div>
-
                                     <div v-show="showColorsSection" class="space-y-4">
                                         <div v-for="(color, cIdx) in form.versions[activeVersionIndex].colors" :key="cIdx" class="bg-gray-50 border border-gray-200 p-4 rounded-xl hover:shadow-xs transition duration-150 relative">
                                             <button 
@@ -321,7 +320,7 @@
                                                 ✕
                                             </button>
 
-                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                                 <Field v-model="form.versions[activeVersionIndex].colors[cIdx].name" :field="{
                                                     type: 'text',
                                                     name: 'ver_' + activeVersionIndex + '_color_name_' + cIdx,
@@ -346,6 +345,18 @@
                                                             class="w-full"
                                                         />
                                                     </div>
+                                                </div>
+
+                                                <div class="field">
+                                                    <label class="flex items-center label mb-1">
+                                                        <span class="text-xs font-bold text-gray-700">Giá riêng màu sắc (VNĐ)</span>
+                                                    </label>
+                                                    <InputText 
+                                                        type="number" 
+                                                        v-model="form.versions[activeVersionIndex].colors[cIdx].price"
+                                                        placeholder="Để trống = Giá niêm yết"
+                                                        class="w-full"
+                                                    />
                                                 </div>
                                             </div>
 
@@ -2046,6 +2057,7 @@ export default {
             ver.colors.push({
                 name: '',
                 color_code: '#cbd5e1',
+                price: null,
                 images_360: [],
                 image_360_internal: null,
                 images_360_internal: [],
