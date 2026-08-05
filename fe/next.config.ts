@@ -70,7 +70,8 @@ const nextConfig = {
       {
         source: "/(.*)",
         headers: [
-          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          // Tạm thời mở iframe embedding cho CMS (thay X-Frame-Options: SAMEORIGIN bằng Content-Security-Policy frame-ancestors)
+          { key: "Content-Security-Policy", value: "frame-ancestors 'self' https://cms.dongnaiford.com.vn https://*.dongnaiford.com.vn http://localhost:* http://127.0.0.1:*;" },
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(self)" },
