@@ -16,7 +16,7 @@ const fallbackAccessories = [
     code: "OP-ROLL-01",
     category_name: "Phụ Kiện Ngoại Thất",
     price: 19500000,
-    image_url: "/assets/img-gradient-1.png",
+    image_url: "/images/ford_placeholder.png",
     brand: { title: "Option 4WD" }
   },
   {
@@ -25,7 +25,7 @@ const fallbackAccessories = [
     code: "BR-TPRO-02",
     category_name: "Công Nghệ & Điện Tử",
     price: 14800000,
-    image_url: "/assets/img-gradient-2.png",
+    image_url: "/images/ford_placeholder.png",
     brand: { title: "Bravigo" }
   },
   {
@@ -34,7 +34,7 @@ const fallbackAccessories = [
     code: "3M-CRY-03",
     category_name: "Phụ Kiện Ngoại Thất",
     price: 16000000,
-    image_url: "/assets/img-gradient-3.png",
+    image_url: "/images/ford_placeholder.png",
     brand: { title: "3M" }
   },
   {
@@ -43,7 +43,7 @@ const fallbackAccessories = [
     code: "AO-DOM-04",
     category_name: "Công Nghệ & Điện Tử",
     price: 15500000,
-    image_url: "/assets/img-gradient.png",
+    image_url: "/images/ford_placeholder.png",
     brand: { title: "Domax" }
   }
 ];
@@ -78,7 +78,7 @@ export default function VehicleUpgradeLayout({ service }: { service?: any }) {
   };
 
   const handleImageError = (e: any) => {
-    e.target.src = "/assets/img-gradient-1.png";
+    e.target.src = "/images/ford_placeholder.png";
   };
 
   return (
@@ -139,7 +139,7 @@ export default function VehicleUpgradeLayout({ service }: { service?: any }) {
               const brandName = item.brand?.title || "";
               const catName = item.category_name || item.categories?.[0]?.title || "Phụ kiện cao cấp";
               
-              const firstImgUrl = item.images?.[0]?.url || item.image?.url || item.image_url || "/assets/img-gradient-1.png";
+              const firstImgUrl = item.images?.[0]?.url || item.image?.url || item.image_url || "/images/ford_placeholder.png";
 
               return (
                 <Link

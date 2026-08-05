@@ -28,10 +28,10 @@ export const aboutAssets = {
   history: "/images-dynamic/image-hero-2.jpg",
   facilities: "/service-fixed-car.jpg",
   visionGallery: [
-    "/assets/img-gradient-1.png",
-    "/assets/img-gradient-2.png",
-    "/assets/img-gradient-3.png",
-    "/assets/img-gradient.png",
+    "/assets/territory-grid-1.png",
+    "/assets/territory-grid-2.png",
+    "/assets/territory-grid-3.png",
+    "/assets/territory-hero.png",
   ],
 } as const;
 
@@ -53,7 +53,7 @@ export function getPopularVehicleImage(slugOrName: string, fallback?: string): s
   return fallback || popularVehicleImages["ford-territory"];
 }
 
-export const imageFallbackSvg = "/assets/img-gradient-1.png";
+export const imageFallbackSvg = "/images/ford_placeholder.png";
 
 export const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
   const target = e.currentTarget;
@@ -63,14 +63,14 @@ export const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event
 };
 
 export const resolveImageUrl = (img: any): string => {
-  if (!img) return "/assets/img-gradient-1.png";
+  if (!img) return "/images/ford_placeholder.png";
   let path = "";
   if (typeof img === "string") {
     path = img;
   } else if (typeof img === "object") {
     path = img.url || img.path || "";
   }
-  if (!path) return "/assets/img-gradient-1.png";
+  if (!path) return "/images/ford_placeholder.png";
   if (path.startsWith("http://") || path.startsWith("https://") || path.startsWith("/") || path.startsWith("//")) {
     return encodeURI(path);
   }

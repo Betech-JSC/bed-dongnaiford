@@ -93,7 +93,7 @@ export default function FordSyncLayout({ service }: { service?: any }) {
           <ScrollReveal direction="right">
             <div className="relative aspect-video w-full border border-gray-200 shadow-md bg-gray-900">
               <Image 
-                src="/assets/img-gradient-1.png"
+                src="/assets/territory-interior.png"
                 alt="Ford SYNC Interface"
                 fill
                 sizes="(max-width: 1024px) 100vw, 50vw"

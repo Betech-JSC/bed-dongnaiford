@@ -136,7 +136,7 @@ export default function VehicleDetailClient() {
             data: {
               title: `Ưu Đãi Đặc Biệt Cho Xe ${vehicle.name}`,
               description: `Nhận ngay ưu đãi giá bán tốt nhất, quà tặng đặc quyền và hỗ trợ trả góp ưu đãi khi mua xe ${vehicle.name} tại Đồng Nai Ford.`,
-              image: vehicle.images?.[1] || vehicle.images?.[0] || "/assets/img-gradient-2.png",
+              image: vehicle.images?.[1] || vehicle.images?.[0] || "/images/ford_placeholder.png",
               button_text: "Báo giá"
             }
           },
@@ -220,7 +220,7 @@ export default function VehicleDetailClient() {
     if (type === "HeroBanner") {
       newBlock.data = { title: vehicle?.name || "Ford Vehicle", tagline: "Tagline giới thiệu", button_text: "Đặt lịch hẹn", button_link: "/lien-he", background_image: "/assets/territory-hero.png" };
     } else if (type === "Promotions") {
-      newBlock.data = { title: "Chương trình ưu đãi", description: "Mô tả ngắn khuyến mãi", image: "/assets/img-gradient-2.png", button_text: "Nhận báo giá" };
+      newBlock.data = { title: "Chương trình ưu đãi", description: "Mô tả ngắn khuyến mãi", image: "/images/ford_placeholder.png", button_text: "Nhận báo giá" };
     } else if (type === "FeaturesGrid") {
       newBlock.data = { title_1: "Thiết kế ấn tượng", image_1: "/assets/territory-hero.png", image_2: "/assets/territory-tech-split.png", image_3: "/assets/territory-promo.png", title_2: "Tiện nghi", image_large: "/assets/territory-interior.png", title_3: "Công nghệ", split_image: "/assets/territory-tech-split.png", split_title: "Chi tiết", split_features: [] };
     } else if (type === "VersionsGrid") {
