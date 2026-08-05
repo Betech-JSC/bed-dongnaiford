@@ -1506,8 +1506,9 @@ function ThreeSixtyViewerBlock({ data, vehicle, isEditMode, onChangeData, threeS
   const activeVersion = vehicle?.versions?.[activeVersionIndex];
   const colors = (activeVersion?.colors && activeVersion.colors.length > 0) ? activeVersion.colors : [];
   const currentColor = colors.length > 0 ? colors[selectedColorIndex] : null;
+  // Chỉ kiểm tra màu hiện tại — không fallback sang vehicle level khi đã chọn màu
   const hasInteriorSequence = (currentColor && currentColor.images_360_internal && currentColor.images_360_internal.length > 0)
-    || (vehicle && (vehicle as any).images_360_internal && (vehicle as any).images_360_internal.length > 0);
+    || (!currentColor && vehicle && (vehicle as any).images_360_internal && (vehicle as any).images_360_internal.length > 0);
 
   return (
     <section id={anchorId || undefined} className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full py-16 border-t border-[#e5e5e5]">
@@ -1571,6 +1572,7 @@ function ThreeSixtyViewerBlock({ data, vehicle, isEditMode, onChangeData, threeS
                 </div>
               </div>
 
+              {hasInteriorSequence && (
               <div className="toggle-wrapper">
                 <div className="model-view toggle-container">
                   <div className="toggle" role="tablist">
@@ -1594,6 +1596,7 @@ function ThreeSixtyViewerBlock({ data, vehicle, isEditMode, onChangeData, threeS
                   </div>
                 </div>
               </div>
+              )}
 
               <div>
                 <div className={`view-wrapper ${viewType === "exterior" ? "show" : ""}`}>

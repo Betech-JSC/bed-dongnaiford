@@ -255,7 +255,7 @@ export default async function VehicleDetailLayout({
       price: typeof c.price === 'string' ? parseFloat(c.price) : (c.price || null),
       image: resolveFileUrl(c.image_path || c.image),
       images_360: safeArray(c.images_360).map((img: any) => resolveFileUrl(img)).filter(Boolean),
-      image_360_internal: resolveFileUrl(c.image_360_internal) || null,
+      image_360_internal: c.image_360_internal ? resolveFileUrl(c.image_360_internal) : null,
       images_360_internal: safeArray(c.images_360_internal).map((img: any) => resolveFileUrl(img)).filter(Boolean)
     })) : [],
     images: (apiVehicle.images && Array.isArray(apiVehicle.images) && apiVehicle.images.length > 0)
@@ -276,7 +276,7 @@ export default async function VehicleDetailLayout({
               price: typeof c.price === 'string' ? parseFloat(c.price) : (c.price || null),
               image: resolveFileUrl(c.image_path || c.image),
               images_360: safeArray(c.images_360).map((img: any) => resolveFileUrl(img)).filter(Boolean),
-              image_360_internal: resolveFileUrl(c.image_360_internal) || null,
+              image_360_internal: c.image_360_internal ? resolveFileUrl(c.image_360_internal) : null,
               images_360_internal: safeArray(c.images_360_internal).map((img: any) => resolveFileUrl(img)).filter(Boolean)
             }))
           : (apiVehicle.colors ? safeArray(apiVehicle.colors).map((c: any) => ({
@@ -285,7 +285,7 @@ export default async function VehicleDetailLayout({
               price: typeof c.price === 'string' ? parseFloat(c.price) : (c.price || null),
               image: resolveFileUrl(c.image_path || c.image),
               images_360: safeArray(c.images_360).map((img: any) => resolveFileUrl(img)).filter(Boolean),
-              image_360_internal: resolveFileUrl(c.image_360_internal) || null,
+              image_360_internal: c.image_360_internal ? resolveFileUrl(c.image_360_internal) : null,
               images_360_internal: safeArray(c.images_360_internal).map((img: any) => resolveFileUrl(img)).filter(Boolean)
             })) : []),
         specs: {
