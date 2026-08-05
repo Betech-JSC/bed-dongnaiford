@@ -161,7 +161,7 @@ export default function Footer() {
               </Link>
             </li>
             <li>
-              <Link href="/dich-vu" className="hover:text-[#0562d2] transition-colors block text-[#3b82f6] font-semibold">
+              <Link href="/dich-vu" className="hover:text-[#0562d2] transition-colors block">
                 Đặt hẹn trực tuyến
               </Link>
             </li>
