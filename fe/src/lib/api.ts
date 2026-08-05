@@ -17,9 +17,9 @@ async function fetchAPI<T = any>(endpoint: string, options?: RequestInit): Promi
   const url = `${getApiBaseUrl()}${endpoint}`;
   const method = options?.method?.toUpperCase() || 'GET';
   
-  // Mặc định cache 1 giờ (3600s) cho GET requests trừ khi được chỉ định khác
+  // Mặc định cache 60s và gắn tag cms-data cho GET requests (cho phép revalidate ngay khi CMS cập nhật)
   const defaultCacheOption = method === 'GET' && !options?.cache && !options?.next
-    ? { next: { revalidate: 3600 } }
+    ? { next: { tags: ['cms-data'], revalidate: 60 } }
     : {};
 
   try {

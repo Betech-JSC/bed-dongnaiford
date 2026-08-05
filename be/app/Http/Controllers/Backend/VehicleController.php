@@ -507,6 +507,8 @@ class VehicleController extends Controller
             }
         });
 
+        revalidate_frontend();
+
         return response()->json([
             'success' => true,
             'message' => "Đã sao chép thành công dữ liệu cho {$updatedCount} dòng xe!",

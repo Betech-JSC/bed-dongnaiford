@@ -269,6 +269,38 @@ if (!function_exists('setting_bar')) {
     }
 }
 
+if (!function_exists('revalidate_frontend')) {
+    function revalidate_frontend(string $path = '/')
+    {
+        try {
+            $frontendUrl = env('NEXT_PUBLIC_SITE_URL', 'https://dongnaiford.com.vn');
+            $secret = env('REVALIDATE_SECRET', 'dnf_revalidate_secret_2026');
+
+            // 1. Send HTTP request to external domain
+            \Illuminate\Support\Facades\Http::timeout(3)
+                ->post(rtrim($frontendUrl, '/') . '/api/revalidate', [
+                    'secret' => $secret,
+                    'path'   => $path,
+                ]);
+
+            // 2. Try internal docker network hostname if available
+            try {
+                \Illuminate\Support\Facades\Http::timeout(2)
+                    ->post('http://frontend:3000/api/revalidate', [
+                        'secret' => $secret,
+                        'path'   => $path,
+                    ]);
+            } catch (\Throwable $t) {
+                // Ignore internal docker failure if external succeeded
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Frontend revalidation failed: ' . $e->getMessage());
+        }
+
+        return true;
+    }
+}
+
 if (!function_exists('clear_cache')) {
     function clear_cache($tags = [])
     {
@@ -276,6 +308,7 @@ if (!function_exists('clear_cache')) {
             Illuminate\Support\Facades\Cache::tags($tags)->flush();
             Illuminate\Support\Facades\Artisan::call('lada-cache:flush');
         }
+        revalidate_frontend();
         return true;
     }
 }
