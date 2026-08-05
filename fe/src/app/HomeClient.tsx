@@ -14,6 +14,7 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronUp,
+  ChevronDown,
   X,
   Users,
   Plus,
@@ -1764,7 +1765,7 @@ export default function HomeClient({
           {/* Left Column: Title */}
           <div className="lg:col-span-4 space-y-2">
             <h2 className="text-3xl lg:text-[48px] font-semibold text-[#1a1a1a] leading-tight tracking-tight max-w-[341px]">
-              Các câu hỏi thường gặp
+              Các câu hỏi <span className="text-[#0562D2]">thường gặp</span>
             </h2>
           </div>
 
@@ -1775,32 +1776,34 @@ export default function HomeClient({
               return (
                 <div
                   key={idx}
-                  className={`relative overflow-hidden border transition-all duration-300 bg-white rounded-lg p-6 ${isOpen
-                    ? "border-transparent shadow-sm"
-                    : "border-gray-200 hover:border-gray-300"
+                  className={`relative overflow-hidden border transition-all duration-300 bg-white rounded-xl group ${isOpen
+                    ? "border-[#00095B] shadow-md -translate-y-0.5"
+                    : "border-gray-200 hover:border-gray-300 hover:shadow-sm hover:-translate-y-0.5"
                     }`}
                 >
                   {/* Title Toggle trigger */}
                   <button
                     onClick={() => toggleFaq(idx)}
-                    className="w-full flex items-center justify-between text-left transition-colors cursor-pointer"
+                    className={`w-full flex items-center justify-between text-left transition-all duration-300 cursor-pointer select-none px-6 py-5 gap-4 ${isOpen
+                      ? "bg-[#00095B] text-white"
+                      : "bg-white text-[#1A1A1A] hover:bg-gray-50/50"
+                      }`}
                   >
-                    <span className={`text-base font-semibold transition-colors tracking-tight ${isOpen ? "text-[#0562D2]" : "text-[#1A1A1A]"
-                      }`}>
+                    <span className="text-base md:text-lg font-bold tracking-tight leading-snug pr-4">
                       {faq.q}
                     </span>
                     {isOpen ? (
-                      <Minus className="w-5 h-5 text-[#0562D2] flex-shrink-0" />
+                      <ChevronUp className="w-5 h-5 text-white flex-shrink-0 transition-transform duration-300" />
                     ) : (
-                      <Plus className="w-5 h-5 text-[#1A1A1A] flex-shrink-0" />
+                      <ChevronDown className="w-5 h-5 text-gray-400 group-hover:text-[#00095B] flex-shrink-0 transition-transform duration-300" />
                     )}
                   </button>
 
                   {/* Body Content with Smooth Height Transition */}
                   <div className={`grid transition-[grid-template-rows,opacity] duration-300 ease-in-out ${isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
                     }`}>
-                    <div className="overflow-hidden">
-                      <p className="pt-4 text-sm text-gray-600 leading-relaxed font-normal">
+                    <div className="overflow-hidden bg-white">
+                      <p className="px-6 py-5 text-sm text-gray-600 leading-relaxed font-normal border-t border-gray-100">
                         {faq.a}
                       </p>
                     </div>

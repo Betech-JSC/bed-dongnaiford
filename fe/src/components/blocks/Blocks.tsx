@@ -2,7 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
-import { Plus, Minus, ChevronDown, Phone, Bookmark, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
+import { Plus, Minus, ChevronDown, ChevronUp, Phone, Bookmark, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
 import { mediaAPI } from "@/lib/api";
 
 const formatUploadError = (err: any): string => {
@@ -1080,14 +1080,16 @@ function AccordionFAQsBlock({ data, vehicle, isEditMode, onChangeData, anchorId 
           </p>
         </div>
 
-        <div className="lg:col-span-8 flex flex-col items-start overflow-hidden rounded-[12px] border border-gray-200/50 w-full bg-white shadow-xs">
+        <div className="lg:col-span-8 flex flex-col gap-4 w-full">
           {faqs.map((faq: any, idx: number) => {
             const isExpanded = expandedIndex === idx;
             return (
               <div
                 key={idx}
-                className={`w-full transition-all duration-300 px-[24px] py-[20px] bg-white relative
-                  ${isExpanded ? "border-b-3 border-[#0562d2]" : "border-b border-[#f0f0f0] last:border-b-0"}`}
+                className={`relative overflow-hidden border transition-all duration-300 bg-white rounded-xl group ${isExpanded
+                  ? "border-[#00095B] shadow-md -translate-y-0.5"
+                  : "border-gray-200 hover:border-gray-300 hover:shadow-sm hover:-translate-y-0.5"
+                  }`}
               >
                 {isEditMode && (
                   <button
@@ -1102,29 +1104,36 @@ function AccordionFAQsBlock({ data, vehicle, isEditMode, onChangeData, anchorId 
                 <button
                   type="button"
                   onClick={() => setExpandedIndex(isExpanded ? null : idx)}
-                  className="flex items-center justify-between text-left w-full cursor-pointer border-0 bg-transparent py-1 transition-colors group"
+                  className={`w-full flex items-center justify-between text-left px-6 py-5 transition-all duration-300 cursor-pointer select-none border-0 gap-4 ${isExpanded
+                    ? "bg-[#00095B] text-white"
+                    : "bg-white text-[#1a1a1a] hover:bg-gray-50/50"
+                    }`}
                 >
-                  <span className={`font-['Ford_Antenna',sans-serif] font-semibold text-[16px] leading-[1.5]
-                      ${isExpanded ? "text-[#0562d2]" : "text-[#1a1a1a] group-hover:text-[#0562d2]"}
+                  <span className={`font-['Ford_Antenna',sans-serif] font-bold text-[16px] leading-[1.5]
                       ${isEditMode ? 'outline-[1px] outline-dashed outline-[#008060]/70 hover:outline-[#008060] outline-offset-2 cursor-pointer transition-all' : ''}`}
                   >
                     {faq.q || "Câu hỏi thường gặp?"}
                   </span>
                   {isExpanded ? (
-                    <Minus className="w-[20px] h-[20px] text-[#0562d2] shrink-0 ml-4" />
+                    <ChevronUp className="w-5 h-5 text-white flex-shrink-0 transition-transform duration-300" />
                   ) : (
-                    <Plus className="w-[20px] h-[20px] text-gray-500 group-hover:text-[#0562d2] shrink-0 ml-4" />
+                    <ChevronDown className="w-5 h-5 text-gray-400 group-hover:text-[#00095B] flex-shrink-0 transition-transform duration-300" />
                   )}
                 </button>
-                {isExpanded && (
-                  <div className="pt-4 pb-2 text-sm text-[#424242] leading-relaxed transition-all duration-200 w-full">
+                {/* Content Panel with smooth transition */}
+                <div
+                  className={`overflow-hidden transition-all duration-300 ${
+                    isExpanded ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
+                  }`}
+                >
+                  <div className="px-6 py-5 text-sm text-gray-600 leading-relaxed font-normal bg-white border-t border-gray-100">
                     <p className={`font-['Ford_Antenna',sans-serif] font-normal whitespace-pre-line w-full
                       ${isEditMode ? 'outline-[1px] outline-dashed outline-[#008060]/70 hover:outline-[#008060] outline-offset-2 cursor-pointer transition-all' : ''}`}
                     >
                       {faq.a || "Câu trả lời."}
                     </p>
                   </div>
-                )}
+                </div>
               </div>
             );
           })}

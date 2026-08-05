@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Minus } from "lucide-react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 type FaqItem = {
   question: string;
@@ -48,47 +48,47 @@ export default function FaqAccordion({ faqs = defaultFaqs }: { faqs?: FaqItem[] 
         {/* Left Side Title */}
         <div className="lg:col-span-1">
           <h2 className="text-4xl md:text-5xl font-bold font-display text-gray-900 tracking-tight leading-tight">
-            Các câu hỏi thường gặp
+            Các câu hỏi <span className="text-[#0562d2]">thường gặp</span>
           </h2>
         </div>
 
         {/* Right Side Accordion Grid */}
-        <div className="lg:col-span-2 space-y-0 rounded-lg overflow-hidden border border-gray-100 shadow-sm">
+        <div className="lg:col-span-2 space-y-4">
           {faqs.map((faq, index) => {
             const isOpen = openIndex === index;
             return (
               <div
                 key={index}
-                className={`transition-all duration-300 ${
-                  isOpen 
-                    ? "bg-white border-b-2 border-[#0562d2]" 
-                    : "bg-white border-b border-gray-100 hover:bg-gray-50/50"
+                className={`relative overflow-hidden border transition-all duration-300 bg-white rounded-xl group ${isOpen
+                  ? "border-[#00095B] shadow-md -translate-y-0.5"
+                  : "border-gray-200 hover:border-gray-300 hover:shadow-sm hover:-translate-y-0.5"
                 }`}
               >
                 {/* Header/Question Trigger */}
                 <button
                   onClick={() => toggle(index)}
-                  className="w-full px-6 py-5 flex items-center justify-between text-left gap-4 font-semibold text-base transition-colors duration-200"
+                  className={`w-full flex items-center justify-between text-left px-6 py-5 transition-all duration-300 cursor-pointer select-none gap-4 ${isOpen
+                    ? "bg-[#00095B] text-white"
+                    : "bg-white text-gray-800 hover:bg-gray-50/50"
+                  }`}
                 >
-                  <span className={`${isOpen ? "text-[#0562d2]" : "text-gray-800"}`}>
+                  <span className="text-base md:text-lg font-bold tracking-tight leading-snug pr-4">
                     {faq.question}
                   </span>
-                  <div className="shrink-0 text-gray-400">
-                    {isOpen ? (
-                      <Minus className="w-5 h-5 text-[#0562d2]" />
-                    ) : (
-                      <Plus className="w-5 h-5 hover:text-[#0562d2] transition-colors" />
-                    )}
-                  </div>
+                  {isOpen ? (
+                    <ChevronUp className="w-5 h-5 text-white flex-shrink-0 transition-transform duration-300" />
+                  ) : (
+                    <ChevronDown className="w-5 h-5 text-gray-400 group-hover:text-[#00095B] flex-shrink-0 transition-transform duration-300" />
+                  )}
                 </button>
 
-                {/* Content Panel with CSS transition */}
+                {/* Content Panel with smooth transition */}
                 <div
                   className={`overflow-hidden transition-all duration-300 ${
                     isOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
                   }`}
                 >
-                  <div className="px-6 pb-6 text-sm text-gray-600 leading-relaxed font-normal">
+                  <div className="px-6 py-5 text-sm text-gray-600 leading-relaxed font-normal bg-white border-t border-gray-100">
                     {faq.answer}
                   </div>
                 </div>
