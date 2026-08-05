@@ -331,6 +331,7 @@ trait HasCrudActions
                 $resource->delete();
             }
             DB::commit();
+            revalidate_frontend();
 
             if (!is_null($this->model()->getMacro('withTrashed'))) {
                 return $this->redirectBack(__('models.has_crud_action.destroy', [], current_locale()));
@@ -349,6 +350,7 @@ trait HasCrudActions
 
         $resource = $this->model::withTrashed()->findOrFail($id);
         $resource->restore();
+        revalidate_frontend();
 
         return $this->redirectBack(__('models.has_crud_action.restore', [], current_locale()));
     }
@@ -527,6 +529,7 @@ trait HasCrudActions
 
     private function afterStore($resource)
     {
+        revalidate_frontend();
         return $resource;
     }
 

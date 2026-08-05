@@ -17,9 +17,9 @@ async function fetchAPI<T = any>(endpoint: string, options?: RequestInit): Promi
   const url = `${getApiBaseUrl()}${endpoint}`;
   const method = options?.method?.toUpperCase() || 'GET';
   
-  // Mặc định cache 1 giờ (3600s) cho GET requests trừ khi được chỉ định khác
+  // TẠM TẮT CACHE ĐỂ DEBUG — bật lại sau khi fix xong
   const defaultCacheOption = method === 'GET' && !options?.cache && !options?.next
-    ? { next: { revalidate: 3600 } }
+    ? { cache: 'no-store' as RequestCache }
     : {};
 
   try {
@@ -64,7 +64,10 @@ export const vehiclesAPI = {
   getBestSellers: (params?: Record<string, any>) => fetchAPI('/vehicles/featured'),
   
   // Get vehicle by slug
-  getBySlug: (slug: string) => fetchAPI(`/vehicles/${slug}`),
+  getBySlug: (slug: string, params?: Record<string, any>) => {
+    const query = params ? '?' + new URLSearchParams(params as any).toString() : '';
+    return fetchAPI<any>(`/vehicles/${slug}${query}`);
+  },
   
   // Get vehicle categories
   getCategories: () => fetchAPI('/vehicles/categories'),

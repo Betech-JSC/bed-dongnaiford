@@ -177,7 +177,7 @@ export default function VehicleAccessoriesClient() {
   };
 
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-    e.currentTarget.src = "/assets/img-gradient-1.png";
+    e.currentTarget.src = "/images/ford_placeholder.png";
   };
 
   // Extract unique brands dynamically
@@ -384,7 +384,7 @@ export default function VehicleAccessoriesClient() {
                   >
                     <div className="aspect-square relative bg-gray-50 overflow-hidden">
                       <img
-                        src={item.images[0] || "/assets/img-gradient-1.png"}
+                        src={item.images[0] || "/images/ford_placeholder.png"}
                         alt={item.name}
                         className="object-cover w-full h-full group-hover:scale-[1.03] transition-transform duration-500"
                         onError={handleImageError}

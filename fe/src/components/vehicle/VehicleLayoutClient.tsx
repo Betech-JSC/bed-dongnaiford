@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams, usePathname } from "next/navigation";
+import { useParams, usePathname, useSearchParams } from "next/navigation";
 import { useState, useEffect, useMemo, createContext, useContext } from "react";
 import Link from "next/link";
 import { contactsAPI, regionsAPI, registrationFeesAPI } from "@/lib/api";
@@ -56,6 +56,9 @@ export default function VehicleLayoutClient({
   allVehicles: any[];
   salesConsultantId?: number;
 }) {
+  const searchParams = useSearchParams();
+  const isPreview = searchParams ? (searchParams.get("preview") === "true" || searchParams.get("preview") === "1") : false;
+
   const [activeVersionIndex, setActiveVersionIndex] = useState(0);
   const [compareIds, setCompareIds] = useState<string[]>([]);
 
@@ -342,6 +345,15 @@ export default function VehicleLayoutClient({
   return (
     <VehicleContext.Provider value={providerValue}>
       <div className="bg-light text-dark flex-1 flex flex-col w-full">
+        {isPreview && (
+          <div className="bg-amber-500 text-slate-950 font-bold px-4 py-2.5 text-center text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md sticky top-0 z-50 animate-pulse">
+            <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+            <span>[CHẾ ĐỘ XEM TRƯỚC - PREVIEW] Nội dung trang xe từ CMS chưa xuất bản chính thức ra ngoài website.</span>
+          </div>
+        )}
         {/* Content Viewport */}
         <div className="flex-1 flex flex-col">
           {children}

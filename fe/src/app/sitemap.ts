@@ -74,6 +74,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           locUrl = locUrl.replace(/https?:\/\/[^\/]+/, siteUrl);
         }
 
+        // Normalize /tin-tuc/[slug] to root level /[slug] for news posts
+        if (locUrl.startsWith(`${siteUrl}/tin-tuc/`)) {
+          locUrl = locUrl.replace(`${siteUrl}/tin-tuc/`, `${siteUrl}/`);
+        }
+
         // Skip URLs that are already covered by static pages
         const pathname = locUrl.replace(siteUrl, "");
         const isStaticPage = staticPages.some(sp => sp.url === locUrl);

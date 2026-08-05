@@ -154,12 +154,19 @@ export default function VehicleVersionDetailClient() {
   const colors = (selectedVersion?.colors && selectedVersion.colors.length > 0) ? selectedVersion.colors : [];
   const currentColor = (selectedColorIndex !== null && colors.length > 0) ? colors[selectedColorIndex] : null;
 
+  const effectivePrice = useMemo(() => {
+    if (currentColor && typeof currentColor.price === "number" && currentColor.price > 0) {
+      return currentColor.price;
+    }
+    return selectedVersion ? selectedVersion.price : vehicle?.basePrice;
+  }, [currentColor, selectedVersion, vehicle]);
+
   // Detect if external or internal image sequence exists
   const hasExteriorSeq = (currentColor && currentColor.images_360 && currentColor.images_360.length > 0)
     || (vehicle && vehicle.images_360_external && vehicle.images_360_external.length > 0);
 
   const hasInteriorSeq = (currentColor && currentColor.images_360_internal && currentColor.images_360_internal.length > 0)
-    || (vehicle && vehicle.images_360_internal && vehicle.images_360_internal.length > 0);
+    || (!currentColor && vehicle && vehicle.images_360_internal && vehicle.images_360_internal.length > 0);
 
   const isImageSequence = (viewType === "exterior" && hasExteriorSeq) || (viewType === "interior" && hasInteriorSeq);
 
@@ -175,13 +182,16 @@ export default function VehicleVersionDetailClient() {
   }, [viewType, currentColor, selectedVersion, vehicle]);
 
   const hasInteriorPhotos = useMemo(() => {
+    // Chỉ kiểm tra màu hiện tại — không fallback sang vehicle level
+    // Mỗi màu có bộ ảnh nội thất riêng, không nên dùng chung
     if (currentColor) {
       if (currentColor.images_360_internal && currentColor.images_360_internal.length > 0) return true;
-      if (currentColor.image_360_internal) return true;
+      if (currentColor.image_360_internal && currentColor.image_360_internal !== '') return true;
     }
-    if (vehicle) {
+    // Fallback: chỉ khi không có màu nào được chọn, mới kiểm tra vehicle level
+    if (!currentColor && vehicle) {
       if (vehicle.images_360_internal && vehicle.images_360_internal.length > 0) return true;
-      if (vehicle.image_360_internal_url) return true;
+      if (vehicle.image_360_internal_url && vehicle.image_360_internal_url !== '') return true;
     }
     return false;
   }, [currentColor, vehicle]);
@@ -470,9 +480,16 @@ export default function VehicleVersionDetailClient() {
             {/* Spec Sheets Details */}
             <div className="flex flex-col gap-6 text-left w-full mt-6">
               <div className="space-y-1">
-                <span className="text-[11px] text-gray-500 font-bold uppercase tracking-wider block">Giá niêm yết từ</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] text-gray-500 font-bold uppercase tracking-wider block">Giá niêm yết từ</span>
+                  {currentColor && typeof currentColor.price === "number" && currentColor.price > 0 && (
+                    <span className="text-[10px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+                      Giá màu {currentColor.name}
+                    </span>
+                  )}
+                </div>
                 <span className="text-[28px] sm:text-[32px] font-extrabold text-[#00095b] block leading-none">
-                  {selectedVersion ? formatPrice(selectedVersion.price) : formatPrice(vehicle.basePrice)}
+                  {formatPrice(effectivePrice)}
                 </span>
               </div>
             </div>

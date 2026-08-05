@@ -136,14 +136,18 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 export default async function VehicleDetailLayout({
   children,
-  params
+  params,
+  searchParams
 }: Props) {
   const { id } = await params;
+  const search = searchParams ? await searchParams : {};
+  const isPreview = search?.preview === "true" || search?.preview === "1";
+
   let apiVehicle = null;
   let rawAllVehicles: any[] = [];
 
   try {
-    const detailRes = await vehiclesAPI.getBySlug(id).catch(() => null);
+    const detailRes = await vehiclesAPI.getBySlug(id, isPreview ? { preview: "true" } : undefined).catch(() => null);
     const vehicleObj = detailRes?.data || (detailRes?.id ? detailRes : null);
     if (vehicleObj) {
       apiVehicle = vehicleObj;

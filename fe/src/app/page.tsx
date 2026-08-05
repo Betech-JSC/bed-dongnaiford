@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { bannersAPI, vehiclesAPI, servicesAPI, customerHandoversAPI, postsAPI } from "@/lib/api";
 import HomeClient from "./HomeClient";
 
-export const revalidate = 3600;
+export const revalidate = 0; // TẠM TẮT CACHE ĐỂ DEBUG
 
 export const metadata: Metadata = {
   title: "Đồng Nai Ford | Đại Lý 3S Chính Thức Tại Đồng Nai",

@@ -269,6 +269,75 @@ if (!function_exists('setting_bar')) {
     }
 }
 
+if (!function_exists('revalidate_frontend')) {
+    /**
+     * Gửi lệnh revalidate đến Frontend (Vercel/Next.js) để xóa cache ngay lập tức.
+     * 
+     * @param string $path  Đường dẫn cần revalidate (mặc định '/' = toàn bộ site)
+     * @param string $tag   Cache tag cần purge (mặc định 'cms-data')
+     */
+    function revalidate_frontend(string $path = '/', string $tag = 'cms-data')
+    {
+        // Dispatch async để không block CMS response cho người dùng
+        dispatch(function () use ($path, $tag) {
+            $frontendUrl = rtrim(env('NEXT_PUBLIC_SITE_URL', 'https://dongnaiford.com.vn'), '/');
+            $secret = env('REVALIDATE_SECRET', 'dnf_revalidate_secret_2026');
+            $payload = [
+                'secret' => $secret,
+                'path'   => $path,
+                'tag'    => $tag,
+            ];
+
+            $success = false;
+
+            // 1. Gửi HTTP request đến domain public (Vercel Edge) — timeout 8s
+            try {
+                $response = \Illuminate\Support\Facades\Http::timeout(8)
+                    ->connectTimeout(5)
+                    ->post($frontendUrl . '/api/revalidate', $payload);
+
+                if ($response->successful()) {
+                    $success = true;
+                    \Illuminate\Support\Facades\Log::info('Frontend revalidation OK', [
+                        'url'      => $frontendUrl,
+                        'path'     => $path,
+                        'tag'      => $tag,
+                        'status'   => $response->status(),
+                        'response' => $response->json(),
+                    ]);
+                } else {
+                    \Illuminate\Support\Facades\Log::warning('Frontend revalidation HTTP error', [
+                        'url'    => $frontendUrl,
+                        'status' => $response->status(),
+                        'body'   => $response->body(),
+                    ]);
+                }
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Frontend revalidation failed (external): ' . $e->getMessage());
+            }
+
+            // 2. Retry qua internal docker network nếu external thất bại
+            try {
+                \Illuminate\Support\Facades\Http::timeout(3)
+                    ->connectTimeout(2)
+                    ->post('http://frontend:3000/api/revalidate', $payload);
+            } catch (\Throwable $t) {
+                // Docker internal không khả dụng — bỏ qua nếu external OK
+                if (!$success) {
+                    \Illuminate\Support\Facades\Log::error('Frontend revalidation failed on ALL channels', [
+                        'path'     => $path,
+                        'tag'      => $tag,
+                        'external' => 'failed',
+                        'internal' => $t->getMessage(),
+                    ]);
+                }
+            }
+        })->afterResponse();
+
+        return true;
+    }
+}
+
 if (!function_exists('clear_cache')) {
     function clear_cache($tags = [])
     {
@@ -276,6 +345,7 @@ if (!function_exists('clear_cache')) {
             Illuminate\Support\Facades\Cache::tags($tags)->flush();
             Illuminate\Support\Facades\Artisan::call('lada-cache:flush');
         }
+        revalidate_frontend();
         return true;
     }
 }

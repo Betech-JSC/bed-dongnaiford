@@ -214,6 +214,7 @@ class LandingPageApiController extends Controller
                     'colors'              => collect($ver->colors ?? [])->map(fn($c) => [
                         'name'       => $c['name'] ?? ($c['color_name'] ?? ''),
                         'hex'        => $c['hex'] ?? ($c['color_code'] ?? ''),
+                        'price'      => (isset($c['price']) && $c['price'] !== '' && is_numeric($c['price'])) ? (float)$c['price'] : null,
                         'image_path' => isset($c['image_path']) ? static_url($c['image_path']) : (isset($c['image']) ? $this->resolveFileUrl($c['image']) : null),
                     ])->toArray()
                 ])->toArray()
@@ -244,6 +245,7 @@ class LandingPageApiController extends Controller
                     'colors'              => collect($v->colors ?? [])->map(fn($c) => [
                         'name'       => $c['name'] ?? ($c['color_name'] ?? ''),
                         'hex'        => $c['hex'] ?? ($c['color_code'] ?? ''),
+                        'price'      => (isset($c['price']) && $c['price'] !== '' && is_numeric($c['price'])) ? (float)$c['price'] : null,
                         'image_path' => isset($c['image_path']) ? static_url($c['image_path']) : (isset($c['image']) ? $this->resolveFileUrl($c['image']) : null),
                     ])->toArray()
                 ])

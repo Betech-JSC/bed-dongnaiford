@@ -78,7 +78,7 @@ class VehicleController extends Controller
         $vehicles = $query->get()
             ->map(fn($v) => $this->formatList($v));
 
-        return $this->success($vehicles)->header('Cache-Control', 'public, max-age=600, s-maxage=3600');
+        return $this->success($vehicles)->header('Cache-Control', 'no-cache, must-revalidate');
     }
 
     /**
@@ -94,22 +94,32 @@ class VehicleController extends Controller
             ->get()
             ->map(fn($v) => $this->formatList($v));
 
-        return $this->success($vehicles)->header('Cache-Control', 'public, max-age=600, s-maxage=3600');
+        return $this->success($vehicles)->header('Cache-Control', 'no-cache, must-revalidate');
     }
 
     /**
      * GET /api/vehicles/{slug}
      */
-    public function show(string $slug): JsonResponse
+    public function show(string $slug, Request $request): JsonResponse
     {
-        $vehicle = Vehicle::query()
-            ->where('status', Vehicle::STATUS_ACTIVE)
-            ->whereSlug($slug)
-            ->with([
+        $isPreview = $request->boolean('preview') || $request->query('preview') === 'true' || $request->query('preview') === '1';
+
+        $query = Vehicle::query()->whereSlug($slug);
+
+        if ($isPreview) {
+            $query->with([
                 'categories',
-                'versions' => fn($q) => $q->where('status', 'ACTIVE')->sortByPosition()
-            ])
-            ->first();
+                'versions' => fn($q) => $q->sortByPosition()
+            ]);
+        } else {
+            $query->where('status', Vehicle::STATUS_ACTIVE)
+                ->with([
+                    'categories',
+                    'versions' => fn($q) => $q->where('status', 'ACTIVE')->sortByPosition()
+                ]);
+        }
+
+        $vehicle = $query->first();
 
         if (!$vehicle) {
             return $this->failure(__('Không tìm thấy xe'), 404);
@@ -159,6 +169,7 @@ class VehicleController extends Controller
                 return [
                     'name'                => $color['name'] ?? ($color['color_name'] ?? ''),
                     'hex'                 => $color['hex'] ?? ($color['color_code'] ?? ''),
+                    'price'               => (isset($color['price']) && $color['price'] !== '' && is_numeric($color['price'])) ? (float)$color['price'] : null,
                     'image_path'          => $imagePath,
                     'images_360'          => $images360,
                     'image_360_internal'  => $image360Internal,
@@ -208,6 +219,7 @@ class VehicleController extends Controller
                     return [
                         'name'                => $color['name'] ?? ($color['color_name'] ?? ''),
                         'hex'                 => $color['hex'] ?? ($color['color_code'] ?? ''),
+                        'price'               => (isset($color['price']) && $color['price'] !== '' && is_numeric($color['price'])) ? (float)$color['price'] : null,
                         'image_path'          => $imagePath,
                         'images_360'          => $images360,
                         'image_360_internal'  => $image360Internal,
