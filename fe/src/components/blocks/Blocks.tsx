@@ -2216,7 +2216,7 @@ function VersionsGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId, 
 
               // Quyết định ảnh: Lấy ảnh đại diện (thumbnail) của phiên bản nếu có, nếu không lấy ảnh đặc trưng, nếu không lấy ảnh trong images array theo index, nếu không lấy ảnh chính của xe
               const versionImage = ver.image_thumbnail_url || ver.image_url || vehicle?.images?.[idx] || vehicle?.images?.[0] || vehicle?.image;
-              const imgUrl = mounted ? resolveImageUrl(versionImage) : "/assets/img-gradient-1.png";
+              const imgUrl = resolveImageUrl(versionImage);
 
               return (
                 <div
