@@ -507,6 +507,8 @@
                         />
                     </div>
                 </div>
+            </teleport>
+
             <!-- Modal Sao Chép Dữ Liệu Xe (Tính năng & Phụ kiện) -->
             <teleport to="body">
                 <div v-if="showCopyDataModal" class="fixed inset-0 z-[9999] flex items-center justify-center overflow-x-hidden overflow-y-auto outline-none focus:outline-none p-4">
