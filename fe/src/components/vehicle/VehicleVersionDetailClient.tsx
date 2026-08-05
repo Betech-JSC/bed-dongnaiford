@@ -166,7 +166,7 @@ export default function VehicleVersionDetailClient() {
     || (vehicle && vehicle.images_360_external && vehicle.images_360_external.length > 0);
 
   const hasInteriorSeq = (currentColor && currentColor.images_360_internal && currentColor.images_360_internal.length > 0)
-    || (vehicle && vehicle.images_360_internal && vehicle.images_360_internal.length > 0);
+    || (!currentColor && vehicle && vehicle.images_360_internal && vehicle.images_360_internal.length > 0);
 
   const isImageSequence = (viewType === "exterior" && hasExteriorSeq) || (viewType === "interior" && hasInteriorSeq);
 
@@ -182,13 +182,16 @@ export default function VehicleVersionDetailClient() {
   }, [viewType, currentColor, selectedVersion, vehicle]);
 
   const hasInteriorPhotos = useMemo(() => {
+    // Chỉ kiểm tra màu hiện tại — không fallback sang vehicle level
+    // Mỗi màu có bộ ảnh nội thất riêng, không nên dùng chung
     if (currentColor) {
       if (currentColor.images_360_internal && currentColor.images_360_internal.length > 0) return true;
-      if (currentColor.image_360_internal) return true;
+      if (currentColor.image_360_internal && currentColor.image_360_internal !== '') return true;
     }
-    if (vehicle) {
+    // Fallback: chỉ khi không có màu nào được chọn, mới kiểm tra vehicle level
+    if (!currentColor && vehicle) {
       if (vehicle.images_360_internal && vehicle.images_360_internal.length > 0) return true;
-      if (vehicle.image_360_internal_url) return true;
+      if (vehicle.image_360_internal_url && vehicle.image_360_internal_url !== '') return true;
     }
     return false;
   }, [currentColor, vehicle]);
