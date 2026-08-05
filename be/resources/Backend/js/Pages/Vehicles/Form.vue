@@ -374,7 +374,61 @@
                                             </div>
 
                                             <div class="border-t border-gray-200 pt-3 mt-3 space-y-3">
-                                                <p class="text-[11px] font-bold text-indigo-750 uppercase tracking-wider">Hình ảnh 360° phiên bản</p>
+                                                <div class="flex items-center justify-between">
+                                                    <p class="text-[11px] font-bold text-indigo-750 uppercase tracking-wider">Hình ảnh 360° phiên bản</p>
+                                                    
+                                                    <!-- Copy Images Dropdown -->
+                                                    <div v-if="form.versions[activeVersionIndex].colors.length > 1" class="relative">
+                                                        <button 
+                                                            type="button" 
+                                                            class="text-[11px] font-semibold text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-2.5 py-1.5 rounded-lg cursor-pointer transition flex items-center gap-1"
+                                                            @click="toggleCopyMenu(activeVersionIndex, cIdx)"
+                                                        >
+                                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                                                            Copy ảnh từ màu khác
+                                                        </button>
+                                                        
+                                                        <!-- Dropdown Menu -->
+                                                        <div 
+                                                            v-if="copyMenuOpen === `${activeVersionIndex}_${cIdx}`"
+                                                            class="absolute right-0 top-full mt-1 z-50 bg-white border border-gray-200 rounded-xl shadow-lg p-3 min-w-[280px]"
+                                                        >
+                                                            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2">Chọn màu nguồn:</p>
+                                                            <div class="space-y-1 max-h-[200px] overflow-y-auto">
+                                                                <div 
+                                                                    v-for="(srcColor, srcIdx) in form.versions[activeVersionIndex].colors" 
+                                                                    :key="srcIdx"
+                                                                    v-if="srcIdx !== cIdx"
+                                                                    class="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-50 transition group"
+                                                                >
+                                                                    <div class="w-5 h-5 rounded border border-gray-300 shrink-0" :style="{ backgroundColor: srcColor.color_code || '#ccc' }"></div>
+                                                                    <span class="text-xs font-medium text-gray-700 flex-1 truncate">{{ srcColor.name || `Màu ${srcIdx + 1}` }}</span>
+                                                                    <div class="flex gap-1 shrink-0">
+                                                                        <button 
+                                                                            type="button" 
+                                                                            class="text-[10px] px-2 py-1 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 cursor-pointer transition font-semibold"
+                                                                            @click="copyColorImages(activeVersionIndex, srcIdx, cIdx, 'exterior')"
+                                                                            title="Copy bộ ảnh ngoại thất"
+                                                                        >Ngoại</button>
+                                                                        <button 
+                                                                            type="button" 
+                                                                            class="text-[10px] px-2 py-1 rounded bg-purple-50 text-purple-600 hover:bg-purple-100 border border-purple-200 cursor-pointer transition font-semibold"
+                                                                            @click="copyColorImages(activeVersionIndex, srcIdx, cIdx, 'interior')"
+                                                                            title="Copy bộ ảnh nội thất"
+                                                                        >Nội</button>
+                                                                        <button 
+                                                                            type="button" 
+                                                                            class="text-[10px] px-2 py-1 rounded bg-emerald-50 text-emerald-600 hover:bg-emerald-100 border border-emerald-200 cursor-pointer transition font-semibold"
+                                                                            @click="copyColorImages(activeVersionIndex, srcIdx, cIdx, 'all')"
+                                                                            title="Copy cả ngoại thất + nội thất"
+                                                                        >Tất cả</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <button type="button" class="mt-2 w-full text-[10px] text-gray-400 hover:text-gray-600 bg-transparent border-0 cursor-pointer py-1" @click="copyMenuOpen = null">Đóng</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                                 
                                                 <div class="bg-white p-3 rounded-lg border border-gray-150">
                                                     <Field 
@@ -1387,6 +1441,7 @@ export default {
             showSpecsImportModal: false,
             specsImportText: '',
             showColorsSection: true,
+            copyMenuOpen: null,
             showSpecsSection: true,
             newCategoryName: '',
             showCopyDataModal: false,
@@ -2082,6 +2137,38 @@ export default {
             if (ver && ver.colors) {
                 ver.colors.splice(colorIndex, 1);
             }
+        },
+
+        toggleCopyMenu(versionIndex, colorIndex) {
+            const key = `${versionIndex}_${colorIndex}`;
+            this.copyMenuOpen = this.copyMenuOpen === key ? null : key;
+        },
+
+        copyColorImages(versionIndex, srcIdx, destIdx, type) {
+            const ver = this.formData.versions[versionIndex];
+            if (!ver || !ver.colors || !ver.colors[srcIdx] || !ver.colors[destIdx]) return;
+
+            const src = ver.colors[srcIdx];
+            const dest = ver.colors[destIdx];
+            const srcName = src.name || `Màu ${srcIdx + 1}`;
+
+            if (type === 'exterior' || type === 'all') {
+                dest.images_360 = JSON.parse(JSON.stringify(src.images_360 || []));
+            }
+            if (type === 'interior' || type === 'all') {
+                dest.images_360_internal = JSON.parse(JSON.stringify(src.images_360_internal || []));
+                dest.image_360_internal = src.image_360_internal ? JSON.parse(JSON.stringify(src.image_360_internal)) : null;
+            }
+
+            this.copyMenuOpen = null;
+
+            const typeLabel = type === 'all' ? 'ngoại thất + nội thất' : (type === 'exterior' ? 'ngoại thất' : 'nội thất');
+            this.$toast?.add?.({
+                severity: 'success',
+                summary: 'Đã copy ảnh',
+                detail: `Đã copy ảnh ${typeLabel} từ "${srcName}" thành công!`,
+                life: 3000,
+            }) || alert(`Đã copy ảnh ${typeLabel} từ "${srcName}" thành công!`);
         },
 
         toggleAccessorySelection(id) {
