@@ -270,7 +270,7 @@ if (!function_exists('setting_bar')) {
 }
 
 if (!function_exists('revalidate_frontend')) {
-    function revalidate_frontend(string $path = '/')
+    function revalidate_frontend(string $path = '/', string $tag = 'cms-data')
     {
         try {
             $frontendUrl = env('NEXT_PUBLIC_SITE_URL', 'https://dongnaiford.com.vn');
@@ -281,6 +281,7 @@ if (!function_exists('revalidate_frontend')) {
                 ->post(rtrim($frontendUrl, '/') . '/api/revalidate', [
                     'secret' => $secret,
                     'path'   => $path,
+                    'tag'    => $tag,
                 ]);
 
             // 2. Try internal docker network hostname if available
@@ -289,6 +290,7 @@ if (!function_exists('revalidate_frontend')) {
                     ->post('http://frontend:3000/api/revalidate', [
                         'secret' => $secret,
                         'path'   => $path,
+                        'tag'    => $tag,
                     ]);
             } catch (\Throwable $t) {
                 // Ignore internal docker failure if external succeeded

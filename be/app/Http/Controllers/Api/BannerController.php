@@ -41,6 +41,6 @@ class BannerController extends Controller
                 ];
             });
 
-        return $this->success($banners)->header('Cache-Control', 'public, max-age=600, s-maxage=3600');
+        return $this->success($banners)->header('Cache-Control', 'no-cache, must-revalidate');
     }
 }
