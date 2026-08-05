@@ -8,7 +8,7 @@ type Props = {
   }>;
 };
 
-export const revalidate = 30;
+export const revalidate = 0; // TẠM TẮT CACHE ĐỂ DEBUG
 
 const staticCategories = [
   { slug: "suv", title: "SUV" },
