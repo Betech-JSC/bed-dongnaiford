@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { 
   ChevronDown, 
   Eye
@@ -17,19 +18,39 @@ interface RepaymentRow {
   totalPaid: number;
 }
 
-export default function InstallmentCalculatorPage() {
+function InstallmentCalculatorContent() {
+  const searchParams = useSearchParams();
+  const urlVehicleId = searchParams.get("vehicle");
+  const urlVersionId = searchParams.get("version");
+
+  // Find initial vehicle/version from staticVehicles using robust matching (matching "ford-transit" with "ford-transit-2024", etc.)
+  const initialCar = urlVehicleId
+    ? (staticVehicles.find((v) => {
+        const target = urlVehicleId.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+        const currentId = v.id.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+        return (
+          currentId === target ||
+          currentId.includes(target) ||
+          target.includes(currentId)
+        );
+      }) || staticVehicles[0])
+    : staticVehicles[0];
+  const initialVersion = urlVersionId
+    ? (initialCar.versions.find((v) => String(v.id) === String(urlVersionId)) || initialCar.versions[0])
+    : initialCar.versions[0];
+
   // Dynamic vehicle list state defaulting to static vehicles
   const [vehicleList, setVehicleList] = useState<Vehicle[]>(staticVehicles);
 
   // State for car selection
-  const [selectedVehicle, setSelectedVehicle] = useState<Vehicle>(staticVehicles[0]);
-  const [selectedVersion, setSelectedVersion] = useState<Version>(staticVehicles[0].versions[0]);
+  const [selectedVehicle, setSelectedVehicle] = useState<Vehicle>(initialCar);
+  const [selectedVersion, setSelectedVersion] = useState<Version>(initialVersion);
   
   // Form input states
-  const [listPrice, setListPrice] = useState<number>(staticVehicles[0].versions[0].price);
+  const [listPrice, setListPrice] = useState<number>(initialVersion.price);
   const [prepaidPercentage, setPrepaidPercentage] = useState<number>(20);
   const [prepaidAmount, setPrepaidAmount] = useState<number>(
-    Math.round(staticVehicles[0].versions[0].price * 0.2)
+    Math.round(initialVersion.price * 0.2)
   );
   const [loanTermMonths, setLoanTermMonths] = useState<number>(60); // 5 years (60 months)
   const [rateYear1, setRateYear1] = useState<number>(8.5); // 8.5%
@@ -122,11 +143,26 @@ export default function InstallmentCalculatorPage() {
 
           setVehicleList(mappedVehicles);
           
-          // Pre-select first vehicle and version from the API list to ensure clean bindings
-          const defaultCar = mappedVehicles[0];
+          // Pre-select vehicle matching urlVehicleId (with robust substring matching) or fallback to first vehicle
+          const matchedCar = urlVehicleId
+            ? mappedVehicles.find((v) => {
+                const target = urlVehicleId.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+                const currentId = v.id.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+                return (
+                  currentId === target ||
+                  currentId.includes(target) ||
+                  target.includes(currentId) ||
+                  v.name.toLowerCase().includes(target.replace("ford-", "").replace("-", " "))
+                );
+              })
+            : null;
+          const defaultCar = matchedCar || mappedVehicles[0];
           setSelectedVehicle(defaultCar);
           
-          const defaultVersion = defaultCar.versions[0];
+          const matchedVersion = urlVersionId
+            ? defaultCar.versions.find((v) => String(v.id) === String(urlVersionId))
+            : null;
+          const defaultVersion = matchedVersion || defaultCar.versions[0];
           setSelectedVersion(defaultVersion);
           setListPrice(defaultVersion.price);
           setPrepaidAmount(Math.round(defaultVersion.price * 0.2));
@@ -668,5 +704,19 @@ export default function InstallmentCalculatorPage() {
 
       </div>
     </section>
+  );
+}
+
+export default function InstallmentCalculatorPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0562d2]" />
+        </div>
+      }
+    >
+      <InstallmentCalculatorContent />
+    </Suspense>
   );
 }
