@@ -20,7 +20,7 @@ export default function ConsultationPopup() {
   const isHomepage = pathname === "/";
 
   useEffect(() => {
-    // Set timer to show popup after 3 seconds
+    // Set timer to show popup after 1 second (1000ms)
     const timer = setTimeout(() => {
       const isArticlePage = document.getElementById("article-detail-page") !== null;
 
@@ -28,7 +28,7 @@ export default function ConsultationPopup() {
         // Always show on reload (ignoring sessionStorage for easy testing)
         setIsOpen(true);
       }
-    }, 3000);
+    }, 1000);
 
     return () => {
       clearTimeout(timer);
