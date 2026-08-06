@@ -114,22 +114,22 @@ export default function BlogCtaCard({ articleTitle }: Props) {
       >
         <div className="flex flex-col lg:flex-row w-full relative z-10">
           
-          {/* Left Side: Brand Visual & Vehicles (36% width, ultra-compact vertical split) */}
-          <div className="w-full lg:w-[36%] bg-gradient-to-b from-[#003882] via-[#002357] to-[#001433] lg:border-r-[2px] lg:border-[#006fef] p-3.5 lg:p-4 flex flex-col justify-between min-h-[180px] lg:min-h-[220px] items-start">
+          {/* Left Side: Brand Visual (36% width, ultra-compact vertical split) */}
+          <div className="w-full lg:w-[36%] bg-gradient-to-b from-[#003882] via-[#002357] to-[#001433] lg:border-r-[2px] lg:border-[#006fef] p-4 lg:p-5 flex flex-col justify-center items-start min-h-[180px] lg:min-h-[220px]">
             {/* Brand Header */}
-            <div className="space-y-2 relative z-20 w-full flex flex-col items-start">
+            <div className="space-y-3.5 relative z-20 w-full flex flex-col items-start my-auto">
               {/* Centered Logo container */}
               <div className="flex items-center justify-center w-full">
                 <img
                   src="/ford_logo.svg"
                   alt="Ford Logo"
-                  className="h-6 w-[60px] lg:h-7 lg:w-[70px] object-contain flex-shrink-0 mx-auto"
+                  className="h-6 w-[80px] object-contain flex-shrink-0 mx-auto"
                 />
               </div>
               
               {/* Left-aligned Text container */}
-              <div className="space-y-0.5 text-left flex flex-col items-start">
-                <h3 className="text-lg lg:text-xl font-black uppercase leading-none font-['Ford_Antenna',sans-serif] tracking-wider text-white">
+              <div className="space-y-1 text-left flex flex-col items-start w-full">
+                <h3 className="text-xl lg:text-2xl font-black uppercase leading-none font-['Ford_Antenna',sans-serif] tracking-wider text-white">
                   FORD
                   <span className="block mt-0.5 text-base lg:text-lg">ĐỒNG NAI</span>
                 </h3>
@@ -138,19 +138,6 @@ export default function BlogCtaCard({ articleTitle }: Props) {
                   Cùng bạn trên <span className="text-[#00ffcc]">mọi hành trình</span>
                 </p>
               </div>
-            </div>
-
-            {/* Cars Showcase: Full & Complete representation without cropping */}
-            <div className="relative w-full h-[70px] lg:h-[90px] mt-1 flex items-end justify-center z-20">
-              <img
-                src="/assets/vehicle-group.png"
-                alt="Ford Vehicles"
-                className="w-full h-full object-contain object-bottom mix-blend-screen scale-100 origin-bottom hover:scale-105 transition-transform duration-700 ease-out"
-                style={{ 
-                  maskImage: 'linear-gradient(to top, black 85%, transparent 100%)', 
-                  WebkitMaskImage: 'linear-gradient(to top, black 85%, transparent 100%)' 
-                }}
-              />
             </div>
           </div>
 
@@ -211,11 +198,11 @@ export default function BlogCtaCard({ articleTitle }: Props) {
                 <div className="h-[1px] bg-slate-200 flex-1" />
               </div>
 
-              {/* Glossy Sleek Submit Button */}
+              {/* Glossy Sleek Submit Button - Floating raising effect */}
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full py-1.5 px-3 bg-gradient-to-r from-[#006fef] to-[#00255c] hover:from-[#005ec8] hover:to-[#001d4a] disabled:from-slate-400 disabled:to-slate-500 text-white font-extrabold tracking-widest rounded-full shadow-lg hover:shadow-[0_0_8px_rgba(0,111,239,0.3)] hover:scale-[1.01] active:scale-[0.99] transition-all duration-350 ease-out cursor-pointer flex items-center justify-between group"
+                className="w-full py-1.5 px-3 bg-gradient-to-r from-[#006fef] to-[#00255c] hover:from-[#005ec8] hover:to-[#001d4a] disabled:from-slate-400 disabled:to-slate-500 text-white font-extrabold tracking-widest rounded-full shadow-lg hover:shadow-[0_8px_20px_rgba(0,111,239,0.4)] hover:-translate-y-1 hover:scale-[1.02] active:scale-[0.99] active:translate-y-0 transition-all duration-300 ease-out cursor-pointer flex items-center justify-between group"
               >
                 <span className="flex-1 text-center font-black text-[9px] font-['Ford_Antenna',sans-serif] uppercase tracking-wider pl-3 whitespace-nowrap">
                   {isSubmitting ? "Đang xử lý..." : "ĐĂNG KÝ TƯ VẤN NGAY"}
