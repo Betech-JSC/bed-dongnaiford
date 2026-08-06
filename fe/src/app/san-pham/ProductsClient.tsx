@@ -41,7 +41,7 @@ export default function ProductsClient({ initialCategory, initialVehicles = [], 
 
   // Filter States
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(initialCategory ? [initialCategory] : []);
   const [priceRange, setPriceRange] = useState<string | null>(null);
   const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
   const [selectedFuels, setSelectedFuels] = useState<string[]>([]);

@@ -87,9 +87,9 @@ export default async function Page({ params }: Props) {
 
   return (
     <ProductsClient
-      initialCategory={slug}
       initialVehicles={initialVehicles}
       initialCategories={categories}
+      initialCategory={slug}
     />
   );
 }
