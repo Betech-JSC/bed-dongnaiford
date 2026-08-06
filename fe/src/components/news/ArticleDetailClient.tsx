@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { ArrowLeft, Share2, MessageCircle, Copy, Check, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, Share2, MessageCircle, Copy, Check, Calendar, ChevronLeft, ChevronRight, Code, Eye } from "lucide-react";
 import { handleImageError } from "@/lib/site-assets";
+import BlogCtaCard from "./BlogCtaCard";
 
 const Facebook = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
@@ -30,6 +31,8 @@ export default function ArticleDetailClient({
 }) {
   const [copied, setCopied] = useState(false);
   const [shareUrl, setShareUrl] = useState("");
+  const [showRawCode, setShowRawCode] = useState(false);
+  const [copiedCode, setCopiedCode] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const scrollLeft = () => {
@@ -58,6 +61,14 @@ export default function ArticleDetailClient({
     }
   };
 
+  const handleCopyCode = () => {
+    if (typeof window !== "undefined") {
+      navigator.clipboard.writeText(article.content || "");
+      setCopiedCode(true);
+      setTimeout(() => setCopiedCode(false), 2000);
+    }
+  };
+
   const formatDate = (dateStr: string) => {
     if (!dateStr) return "";
     try {
@@ -69,6 +80,49 @@ export default function ArticleDetailClient({
     } catch {
       return dateStr;
     }
+  };
+
+  // Helper function to render article content and parse [cta-form] / [[cta-form]] shortcodes
+  const renderArticleBody = () => {
+    const rawHtml = article.content || "";
+    const cleanHtml = rawHtml.replace(/<h1([^>]*?)>/gi, "<h2$1>").replace(/<\/h1>/gi, "</h2>");
+
+    // Regular expression to match shortcode wrapped in <p>, <span>, or bare
+    const regex = /<p>\s*(?:\[cta-form\]|\[\[cta-form\]\])\s*<\/p>|<span>\s*(?:\[cta-form\]|\[\[cta-form\]\])\s*<\/span>|\[cta-form\]|\[\[cta-form\]\]/i;
+    const parts = cleanHtml.split(regex);
+
+    // If no shortcode tag is found, render the content normal without inserting BlogCtaCard at the bottom
+    if (parts.length <= 1) {
+      return (
+        <div 
+          className="font-sans text-[#1a1a1a] leading-relaxed text-[16px] max-w-[760px] mx-auto w-full prose prose-blue"
+          dangerouslySetInnerHTML={{ __html: cleanHtml }}
+        />
+      );
+    }
+
+    return (
+      <div className="flex flex-col gap-4">
+        {parts.map((part, index) => {
+          const isPartEmpty = !part.trim();
+          return (
+            <React.Fragment key={index}>
+              {!isPartEmpty && (
+                <div 
+                  className="font-sans text-[#1a1a1a] leading-relaxed text-[16px] max-w-[760px] mx-auto w-full prose prose-blue"
+                  dangerouslySetInnerHTML={{ __html: part }}
+                />
+              )}
+              {index < parts.length - 1 && (
+                <div className="w-full my-4">
+                  <BlogCtaCard articleTitle={article.title} />
+                </div>
+              )}
+            </React.Fragment>
+          );
+        })}
+      </div>
+    );
   };
 
   return (
@@ -115,39 +169,51 @@ export default function ArticleDetailClient({
             </div>
           )}
 
-          {/* Article Content Body */}
-          <div 
-            className="font-sans text-[#1a1a1a] leading-relaxed text-[16px] max-w-[760px] mx-auto w-full prose prose-blue"
-            dangerouslySetInnerHTML={{ 
-              __html: article.content 
-                ? article.content.replace(/<h1([^>]*?)>/gi, "<h2$1>").replace(/<\/h1>/gi, "</h2>") 
-                : "" 
-            }}
-          />
-
-          {/* Call to Action Booking Box */}
-          <div className="bg-gray-50 rounded-[12px] p-6 border border-[#e5e5e5] text-center flex flex-col items-center gap-4 mt-4">
-            <h4 className="font-['Ford_Antenna',sans-serif] font-semibold text-lg text-[#00095b]">
-              Bạn đang quan tâm tới dòng xe hoặc dịch vụ của Ford?
-            </h4>
-            <p className="text-sm text-[#424242] max-w-[500px]">
-              Đặt lịch hẹn ngay hôm nay tại đại lý Đồng Nai Ford để được tư vấn giá lăn bánh tốt nhất cùng các chương trình khuyến mãi tốt nhất.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 mt-2 w-full justify-center">
-              <Link 
-                href="/dang-ky-lai-thu" 
-                className="w-full sm:w-[200px] py-2.5 bg-[#0562d2] hover:bg-[#00095b] text-white font-semibold text-sm rounded-full text-center transition shadow-xs cursor-pointer"
-              >
-                Đăng ký lái thử
-              </Link>
-              <Link 
-                href="/lien-he" 
-                className="w-full sm:w-[200px] py-2.5 border border-[#0562d2] hover:bg-[#0562d2]/5 text-[#0562d2] font-semibold text-sm rounded-full text-center transition cursor-pointer"
-              >
-                Nhận báo giá
-              </Link>
-            </div>
+          {/* Show Code Toggle Button */}
+          <div className="flex justify-end max-w-[760px] mx-auto w-full mb-1">
+            <button
+              onClick={() => setShowRawCode(!showRawCode)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-[#0562d2] hover:text-white bg-[#0562d2]/10 hover:bg-[#0562d2] rounded-md transition-all cursor-pointer shadow-2xs"
+            >
+              {showRawCode ? (
+                <>
+                  <Eye className="w-3.5 h-3.5" /> Xem bài viết (Render)
+                </>
+              ) : (
+                <>
+                  <Code className="w-3.5 h-3.5" /> Xem mã HTML bài viết
+                </>
+              )}
+            </button>
           </div>
+
+          {/* Rendered HTML or Raw Source Code View */}
+          {showRawCode ? (
+            <div className="max-w-[760px] mx-auto w-full border border-slate-700 rounded-lg overflow-hidden">
+              <div className="flex items-center justify-between bg-slate-800 text-slate-200 px-4 py-2 text-xs font-mono border-b border-slate-700">
+                <span className="font-bold text-[#00c2ff]">MÃ NGUỒN BÀI VIẾT (HTML)</span>
+                <button
+                  onClick={handleCopyCode}
+                  className="hover:text-white underline cursor-pointer flex items-center gap-1 font-semibold"
+                >
+                  {copiedCode ? (
+                    <>
+                      <Check className="w-3 h-3 text-green-400" /> Đã sao chép!
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3 h-3" /> Sao chép toàn bộ
+                    </>
+                  )}
+                </button>
+              </div>
+              <pre className="bg-slate-900 text-slate-100 p-4 overflow-x-auto text-[11px] font-mono whitespace-pre-wrap select-all leading-relaxed max-h-[500px]">
+                {article.content || ""}
+              </pre>
+            </div>
+          ) : (
+            renderArticleBody()
+          )}
 
           {/* Social Sharing Drawer */}
           <div className="border-t border-[#e5e5e5] pt-6 flex items-center justify-between">

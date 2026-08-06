@@ -205,6 +205,17 @@
                                 label: '',
                             }"
                         />
+                        
+                        <!-- Shortcode CTA Guide Helper Box -->
+                        <div class="mt-3 p-3.5 bg-blue-50/80 border border-blue-200 rounded-lg text-xs text-blue-900 flex items-start space-x-2">
+                            <span class="text-base leading-none">💡</span>
+                            <div class="space-y-1">
+                                <div class="font-bold text-blue-950">Hướng dẫn chèn Form Đăng ký tư vấn (CTA):</div>
+                                <div class="leading-relaxed text-blue-800">
+                                    Để chèn khung đăng ký tư vấn Đồng Nai Ford vào bất kỳ vị trí nào trong nội dung bài viết, bạn chỉ cần gõ từ khóa <code class="bg-blue-100 text-blue-900 px-1.5 py-0.5 rounded font-mono font-bold select-all">[cta-form]</code> (hoặc <code class="bg-blue-100 text-blue-900 px-1.5 py-0.5 rounded font-mono font-bold select-all">[[cta-form]]</code>) trên một dòng riêng biệt. Hệ thống phía ngoài web sẽ tự động nhận diện và chèn form đăng ký tư vấn tại vị trí đó.
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
