@@ -24,6 +24,38 @@ class PostController extends Controller
     private function beforeStore($request, $rules)
     {
         $request->merge(['type' => Post::TYPE_POST]);
+
+        if ($request->has('related_urls')) {
+            $urlsString = $request->input('related_urls');
+            $lines = array_filter(array_map('trim', explode("\n", $urlsString)));
+            $resolvedIds = [];
+
+            foreach ($lines as $line) {
+                $path = parse_url($line, PHP_URL_PATH);
+                $slug = trim($path ?: $line, '/');
+
+                if (!empty($slug)) {
+                    $decodedSlug = rawurldecode($slug);
+                    $encodedSlug = rawurlencode($decodedSlug);
+
+                    $postId = \DB::table('post_translations')
+                        ->where(function($q) use ($decodedSlug, $encodedSlug) {
+                            $q->where('slug', $decodedSlug)
+                              ->orWhere('slug', $encodedSlug)
+                              ->orWhere('seo_slug', $decodedSlug)
+                              ->orWhere('seo_slug', $encodedSlug);
+                        })
+                        ->value('post_id');
+
+                    if ($postId) {
+                        $resolvedIds[] = ['id' => $postId];
+                    }
+                }
+            }
+
+            $request->merge(['related_posts' => $resolvedIds]);
+        }
+
         return $rules;
     }
 

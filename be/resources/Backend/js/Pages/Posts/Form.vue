@@ -217,6 +217,17 @@
                             </div>
                         </div>
                     </div>
+                    
+                    <!-- Related Articles URLs Input -->
+                    <div class="border-t border-gray-100 pt-6 mt-6">
+                        <div class="text-xs text-gray-500 font-semibold mb-1">Đường dẫn bài viết liên quan (Chèn đường dẫn/slug bài viết, mỗi dòng một bài viết)</div>
+                        <textarea
+                            v-model="form.related_urls"
+                            rows="4"
+                            class="w-full bg-white border border-gray-300 rounded px-3 py-2 text-sm focus:ring-1 focus:ring-primary-500 focus:outline-none font-mono"
+                            placeholder="Ví dụ:&#10;/mua-tra-gop-ford-ranger&#10;https://dongnaiford.com.vn/danh-gia-xe-ford-territory-2026"
+                        ></textarea>
+                    </div>
                 </div>
             </div>
             <SeoFields :modelValue="form[currentTab]" @update:modelValue="form[currentTab] = $event" />
@@ -256,16 +267,6 @@
                         labelBy: 'title',
                         source: {
                             model: 'App\\Models\\Post\\PostCategory',
-                            method: 'get',
-                            only: ['id', 'title'],
-                        },
-                    }" />
-                    <Field v-model="form.related_posts" :field="{
-                        type: 'select_multiple',
-                        name: 'related_posts',
-                        labelBy: 'title',
-                        source: {
-                            model: 'App\\Models\\Post\\Post',
                             method: 'get',
                             only: ['id', 'title'],
                         },
@@ -323,6 +324,16 @@ export default {
                 status: 'ACTIVE',
                 ...item,
             }
+            // Build the list of URLs/slugs
+            let relatedUrls = '';
+            if (item.related_posts && Array.isArray(item.related_posts)) {
+                relatedUrls = item.related_posts.map(p => {
+                    let trans = p.translations ? p.translations.find(t => t.locale === 'vi') : null;
+                    let slug = trans ? (trans.seo_slug || trans.slug) : (p.seo_slug || p.slug);
+                    return slug ? `/${slug}` : '';
+                }).filter(Boolean).join('\n');
+            }
+            data.related_urls = relatedUrls;
             const locales = ['vi', 'en']
             locales.forEach(loc => {
                 let trans = null

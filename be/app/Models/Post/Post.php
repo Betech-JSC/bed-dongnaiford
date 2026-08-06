@@ -362,31 +362,6 @@ class Post extends BaseModel
 
         $relatedPosts = $relatedPosts->values()->take($limit);
 
-        $relatedPostIds = [];
-
-        if ($relatedPosts->count() > 0) {
-            $relatedPostIds = $relatedPosts->pluck('id');
-        }
-
-        if (count($relatedPosts) < $limit) {
-            $addPosts = self::query()
-                ->where('type', self::TYPE_POST)
-                ->active()
-                ->when($this->category['id'] ?? false, function ($query) {
-                    $query->whereHas('categories', function ($query) {
-                        $query->where('post_categories.id', $this->category['id']);
-                    });
-                })
-                ->where('id', '<>', $this->id)
-                ->whereNotIn('id', $relatedPostIds)
-                ->take($limit - count($relatedPosts))
-                ->get();
-
-            if (count($addPosts) > 0) {
-                $relatedPosts = $relatedPosts->concat($addPosts);
-            }
-        }
-
         return $relatedPosts->map(fn($item) => $item->transform());
     }
 
