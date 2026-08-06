@@ -50,7 +50,29 @@ class ContactController extends Controller
                 }
             }
 
-            $this->model::create($requestData);
+            $createdContact = $this->model::create($requestData);
+
+            // Tự động tạo Thông báo hệ thống cho Admin CMS khi có khách hàng gửi Form
+            try {
+                $contactName = $requestData['data']['Họ và tên'] ?? $requestData['data']['Name'] ?? 'Khách hàng';
+                $contactPhone = $requestData['data']['Số điện thoại'] ?? $requestData['data']['Phone'] ?? '';
+                $typeTitle = 'Yêu cầu liên hệ mới';
+                if (($requestData['type'] ?? '') === 'SERVICE_BOOKING') {
+                    $typeTitle = 'Lịch hẹn dịch vụ mới';
+                } elseif (($requestData['type'] ?? '') === 'APPLY_FORM') {
+                    $typeTitle = 'Hồ sơ ứng tuyển mới';
+                }
+
+                \App\Models\AdminNotification::create([
+                    'title' => $typeTitle,
+                    'content' => "Khách hàng {$contactName}" . ($contactPhone ? " ({$contactPhone})" : "") . " vừa gửi yêu cầu qua Website.",
+                    'type' => 'info',
+                    'link' => '/admin/contacts',
+                    'icon' => 'pi-bell',
+                ]);
+            } catch (\Throwable $e) {
+                // Ignore notification error to avoid blocking form submission
+            }
 
             if ($request->wantsJson() || $request->ajax()) {
                 return $this->success($requestData, 'Gửi yêu cầu thành công!');

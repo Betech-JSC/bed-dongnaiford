@@ -40,6 +40,14 @@
             <span>{{ tt('models.table_list.roles') }}</span>
         </Link>
         <Link
+            :href="route('admin.admin-notifications.index')"
+            :class="{ active: isUrl('admin.admin-notifications.*') }"
+            class="item"
+        >
+            <heroicons-outline:bell />
+            <span>Thông báo hệ thống</span>
+        </Link>
+        <Link
             v-if="can('admin.settings.index')"
             :href="route('admin.settings.form', { id: 'general' })"
             :class="{ active: isUrl('admin.settings.*') }"

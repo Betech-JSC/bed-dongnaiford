@@ -79,22 +79,28 @@
                     </Form>
                 </div>
             </div>
-            <Link
-                class="flex-shrink-0 rounded hover:bg-gray-900/50"
-                method="post"
-                :href="route('admin.logout')"
-                :title="tt('models.admins.logout')"
-            >
-                <ph-sign-out-duotone
-                    class="w-10 h-10 p-1 text-gray-400 hover:text-white"
-                />
-            </Link>
+            <div class="flex items-center gap-1">
+                <AdminNotificationBell />
+                <Link
+                    class="flex-shrink-0 rounded hover:bg-gray-900/50"
+                    method="post"
+                    :href="route('admin.logout')"
+                    :title="tt('models.admins.logout')"
+                >
+                    <ph-sign-out-duotone
+                        class="w-10 h-10 p-1 text-gray-400 hover:text-white"
+                    />
+                </Link>
+            </div>
         </div>
     </div>
 </template>
 
 <script>
+import AdminNotificationBell from "@Core/Components/AdminNotificationBell.vue";
+
 export default {
+    components: { AdminNotificationBell },
     props: ["admin"],
     data() {
         return {

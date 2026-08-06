@@ -38,9 +38,16 @@ use App\Http\Controllers\Backend\ServiceSurveyController;
 use App\Http\Controllers\Backend\ServiceBookingController;
 use App\Http\Controllers\Backend\RegistrationFeeController;
 use App\Http\Controllers\Backend\LandingPageController;
+use App\Http\Controllers\Backend\AdminNotificationController;
 
 Route::localized(function () {
     Route::middleware(['auth:admin'])->name('admin.')->group(function () {
+        // Thông báo hệ thống cho Admin CMS
+        Route::get('admin-notifications/feed', [AdminNotificationController::class, 'getFeed'])->name('admin-notifications.feed');
+        Route::post('admin-notifications/mark-read/{id}', [AdminNotificationController::class, 'markAsRead'])->name('admin-notifications.mark-read');
+        Route::post('admin-notifications/store', [AdminNotificationController::class, 'store'])->name('admin-notifications.store');
+        Route::delete('admin-notifications/{id}', [AdminNotificationController::class, 'destroy'])->name('admin-notifications.destroy');
+        Route::get('admin-notifications', [AdminNotificationController::class, 'index'])->name('admin-notifications.index');
         Route::module(PostController::class);
         Route::module(MediaController::class);
         Route::module(CertificateController::class);
