@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { ArrowLeft, Share2, MessageCircle, Copy, Check, Calendar, ChevronLeft, ChevronRight, Code, Eye } from "lucide-react";
+import { ArrowLeft, Share2, MessageCircle, Copy, Check, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import { handleImageError } from "@/lib/site-assets";
 import BlogCtaCard from "./BlogCtaCard";
 
@@ -31,8 +31,6 @@ export default function ArticleDetailClient({
 }) {
   const [copied, setCopied] = useState(false);
   const [shareUrl, setShareUrl] = useState("");
-  const [showRawCode, setShowRawCode] = useState(false);
-  const [copiedCode, setCopiedCode] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const scrollLeft = () => {
@@ -58,14 +56,6 @@ export default function ArticleDetailClient({
       navigator.clipboard.writeText(window.location.href);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    }
-  };
-
-  const handleCopyCode = () => {
-    if (typeof window !== "undefined") {
-      navigator.clipboard.writeText(article.content || "");
-      setCopiedCode(true);
-      setTimeout(() => setCopiedCode(false), 2000);
     }
   };
 
@@ -169,51 +159,8 @@ export default function ArticleDetailClient({
             </div>
           )}
 
-          {/* Show Code Toggle Button */}
-          <div className="flex justify-end max-w-[760px] mx-auto w-full mb-1">
-            <button
-              onClick={() => setShowRawCode(!showRawCode)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-[#0562d2] hover:text-white bg-[#0562d2]/10 hover:bg-[#0562d2] rounded-md transition-all cursor-pointer shadow-2xs"
-            >
-              {showRawCode ? (
-                <>
-                  <Eye className="w-3.5 h-3.5" /> Xem bài viết (Render)
-                </>
-              ) : (
-                <>
-                  <Code className="w-3.5 h-3.5" /> Xem mã HTML bài viết
-                </>
-              )}
-            </button>
-          </div>
-
-          {/* Rendered HTML or Raw Source Code View */}
-          {showRawCode ? (
-            <div className="max-w-[760px] mx-auto w-full border border-slate-700 rounded-lg overflow-hidden">
-              <div className="flex items-center justify-between bg-slate-800 text-slate-200 px-4 py-2 text-xs font-mono border-b border-slate-700">
-                <span className="font-bold text-[#00c2ff]">MÃ NGUỒN BÀI VIẾT (HTML)</span>
-                <button
-                  onClick={handleCopyCode}
-                  className="hover:text-white underline cursor-pointer flex items-center gap-1 font-semibold"
-                >
-                  {copiedCode ? (
-                    <>
-                      <Check className="w-3 h-3 text-green-400" /> Đã sao chép!
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="w-3 h-3" /> Sao chép toàn bộ
-                    </>
-                  )}
-                </button>
-              </div>
-              <pre className="bg-slate-900 text-slate-100 p-4 overflow-x-auto text-[11px] font-mono whitespace-pre-wrap select-all leading-relaxed max-h-[500px]">
-                {article.content || ""}
-              </pre>
-            </div>
-          ) : (
-            renderArticleBody()
-          )}
+          {/* Article Content Body */}
+          {renderArticleBody()}
 
           {/* Social Sharing Drawer */}
           <div className="border-t border-[#e5e5e5] pt-6 flex items-center justify-between">
