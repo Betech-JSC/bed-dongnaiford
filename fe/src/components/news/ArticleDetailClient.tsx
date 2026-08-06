@@ -146,9 +146,8 @@ export default function ArticleDetailClient({
                     }
                   }}
                   className="font-sans text-[14px] leading-normal text-gray-600 hover:text-[#0562d2] transition-colors hover:underline block"
-                >
-                  {item.text}
-                </a>
+                  dangerouslySetInnerHTML={{ __html: item.text }}
+                />
               </li>
             ))}
           </ul>
