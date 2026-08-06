@@ -128,6 +128,28 @@ Route::localized(function () {
             'message' => 'OK'
         ]);
     })->name('api.settings.general');
+
+    // Lấy cấu hình thông báo hệ thống công khai cho frontend
+    Route::get('settings/system-notification', function () {
+        $notifSettings = settings()->group('notification')->all(true);
+        $enabled = filter_var($notifSettings['sys_notif_enabled'] ?? false, FILTER_VALIDATE_BOOLEAN) || ($notifSettings['sys_notif_enabled'] ?? '0') === '1';
+        $dismissible = filter_var($notifSettings['sys_notif_dismissible'] ?? true, FILTER_VALIDATE_BOOLEAN) || ($notifSettings['sys_notif_dismissible'] ?? '1') === '1';
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'sys_notif_enabled' => $enabled,
+                'sys_notif_title' => $notifSettings['sys_notif_title'] ?? '',
+                'sys_notif_content' => $notifSettings['sys_notif_content'] ?? '',
+                'sys_notif_type' => $notifSettings['sys_notif_type'] ?? 'info',
+                'sys_notif_display_style' => $notifSettings['sys_notif_display_style'] ?? 'banner',
+                'sys_notif_link' => $notifSettings['sys_notif_link'] ?? '',
+                'sys_notif_link_text' => $notifSettings['sys_notif_link_text'] ?? 'Xem chi tiết',
+                'sys_notif_dismissible' => $dismissible,
+            ],
+            'message' => 'OK'
+        ]);
+    })->name('api.settings.system-notification');
 });
 
 Route::get('keywords/index', [KeywordController::class, 'index'])

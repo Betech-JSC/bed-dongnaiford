@@ -198,6 +198,17 @@ export const agenciesAPI = {
   getBySlug: (slug: string) => fetchAPI(`/agencies/${slug}`),
 };
 
+export interface SystemNotificationData {
+  sys_notif_enabled: boolean;
+  sys_notif_title: string;
+  sys_notif_content: string;
+  sys_notif_type: "info" | "success" | "warning" | "danger";
+  sys_notif_display_style: "banner" | "modal" | "toast";
+  sys_notif_link?: string;
+  sys_notif_link_text?: string;
+  sys_notif_dismissible: boolean;
+}
+
 /**
  * Settings API
  */
@@ -217,6 +228,10 @@ export const settingsAPI = {
       general_company_copyright: string;
     };
   }>('/settings/general'),
+  getSystemNotification: () => fetchAPI<{
+    success: boolean;
+    data: SystemNotificationData;
+  }>('/settings/system-notification'),
 };
 
 /**

@@ -7,6 +7,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { settingsAPI } from "@/lib/api";
 import PageTransitionLoader from "@/components/shared/PageTransitionLoader";
+import SystemNotificationWidget from "@/components/shared/SystemNotificationWidget";
 import "./globals.css";
 
 const inter = Inter({
@@ -167,6 +168,7 @@ export default async function RootLayout({
         )}
       </head>
       <body className="min-h-full flex flex-col bg-light text-dark font-sans" suppressHydrationWarning>
+        <SystemNotificationWidget />
         {/* Dynamic Body Start Inject Code from CMS */}
         {injectBodyStart && (
           <div
