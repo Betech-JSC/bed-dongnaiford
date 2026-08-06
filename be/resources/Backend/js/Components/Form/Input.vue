@@ -1,3 +1,4 @@
+<!-- Force rebuild after cache clear -->
 <template>
     <template
         v-if="

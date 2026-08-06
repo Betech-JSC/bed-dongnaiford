@@ -1167,4 +1167,29 @@ h1, h2, h3, h4, h5, h6 {
       background-color: #fcfcfc !important;
     }
   }
+  figure {
+    margin: 24px auto !important;
+    display: table !important;
+    max-width: 100% !important;
+    text-align: center !important;
+    img {
+      margin: 0 auto !important;
+      display: block !important;
+    }
+  }
+  figcaption {
+    display: table-caption !important;
+    caption-side: bottom !important;
+    font-style: italic !important;
+    font-size: 14px !important;
+    color: #4b5563 !important;
+    margin-top: 10px !important;
+    line-height: 1.5 !important;
+    text-align: center !important;
+  }
+  figcaption:empty,
+  figcaption:blank,
+  figcaption:has(> br:only-child) {
+    display: none !important;
+  }
 }

@@ -31,9 +31,9 @@ export default {
     computed: {
         size() {
             return {
-                sm: 260,
-                md: 400,
-                lg: 1000,
+                sm: 600,
+                md: 950,
+                lg: 1600,
             }[this.field?.size ?? 'md']
         },
     },
@@ -58,11 +58,14 @@ export default {
                 menubar: 'file edit view insert format tools table',
                 skin: 'oxide', // Skin mặc định
                 content_css: 'default', // Giao diện mặc định
+                image_caption: true, // Bật tính năng chú thích hình ảnh
+                image_toolbar: 'alignleft aligncenter alignright | imagecaption', // Thêm nút bật tắt chú thích trên toolbar ảnh
+                quickbars_image_toolbar: 'alignleft aligncenter alignright | imagecaption', // Thêm nút cho quickbars của ảnh
                 height: 600, // Chiều cao mặc định
                 quickbars_insert_toolbar: 'filemanager quicktable',
                 quickbars_selection_toolbar: 'bold italic quicklink h2 h3 blockquote quickimage quicktable',
-                toolbar_mode: 'sliding',
                 contextmenu: 'link image imagetools table',
+                content_style: 'img { max-width: 100%; } figure { margin: 16px auto; display: table; max-width: 100%; text-align: center; } figcaption { display: table-caption; caption-side: bottom; font-style: italic; font-size: 13px; color: #4b5563; margin-top: 6px; text-align: center; }',
                 paste_data_images: true,
                 convert_urls: false,
                 images_dataimg_filter: function (img) {
@@ -110,7 +113,7 @@ export default {
                     { text: 'Bash', value: 'bash' },
                 ],
                 codesample_global_prismjs: true,
-                content_style: 'img { max-width: 100%; }',
+                content_style: 'img { max-width: 100%; } figure { margin: 16px auto; display: table; max-width: 100%; text-align: center; } figcaption { display: table-caption; caption-side: bottom; font-style: italic; font-size: 13px; color: #666; margin-top: 6px; text-align: center; }',
                 autosave_ask_before_unload: false,
                 autosave_interval: '30s',
                 autosave_retention: '2m',

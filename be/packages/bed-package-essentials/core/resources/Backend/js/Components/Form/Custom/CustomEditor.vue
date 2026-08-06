@@ -34,9 +34,9 @@ export default {
     computed: {
         size() {
             return {
-                sm: 260,
-                md: 400,
-                lg: 1000,
+                sm: 600,
+                md: 950,
+                lg: 1600,
             }[this.field?.size ?? 'md']
         },
     },
@@ -69,6 +69,8 @@ export default {
                 image_advtab: true,
                 height: 600,
                 image_caption: true,
+                image_toolbar: 'alignleft aligncenter alignright | imagecaption',
+                quickbars_image_toolbar: 'alignleft aligncenter alignright | imagecaption',
                 quickbars_selection_toolbar: 'bold italic quicklink h2 h3 blockquote quickimage quicktable',
                 noneditable_noneditable_class: 'mceNonEditable',
                 toolbar_mode: 'sliding',
@@ -79,7 +81,7 @@ export default {
                 // content_css:
                 //     "https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css",
                 importcss_append: true,
-                content_style: 'img { max-width: 100%; }',
+                content_style: 'img { max-width: 100%; } figure { margin: 16px auto; display: table; max-width: 100%; text-align: center; } figcaption { display: table-caption; caption-side: bottom; font-style: italic; font-size: 13px; color: #4b5563; margin-top: 6px; text-align: center; }',
                 paste_data_images: true,
                 convert_urls: false,
                 images_dataimg_filter: function (img) {
