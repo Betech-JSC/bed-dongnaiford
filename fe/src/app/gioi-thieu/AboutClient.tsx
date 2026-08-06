@@ -465,20 +465,19 @@ export default function AboutClient({ initialJobs = [] }: AboutClientProps) {
         </div>
       </section>
 
-      {/* SECTION 6: TUYỂN DỤNG NHÂN SỰ (Frame 1000005586) */}
-      <section id="recruitment" className="bg-[#f0f0f0] py-16 scroll-mt-20">
-        <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full flex flex-col gap-8">
-          <h2 className="text-[36px] font-semibold leading-[47.52px] text-[#1a1a1a] font-antenna uppercase text-center">
-            TUYỂN DỤNG NHÂN SỰ
-          </h2>
+      {/* SECTION 6: TUYỂN DỤNG NHÂN SỰ (Frame 1000005586) - CHỈ HIỂN THỊ NẾU CÓ DỮ LIỆU TỪ CMS */}
+      {jobs && jobs.length > 0 && (
+        <section id="recruitment" className="bg-[#f0f0f0] py-16 scroll-mt-20">
+          <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full flex flex-col gap-8">
+            <h2 className="text-[36px] font-semibold leading-[47.52px] text-[#1a1a1a] font-antenna uppercase text-center">
+              TUYỂN DỤNG NHÂN SỰ
+            </h2>
 
-          {/* List of flat cards */}
-          <div className="max-w-[800px] w-full mx-auto flex flex-col gap-6">
-            {(() => {
-              const displayJobs = jobs.length > 0 ? jobs : jobPositions;
-              return displayJobs.map((job, idx) => (
+            {/* List of flat cards */}
+            <div className="max-w-[800px] w-full mx-auto flex flex-col gap-6">
+              {jobs.map((job, idx) => (
                 <div
-                  key={idx}
+                  key={job.id || idx}
                   onClick={() => handleJobClick(job)}
                   className="w-full bg-white rounded-xl shadow-xs p-6 flex items-center gap-4 border border-gray-100 hover:shadow-md transition-all duration-300 group cursor-pointer"
                 >
@@ -499,7 +498,7 @@ export default function AboutClient({ initialJobs = [] }: AboutClientProps) {
                       {job.title}
                     </h3>
                     <p className="text-sm font-normal leading-[19.6px] text-gray-500 font-antenna truncate">
-                      {job.description || job.shortDesc}
+                      {job.description || job.shortDesc || job.working_position || job.work_address || "Xem chi tiết thông tin tuyển dụng"}
                     </p>
                   </div>
 
@@ -508,11 +507,11 @@ export default function AboutClient({ initialJobs = [] }: AboutClientProps) {
                     <ArrowRight className="w-5 h-5" />
                   </div>
                 </div>
-              ));
-            })()}
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* SECTION 7: SLIDER CÁC DÒNG XE NỔI BẬT (Board of Directors / Team collection) */}
       <section id="board-of-directors" className="bg-white py-[72px] overflow-hidden scroll-mt-20 w-full">
