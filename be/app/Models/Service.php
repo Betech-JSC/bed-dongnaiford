@@ -95,9 +95,9 @@ class Service extends BaseModel
 
         if ($this->is_active) {
             foreach ($this->translations as $translation) {
-                $urls[strtoupper($translation->locale)] = route("$translation->locale.services.show", [
+                $urls[strtoupper($translation->locale)] = self::toFrontendUrl(route("$translation->locale.services.show", [
                     'slug' => $translation->seo_slug ?? $translation->slug,
-                ]);
+                ]));
             }
         }
         return $urls;

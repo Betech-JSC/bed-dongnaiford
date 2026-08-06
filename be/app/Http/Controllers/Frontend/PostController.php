@@ -121,7 +121,7 @@ class PostController extends Controller
                 if ($translation) {
                     $post = $this->model::query()->find($translation->post_id);
                     if ($post) {
-                        $targetSlug = $post->slug;
+                        $targetSlug = $post->seo_slug ?: $post->slug;
 
                         if (request()->wantsJson() || request()->is('api/*')) {
                             return response()->json([
@@ -139,16 +139,17 @@ class PostController extends Controller
             }
 
             // Nếu slug yêu cầu khác với slug chính thức của bài viết (ví dụ: truy cập qua seo_slug cũ)
-            $decodedPostSlug = rawurldecode($post->slug);
-            if ($slug !== $post->slug && $slug !== $decodedPostSlug) {
+            $activeSlug = $post->seo_slug ?: $post->slug;
+            $decodedActiveSlug = rawurldecode($activeSlug);
+            if ($slug !== $activeSlug && $slug !== $decodedActiveSlug) {
                 if (request()->wantsJson() || request()->is('api/*')) {
                     return response()->json([
-                        'redirect_to' => $post->slug,
+                        'redirect_to' => $activeSlug,
                     ]);
                 }
                 $routeName = current_locale() . '.posts.show';
                 if (\Illuminate\Support\Facades\Route::has($routeName)) {
-                    return redirect()->route($routeName, ['slug' => $post->slug], 301);
+                    return redirect()->route($routeName, ['slug' => $activeSlug], 301);
                 }
             }
 
