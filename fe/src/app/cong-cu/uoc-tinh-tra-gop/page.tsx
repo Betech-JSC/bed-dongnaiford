@@ -574,7 +574,7 @@ function InstallmentCalculatorContent() {
             <img 
               alt="Mua xe trả góp" 
               className="absolute inset-0 w-full h-full object-cover rounded-[12px]" 
-              src="/assets/figma_card_visual.png" 
+              src="/assets/figma_card_visual.jpg" 
             />
           </div>
         </div>

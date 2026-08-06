@@ -145,12 +145,12 @@ export default function VehicleDetailClient() {
             data: {
               title_1: "Thiết kế ấn tượng, khẳng định vị thế vượt trội",
               image_1: vehicle.images?.[1] || vehicle.image_url || "/assets/territory-hero.png",
-              image_2: vehicle.images?.[2] || vehicle.image_url || "/assets/territory-tech-split.png",
+              image_2: vehicle.images?.[2] || vehicle.image_url || "/assets/territory-tech-split.jpg",
               image_3: vehicle.images?.[3] || vehicle.image_url || "/assets/territory-promo.png",
               title_2: "Không không gian lái thông minh rộng rãi",
-              image_large: vehicle.images?.[4] || vehicle.image_url || "/assets/territory-interior.png",
+              image_large: vehicle.images?.[4] || vehicle.image_url || "/assets/territory-interior.jpg",
               title_3: "Nâng tầm tiện nghi & Công nghệ kết nối",
-              split_image: vehicle.images?.[0] || vehicle.image_url || "/assets/territory-tech-split.png",
+              split_image: vehicle.images?.[0] || vehicle.image_url || "/assets/territory-tech-split.jpg",
               split_title: "Tiện nghi thông minh",
               split_features: [
                 { value: vehicle.versions?.[0]?.specs?.engine || "Động cơ", label: "Động cơ Ford thế hệ mới tối ưu" },
@@ -222,7 +222,7 @@ export default function VehicleDetailClient() {
     } else if (type === "Promotions") {
       newBlock.data = { title: "Chương trình ưu đãi", description: "Mô tả ngắn khuyến mãi", image: "/images/ford_placeholder.png", button_text: "Nhận báo giá" };
     } else if (type === "FeaturesGrid") {
-      newBlock.data = { title_1: "Thiết kế ấn tượng", image_1: "/assets/territory-hero.png", image_2: "/assets/territory-tech-split.png", image_3: "/assets/territory-promo.png", title_2: "Tiện nghi", image_large: "/assets/territory-interior.png", title_3: "Công nghệ", split_image: "/assets/territory-tech-split.png", split_title: "Chi tiết", split_features: [] };
+      newBlock.data = { title_1: "Thiết kế ấn tượng", image_1: "/assets/territory-hero.png", image_2: "/assets/territory-tech-split.jpg", image_3: "/assets/territory-promo.png", title_2: "Tiện nghi", image_large: "/assets/territory-interior.jpg", title_3: "Công nghệ", split_image: "/assets/territory-tech-split.jpg", split_title: "Chi tiết", split_features: [] };
     } else if (type === "VersionsGrid") {
       newBlock.data = { title: "Các phiên bản xe", descriptions: [] };
     } else if (type === "SpecsGrid") {

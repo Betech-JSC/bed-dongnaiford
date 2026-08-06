@@ -128,21 +128,21 @@ const teamVehicles: TeamVehicle[] = [
   {
     id: "team-le-ban-giao",
     name: "Lễ Bàn Giao Xe Mới Cho Khách Hàng",
-    image: "/images/team/team_1.png",
+    image: "/images/team/team_1.jpg",
     link: "/lien-he",
     quoteLink: "/lien-he"
   },
   {
     id: "team-tu-van-sales",
     name: "Đội Ngũ Tư Vấn Bán Hàng Chuyên Nghiệp",
-    image: "/images/team/team_3.png",
+    image: "/images/team/team_3.jpg",
     link: "/lien-he",
     quoteLink: "/lien-he"
   },
   {
     id: "team-su-kien-lai-thu",
     name: "Sự Kiện Trưng Bày & Trải Nghiệm Lái Thử Xe",
-    image: "/images/team/team_2.png",
+    image: "/images/team/team_2.jpg",
     link: "/dang-ky-lai-thu",
     quoteLink: "/dang-ky-lai-thu"
   }

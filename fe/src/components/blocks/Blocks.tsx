@@ -654,7 +654,7 @@ function SpecsGridBlock({ data, vehicle, isEditMode, onChangeData, openQuoteDraw
     image: resolveImageUrl(ver.image_thumbnail_url || ver.image_url || ver.image || vehicle.image_thumbnail_url || vehicle.image_url || vehicle.images?.[idx] || vehicle.images?.[0] || (idx === 0
       ? "/assets/territory-hero.png"
       : idx === 1
-        ? "/assets/territory-tech-split.png"
+        ? "/assets/territory-tech-split.jpg"
         : "/assets/territory-promo.png")),
     specs: ver.specs || {},
     isExternal: false
@@ -1697,7 +1697,7 @@ function ThreeSixtyViewerBlock({ data, vehicle, isEditMode, onChangeData, threeS
                       src={resolveImageUrl(vehicle.id === "mustang-fastback"
                         ? `/images/360/mustang/ecoboostfastback/exterior/desktop/adriatic-blue-green/64f/001-adriatic-blue-green-64f.jpeg`
                         : vehicle.id === "new-territory"
-                          ? (viewType === "exterior" ? "/assets/territory-3d.png" : "/assets/territory-interior.png")
+                          ? (viewType === "exterior" ? "/assets/territory-3d.png" : "/assets/territory-interior.jpg")
                           : (viewType === "exterior"
                             ? (() => {
                               const colorImg = (colors?.[selectedColorIndex] || colors?.[0])?.image;

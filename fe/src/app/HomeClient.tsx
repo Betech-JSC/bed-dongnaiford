@@ -126,21 +126,21 @@ const techSlides = [
   {
     title: "Ứng dụng Ford",
     description: "Ứng dụng Ford mang đến cho bạn trải nghiệm sở hữu trọn vẹn và dễ dàng trong tầm tay. Khi truy cập vào ứng dụng này, bạn có đầy đủ thông tin các tính năng của xe và kiểm tra về tình trạng xe.",
-    image: "/assets/tech_fordpass.png",
+    image: "/assets/tech_fordpass.jpg",
     category: "Lái xe",
     link: "/dang-ky-lai-thu"
   },
   {
     title: "Ford Co-Pilot360",
     description: "Dù trong thành phố hay ra xa lộ, hệ thống Ford Co-Pilot360™ - Công nghệ An toàn Hỗ trợ Người lái được thiết kế để giúp bạn cảm thấy tự tin hơn khi lái xe.",
-    image: "/assets/tech_copilot360.png",
+    image: "/assets/tech_copilot360.jpg",
     category: "Lái xe",
     link: "/dang-ky-lai-thu"
   },
   {
     title: "Hệ thống âm thanh cao cấp",
     description: "Hệ thống loa B&O cho trải nghiệm âm thanh tuyệt vời với chất âm trung thực và rõ ràng đến từng chi tiết.",
-    image: "/assets/tech_audio.png",
+    image: "/assets/tech_audio.jpg",
     category: "Giải trí",
     link: "/dang-ky-lai-thu"
   }

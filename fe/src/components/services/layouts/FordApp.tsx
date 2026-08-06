@@ -93,7 +93,7 @@ export default function FordAppLayout({ service }: { service?: any }) {
           <ScrollReveal direction="right">
             <div className="relative aspect-video w-full border border-gray-200 shadow-md bg-gray-950 flex items-center justify-center overflow-hidden">
               <Image 
-                src="/assets/territory-tech-split.png"
+                src="/assets/territory-tech-split.jpg"
                 alt="FordPass App Visualization"
                 fill
                 sizes="(max-width: 1024px) 100vw, 50vw"

@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     locale: "vi_VN",
     images: [
       {
-        url: "/showroom_bg.png",
+        url: "/showroom_bg.jpg",
         width: 1200,
         height: 630,
         alt: "Showroom Đồng Nai Ford — Đại lý ủy quyền Ford Việt Nam",
@@ -46,7 +46,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Đồng Nai Ford | Đại lý xe Ford chính hãng lớn nhất Đồng Nai",
     description: "Đại lý ủy quyền chính thức của Ford Việt Nam tại Đồng Nai. Cung cấp các dòng xe Ford Everest, Ranger, Territory, Raptor chính hãng giá ưu đãi.",
-    images: ["/showroom_bg.png"],
+    images: ["/showroom_bg.jpg"],
   },
 };
 
