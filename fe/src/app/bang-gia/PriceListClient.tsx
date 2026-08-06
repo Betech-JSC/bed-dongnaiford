@@ -1,112 +1,44 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { formatVND, formatPriceShort } from "@/lib/rolling-cost";
 import { getPopularVehicleImage, handleImageError } from "@/lib/site-assets";
+import { handleCtaFormClick } from "@/lib/scroll-helper";
 import { ChevronRight, Calculator, FileText } from "lucide-react";
 import BookingBanner from "@/components/services/BookingBanner";
-
-// Helper function to group individual dynamic variants into parent model series
-function groupVehiclesBySeries(apiVehicles: any[]) {
-  if (!Array.isArray(apiVehicles)) return [];
-  const groups: { [key: string]: {
-    id: string;
-    name: string;
-    type: string;
-    typeName: string;
-    image_url: string;
-    versions: any[];
-  }} = {};
-
-  apiVehicles.forEach((vehicle) => {
-    if (!vehicle) return;
-    const title = vehicle.title || vehicle.name || "";
-    const titleLower = title.toLowerCase();
-    let seriesKey = "";
-    let seriesName = "";
-    let typeName = "";
-    
-    if (titleLower.includes("territory")) {
-      seriesKey = "ford-territory";
-      seriesName = "FORD TERRITORY";
-      typeName = "SUV 5 Chỗ";
-    } else if (titleLower.includes("everest")) {
-      seriesKey = "ford-everest";
-      seriesName = "FORD EVEREST";
-      typeName = "SUV 7 Chỗ";
-    } else if (titleLower.includes("ranger") || titleLower.includes("raptor")) {
-      seriesKey = "ford-ranger";
-      seriesName = "FORD RANGER";
-      typeName = "Bán tải 5 Chỗ";
-    } else if (titleLower.includes("transit")) {
-      seriesKey = "ford-transit-2024";
-      seriesName = "FORD TRANSIT";
-      typeName = "Thương mại 16 Chỗ";
-    } else if (titleLower.includes("tourneo")) {
-      seriesKey = "new-tourneo";
-      seriesName = "FORD TOURNEO";
-      typeName = "MPV 7 Chỗ";
-    } else {
-      seriesKey = vehicle.slug || `vehicle-${vehicle.id || Math.random()}`;
-      seriesName = title || "Xe Ford";
-      seriesKey = seriesKey === "ranger-wildtrak" ? "ford-ranger" : seriesKey;
-      seriesKey = seriesKey === "everest-titanium-plus" ? "ford-everest" : seriesKey;
-      seriesKey = seriesKey === "territory-titanium-x" ? "ford-territory" : seriesKey;
-      seriesKey = seriesKey === "transit-premium" ? "ford-transit-2024" : seriesKey;
-      typeName = vehicle.type === "suv" ? "SUV" : vehicle.type === "pickup" ? "Bán tải" : "Thương mại";
-    }
-
-    if (!groups[seriesKey]) {
-      groups[seriesKey] = {
-        id: seriesKey,
-        name: seriesName,
-        type: vehicle.type || "suv",
-        typeName: typeName,
-        image_url: vehicle.image_thumbnail_url || vehicle.image_url || "",
-        versions: []
-      };
-    }
-
-    const vehicleVersions = vehicle.versions && vehicle.versions.length > 0
-      ? vehicle.versions
-      : [{
-          id: vehicle.slug || `version-${vehicle.id}`,
-          name: vehicle.title,
-          price: typeof vehicle.base_price === 'string' ? parseFloat(vehicle.base_price) : (vehicle.base_price || 0),
-          specs: vehicle.specs || {}
-        }];
-
-    vehicleVersions.forEach((v: any) => {
-      groups[seriesKey].versions.push({
-        id: v.slug || v.id || `v-${v.name}`,
-        name: v.name || v.title || vehicle.title,
-        price: typeof v.price === 'string' ? parseFloat(v.price) : (v.price || 0),
-        specs: v.specs || {}
-      });
-    });
-  });
-
-  const seriesList = Object.values(groups);
-  seriesList.forEach((group) => {
-    group.versions.sort((a, b) => b.price - a.price);
-  });
-
-  return seriesList;
-}
+import { vehiclesAPI } from "@/lib/api";
+import { processVehiclesFromCMS } from "@/lib/vehicle-helpers";
 
 interface PriceListClientProps {
   initialVehicles: any[];
 }
 
 export default function PriceListClient({ initialVehicles }: PriceListClientProps) {
-  const [vehicles] = useState<any[]>(() => {
+  const [vehicles, setVehicles] = useState<any[]>(() => {
     if (Array.isArray(initialVehicles) && initialVehicles.length > 0) {
-      return groupVehiclesBySeries(initialVehicles);
+      // Check if already processed (has versions with name and price)
+      if (initialVehicles[0]?.versions) {
+        return initialVehicles;
+      }
+      return processVehiclesFromCMS(initialVehicles);
     }
-    return [];
+    return processVehiclesFromCMS([]);
   });
+
+  useEffect(() => {
+    // Only re-fetch if initial vehicles were empty static fallback
+    if (!initialVehicles || initialVehicles.length === 0) {
+      vehiclesAPI.getAll({ with_versions: 1 })
+        .then((res: any) => {
+          if (res && res.success && Array.isArray(res.data) && res.data.length > 0) {
+            setVehicles(processVehiclesFromCMS(res.data));
+          }
+        })
+        .catch((err) => console.error("Error fetching vehicles in PriceListClient:", err));
+    }
+  }, [initialVehicles]);
 
   return (
     <div className="bg-[#fafafa] min-h-screen font-sans">
@@ -138,7 +70,7 @@ export default function PriceListClient({ initialVehicles }: PriceListClientProp
       </section>
 
       {/* Price Table */}
-      <section className="py-12 md:py-16">
+      <section className="py-12 md:py-16" suppressHydrationWarning>
         <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px]">
           <>
             {/* Desktop Table */}
@@ -235,13 +167,19 @@ export default function PriceListClient({ initialVehicles }: PriceListClientProp
                               Lăn bánh
                             </Link>
                             <span className="text-gray-300">|</span>
-                            <Link
-                              href="/lien-he"
-                              className="text-xs font-semibold text-[#0562d2] hover:text-[#044ea7] transition-colors flex items-center gap-1"
+                            <button
+                              onClick={(e) => {
+                                handleCtaFormClick(e, "consultation", () => {
+                                  if (typeof window !== "undefined") {
+                                    window.location.href = "/lien-he";
+                                  }
+                                });
+                              }}
+                              className="text-xs font-semibold text-[#0562d2] hover:text-[#044ea7] transition-colors flex items-center gap-1 cursor-pointer border-0 bg-transparent"
                             >
                               <FileText className="w-3.5 h-3.5" />
                               Báo giá
-                            </Link>
+                            </button>
                           </div>
                         </td>
                       </tr>
@@ -302,12 +240,18 @@ export default function PriceListClient({ initialVehicles }: PriceListClientProp
                             {formatVND(version.price)}
                           </p>
                         </div>
-                        <Link
-                          href="/lien-he"
-                          className="text-xs font-semibold text-white bg-[#0562d2] hover:bg-[#044ea7] px-3 py-1.5 rounded-full transition-colors"
+                        <button
+                          onClick={(e) => {
+                            handleCtaFormClick(e, "consultation", () => {
+                              if (typeof window !== "undefined") {
+                                window.location.href = "/lien-he";
+                              }
+                            });
+                          }}
+                          className="text-xs font-semibold text-white bg-[#0562d2] hover:bg-[#044ea7] px-3 py-1.5 rounded-full transition-colors cursor-pointer border-0"
                         >
                           Báo giá
-                        </Link>
+                        </button>
                       </div>
                     ))}
                   </div>

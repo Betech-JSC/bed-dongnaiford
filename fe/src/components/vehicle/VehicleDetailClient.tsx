@@ -128,7 +128,7 @@ export default function VehicleDetailClient() {
               tagline: vehicle.tagline || "Cơ hội vàng. Sẵn sàng rước xế.",
               button_text: "Đăng ký lái thử",
               button_link: "#drive",
-              background_image: vehicle.images?.[0] || vehicle.image_url || "/assets/territory-hero.png"
+              background_image: vehicle.images?.[0] || vehicle.image_url || "/assets/territory-hero.jpg"
             }
           },
           {
@@ -136,7 +136,7 @@ export default function VehicleDetailClient() {
             data: {
               title: `Ưu Đãi Đặc Biệt Cho Xe ${vehicle.name}`,
               description: `Nhận ngay ưu đãi giá bán tốt nhất, quà tặng đặc quyền và hỗ trợ trả góp ưu đãi khi mua xe ${vehicle.name} tại Đồng Nai Ford.`,
-              image: vehicle.images?.[1] || vehicle.images?.[0] || "/images/ford_placeholder.png",
+              image: vehicle.images?.[1] || vehicle.images?.[0] || "/images/ford_placeholder.jpg",
               button_text: "Báo giá"
             }
           },
@@ -144,9 +144,9 @@ export default function VehicleDetailClient() {
             type: "FeaturesGrid",
             data: {
               title_1: "Thiết kế ấn tượng, khẳng định vị thế vượt trội",
-              image_1: vehicle.images?.[1] || vehicle.image_url || "/assets/territory-hero.png",
+              image_1: vehicle.images?.[1] || vehicle.image_url || "/assets/territory-hero.jpg",
               image_2: vehicle.images?.[2] || vehicle.image_url || "/assets/territory-tech-split.jpg",
-              image_3: vehicle.images?.[3] || vehicle.image_url || "/assets/territory-promo.png",
+              image_3: vehicle.images?.[3] || vehicle.image_url || "/assets/territory-promo.jpg",
               title_2: "Không không gian lái thông minh rộng rãi",
               image_large: vehicle.images?.[4] || vehicle.image_url || "/assets/territory-interior.jpg",
               title_3: "Nâng tầm tiện nghi & Công nghệ kết nối",
@@ -218,11 +218,11 @@ export default function VehicleDetailClient() {
   const handleAddBlock = (type: string) => {
     let newBlock = { type, data: {} as any };
     if (type === "HeroBanner") {
-      newBlock.data = { title: vehicle?.name || "Ford Vehicle", tagline: "Tagline giới thiệu", button_text: "Đặt lịch hẹn", button_link: "/lien-he", background_image: "/assets/territory-hero.png" };
+      newBlock.data = { title: vehicle?.name || "Ford Vehicle", tagline: "Tagline giới thiệu", button_text: "Đặt lịch hẹn", button_link: "/lien-he", background_image: "/assets/territory-hero.jpg" };
     } else if (type === "Promotions") {
-      newBlock.data = { title: "Chương trình ưu đãi", description: "Mô tả ngắn khuyến mãi", image: "/images/ford_placeholder.png", button_text: "Nhận báo giá" };
+      newBlock.data = { title: "Chương trình ưu đãi", description: "Mô tả ngắn khuyến mãi", image: "/images/ford_placeholder.jpg", button_text: "Nhận báo giá" };
     } else if (type === "FeaturesGrid") {
-      newBlock.data = { title_1: "Thiết kế ấn tượng", image_1: "/assets/territory-hero.png", image_2: "/assets/territory-tech-split.jpg", image_3: "/assets/territory-promo.png", title_2: "Tiện nghi", image_large: "/assets/territory-interior.jpg", title_3: "Công nghệ", split_image: "/assets/territory-tech-split.jpg", split_title: "Chi tiết", split_features: [] };
+      newBlock.data = { title_1: "Thiết kế ấn tượng", image_1: "/assets/territory-hero.jpg", image_2: "/assets/territory-tech-split.jpg", image_3: "/assets/territory-promo.jpg", title_2: "Tiện nghi", image_large: "/assets/territory-interior.jpg", title_3: "Công nghệ", split_image: "/assets/territory-tech-split.jpg", split_title: "Chi tiết", split_features: [] };
     } else if (type === "VersionsGrid") {
       newBlock.data = { title: "Các phiên bản xe", descriptions: [] };
     } else if (type === "SpecsGrid") {

@@ -12,6 +12,7 @@ type Props = {
   params: Promise<{
     id: string; // The URL slug of the vehicle
   }>;
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
 const safeArray = (arr: any) => {

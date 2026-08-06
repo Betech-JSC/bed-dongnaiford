@@ -202,9 +202,9 @@ export default async function RootLayout({
         <Suspense fallback={null}>
           <PageTransitionLoader />
         </Suspense>
-        <main className="flex-1 flex flex-col">{children}</main>
+        <main className="flex-1 flex flex-col pb-20 md:pb-0">{children}</main>
         {isLdp ? (
-          <footer className="bg-slate-900 text-gray-400 py-6 border-t border-slate-800 font-sans text-xs select-none">
+          <footer className="bg-slate-900 text-gray-400 py-6 pb-24 md:pb-6 border-t border-slate-800 font-sans text-xs select-none">
             <div className="max-w-[1152px] mx-auto px-4 text-center">
               <p className="font-bold text-white mb-2">ĐỒNG NAI FORD - ĐẠI LÝ ỦY QUYỀN CHÍNH THỨC CỦA FORD VIỆT NAM</p>
               <p className="text-gray-500">B04, Khu Thương Mại Amata, Phường Long Bình, TP. Biên Hòa, Tỉnh Đồng Nai</p>

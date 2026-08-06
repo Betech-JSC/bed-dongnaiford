@@ -23,6 +23,7 @@ import {
   Mail
 } from "lucide-react";
 import { vehicles, Vehicle } from "@/data/vehicles";
+import { handleCtaFormClick } from "@/lib/scroll-helper";
 import { getPopularVehicleImage, siteAssets, handleImageError } from "@/lib/site-assets";
 import { bannersAPI, postsAPI, vehiclesAPI, servicesAPI, customerHandoversAPI } from "@/lib/api";
 import SafeImage from "@/components/shared/SafeImage";
@@ -313,6 +314,9 @@ export default function HomeClient({
 
   // Showroom Filter State
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+
+  // Our Story Active Card Hover State
+  const [activeStoryCard, setActiveStoryCard] = useState<number>(0);
 
 
 
@@ -888,14 +892,20 @@ export default function HomeClient({
               {/* CTAs */}
               <div className="flex flex-row justify-center gap-3 pt-4 md:pt-6">
                 <button
-                  onClick={() => triggerQuickAction("Đăng ký lái thử", "Tôi muốn đăng ký lái thử xe thông qua chương trình khuyến mãi.")}
+                  onClick={(e) => {
+                    handleCtaFormClick(e, "consultation", () => {
+                      triggerQuickAction("Đăng ký lái thử", "Tôi muốn đăng ký lái thử xe thông qua chương trình khuyến mãi.");
+                    });
+                  }}
                   className="bg-[#0562d2] hover:bg-[#066FEF] text-white px-5 py-2 md:px-6 md:py-2.5 rounded-full text-xs md:text-base font-semibold tracking-[0.16px] transition-all duration-300 cursor-pointer shadow-md border-0"
                 >
                   Book Lái thử
                 </button>
                 <button
-                  onClick={() => {
-                    router.push("/lien-he");
+                  onClick={(e) => {
+                    handleCtaFormClick(e, "consultation", () => {
+                      router.push("/lien-he");
+                    });
                   }}
                   className="bg-transparent hover:bg-white/10 border border-white text-white px-5 py-2 md:px-6 md:py-2.5 rounded-full text-xs md:text-base font-semibold tracking-[0.16px] transition-all duration-300 cursor-pointer"
                 >
@@ -1089,7 +1099,7 @@ export default function HomeClient({
 
             {/* Title Block */}
             <div className="mb-12">
-              <span className="text-xs font-semibold text-[#0562d2] uppercase tracking-wider block mb-2">
+              <span className="text-xs font-semibold text-white uppercase tracking-wider block mb-2">
                 Công nghệ
               </span>
               <h2 className="text-4xl md:text-5xl font-semibold leading-tight tracking-[-0.96px]">
@@ -1840,7 +1850,7 @@ export default function HomeClient({
             {/* Left Column: Bio */}
             <div className="lg:w-[457px] flex flex-col items-start gap-12 text-white">
               <div className="space-y-4">
-                <span className="text-xs font-semibold text-[#0562d2] uppercase tracking-wider block">Our Story</span>
+                <span className="text-xs font-semibold text-white uppercase tracking-wider block">Our Story</span>
                 <h2 className="text-[36px] font-semibold uppercase leading-tight tracking-tight text-white">
                   GIỚI THIỆU ĐÔI NÉT VỀ <br />
                   <span className="text-white">ĐỒNG NAI FORD</span>
@@ -1866,62 +1876,114 @@ export default function HomeClient({
             {/* Right Column: Grid of 4 Cards */}
             <div className="grid grid-cols-2 gap-6 w-full max-w-[615px] h-[520px]">
               {/* Card 1: Bề dày thành tích */}
-              <div className="bg-white border-t-[6px] border-[#066fef] rounded-b-[4px] px-6 py-8 flex flex-col justify-between h-full shadow-sm text-[#424242]">
+              <div 
+                onMouseEnter={() => setActiveStoryCard(0)}
+                className={`px-6 py-8 flex flex-col justify-between h-full rounded-[4px] cursor-pointer transition-all duration-300 ${
+                  activeStoryCard === 0
+                    ? "bg-white border-t-[6px] border-[#066fef] shadow-xl text-[#424242] -translate-y-1.5"
+                    : "bg-white/10 border-t-[6px] border-transparent text-white hover:bg-white/20"
+                }`}
+              >
                 <div className="space-y-2">
-                  <h4 className="text-[18px] font-semibold text-[#0562d2] uppercase tracking-wider leading-tight">
+                  <h4 className={`text-[18px] font-semibold uppercase tracking-wider leading-tight transition-colors duration-300 ${
+                    activeStoryCard === 0 ? "text-[#0562d2]" : "text-white"
+                  }`}>
                     Bề dày thành tích
                   </h4>
-                  <p className="text-[14px] text-[#424242]/90 leading-relaxed font-normal">
+                  <p className={`text-[14px] leading-relaxed font-normal transition-colors duration-300 ${
+                    activeStoryCard === 0 ? "text-[#424242]/90" : "text-white/90"
+                  }`}>
                     Là một trong những đại lý số 1 của Công ty ô tô Ford Việt Nam với nhiều giải thưởng xuất sắc về thị phần và dịch vụ.
                   </p>
                 </div>
                 <div className="flex justify-end">
-                  <Award className="w-8 h-8 text-[#0562d2]" />
+                  <Award className={`w-8 h-8 transition-colors duration-300 ${
+                    activeStoryCard === 0 ? "text-[#0562d2]" : "text-white/70"
+                  }`} />
                 </div>
               </div>
 
               {/* Card 2: Quy mô lớn tại VN */}
-              <div className="bg-white/10 px-6 py-8 flex flex-col justify-between h-full rounded-[4px] text-white">
+              <div 
+                onMouseEnter={() => setActiveStoryCard(1)}
+                className={`px-6 py-8 flex flex-col justify-between h-full rounded-[4px] cursor-pointer transition-all duration-300 ${
+                  activeStoryCard === 1
+                    ? "bg-white border-t-[6px] border-[#066fef] shadow-xl text-[#424242] -translate-y-1.5"
+                    : "bg-white/10 border-t-[6px] border-transparent text-white hover:bg-white/20"
+                }`}
+              >
                 <div className="space-y-2">
-                  <h4 className="text-[18px] font-semibold text-white uppercase tracking-wider leading-tight">
+                  <h4 className={`text-[18px] font-semibold uppercase tracking-wider leading-tight transition-colors duration-300 ${
+                    activeStoryCard === 1 ? "text-[#0562d2]" : "text-white"
+                  }`}>
                     Quy mô lớn tại VN
                   </h4>
-                  <p className="text-[14px] text-white/90 leading-relaxed font-normal">
+                  <p className={`text-[14px] leading-relaxed font-normal transition-colors duration-300 ${
+                    activeStoryCard === 1 ? "text-[#424242]/90" : "text-white/90"
+                  }`}>
                     Sở hữu diện tích sàn lớn nhất vùng Đông Nam Bộ, trang thiết bị đồng bộ đạt tiêu chuẩn xưởng Signature quốc tế.
                   </p>
                 </div>
                 <div className="flex justify-end">
-                  <ShieldCheck className="w-8 h-8 text-white/70" />
+                  <ShieldCheck className={`w-8 h-8 transition-colors duration-300 ${
+                    activeStoryCard === 1 ? "text-[#0562d2]" : "text-white/70"
+                  }`} />
                 </div>
               </div>
 
               {/* Card 3: Nhân sự chất lượng */}
-              <div className="bg-white/10 px-6 py-8 flex flex-col justify-between h-full rounded-[4px] text-white">
+              <div 
+                onMouseEnter={() => setActiveStoryCard(2)}
+                className={`px-6 py-8 flex flex-col justify-between h-full rounded-[4px] cursor-pointer transition-all duration-300 ${
+                  activeStoryCard === 2
+                    ? "bg-white border-t-[6px] border-[#066fef] shadow-xl text-[#424242] -translate-y-1.5"
+                    : "bg-white/10 border-t-[6px] border-transparent text-white hover:bg-white/20"
+                }`}
+              >
                 <div className="space-y-2">
-                  <h4 className="text-[18px] font-semibold text-white uppercase tracking-wider leading-tight">
+                  <h4 className={`text-[18px] font-semibold uppercase tracking-wider leading-tight transition-colors duration-300 ${
+                    activeStoryCard === 2 ? "text-[#0562d2]" : "text-white"
+                  }`}>
                     Nhân sự chất lượng
                   </h4>
-                  <p className="text-[14px] text-white/90 leading-relaxed font-normal">
+                  <p className={`text-[14px] leading-relaxed font-normal transition-colors duration-300 ${
+                    activeStoryCard === 2 ? "text-[#424242]/90" : "text-white/90"
+                  }`}>
                     Đội ngũ kỹ sư, tư vấn viên đào tạo bài bản và được cấp chứng chỉ chuẩn chỉnh từ tập đoàn Ford Việt Nam.
                   </p>
                 </div>
                 <div className="flex justify-end">
-                  <Users className="w-8 h-8 text-white/70" />
+                  <Users className={`w-8 h-8 transition-colors duration-300 ${
+                    activeStoryCard === 2 ? "text-[#0562d2]" : "text-white/70"
+                  }`} />
                 </div>
               </div>
 
               {/* Card 4: Hài lòng khách hàng */}
-              <div className="bg-white/10 px-6 py-8 flex flex-col justify-between h-full rounded-[4px] text-white">
+              <div 
+                onMouseEnter={() => setActiveStoryCard(3)}
+                className={`px-6 py-8 flex flex-col justify-between h-full rounded-[4px] cursor-pointer transition-all duration-300 ${
+                  activeStoryCard === 3
+                    ? "bg-white border-t-[6px] border-[#066fef] shadow-xl text-[#424242] -translate-y-1.5"
+                    : "bg-white/10 border-t-[6px] border-transparent text-white hover:bg-white/20"
+                }`}
+              >
                 <div className="space-y-2">
-                  <h4 className="text-[18px] font-semibold text-white uppercase tracking-wider leading-tight">
+                  <h4 className={`text-[18px] font-semibold uppercase tracking-wider leading-tight transition-colors duration-300 ${
+                    activeStoryCard === 3 ? "text-[#0562d2]" : "text-white"
+                  }`}>
                     Hài lòng khách hàng
                   </h4>
-                  <p className="text-[14px] text-white/90 leading-relaxed font-normal">
+                  <p className={`text-[14px] leading-relaxed font-normal transition-colors duration-300 ${
+                    activeStoryCard === 3 ? "text-[#424242]/90" : "text-white/90"
+                  }`}>
                     Luôn cải tiến quy trình phục vụ, tối ưu thủ tục mua xe trả góp và đẩy mạnh dịch vụ giao xe tại nhà.
                   </p>
                 </div>
                 <div className="flex justify-end">
-                  <CheckCircle className="w-8 h-8 text-white/70" />
+                  <CheckCircle className={`w-8 h-8 transition-colors duration-300 ${
+                    activeStoryCard === 3 ? "text-[#0562d2]" : "text-white/70"
+                  }`} />
                 </div>
               </div>
             </div>
@@ -1930,16 +1992,16 @@ export default function HomeClient({
       </section>
 
       {/* 11. CONSULTATION RICH TEXT SECTION (FIGMA SECTION 10) */}
-      <section id="consultation" className="relative py-20 px-0 w-full overflow-hidden bg-black text-white">
+      <section id="consultation" className="relative py-20 px-0 w-full overflow-hidden bg-[#12161f] text-white">
         {/* Background Image with Dark Overlay */}
         <div className="absolute inset-0 z-0">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             alt="Ford Showroom background"
-            className="w-full h-full object-cover blur-[6px] scale-105 opacity-40"
-            src={siteAssets.showroomBg}
+            className="w-full h-full object-cover opacity-50"
+            src="/images-dynamic/image-hero-1.jpg"
           />
-          <div className="absolute inset-0 bg-black/80" />
+          <div className="absolute inset-0 bg-black/55" />
         </div>
 
         <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full relative z-10">
@@ -1958,7 +2020,7 @@ export default function HomeClient({
               <div className="flex flex-col gap-6 items-start w-full">
                 {/* Showroom Address */}
                 <div className="flex gap-3 items-start w-full">
-                  <span className="w-6 h-6 flex items-center justify-center text-[#0562D2] flex-shrink-0 mt-0.5">
+                  <span className="w-6 h-6 flex items-center justify-center text-white flex-shrink-0 mt-0.5">
                     <MapPin className="w-5 h-5" />
                   </span>
                   <div className="flex flex-col gap-1 items-start text-white">
@@ -1971,7 +2033,7 @@ export default function HomeClient({
 
                 {/* Hotline */}
                 <div className="flex gap-3 items-start w-full">
-                  <span className="w-6 h-6 flex items-center justify-center text-[#0562D2] flex-shrink-0 mt-0.5">
+                  <span className="w-6 h-6 flex items-center justify-center text-white flex-shrink-0 mt-0.5">
                     <Phone className="w-5 h-5" />
                   </span>
                   <div className="flex flex-col gap-1 items-start text-white">
@@ -1985,7 +2047,7 @@ export default function HomeClient({
 
                 {/* Email */}
                 <div className="flex gap-3 items-start w-full">
-                  <span className="w-6 h-6 flex items-center justify-center text-[#0562D2] flex-shrink-0 mt-0.5">
+                  <span className="w-6 h-6 flex items-center justify-center text-white flex-shrink-0 mt-0.5">
                     <Mail className="w-5 h-5" />
                   </span>
                   <div className="flex flex-col gap-1 items-start text-white">
@@ -1999,7 +2061,9 @@ export default function HomeClient({
 
               <div className="flex gap-6 items-start">
                 <button
-                  onClick={() => router.push("/lien-he")}
+                  onClick={(e) => {
+                    handleCtaFormClick(e, "consultation", () => router.push("/lien-he"));
+                  }}
                   className="bg-white border border-[#d6d6d6] text-[#424242] px-6 py-2.5 rounded-full text-base font-semibold tracking-[0.16px] shadow-sm hover:bg-gray-50 transition-colors cursor-pointer"
                 >
                   Gửi yêu cầu tư vấn

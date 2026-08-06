@@ -52,7 +52,7 @@ export const vehicles: Vehicle[] = [
     tagline: "Cơ hội vàng. Sẵn sàng rước xế.",
     description: "Diện mạo mới đầy cuốn hút, công nghệ ngập tràn và không gian cabin rộng rãi bậc nhất phân khúc. Ford Territory là lựa chọn hoàn hảo cho gia đình trẻ năng động.",
     images: [
-      "/assets/territory-hero.png"
+      "/assets/territory-hero.jpg"
     ],
     colors: [
       { name: "Đỏ Hỏa Tinh", hex: "#c61918", image: "red" },
@@ -410,7 +410,7 @@ export const vehicles: Vehicle[] = [
     tagline: "Biểu tượng xe cơ bắp Mỹ thế hệ mới.",
     description: "Trải nghiệm sức mạnh huyền thoại từ khối động cơ Coyote V8 kết hợp với thiết kế đột phá và khoang lái kỹ thuật số tối tân hướng trọn về người lái.",
     images: [
-      "/assets/mustang-hero.png"
+      "/assets/mustang-hero.jpg"
     ],
     colors: [
       { name: "Adriatic Blue Metallic", hex: "#15444c", image: "adriatic-blue-green" },

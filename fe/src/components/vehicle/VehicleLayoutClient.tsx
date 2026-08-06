@@ -798,7 +798,7 @@ export function VehicleTabBar() {
 
   return (
     <div className="sticky-tabs bg-white border-b border-[#e5e5e5] shadow-xs">
-      <div className="max-w-[1440px] mx-auto px-4 xl:px-[48px] w-full flex items-center justify-between gap-4">
+      <div className="max-w-[1440px] mx-auto px-4 xl:px-[128px] w-full flex items-center justify-between gap-4">
         <div className="flex items-center gap-[16px] xl:gap-[32px] flex-1 min-w-0">
           <Link 
             href={`/${id}`}

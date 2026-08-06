@@ -6,13 +6,13 @@ export const siteAssets = {
   ],
   showroomBg: "/showroom_bg.jpg",
   serviceBannerBg: "/images-services/service-maintenance-banner.jpg",
-  serviceBannerFg: "/assets/service-banner-fg.png",
+  serviceBannerFg: "/assets/service-banner-fg.jpg",
   serviceCustomerCare: "/images-services/service-detailing-banner.jpg",
   serviceMaintenance: "/images-services/service-maintenance-banner.jpg",
   serviceDelivery: "/images-services/service-delivery-banner.jpg",
   serviceRescue: "/images-services/service-rescue-banner.jpg",
   serviceUpgrade: "/images-services/service-upgrade-banner.jpg",
-  bookingCar: "/assets/booking-car.jpg",
+  bookingCar: "/assets/booking-car.png",
   qualityCareBadge: "/assets/quality-care-circle.jpg",
   expressFlow: "/assets/express-maintenance-flow.jpg",
   carPlaceholder: "/assets/car-mach-e.png",
@@ -28,20 +28,20 @@ export const aboutAssets = {
   history: "/images-dynamic/image-hero-2.jpg",
   facilities: "/service-fixed-car.jpg",
   visionGallery: [
-    "/assets/territory-grid-1.png",
-    "/assets/territory-grid-2.png",
-    "/assets/territory-grid-3.png",
-    "/assets/territory-hero.png",
+    "/assets/territory-grid-1.jpg",
+    "/assets/territory-grid-2.jpg",
+    "/assets/territory-grid-3.jpg",
+    "/assets/territory-hero.jpg",
   ],
 } as const;
 
 export const popularVehicleImages: Record<string, string> = {
-  "ford-territory": "/assets/territory-hero.png",
+  "ford-territory": "/assets/territory-hero.jpg",
   "ford-everest": "/assets/car-everest.png",
   "new-mustang-mach-e": "/assets/car-mach-e.png",
   "ford-ranger": "/assets/car-ranger.png",
   "ford-transit-2024": "/assets/car-transit.png",
-  "mustang-fastback": "/assets/mustang-hero.png",
+  "mustang-fastback": "/assets/mustang-hero.jpg",
 };
 
 export function getPopularVehicleImage(slugOrName: string, fallback?: string): string {
@@ -53,7 +53,7 @@ export function getPopularVehicleImage(slugOrName: string, fallback?: string): s
   return fallback || popularVehicleImages["ford-territory"];
 }
 
-export const imageFallbackSvg = "/images/ford_placeholder.png";
+export const imageFallbackSvg = "/images/ford_placeholder.jpg";
 
 export const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
   const target = e.currentTarget;
@@ -63,14 +63,14 @@ export const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event
 };
 
 export const resolveImageUrl = (img: any): string => {
-  if (!img) return "/images/ford_placeholder.png";
+  if (!img) return "/images/ford_placeholder.jpg";
   let path = "";
   if (typeof img === "string") {
     path = img;
   } else if (typeof img === "object") {
     path = img.url || img.path || "";
   }
-  if (!path) return "/images/ford_placeholder.png";
+  if (!path) return "/images/ford_placeholder.jpg";
   if (path.startsWith("http://") || path.startsWith("https://") || path.startsWith("/") || path.startsWith("//")) {
     return encodeURI(path);
   }

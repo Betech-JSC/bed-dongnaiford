@@ -442,9 +442,10 @@ export default function AIChatWidget() {
   const updatePosition = useCallback(() => {
     const isMobile = window.innerWidth < 640;
     const offset = (isMobile && hasCompareItems) ? 56 : 0;
+    const botNavHeight = isMobile ? 64 : 0;
     setPosition({
       x: isMobile ? 16 : 24,
-      y: window.innerHeight - BUBBLE_SIZE - 24 - offset,
+      y: window.innerHeight - BUBBLE_SIZE - 24 - offset - botNavHeight,
     });
   }, [hasCompareItems]);
 

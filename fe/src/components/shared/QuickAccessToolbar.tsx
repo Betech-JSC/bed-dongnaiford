@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeftRight, Calculator, PiggyBank, Wrench, Phone, MessageCircle, ArrowUp } from "lucide-react";
+import { handleCtaFormClick } from "@/lib/scroll-helper";
 
 const SteeringWheelIcon = () => (
   <svg className="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -246,15 +247,21 @@ export default function QuickAccessToolbar() {
         </Link>
 
         {/* Đặt hẹn */}
-        <Link
-          href="/lien-he"
-          className="flex flex-col items-center justify-center gap-1.5 py-2 px-1 text-[#101828] hover:text-[#002f6c] active:bg-gray-200/80 transition-colors"
+        <button
+          onClick={(e) => {
+            handleCtaFormClick(e, "consultation", () => {
+              if (typeof window !== "undefined") {
+                window.location.href = "/lien-he#consultation";
+              }
+            });
+          }}
+          className="flex flex-col items-center justify-center gap-1.5 py-2 px-1 text-[#101828] hover:text-[#002f6c] active:bg-gray-200/80 transition-colors cursor-pointer border-0 bg-transparent"
         >
           <div className="w-5 h-5 flex items-center justify-center text-[#101828]">
             <Wrench className="w-5 h-5 stroke-[1.8]" />
           </div>
           <span className="text-[11px] font-semibold text-[#101828] leading-none whitespace-nowrap">Đặt hẹn</span>
-        </Link>
+        </button>
       </div>
 
       {/* Mobile Scroll to Top Floating Button */}

@@ -652,10 +652,10 @@ function SpecsGridBlock({ data, vehicle, isEditMode, onChangeData, openQuoteDraw
     name: ver.name,
     price: ver.price,
     image: resolveImageUrl(ver.image_thumbnail_url || ver.image_url || ver.image || vehicle.image_thumbnail_url || vehicle.image_url || vehicle.images?.[idx] || vehicle.images?.[0] || (idx === 0
-      ? "/assets/territory-hero.png"
+      ? "/assets/territory-hero.jpg"
       : idx === 1
         ? "/assets/territory-tech-split.jpg"
-        : "/assets/territory-promo.png")),
+        : "/assets/territory-promo.jpg")),
     specs: ver.specs || {},
     isExternal: false
   }));
@@ -2323,84 +2323,84 @@ function BookingBannerBlock({ blockIndex, data, vehicle, isEditMode, onChangeDat
       : 'justify-start';
 
   return (
-    <section id={anchorId || undefined} className="w-full bg-[#00095b] py-[32px] px-4 md:px-[144px] flex justify-center overflow-visible">
-      <div className="max-w-[1152px] w-full relative flex flex-col lg:flex-row items-center overflow-visible">
+    <section id={anchorId || undefined} className="w-full bg-[#00095b] py-8 lg:py-12 px-4 sm:px-6 lg:px-8 flex justify-center overflow-visible">
+      <div className="max-w-[1152px] w-full relative overflow-visible">
         {/* Inner Rounded Banner */}
-        <div className="w-full lg:w-[913px] bg-gradient-to-r from-[#00095B] via-[#02337A] to-[#0562D2] rounded-[12px] p-8 lg:p-[32px] h-auto lg:h-[320px] flex items-center relative overflow-hidden lg:overflow-visible shadow-xl">
+        <div className="w-full bg-gradient-to-r from-[#00095B] via-[#02337A] to-[#0562D2] rounded-2xl p-6 sm:p-8 lg:p-10 min-h-[260px] lg:min-h-[280px] flex items-center relative shadow-2xl overflow-visible">
           {/* Content */}
-          <div className={`flex flex-col gap-6 max-w-full relative z-10 text-white w-full ${alignClass}
-            ${(hasCarImage || isEditMode) ? "lg:max-w-[505px]" : "lg:max-w-full"}`}>
+          <div className={`flex flex-col gap-5 relative z-10 text-white w-full ${alignClass}
+            ${(hasCarImage || isEditMode) ? "lg:max-w-[55%]" : "lg:max-w-full"}`}>
             <>
               <h3
-                className={`font-bold font-display leading-[1.32] ${titleSizeClass} w-full
+                className={`font-bold font-display leading-tight tracking-tight ${titleSizeClass} w-full
                     ${isEditMode ? 'outline-[1px] outline-dashed outline-white/50 hover:outline-white outline-offset-2 cursor-pointer transition-all' : ''}`}
                 style={titleStyle}
               >
                 {title}
               </h3>
-              <div className={`flex flex-col sm:flex-row gap-4 w-full ${btnAlignClass}`}>
+              <div className={`flex flex-wrap items-center gap-3.5 w-full ${btnAlignClass}`}>
                 <a
                   href={`tel:${phone.replace(/\s+/g, "")}`}
-                  className={`flex items-center justify-center gap-2 bg-[#0562d2] hover:bg-[#044ea7] border border-[#0562d2] transition-colors text-white font-bold px-6 py-3 rounded-full text-base shrink-0
+                  className={`inline-flex items-center justify-center gap-2 bg-[#0562d2] hover:bg-[#044ea7] border border-[#0562d2] transition-all text-white font-bold px-6 py-3 rounded-full text-sm sm:text-base shrink-0 shadow-md
                       ${isEditMode ? 'outline-[1px] outline-dashed outline-white/50 hover:outline-white outline-offset-2 cursor-pointer transition-all' : ''}`}
                 >
-                  <Phone className="w-5 h-5" />
+                  <Phone className="w-4 h-4 sm:w-5 sm:h-5" />
                   <span>{phone}</span>
                 </a>
                 <a
                   href={btnLink}
-                  className="flex items-center justify-center gap-2 bg-transparent hover:bg-white/10 border border-white transition-colors text-white font-bold px-6 py-3 rounded-full text-base shrink-0"
+                  className="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 border border-white/40 transition-all text-white font-bold px-6 py-3 rounded-full text-sm sm:text-base shrink-0 backdrop-blur-xs"
                 >
-                  <Bookmark className="w-5 h-5" />
+                  <Bookmark className="w-4 h-4 sm:w-5 sm:h-5" />
                   <span>{btnText}</span>
                 </a>
               </div>
             </>
           </div>
-        </div>
 
-        {/* Overlapping Car Image */}
-        {(hasCarImage || isEditMode) && (
-          <div className="relative lg:absolute h-[250px] lg:h-[420px] w-full lg:w-[587px] lg:left-[576px] lg:top-[-50px] pointer-events-none z-20 mt-6 lg:mt-0 flex justify-center">
-            {hasCarImage ? (
-              <img
-                src={carImage}
-                alt="Ford Booking Vehicle"
-                className="object-contain max-h-full lg:max-h-none"
-              />
-            ) : (
-              <div className="w-full h-full bg-gray-900/50 border border-dashed border-gray-700 rounded-lg flex items-center justify-center text-xs text-gray-500 pointer-events-auto min-h-[150px] p-4">
-                Chưa chọn ảnh xe đè (Sẽ ẩn trên giao diện thực tế)
-              </div>
-            )}
-            {isEditMode && (
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 bg-white/95 backdrop-blur-xs p-3 rounded-lg border border-gray-200 text-xs text-gray-800 pointer-events-auto shadow-md">
-                <span className="block mb-2 font-bold text-[10px] uppercase tracking-wider text-gray-500 text-center">Ảnh xe đè:</span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleUploadCarImage}
-                  className="block w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border file:border-gray-300 file:text-[10px] file:font-semibold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100 cursor-pointer"
+          {/* Overlapping Car Image */}
+          {(hasCarImage || isEditMode) && (
+            <div className="hidden lg:flex absolute right-0 lg:-right-2 xl:-right-6 top-1/2 -translate-y-1/2 w-[440px] lg:w-[480px] xl:w-[540px] h-[300px] lg:h-[340px] xl:h-[380px] pointer-events-none z-20 items-center justify-center">
+              {hasCarImage ? (
+                <img
+                  src={carImage}
+                  alt="Ford Booking Vehicle"
+                  className="w-full h-full object-contain drop-shadow-2xl"
                 />
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (typeof window !== "undefined") {
-                      window.parent.postMessage({
-                        type: "OPEN_FILE_MANAGER",
-                        index: blockIndex,
-                        field: "car_image"
-                      }, "*");
-                    }
-                  }}
-                  className="w-full mt-1.5 py-1 px-2.5 bg-[#008060] hover:bg-[#006e52] text-white text-[10px] font-bold rounded cursor-pointer border-0 transition-colors"
-                >
-                  📁 Chọn từ Quản lý file
-                </button>
-              </div>
-            )}
-          </div>
-        )}
+              ) : (
+                <div className="w-full h-full bg-gray-900/50 border border-dashed border-gray-700 rounded-lg flex items-center justify-center text-xs text-gray-500 pointer-events-auto min-h-[150px] p-4">
+                  Chưa chọn ảnh xe đè (Sẽ ẩn trên giao diện thực tế)
+                </div>
+              )}
+              {isEditMode && (
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 bg-white/95 backdrop-blur-xs p-3 rounded-lg border border-gray-200 text-xs text-gray-800 pointer-events-auto shadow-md">
+                  <span className="block mb-2 font-bold text-[10px] uppercase tracking-wider text-gray-500 text-center">Ảnh xe đè:</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleUploadCarImage}
+                    className="block w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border file:border-gray-300 file:text-[10px] file:font-semibold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100 cursor-pointer"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (typeof window !== "undefined") {
+                        window.parent.postMessage({
+                          type: "OPEN_FILE_MANAGER",
+                          index: blockIndex,
+                          field: "car_image"
+                        }, "*");
+                      }
+                    }}
+                    className="w-full mt-1.5 py-1 px-2.5 bg-[#008060] hover:bg-[#006e52] text-white text-[10px] font-bold rounded cursor-pointer border-0 transition-colors"
+                  >
+                    📁 Chọn từ Quản lý file
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </section>
   );

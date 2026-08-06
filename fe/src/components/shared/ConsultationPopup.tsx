@@ -255,7 +255,7 @@ export default function ConsultationPopup() {
           {/* Vehicle Group Showcase Image */}
           <div className="mt-3.5 w-full relative">
             <img
-              src="/assets/vehicle-group.png"
+              src="/assets/vehicle-group.jpg"
               alt="Dòng xe Ford Đồng Nai"
               className="w-full h-auto object-cover max-h-[160px]"
             />

@@ -35,12 +35,12 @@ async function handleRevalidate(request: NextRequest) {
     const purged: string[] = [];
 
     // 1. LUÔN purge tag 'cms-data' trước — xóa toàn bộ Data Cache trong Next.js
-    revalidateTag('cms-data');
+    (revalidateTag as any)('cms-data');
     purged.push('tag:cms-data');
 
     // 2. Nếu có tag tùy chỉnh khác, purge thêm
     if (tag && tag !== 'cms-data') {
-      revalidateTag(tag);
+      (revalidateTag as any)(tag);
       purged.push(`tag:${tag}`);
     }
 

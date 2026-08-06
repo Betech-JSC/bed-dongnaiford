@@ -35,10 +35,9 @@ export default function CompareDrawer() {
       if (stored) {
         try {
           const ids = JSON.parse(stored);
-          if (Array.isArray(ids)) {
+          if (Array.isArray(ids) && ids.length > 0) {
             setSelectedIds(ids);
-            // Open drawer if there are items
-            setIsOpen(ids.length > 0);
+            setIsOpen(true);
             return;
           }
         } catch (e) {
@@ -103,8 +102,14 @@ export default function CompareDrawer() {
 
   const handleRemove = (id: string) => {
     const updated = selectedIds.filter((item) => item !== id);
-    localStorage.setItem("compare-vehicles", JSON.stringify(updated));
-    setSelectedIds(updated);
+    if (updated.length === 0) {
+      localStorage.removeItem("compare-vehicles");
+      setSelectedIds([]);
+      setIsOpen(false);
+    } else {
+      localStorage.setItem("compare-vehicles", JSON.stringify(updated));
+      setSelectedIds(updated);
+    }
     
     // Trigger global update event
     window.dispatchEvent(new Event("compare-updated"));
@@ -117,8 +122,6 @@ export default function CompareDrawer() {
     window.dispatchEvent(new Event("compare-updated"));
   };
 
-  if (selectedIds.length === 0) return null;
-
   // Resolve vehicles details
   const compareVehicles = selectedIds
     .map((id) => {
@@ -126,9 +129,14 @@ export default function CompareDrawer() {
     })
     .filter((v): v is Vehicle => !!v);
 
+  // DO NOT show compare drawer if there are 0 valid vehicles selected
+  if (selectedIds.length === 0 || compareVehicles.length === 0) {
+    return null;
+  }
+
   return (
     <div
-      className={`fixed z-50 bg-[#00095B]/95 backdrop-blur-md border border-white/10 text-white shadow-[0_12px_40px_rgba(0,0,0,0.4)] rounded-2xl transition-all duration-500 ease-in-out overflow-hidden bottom-4 left-4 right-4 sm:left-auto sm:right-24 sm:bottom-6 sm:w-80 ${
+      className={`fixed z-50 bg-[#00095B]/95 backdrop-blur-md border border-white/10 text-white shadow-[0_12px_40px_rgba(0,0,0,0.4)] rounded-2xl transition-all duration-500 ease-in-out overflow-hidden bottom-20 left-4 right-4 sm:left-auto sm:right-24 sm:bottom-6 sm:w-80 ${
         isOpen ? "max-h-[520px]" : "max-h-12"
       }`}
     >
@@ -248,8 +256,18 @@ export default function CompareDrawer() {
         {/* Action button panel - Stacked Vertically */}
         <div className="flex flex-col gap-2 pt-3 border-t border-white/10">
           <Link
-            href={`/cong-cu/so-sanh-xe?ids=${selectedIds.join(",")}`}
-            className="flex items-center justify-center gap-2 bg-[#0562D2] hover:bg-[#044ea7] hover:scale-102 active:scale-98 text-white font-bold uppercase text-xs tracking-wider py-2.5 rounded-xl transition-all shadow-md cursor-pointer border-0 w-full"
+            href={compareVehicles.length >= 2 ? `/cong-cu/so-sanh-xe?ids=${selectedIds.join(",")}` : "#"}
+            onClick={(e) => {
+              if (compareVehicles.length < 2) {
+                e.preventDefault();
+                alert("Vui lòng chọn thêm ít nhất 1 xe nữa để thực hiện so sánh!");
+              }
+            }}
+            className={`flex items-center justify-center gap-2 font-bold uppercase text-xs tracking-wider py-2.5 rounded-xl transition-all shadow-md cursor-pointer border-0 w-full ${
+              compareVehicles.length >= 2
+                ? "bg-[#0562D2] hover:bg-[#044ea7] hover:scale-102 text-white"
+                : "bg-gray-500/50 text-white/60 cursor-not-allowed"
+            }`}
           >
             <span>So sánh ngay</span>
             <ArrowRight className="w-3.5 h-3.5" />

@@ -17,12 +17,12 @@ const getCategorySlugUnified = (slugOrId: string | number): string => {
 };
 
 const getCategoryFallbackImage = (slug: string): string => {
-  if (slug.includes("noi-that") || slug.includes("interior")) return "/images/categories/cat_interior.png";
-  if (slug.includes("ngoai-that") || slug.includes("exterior")) return "/images/categories/cat_exterior.png";
-  if (slug.includes("cong-nghe") || slug.includes("tech")) return "/images/categories/cat_tech.png";
-  if (slug.includes("mam-lop") || slug.includes("wheel")) return "/images/categories/cat_wheels.png";
-  if (slug.includes("hieu-suat") || slug.includes("performance")) return "/images/categories/cat_performance.png";
-  return "/images/categories/cat_exterior.png";
+  if (slug.includes("noi-that") || slug.includes("interior")) return "/images/categories/cat_interior.jpg";
+  if (slug.includes("ngoai-that") || slug.includes("exterior")) return "/images/categories/cat_exterior.jpg";
+  if (slug.includes("cong-nghe") || slug.includes("tech")) return "/images/categories/cat_tech.jpg";
+  if (slug.includes("mam-lop") || slug.includes("wheel")) return "/images/categories/cat_wheels.jpg";
+  if (slug.includes("hieu-suat") || slug.includes("performance")) return "/images/categories/cat_performance.jpg";
+  return "/images/categories/cat_exterior.jpg";
 };
 
 const mapAPIAccessoryToItem = (apiAcc: any): any => {
@@ -74,11 +74,11 @@ const mapAPIAccessoryToItem = (apiAcc: any): any => {
 };
 
 const staticCategories = [
-  { id: "interior", name: "Phụ Kiện Nội Thất", image: "/images/categories/cat_interior.png" },
-  { id: "exterior", name: "Phụ Kiện Ngoại Thất", image: "/images/categories/cat_exterior.png" },
-  { id: "tech", name: "Công Nghệ & Điện Tử", image: "/images/categories/cat_tech.png" },
-  { id: "wheels", name: "Mâm & Lốp Xe", image: "/images/categories/cat_wheels.png" },
-  { id: "performance", name: "Phụ Tùng Hiệu Suất", image: "/images/categories/cat_performance.png" }
+  { id: "interior", name: "Phụ Kiện Nội Thất", image: "/images/categories/cat_interior.jpg" },
+  { id: "exterior", name: "Phụ Kiện Ngoại Thất", image: "/images/categories/cat_exterior.jpg" },
+  { id: "tech", name: "Công Nghệ & Điện Tử", image: "/images/categories/cat_tech.jpg" },
+  { id: "wheels", name: "Mâm & Lốp Xe", image: "/images/categories/cat_wheels.jpg" },
+  { id: "performance", name: "Phụ Tùng Hiệu Suất", image: "/images/categories/cat_performance.jpg" }
 ];
 
 export default function VehicleAccessoriesClient() {
@@ -177,7 +177,7 @@ export default function VehicleAccessoriesClient() {
   };
 
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-    e.currentTarget.src = "/images/ford_placeholder.png";
+    e.currentTarget.src = "/images/ford_placeholder.jpg";
   };
 
   // Extract unique brands dynamically
@@ -384,7 +384,7 @@ export default function VehicleAccessoriesClient() {
                   >
                     <div className="aspect-square relative bg-gray-50 overflow-hidden">
                       <img
-                        src={item.images[0] || "/images/ford_placeholder.png"}
+                        src={item.images[0] || "/images/ford_placeholder.jpg"}
                         alt={item.name}
                         className="object-cover w-full h-full group-hover:scale-[1.03] transition-transform duration-500"
                         onError={handleImageError}
