@@ -263,7 +263,7 @@ export default function ArticleDetailClient({
           {relatedArticles.length > 0 && (
             <div className="border-t border-[#e5e5e5] pt-6 flex flex-col gap-3">
               <h4 className="font-['Ford_Antenna',sans-serif] font-semibold text-[16px] text-[#00095b] uppercase tracking-wider">
-                Tin tức & Ưu đãi liên quan:
+                Tin tức liên quan:
               </h4>
               <ul className="flex flex-col gap-2.5 pl-4 list-disc text-gray-500">
                 {relatedArticles.map((art) => (
