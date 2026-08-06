@@ -6,6 +6,7 @@ const AIChatWidget = dynamic(() => import("@/components/shared/AIChatWidget"), {
 const CompareDrawer = dynamic(() => import("@/components/shared/CompareDrawer"), { ssr: false });
 const QuickAccessToolbar = dynamic(() => import("@/components/shared/QuickAccessToolbar"), { ssr: false });
 const CookieConsent = dynamic(() => import("@/components/shared/CookieConsent"), { ssr: false });
+const ConsultationPopup = dynamic(() => import("@/components/shared/ConsultationPopup"), { ssr: false });
 
 export default function LazyWidgets({ isLdp }: { isLdp?: boolean }) {
   return (
@@ -15,6 +16,7 @@ export default function LazyWidgets({ isLdp }: { isLdp?: boolean }) {
       {!isLdp && <CompareDrawer />}
       {!isLdp && <QuickAccessToolbar />}
       <CookieConsent />
+      {!isLdp && <ConsultationPopup />}
     </>
   );
 }
