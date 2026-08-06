@@ -270,9 +270,9 @@ export default function ArticleDetailClient({
                   <li key={art.id} className="text-slate-400">
                     <Link
                       href={`/${art.slug}`}
-                      className="font-sans text-[14.5px] leading-relaxed text-gray-700 hover:text-[#0562d2] transition-colors hover:underline"
+                      className="font-sans text-[16px] font-medium leading-relaxed text-gray-800 hover:text-[#0562d2] transition-colors hover:underline"
                     >
-                      {art.title} <span className="text-xs text-gray-400 font-medium ml-1">({formatDate(art.published_at)})</span>
+                      {art.title} <span className="text-xs text-gray-400 font-normal ml-1.5">({formatDate(art.published_at)})</span>
                     </Link>
                   </li>
                 ))}
