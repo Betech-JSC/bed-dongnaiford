@@ -66,7 +66,11 @@ export default function GenericServiceLayout({ service }: { service: ServiceDeta
         {service.content && (
           <div 
             className="prose max-w-none text-gray-700 text-lg leading-relaxed font-normal"
-            dangerouslySetInnerHTML={{ __html: service.content }}
+            dangerouslySetInnerHTML={{ 
+              __html: service.content 
+                ? service.content.replace(/<h1([^>]*?)>/gi, "<h2$1>").replace(/<\/h1>/gi, "</h2>") 
+                : "" 
+            }}
           />
         )}
 
@@ -98,7 +102,11 @@ export default function GenericServiceLayout({ service }: { service: ServiceDeta
               {tabs[activeTab]?.content && (
                 <div
                   className="prose max-w-none text-gray-650 text-base md:text-lg leading-relaxed font-normal"
-                  dangerouslySetInnerHTML={{ __html: tabs[activeTab].content }}
+                  dangerouslySetInnerHTML={{ 
+                    __html: tabs[activeTab].content 
+                      ? tabs[activeTab].content.replace(/<h1([^>]*?)>/gi, "<h2$1>").replace(/<\/h1>/gi, "</h2>") 
+                      : "" 
+                  }}
                 />
               )}
             </div>

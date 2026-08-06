@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { servicesAPI, maintenanceAPI } from "@/lib/api";
 import PeriodicMaintenanceLayout from "@/components/services/layouts/PeriodicMaintenance";
 import ExpressMaintenanceLayout from "@/components/services/layouts/ExpressMaintenance";
@@ -14,6 +14,28 @@ import FordEnsureLayout from "@/components/services/layouts/FordEnsure";
 import IntelligentOilLifeMonitorLayout from "@/components/services/layouts/IntelligentOilLifeMonitor";
 import GenericServiceLayout from "@/components/services/layouts/GenericService";
 
+const serviceRedirects: Record<string, string> = {
+  "dich-vu-bao-duong": "bao-duong-dinh-ky",
+  "dich-vu-bao-duong-nhanh": "bao-duong-nhanh",
+  "dich-vu-giao-nhan-xe-tan-noi": "giao-nhan-xe-tan-noi",
+  "nhan-va-giao-xe-tan-noi": "giao-nhan-xe-tan-noi",
+  "nhan-giao-xe-mien-phi": "giao-nhan-xe-tan-noi",
+  "dich-vu-nhan-giao-xe-mien-phi": "giao-nhan-xe-tan-noi",
+  "nhan-giao-xe-tan-noi-mien-phi": "giao-nhan-xe-tan-noi",
+  "dich-vu-cham-soc-xe": "cham-soc-khach-hang",
+  "dich-vu-sua-chua": "sua-chua-xe",
+  "cuu-ho-giao-thong": "cuu-ho-247",
+  "dich-vu-cuu-ho-247": "cuu-ho-247",
+  "dich-vu-xe-da-qua-su-dung": "xe-da-qua-su-dung",
+  "dich-vu-nang-cap-xe": "nang-cap-xe",
+  "phu-kien-nang-cap": "nang-cap-xe",
+  "sync": "ford-sync",
+  "ung-dung-ford": "fordpass",
+  "ensure": "ford-ensure",
+  "intelligent-oil-life-monitoring": "intelligent-oil-life-monitor",
+  "canh-bao-thay-dau-iolm": "intelligent-oil-life-monitor"
+};
+
 type Props = {
   params: Promise<{
     slug: string;
@@ -23,6 +45,13 @@ type Props = {
 export async function generateMetadata({ params }: Props) {
   try {
     const { slug } = await params;
+    if (serviceRedirects[slug]) {
+      return {
+        alternates: {
+          canonical: `/dich-vu/${serviceRedirects[slug]}`,
+        },
+      };
+    }
     const response = await servicesAPI.getBySlug(slug) as any;
     const service = response?.service;
     const seo = response?.seo;
@@ -49,6 +78,9 @@ export async function generateMetadata({ params }: Props) {
 
 export default async function ServiceSlugPage({ params }: Props) {
   const { slug } = await params;
+  if (serviceRedirects[slug]) {
+    redirect(`/dich-vu/${serviceRedirects[slug]}`);
+  }
   let serviceData: any = null;
   
   try {

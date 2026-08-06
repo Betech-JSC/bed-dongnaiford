@@ -407,7 +407,11 @@ export default function UsedVehicleDetailClient({ vehicle }: { vehicle: any }) {
             </div>
             <div 
               className="prose max-w-none text-sm text-gray-700 leading-relaxed space-y-4"
-              dangerouslySetInnerHTML={{ __html: vehicle.description }}
+              dangerouslySetInnerHTML={{ 
+                __html: vehicle.description 
+                  ? vehicle.description.replace(/<h1([^>]*?)>/gi, "<h2$1>").replace(/<\/h1>/gi, "</h2>") 
+                  : "" 
+              }}
             />
           </div>
         )}

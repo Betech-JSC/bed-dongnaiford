@@ -86,7 +86,11 @@ export default async function PrivacyPage() {
             {contentData ? (
               <div 
                 className="prose max-w-none prose-slate font-sans leading-relaxed text-sm md:text-base text-gray-700"
-                dangerouslySetInnerHTML={{ __html: contentData.content }}
+                dangerouslySetInnerHTML={{ 
+                  __html: contentData.content 
+                    ? contentData.content.replace(/<h1([^>]*?)>/gi, "<h2$1>").replace(/<\/h1>/gi, "</h2>") 
+                    : "" 
+                }}
               />
             ) : (
               <p className="text-gray-500 text-center py-8">Đang cập nhật nội dung...</p>

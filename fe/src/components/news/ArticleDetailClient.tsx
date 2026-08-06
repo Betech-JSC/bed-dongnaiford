@@ -118,7 +118,11 @@ export default function ArticleDetailClient({
           {/* Article Content Body */}
           <div 
             className="font-sans text-[#1a1a1a] leading-relaxed text-[16px] max-w-[760px] mx-auto w-full prose prose-blue"
-            dangerouslySetInnerHTML={{ __html: article.content }}
+            dangerouslySetInnerHTML={{ 
+              __html: article.content 
+                ? article.content.replace(/<h1([^>]*?)>/gi, "<h2$1>").replace(/<\/h1>/gi, "</h2>") 
+                : "" 
+            }}
           />
 
           {/* Call to Action Booking Box */}

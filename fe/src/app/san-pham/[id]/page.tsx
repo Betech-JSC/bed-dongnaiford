@@ -1,7 +1,12 @@
-import VehicleDetailClient from "@/components/vehicle/VehicleDetailClient";
+import { redirect } from "next/navigation";
 
-export const revalidate = 0; // TẠM TẮT CACHE ĐỂ DEBUG
+type Props = {
+  params: Promise<{
+    id: string;
+  }>;
+};
 
-export default function Page() {
-  return <VehicleDetailClient />;
+export default async function Page({ params }: Props) {
+  const { id } = await params;
+  redirect(`/${id}`);
 }

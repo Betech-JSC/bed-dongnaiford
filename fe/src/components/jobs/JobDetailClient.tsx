@@ -233,7 +233,11 @@ export default function JobDetailClient({ job }: { job: JobDetail }) {
                       prose-a:text-[#0562d2] prose-a:underline hover:prose-a:text-[#044ea7]
                       prose-strong:text-gray-900 prose-strong:font-bold
                       prose-li:marker:text-[#0562d2] prose-ul:list-disc prose-ul:pl-6 prose-ul:mb-4"
-                    dangerouslySetInnerHTML={{ __html: job.content }}
+                    dangerouslySetInnerHTML={{ 
+                      __html: job.content 
+                        ? job.content.replace(/<h1([^>]*?)>/gi, "<h2$1>").replace(/<\/h1>/gi, "</h2>") 
+                        : "" 
+                    }}
                   />
                 )}
               </div>

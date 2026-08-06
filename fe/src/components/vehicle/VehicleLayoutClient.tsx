@@ -34,8 +34,47 @@ export function useVehicle() {
   return context;
 }
 
-const getVersionSlug = (verName: string) => {
-  return verName.toLowerCase()
+const getVersionSlug = (verName: string, vehicleName?: string) => {
+  let cleaned = verName.toLowerCase();
+  if (vehicleName) {
+    const vName = vehicleName.toLowerCase();
+    const vNameWithoutFord = vName.replace("ford", "").trim();
+
+    let changed = true;
+    while (changed) {
+      changed = false;
+      cleaned = cleaned.trim();
+      if (cleaned.startsWith("ford")) {
+        cleaned = cleaned.substring(4);
+        changed = true;
+        continue;
+      }
+      if (cleaned.startsWith(vName)) {
+        cleaned = cleaned.substring(vName.length);
+        changed = true;
+        continue;
+      }
+      if (vNameWithoutFord && cleaned.startsWith(vNameWithoutFord)) {
+        cleaned = cleaned.substring(vNameWithoutFord.length);
+        changed = true;
+        continue;
+      }
+      if (cleaned.startsWith("new")) {
+        const temp = cleaned.substring(3).trim();
+        if (temp.startsWith("ford") || temp.startsWith(vName) || (vNameWithoutFord && temp.startsWith(vNameWithoutFord))) {
+          cleaned = temp;
+          changed = true;
+          continue;
+        }
+      }
+    }
+  }
+
+  if (!cleaned.trim()) {
+    cleaned = verName.toLowerCase();
+  }
+
+  return cleaned.trim()
     .replace(/\+/g, "-plus")
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
@@ -744,7 +783,7 @@ export function VehicleTabBar() {
 
   const firstVersionSlug = useMemo(() => {
     const firstVer = vehicle?.versions?.[0];
-    return firstVer ? getVersionSlug(firstVer.name) : "phien-ban";
+    return firstVer ? getVersionSlug(firstVer.name, vehicle.name) : "phien-ban";
   }, [vehicle]);
 
   const subTabs = useMemo(() => [

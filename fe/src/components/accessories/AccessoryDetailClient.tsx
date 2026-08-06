@@ -287,7 +287,11 @@ export default function AccessoryDetailClient({
 
               <p 
                 className="font-['Ford_Antenna',sans-serif] font-normal text-[16px] text-[#1d2939] leading-[1.5]"
-                dangerouslySetInnerHTML={{ __html: accessory.description }}
+                dangerouslySetInnerHTML={{ 
+                  __html: accessory.description 
+                    ? accessory.description.replace(/<h1([^>]*?)>/gi, "<h2$1>").replace(/<\/h1>/gi, "</h2>") 
+                    : "" 
+                }}
               />
 
               <div className="flex flex-col gap-[12px] w-full">
@@ -411,7 +415,11 @@ export default function AccessoryDetailClient({
                         {isOpen && (
                           <div 
                             className="font-['Ford_Antenna',sans-serif] font-normal text-[16px] text-[#333] leading-[1.5] rich-text-content"
-                            dangerouslySetInnerHTML={{ __html: acc.text || "" }}
+                            dangerouslySetInnerHTML={{ 
+                              __html: acc.text 
+                                ? acc.text.replace(/<h1([^>]*?)>/gi, "<h2$1>").replace(/<\/h1>/gi, "</h2>") 
+                                : "" 
+                            }}
                           />
                         )}
                       </div>

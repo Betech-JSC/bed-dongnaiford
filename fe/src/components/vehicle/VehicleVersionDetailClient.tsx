@@ -7,8 +7,45 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { resolveImageUrl } from "@/components/blocks/Blocks";
 
 // Vietnamese-accent-safe URL slug generator
-const getVersionSlug = (verName: string) => {
-  return verName.toLowerCase()
+const getVersionSlug = (verName: string, vehicleName: string) => {
+  let cleaned = verName.toLowerCase();
+  const vName = vehicleName.toLowerCase();
+  const vNameWithoutFord = vName.replace("ford", "").trim();
+
+  let changed = true;
+  while (changed) {
+    changed = false;
+    cleaned = cleaned.trim();
+    if (cleaned.startsWith("ford")) {
+      cleaned = cleaned.substring(4);
+      changed = true;
+      continue;
+    }
+    if (cleaned.startsWith(vName)) {
+      cleaned = cleaned.substring(vName.length);
+      changed = true;
+      continue;
+    }
+    if (vNameWithoutFord && cleaned.startsWith(vNameWithoutFord)) {
+      cleaned = cleaned.substring(vNameWithoutFord.length);
+      changed = true;
+      continue;
+    }
+    if (cleaned.startsWith("new")) {
+      const temp = cleaned.substring(3).trim();
+      if (temp.startsWith("ford") || temp.startsWith(vName) || (vNameWithoutFord && temp.startsWith(vNameWithoutFord))) {
+        cleaned = temp;
+        changed = true;
+        continue;
+      }
+    }
+  }
+
+  if (!cleaned.trim()) {
+    cleaned = verName.toLowerCase();
+  }
+
+  return cleaned.trim()
     .replace(/\+/g, "-plus")
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
@@ -20,10 +57,57 @@ const getVersionSlug = (verName: string) => {
 
 // Extract version specific display name (e.g. "Titanium X" instead of "Ford Territory Titanium X")
 const getVersionDisplayName = (verName: string, vehicleName: string) => {
-  if (verName.toLowerCase().startsWith(vehicleName.toLowerCase())) {
-    return verName.substring(vehicleName.length).trim();
+  let displayName = verName;
+  const vName = vehicleName.toLowerCase();
+  const vNameWithoutFord = vName.replace("ford", "").trim();
+  
+  let cleaned = displayName.toLowerCase();
+  let changed = true;
+  let cutLen = 0;
+  
+  while (changed) {
+    changed = false;
+    const trimmed = cleaned.trim();
+    const offset = displayName.length - cleaned.length;
+    
+    if (trimmed.startsWith("ford")) {
+      const len = trimmed.substring(4).search(/\S/);
+      cutLen = offset + 4 + (len > -1 ? len : 0);
+      cleaned = trimmed.substring(4);
+      changed = true;
+      continue;
+    }
+    if (trimmed.startsWith(vName)) {
+      const len = trimmed.substring(vName.length).search(/\S/);
+      cutLen = offset + vName.length + (len > -1 ? len : 0);
+      cleaned = trimmed.substring(vName.length);
+      changed = true;
+      continue;
+    }
+    if (vNameWithoutFord && trimmed.startsWith(vNameWithoutFord)) {
+      const len = trimmed.substring(vNameWithoutFord.length).search(/\S/);
+      cutLen = offset + vNameWithoutFord.length + (len > -1 ? len : 0);
+      cleaned = trimmed.substring(vNameWithoutFord.length);
+      changed = true;
+      continue;
+    }
+    if (trimmed.startsWith("new")) {
+      const temp = trimmed.substring(3).trim();
+      if (temp.startsWith("ford") || temp.startsWith(vName) || (vNameWithoutFord && temp.startsWith(vNameWithoutFord))) {
+        const len = trimmed.substring(3).search(/\S/);
+        cutLen = offset + 3 + (len > -1 ? len : 0);
+        cleaned = temp;
+        changed = true;
+        continue;
+      }
+    }
   }
-  return verName;
+  
+  if (cutLen > 0 && cutLen < displayName.length) {
+    return displayName.substring(cutLen);
+  }
+  
+  return displayName;
 };
 
 export default function VehicleVersionDetailClient() {
@@ -39,7 +123,7 @@ export default function VehicleVersionDetailClient() {
   const activeVersionIndex = useMemo(() => {
     if (!vehicle || !vehicle.versions || vehicle.versions.length === 0) return 0;
     const idx = vehicle.versions.findIndex(
-      (v: any) => getVersionSlug(v.name) === versionSlug
+      (v: any) => getVersionSlug(v.name, vehicle.name) === versionSlug
     );
     return idx !== -1 ? idx : 0;
   }, [vehicle, versionSlug]);
@@ -48,10 +132,10 @@ export default function VehicleVersionDetailClient() {
   useEffect(() => {
     if (!vehicle || !vehicle.versions || vehicle.versions.length === 0) return;
     const matchedIdx = vehicle.versions.findIndex(
-      (v: any) => getVersionSlug(v.name) === versionSlug
+      (v: any) => getVersionSlug(v.name, vehicle.name) === versionSlug
     );
     if (matchedIdx === -1) {
-      const firstSlug = getVersionSlug(vehicle.versions[0].name);
+      const firstSlug = getVersionSlug(vehicle.versions[0].name, vehicle.name);
       router.replace(`/${id}/${firstSlug}`);
     }
   }, [vehicle, versionSlug, id, router]);
@@ -60,7 +144,7 @@ export default function VehicleVersionDetailClient() {
 
   const handleVersionSelect = (idx: number) => {
     if (vehicle && vehicle.versions[idx]) {
-      const targetSlug = getVersionSlug(vehicle.versions[idx].name);
+      const targetSlug = getVersionSlug(vehicle.versions[idx].name, vehicle.name);
       router.push(`/${id}/${targetSlug}`);
     }
   };

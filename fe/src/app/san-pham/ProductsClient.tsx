@@ -503,7 +503,9 @@ export default function ProductsClient({ initialCategory, initialVehicles = [], 
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.08),transparent_70%)] pointer-events-none" />
         <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] text-center relative z-10">
           <h1 className="text-3xl md:text-5xl font-bold tracking-[-0.96px] leading-[1.2] mb-4 uppercase font-['Ford_Antenna',sans-serif]">
-            Các dòng xe Ford
+            {selectedCategories.length === 1 
+              ? `Dòng xe Ford ${getCategoryTitle(selectedCategories[0])}` 
+              : "Các dòng xe Ford"}
           </h1>
           <p className="text-white/80 text-sm md:text-base max-w-2xl mx-auto font-medium">
             Khám phá các dòng xe Ford thế hệ mới tại Đồng Nai Ford — Từ dòng SUV thông minh, bán tải địa hình hầm hố cho đến các dòng xe thương mại đa dụng tối ưu.
