@@ -142,9 +142,22 @@
                             label: 'Tiêu đề',
                         }"
                     />
-                    <small v-if="form.id">
-                        <span v-for="(url, locale) in form.url" :key="locale">
-                            {{ locale }}: <a :href="url" target="_blank" class="link">{{ decodeURI(url) }}</a><br />
+                    <div class="mb-4">
+                        <div class="text-xs text-gray-500 font-semibold mb-1">Đường dẫn bài viết (URL Slug)</div>
+                        <div class="flex items-center">
+                            <span class="text-gray-400 text-xs bg-gray-100 border border-gray-300 rounded-l px-3 py-2 border-r-0 select-none font-mono">/</span>
+                            <input
+                                type="text"
+                                v-model="form[currentTab].seo_slug"
+                                @input="form[currentTab].seo_slug = slugify($event.target.value)"
+                                class="w-full bg-white border border-gray-300 rounded-r px-3 py-1.5 text-sm font-mono focus:ring-1 focus:ring-primary-500 focus:outline-none"
+                                :placeholder="form[currentTab].slug"
+                            />
+                        </div>
+                    </div>
+                    <small v-if="form.id" class="block mb-4 text-xs text-gray-500">
+                        <span v-for="(url, locale) in form.url" :key="locale" class="block">
+                            {{ locale }}: <a :href="url" target="_blank" class="link font-mono">{{ decodeURI(url) }}</a>
                         </span>
                     </small>
                     <Field
@@ -163,17 +176,39 @@
                             label: 'Mô tả',
                         }"
                     />
-                    <Field
-                        v-model="form[currentTab].content"
-                        :field="{
-                            type: 'richtext',
-                            name: `content_${currentTab}`,
-                            label: 'Nội dung',
-                        }"
-                    />
+                    <div class="mb-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Nội dung</label>
+                            <button
+                                type="button"
+                                @click="showHtmlEditor[currentTab] = !showHtmlEditor[currentTab]"
+                                class="px-2.5 py-1 bg-gray-200 hover:bg-gray-300 text-gray-700 text-xs font-bold rounded flex items-center transition-colors border border-gray-300 cursor-pointer shadow-sm"
+                            >
+                                <span class="mr-1">{{ showHtmlEditor[currentTab] ? '📝' : '💻' }}</span>
+                                <span>{{ showHtmlEditor[currentTab] ? 'Xem dạng soạn thảo' : 'Xem code HTML bài viết' }}</span>
+                            </button>
+                        </div>
+                        <div v-if="showHtmlEditor[currentTab]">
+                            <textarea
+                                v-model="form[currentTab].content"
+                                rows="20"
+                                class="w-full bg-[#1e1e1e] text-green-400 font-mono text-sm p-4 rounded border border-gray-700 focus:ring-1 focus:ring-primary-500 focus:outline-none"
+                                placeholder="<!-- Nhập mã HTML tại đây -->"
+                            ></textarea>
+                        </div>
+                        <Field
+                            v-else
+                            v-model="form[currentTab].content"
+                            :field="{
+                                type: 'richtext',
+                                name: `content_${currentTab}`,
+                                label: '',
+                            }"
+                        />
+                    </div>
                 </div>
             </div>
-            <SeoFields :modelValue="form" :locale="currentTab" @update:modelValue="form = $event" />
+            <SeoFields :modelValue="form[currentTab]" @update:modelValue="form[currentTab] = $event" />
         </template>
 
         <template #aside="{ form }">
@@ -248,6 +283,10 @@ export default {
             aiOutline: '',
             aiLoading: false,
             aiResult: null,
+            showHtmlEditor: {
+                vi: false,
+                en: false
+            }
         }
     },
 
@@ -255,6 +294,16 @@ export default {
         item() {
             this.formData = this.initFormData(this.item)
         },
+        'formData.vi.title'(newTitle) {
+            if (!this.item.id && this.formData.vi) {
+                this.formData.vi.slug = this.slugify(newTitle);
+            }
+        },
+        'formData.en.title'(newTitle) {
+            if (!this.item.id && this.formData.en) {
+                this.formData.en.slug = this.slugify(newTitle);
+            }
+        }
     },
 
     methods: {
@@ -270,11 +319,18 @@ export default {
                     trans = item.translations.find(t => t.locale === loc)
                 }
                 data[loc] = {
-                    title:       trans ? (trans.title       ?? '') : (loc === 'vi' ? (item.title       ?? '') : ''),
-                    slug:        trans ? (trans.slug        ?? '') : (loc === 'vi' ? (item.slug        ?? '') : ''),
-                    author:      trans ? (trans.author      ?? '') : (loc === 'vi' ? (item.author      ?? '') : ''),
-                    description: trans ? (trans.description ?? '') : (loc === 'vi' ? (item.description ?? '') : ''),
-                    content:     trans ? (trans.content     ?? '') : (loc === 'vi' ? (item.content     ?? '') : ''),
+                    title:                trans ? (trans.title                ?? '') : (loc === 'vi' ? (item.title                ?? '') : ''),
+                    slug:                 trans ? (trans.slug                 ?? '') : (loc === 'vi' ? (item.slug                 ?? '') : ''),
+                    seo_slug:             trans ? (trans.seo_slug             ?? '') : '',
+                    author:               trans ? (trans.author               ?? '') : (loc === 'vi' ? (item.author               ?? '') : ''),
+                    description:          trans ? (trans.description          ?? '') : (loc === 'vi' ? (item.description          ?? '') : ''),
+                    content:              trans ? (trans.content              ?? '') : (loc === 'vi' ? (item.content              ?? '') : ''),
+                    seo_meta_title:       trans ? (trans.seo_meta_title       ?? '') : '',
+                    seo_meta_description: trans ? (trans.seo_meta_description ?? '') : '',
+                    seo_meta_keywords:    trans ? (trans.seo_meta_keywords    ?? '') : '',
+                    seo_meta_robots:      trans ? (trans.seo_meta_robots      ?? '') : '',
+                    seo_canonical:        trans ? (trans.seo_canonical        ?? '') : '',
+                    seo_image:            trans ? (trans.seo_image            ?? null) : null,
                 }
             })
             return data
@@ -317,8 +373,25 @@ export default {
             this.formData[this.currentTab].title = this.aiResult.title;
             this.formData[this.currentTab].description = this.aiResult.description;
             this.formData[this.currentTab].content = this.aiResult.content;
+            this.formData[this.currentTab].slug = this.slugify(this.aiResult.title);
             
             alert('Đã áp dụng kết quả từ AI vào tab bài viết ' + (this.aiLanguage === 'vi' ? 'Tiếng Việt' : 'English') + '!');
+        },
+        slugify(str, separator = "-") {
+            if (!str) return '';
+            return str
+                .toLowerCase()
+                .replace(/\t/g, "")
+                .replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a")
+                .replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e")
+                .replace(/ì|í|ị|ỉ|ĩ/g, "i")
+                .replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, "o")
+                .replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, "u")
+                .replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y")
+                .replace(/đ/g, "d")
+                .replace(/\s+/g, separator)
+                .replace(/[^A-Za-z0-9_-]/g, "")
+                .replace(/-+/g, separator);
         }
     },
 }
