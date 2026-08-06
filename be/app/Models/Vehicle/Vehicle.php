@@ -300,9 +300,9 @@ class Vehicle extends BaseModel
             foreach ($this->translations as $translation) {
                 $routeName = "$translation->locale.products.show";
                 if (\Illuminate\Support\Facades\Route::has($routeName)) {
-                    $urls[strtoupper($translation->locale)] = route($routeName, [
+                    $urls[strtoupper($translation->locale)] = self::toFrontendUrl(route($routeName, [
                         'slug' => $translation->seo_slug ?? $translation->slug,
-                    ]);
+                    ]));
                 } else {
                     $slug = $translation->seo_slug ?? $translation->slug;
                     if ($translation->locale === 'vi') {

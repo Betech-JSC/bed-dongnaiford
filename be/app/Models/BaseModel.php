@@ -39,4 +39,22 @@ class BaseModel extends Model
 
         return $url;
     }
+
+    /**
+     * Converts a backend generated route URL to the configured frontend URL.
+     */
+    public static function toFrontendUrl($url)
+    {
+        if (empty($url)) return $url;
+
+        $backendUrl = config('app.url');
+        $frontendUrl = config('app.frontend_url');
+
+        if ($frontendUrl && $backendUrl && $frontendUrl !== $backendUrl) {
+            $url = str_replace(rtrim($backendUrl, '/'), rtrim($frontendUrl, '/'), $url);
+            $url = str_replace(rtrim(url('/'), '/'), rtrim($frontendUrl, '/'), $url);
+        }
+
+        return $url;
+    }
 }

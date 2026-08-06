@@ -186,9 +186,9 @@ class Post extends BaseModel
         if ($this->is_active) {
             if (Route::has($default_locale . ".posts.show")) {
                 foreach ($this->translations as $translation) {
-                    $urls[strtoupper($translation->locale)] = route("$translation->locale.posts.show", [
+                    $urls[strtoupper($translation->locale)] = self::toFrontendUrl(route("$translation->locale.posts.show", [
                         'slug' => $translation->seo_slug ?? $translation->slug,
-                    ]);
+                    ]));
                 }
             } else if (Route::has($default_locale . ".nested_posts.show")) {
                 $category = $this->categories
@@ -204,10 +204,10 @@ class Post extends BaseModel
                             ->sortBy(fn($item) => $item['locale'] === $translation->locale ? 0 : 1)
                             ->first();
 
-                        $urls[strtoupper($translation->locale)] = route("$translation->locale.nested_posts.show", [
+                        $urls[strtoupper($translation->locale)] = self::toFrontendUrl(route("$translation->locale.nested_posts.show", [
                             'nested' => $categoryTranslation->seo_slug ?? $categoryTranslation->slug,
                             'slug' => $translation->seo_slug ?? $translation->slug,
-                        ]);
+                        ]));
                     }
                 }
             }
