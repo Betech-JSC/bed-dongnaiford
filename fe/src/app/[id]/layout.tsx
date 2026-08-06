@@ -79,7 +79,13 @@ const parseSpecsArray = (specsArray: any): Record<string, string> => {
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
-    const res = await vehiclesAPI.getBySlug(id).catch(() => null);
+    
+    // Fetch both in parallel to reduce Time-To-First-Byte (TTFB)
+    const [res, postRes] = await Promise.all([
+      vehiclesAPI.getBySlug(id).catch(() => null),
+      postsAPI.getBySlug(id).catch(() => null)
+    ]);
+    
     const apiVehicle = res?.data || (res?.id ? res : null);
 
     if (apiVehicle) {
@@ -103,7 +109,6 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     }
 
     // Check if it's a blog post / article slug
-    const postRes = await postsAPI.getBySlug(id).catch(() => null);
     const article = postRes?.post;
     if (article) {
       const title = article.seo_title || `${article.title} | Tin tức | Đồng Nai Ford`;
@@ -144,16 +149,31 @@ export default async function VehicleDetailLayout({
   const isPreview = search?.preview === "true" || search?.preview === "1";
 
   let apiVehicle = null;
+  let article = null;
+  let relatedArticles: any[] = [];
+  let postRes = null;
   let rawAllVehicles: any[] = [];
 
   try {
-    const detailRes = await vehiclesAPI.getBySlug(id, isPreview ? { preview: "true" } : undefined).catch(() => null);
+    // Fetch both in parallel to avoid sequential network roundtrips
+    const [detailRes, fetchedPostRes] = await Promise.all([
+      vehiclesAPI.getBySlug(id, isPreview ? { preview: "true" } : undefined).catch(() => null),
+      postsAPI.getBySlug(id).catch(() => null)
+    ]);
+
+    postRes = fetchedPostRes;
     const vehicleObj = detailRes?.data || (detailRes?.id ? detailRes : null);
+
     if (vehicleObj) {
       apiVehicle = vehicleObj;
+    } else if (postRes?.post) {
+      article = postRes.post;
+      relatedArticles = postRes.related_posts || [];
     } else {
+      // Last resort fallback: fetch all vehicles to look up by ID/slug/title match
       const allRes = await vehiclesAPI.getAll({ with_versions: true }).catch(() => null);
       const items = (allRes as any)?.data || (Array.isArray(allRes) ? allRes : []);
+      rawAllVehicles = items;
       if (Array.isArray(items)) {
         apiVehicle = items.find((v: any) => 
           (v.slug && v.slug === id) || 
@@ -164,14 +184,12 @@ export default async function VehicleDetailLayout({
       }
     }
   } catch (err) {
-    console.error("Error loading vehicle details on server layout:", err);
+    console.error("Error loading details on server layout:", err);
   }
 
   if (!apiVehicle) {
     // Check if it's a blog post / article slug -> Render Article directly at root level!
-    const postRes = await postsAPI.getBySlug(id).catch(() => null);
-    if (postRes?.post) {
-      const article = postRes.post;
+    if (article) {
       const siteUrl = "https://dongnaiford.com.vn";
       const articleUrl = `${siteUrl}/${article.slug || id}`;
       const articleImage = article.seo_image || article.image?.url || "";
