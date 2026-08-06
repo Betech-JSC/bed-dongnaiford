@@ -17,9 +17,9 @@ async function fetchAPI<T = any>(endpoint: string, options?: RequestInit): Promi
   const url = `${getApiBaseUrl()}${endpoint}`;
   const method = options?.method?.toUpperCase() || 'GET';
   
-  // Sử dụng Next.js Cache Tag 'cms-data' để cache và hỗ trợ Revalidate tức thì từ Webhook
+  // TẠM TẮT CACHE ĐỂ DEBUG — bật lại sau khi fix xong
   const defaultCacheOption = method === 'GET' && !options?.cache && !options?.next
-    ? { next: { tags: ['cms-data'], revalidate: 3600 } }
+    ? { cache: 'no-store' as RequestCache }
     : {};
 
   try {
