@@ -85,6 +85,37 @@ export default function BlogCtaCard({ articleTitle }: Props) {
 
   return (
     <div className="w-full relative font-sans my-4">
+      {/* CSS Hoạt họa Vui nhộn cho Button Đăng Ký */}
+      <style>{`
+        @keyframes playful-bounce {
+          0%, 100% {
+            transform: translateY(0) scale(1);
+          }
+          10% {
+            transform: translateY(0) scale(1.08, 0.92);
+          }
+          30% {
+            transform: translateY(-8px) scale(0.92, 1.08);
+          }
+          50% {
+            transform: translateY(2px) scale(1.03, 0.97);
+          }
+          70% {
+            transform: translateY(-2px) scale(0.98, 1.02);
+          }
+          85% {
+            transform: translateY(0) scale(1);
+          }
+        }
+        .animate-playful {
+          animation: playful-bounce 2.2s infinite ease-in-out;
+          transform-origin: bottom center;
+        }
+        .animate-playful:hover {
+          animation: none !important;
+        }
+      `}</style>
+
       {/* Toast Notification */}
       {showToast && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
@@ -202,7 +233,7 @@ export default function BlogCtaCard({ articleTitle }: Props) {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full py-1.5 px-3 bg-gradient-to-r from-[#006fef] to-[#00255c] hover:from-[#005ec8] hover:to-[#001d4a] disabled:from-slate-400 disabled:to-slate-500 text-white font-extrabold tracking-widest rounded-full shadow-lg hover:shadow-[0_8px_20px_rgba(0,111,239,0.4)] hover:-translate-y-1 hover:scale-[1.02] active:scale-[0.99] active:translate-y-0 transition-all duration-300 ease-out cursor-pointer flex items-center justify-between group"
+                className="w-full py-1.5 px-3 bg-gradient-to-r from-[#006fef] to-[#00255c] hover:from-[#005ec8] hover:to-[#001d4a] disabled:from-slate-400 disabled:to-slate-500 text-white font-extrabold tracking-widest rounded-full shadow-lg hover:shadow-[0_8px_20px_rgba(0,111,239,0.4)] hover:-translate-y-1 hover:scale-[1.02] active:scale-[0.99] active:translate-y-0 transition-all duration-300 ease-out cursor-pointer flex items-center justify-between group animate-playful"
               >
                 <span className="flex-1 text-center font-black text-[9px] font-['Ford_Antenna',sans-serif] uppercase tracking-wider pl-3 whitespace-nowrap">
                   {isSubmitting ? "Đang xử lý..." : "ĐĂNG KÝ TƯ VẤN NGAY"}

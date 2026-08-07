@@ -150,6 +150,8 @@ Route::localized(function () {
             'message' => 'OK'
         ]);
     })->name('api.settings.system-notification');
+
+    Route::get('redirects/lookup', [\App\Http\Controllers\Api\RedirectLookupController::class, 'lookup'])->name('api.redirects.lookup');
 });
 
 Route::get('keywords/index', [KeywordController::class, 'index'])

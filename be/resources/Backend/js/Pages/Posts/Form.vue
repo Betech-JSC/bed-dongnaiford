@@ -223,10 +223,41 @@
                         <div class="text-xs text-gray-500 font-semibold mb-1">Đường dẫn bài viết liên quan (Chèn đường dẫn/slug bài viết, mỗi dòng một bài viết)</div>
                         <textarea
                             v-model="form.related_urls"
-                            rows="4"
+                            rows="9"
                             class="w-full bg-white border border-gray-300 rounded px-3 py-2 text-sm focus:ring-1 focus:ring-primary-500 focus:outline-none font-mono"
                             placeholder="Ví dụ:&#10;/mua-tra-gop-ford-ranger&#10;https://dongnaiford.com.vn/danh-gia-xe-ford-territory-2026"
                         ></textarea>
+                    </div>
+                    
+                    <!-- 301 Redirects Tags Input -->
+                    <div class="border-t border-gray-100 pt-6 mt-6">
+                        <div class="text-xs text-gray-500 font-semibold mb-2">Cấu hình 301 Redirect (Nhập URL cũ cần chuyển hướng về bài viết này và bấm Enter)</div>
+                        <div class="w-full bg-white border border-gray-300 rounded-lg p-3.5 focus-within:ring-1 focus-within:ring-primary-500 focus-within:border-primary-500 min-h-[200px] flex flex-wrap gap-2.5 items-start content-start">
+                            <span 
+                                v-for="(tag, index) in redirectTags" 
+                                :key="index" 
+                                class="inline-flex items-center bg-blue-50 text-blue-900 text-sm font-mono px-3 py-1.5 rounded-md border border-blue-200 shadow-sm"
+                            >
+                                <span>{{ tag }}</span>
+                                <button 
+                                    type="button" 
+                                    @click="removeRedirectTag(index, form)" 
+                                    class="ml-2 inline-flex items-center justify-center text-blue-400 hover:text-red-500 hover:bg-blue-100 rounded-full w-4.5 h-4.5 focus:outline-none border-0 p-0 cursor-pointer"
+                                >
+                                    &times;
+                                </button>
+                            </span>
+                            <input 
+                                type="text" 
+                                v-model="newRedirectTag"
+                                @input="handleInput"
+                                @keydown.space="handleSpaceKey"
+                                @keydown.enter.prevent="addRedirectTag(form)"
+                                @blur="addRedirectTag(form)"
+                                placeholder="Ví dụ: tin-tuc/everest-2025-cu (Gõ và bấm Enter để thêm)"
+                                class="flex-grow min-w-[250px] bg-transparent border-0 p-1 text-sm focus:ring-0 focus:outline-none placeholder-gray-400"
+                            />
+                        </div>
                     </div>
                 </div>
             </div>
@@ -298,13 +329,18 @@ export default {
             showHtmlEditor: {
                 vi: false,
                 en: false
-            }
+            },
+            redirectTags: this.item.redirect_urls ? this.item.redirect_urls.split('\n').filter(Boolean) : [],
+            newRedirectTag: ''
         }
     },
 
     watch: {
         item() {
             this.formData = this.initFormData(this.item)
+            this.redirectTags = this.item.redirect_urls 
+                ? this.item.redirect_urls.split('\n').filter(Boolean)
+                : [];
         },
         'formData.vi.title'(newTitle) {
             if (!this.item.id && this.formData.vi) {
@@ -334,6 +370,7 @@ export default {
                 }).filter(Boolean).join('\n');
             }
             data.related_urls = relatedUrls;
+            data.redirect_urls = item.redirect_urls || '';
             const locales = ['vi', 'en']
             locales.forEach(loc => {
                 let trans = null
@@ -398,6 +435,76 @@ export default {
             this.formData[this.currentTab].slug = this.slugify(this.aiResult.title);
             
             alert('Đã áp dụng kết quả từ AI vào tab bài viết ' + (this.aiLanguage === 'vi' ? 'Tiếng Việt' : 'English') + '!');
+        },
+        addRedirectTag(form) {
+            const val = this.newRedirectTag.trim();
+            if (!val) return;
+
+            let path = val;
+            
+            // TỐI ƯU SEO: Loại bỏ query string (?...) và hash (#...)
+            path = path.split('?')[0].split('#')[0];
+
+            try {
+                if (path.startsWith('http://') || path.startsWith('https://')) {
+                    const url = new URL(path);
+                    path = url.pathname;
+                }
+            } catch (e) {}
+            
+            // Biến dấu cách thành gạch ngang và chuẩn hóa thành slug cho từng phần của đường dẫn
+            const parts = path.split('/').map(part => {
+                return this.slugify(part);
+            }).filter(Boolean);
+            
+            const resultPath = parts.join('/');
+            
+            // TỐI ƯU SEO: Tránh vòng lặp chuyển hướng (redirect loops)
+            const currentSlugs = [];
+            const locales = ['vi', 'en'];
+            locales.forEach(loc => {
+                if (form[loc]) {
+                    const slug = form[loc].seo_slug || form[loc].slug;
+                    if (slug) {
+                        const prefix = loc === 'vi' ? 'tin-tuc' : 'posts';
+                        currentSlugs.push(`${prefix}/${this.slugify(slug)}`);
+                        currentSlugs.push(this.slugify(slug));
+                    }
+                }
+            });
+
+            if (currentSlugs.includes(resultPath)) {
+                this.newRedirectTag = '';
+                return;
+            }
+
+            // Thêm tag đã được slugify
+            if (resultPath && !this.redirectTags.includes(resultPath)) {
+                this.redirectTags.push(resultPath);
+                form.redirect_urls = this.redirectTags.join('\n');
+            }
+            
+            this.newRedirectTag = '';
+        },
+        removeRedirectTag(index, form) {
+            this.redirectTags.splice(index, 1);
+            form.redirect_urls = this.redirectTags.join('\n');
+        },
+        handleInput(e) {
+            if (this.newRedirectTag) {
+                this.newRedirectTag = this.newRedirectTag.replace(/\s+/g, '-');
+            }
+        },
+        handleSpaceKey(e) {
+            e.preventDefault();
+            const input = e.target;
+            const start = input.selectionStart;
+            const end = input.selectionEnd;
+            const val = this.newRedirectTag || '';
+            this.newRedirectTag = val.substring(0, start) + '-' + val.substring(end);
+            this.$nextTick(() => {
+                input.setSelectionRange(start + 1, start + 1);
+            });
         },
         slugify(str, separator = "-") {
             if (!str) return '';

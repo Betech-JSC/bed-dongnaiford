@@ -17,7 +17,7 @@ async function fetchAPI<T = any>(endpoint: string, options?: RequestInit): Promi
   const url = `${getApiBaseUrl()}${endpoint}`;
   const method = options?.method?.toUpperCase() || 'GET';
   
-  // TẠM TẮT CACHE ĐỂ DEBUG — bật lại sau khi fix xong
+  // TẠM TẮT CACHE ĐỂ DEBUG — tắt theo yêu cầu của user
   const defaultCacheOption = method === 'GET' && !options?.cache && !options?.next
     ? { cache: 'no-store' as RequestCache }
     : {};

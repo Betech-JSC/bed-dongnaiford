@@ -84,4 +84,113 @@ class PostController extends Controller
             'data' => $result['data']
         ]);
     }
+
+    private function afterForm($item)
+    {
+        if (is_array($item)) {
+            $itemId = $item['id'] ?? null;
+        } else {
+            $itemId = $item->id ?? null;
+        }
+
+        $redirectUrls = '';
+        if ($itemId) {
+            $post = Post::find($itemId);
+            if ($post) {
+                $urls = [];
+                foreach ($post->translations as $trans) {
+                    $slug = $trans->seo_slug ?: $trans->slug;
+                    if ($slug) {
+                        $urls[] = trim($trans->getRelativeUrlForSlug($slug), '/');
+                    }
+                }
+                
+                if (!empty($urls)) {
+                    $redirectUrls = \DB::table('redirects')
+                        ->whereIn('new_url', $urls)
+                        ->pluck('old_url')
+                        ->implode("\n");
+                }
+            }
+        }
+
+        if (is_array($item)) {
+            $item['redirect_urls'] = $redirectUrls;
+        } else {
+            $item->redirect_urls = $redirectUrls;
+        }
+
+        return $item;
+    }
+
+    private function afterStore($request, $resource)
+    {
+        revalidate_frontend();
+
+        if ($request->has('redirect_urls')) {
+            $urlsString = $request->input('redirect_urls');
+            $lines = array_filter(array_map('trim', explode("\n", $urlsString)));
+            $lines = array_map(function($line) {
+                $path = trim(parse_url($line, PHP_URL_PATH), '/');
+                $parts = array_map(function($part) {
+                    return \Illuminate\Support\Str::slug($part);
+                }, explode('/', $path));
+                return implode('/', array_filter($parts));
+            }, $lines);
+            $lines = array_filter($lines);
+
+            $urls = [];
+            foreach ($resource->translations as $trans) {
+                $slug = $trans->seo_slug ?: $trans->slug;
+                if ($slug) {
+                    $urls[strtoupper($trans->locale)] = trim($trans->getRelativeUrlForSlug($slug), '/');
+                }
+            }
+
+            $defaultTarget = $urls['VI'] ?? ($urls['EN'] ?? null);
+
+             if ($defaultTarget) {
+                // Get the old_urls before deleting them to clear cache!
+                $deletedUrls = \DB::table('redirects')
+                    ->whereIn('new_url', array_values($urls))
+                    ->whereNotIn('old_url', $lines)
+                    ->pluck('old_url');
+
+                foreach ($deletedUrls as $oldUrl) {
+                    \Illuminate\Support\Facades\Cache::forget('redirect_lookup_' . md5($oldUrl));
+                }
+
+                \DB::table('redirects')
+                    ->whereIn('new_url', array_values($urls))
+                    ->whereNotIn('old_url', $lines)
+                    ->delete();
+
+                foreach ($lines as $line) {
+                    $target = $defaultTarget;
+                    if (str_starts_with($line, 'en/') || str_contains($line, '/en/')) {
+                        $target = $urls['EN'] ?? $defaultTarget;
+                    }
+
+                    // TỐI ƯU SEO: Tránh vòng lặp chuyển hướng (redirect to self)
+                    if ($line === $target || in_array($line, array_values($urls))) {
+                        continue;
+                    }
+
+                    \JamstackVietnam\Redirect\Models\Redirect::updateOrCreate(
+                        ['old_url' => $line],
+                        [
+                            'new_url' => $target,
+                            'status_code' => 301,
+                            'is_active' => true
+                        ]
+                    );
+
+                    // Xóa cache tương ứng khi cập nhật/thêm redirect
+                    \Illuminate\Support\Facades\Cache::forget('redirect_lookup_' . md5($line));
+                }
+            }
+        }
+
+        return $resource;
+    }
 }
