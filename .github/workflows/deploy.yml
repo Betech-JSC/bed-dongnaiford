@@ -1,4 +1,4 @@
-name: CI/CD Deployment to Ubuntu VPS
+name: CI/CD Deployment Backend to Ubuntu VPS
 
 on:
   push:
@@ -43,16 +43,16 @@ jobs:
           composer validate --strict --no-check-all
 
   # -------------------------------------------------------------
-  # JOB 2: DEPLOY TO UBUNTU VPS (Continuous Deployment)
+  # JOB 2: DEPLOY BACKEND TO UBUNTU VPS (Continuous Deployment)
   # -------------------------------------------------------------
   deploy-to-vps:
-    name: 🚀 Deploy to Ubuntu VPS
+    name: 🚀 Deploy Backend to Ubuntu VPS
     needs: test-and-check
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
 
     steps:
-      - name: 🔑 Deploy to VPS via SSH
+      - name: 🔑 Deploy Backend to VPS via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -62,10 +62,10 @@ jobs:
           script_stop: true
           script: |
             set -e
-            echo "🚀 Starting Deployment on Ubuntu VPS..."
+            echo "🚀 Starting Backend Deployment on Ubuntu VPS..."
 
-            # 1. Move to project directory
-            TARGET_DIR="${{ secrets.VPS_TARGET_DIR || '/var/www/bed-dongnaiford' }}"
+            # 1. Access backend directory on VPS
+            TARGET_DIR="${{ secrets.VPS_TARGET_DIR || '/var/www/bed-dongnaiford/be' }}"
             cd "$TARGET_DIR"
 
             # 2. Pull latest code from main branch
@@ -73,19 +73,38 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
 
-            # 3. Build & Restart Docker Containers
-            echo "🐳 Building Docker images and starting services..."
-            docker compose up -d --build --remove-orphans
+            # 3. Build & Deploy Backend
+            if [ -f "docker-compose.yml" ] || [ -f "docker-compose.yaml" ] || [ -f "../docker-compose.yaml" ]; then
+              echo "🐳 Building Docker containers..."
+              if [ -f "docker-compose.yaml" ] || [ -f "docker-compose.yml" ]; then
+                docker compose up -d --build
+                docker compose exec -T backend php artisan migrate --force
+                docker compose exec -T backend php artisan config:cache
+                docker compose exec -T backend php artisan route:cache
+                docker compose exec -T backend php artisan view:cache
+              else
+                cd ..
+                docker compose up -d --build backend webserver
+                docker compose exec -T backend php artisan migrate --force
+                docker compose exec -T backend php artisan config:cache
+                docker compose exec -T backend php artisan route:cache
+                docker compose exec -T backend php artisan view:cache
+                cd be
+              fi
+            else
+              echo "⚙️ Running Composer & Artisan commands on VPS..."
+              composer install --no-dev --optimize-autoloader
+              php artisan migrate --force
+              php artisan config:cache
+              php artisan route:cache
+              php artisan view:cache
+              if [ -f "package.json" ]; then
+                yarn build || npm run build || true
+              fi
+            fi
 
-            # 4. Run Laravel migrations & optimize cache
-            echo "⚡ Running Laravel migrations and clearing cache..."
-            docker compose exec -T backend php artisan migrate --force
-            docker compose exec -T backend php artisan config:cache
-            docker compose exec -T backend php artisan route:cache
-            docker compose exec -T backend php artisan view:cache
-
-            # 5. Clean up old dangling Docker images to preserve VPS storage
+            # 4. Clean up unused Docker images
             echo "🧹 Pruning unused Docker images..."
-            docker image prune -f
+            docker image prune -f || true
 
-            echo "✅ Deployment on Ubuntu VPS completed successfully!"
+            echo "✅ Backend Deployment on Ubuntu VPS (/var/www/bed-dongnaiford/be) completed successfully!"
