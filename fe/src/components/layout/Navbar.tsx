@@ -6,6 +6,7 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { MapPin, Mail, Phone, Search, ChevronDown, ChevronRight } from "lucide-react";
 import { vehiclesAPI, accessoriesAPI, servicesAPI, usedVehiclesAPI } from "@/lib/api";
+import { useSharedData } from "@/lib/shared-data";
 
 type DropdownItem = {
   name: string;
@@ -20,6 +21,7 @@ type NavLink = {
 };
 
 export default function Navbar() {
+  const sharedData = useSharedData();
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
@@ -30,10 +32,10 @@ export default function Navbar() {
   const [isMobileProductOpen, setIsMobileProductOpen] = useState(false);
   const [mobileActiveTab, setMobileActiveTab] = useState<string | null>(null);
 
-  const [categoriesList, setCategoriesList] = useState<any[]>([]);
-  const [vehiclesList, setVehiclesList] = useState<any[]>([]);
-  const [accessoriesList, setAccessoriesList] = useState<any[]>([]);
-  const [usedVehiclesList, setUsedVehiclesList] = useState<any[]>([]);
+  const [categoriesList, setCategoriesList] = useState<any[]>(sharedData.categories);
+  const [vehiclesList, setVehiclesList] = useState<any[]>(sharedData.vehicles);
+  const [accessoriesList, setAccessoriesList] = useState<any[]>(sharedData.accessories);
+  const [usedVehiclesList, setUsedVehiclesList] = useState<any[]>(sharedData.usedVehicles);
   const [servicesMenuList, setServicesMenuList] = useState<DropdownItem[]>([
     { name: "Bảo dưỡng định kỳ", href: "/dich-vu/bao-duong-dinh-ky" },
     { name: "Bảo dưỡng nhanh 60 phút", href: "/dich-vu/bao-duong-nhanh" },
@@ -89,7 +91,51 @@ export default function Navbar() {
   }, []);
 
   // Fetch Category, Vehicle, Accessories & Services data from API
+  // SKIP nếu đã có dữ liệu từ SSR SharedDataProvider
   useEffect(() => {
+    // Nếu SSR đã pre-fetch đủ data → bỏ qua client fetch (tiết kiệm 5 API calls)
+    if (sharedData.categories.length > 0 || sharedData.vehicles.length > 0) {
+      // Process services menu from SSR data
+      if (sharedData.services.length > 0) {
+        const subServiceSlugs = [
+          "nhan-giao-xe-mien-phi", "nhan-giao-xe-tan-noi-mien-phi",
+          "giao-nhan-xe-tan-noi", "dich-vu-giao-nhan-xe-tan-noi",
+          "nhan-va-giao-xe-tan-noi-mien-phi", "ford-sync", "ung-dung-ford",
+          "fordpass", "ford-ensure", "ensure",
+          "intelligent-oil-life-monitor", "intelligent-oil-life-monitoring",
+          "canh-bao-thay-dau-iolm"
+        ];
+        const mainItems: DropdownItem[] = [];
+        const otherItems: DropdownItem[] = [];
+        sharedData.services.forEach((srv: any) => {
+          const slug = srv.slug;
+          const href = (srv.custom_link && srv.custom_link.startsWith('/dich-vu/'))
+            ? srv.custom_link : `/dich-vu/${slug}`;
+          const name = srv.title || srv.name || "";
+          const item = { name, href };
+          if (subServiceSlugs.includes(slug)) { otherItems.push(item); }
+          else { mainItems.push(item); }
+        });
+        const defaultSubServices = [
+          { name: "Nhận & Giao xe tận nơi miễn phí", href: "/dich-vu/nhan-giao-xe-mien-phi", slugs: ["nhan-giao-xe-mien-phi", "nhan-giao-xe-tan-noi-mien-phi", "giao-nhan-xe-tan-noi"] },
+          { name: "FORD SYNC", href: "/dich-vu/ford-sync", slugs: ["ford-sync"] },
+          { name: "Ứng dụng Ford", href: "/dich-vu/ung-dung-ford", slugs: ["ung-dung-ford", "fordpass"] },
+          { name: "Ford Ensure", href: "/dich-vu/ford-ensure", slugs: ["ford-ensure", "ensure"] },
+          { name: "Cảnh báo thay dầu (IOLM)", href: "/dich-vu/intelligent-oil-life-monitor", slugs: ["intelligent-oil-life-monitor", "intelligent-oil-life-monitoring", "canh-bao-thay-dau-iolm"] }
+        ];
+        defaultSubServices.forEach(defaultSrv => {
+          const exists = otherItems.some(item => defaultSrv.slugs.some(s => item.href.includes(s)));
+          if (!exists) { otherItems.push({ name: defaultSrv.name, href: defaultSrv.href }); }
+        });
+        if (otherItems.length > 0) {
+          mainItems.push({ name: "Các Dịch Vụ Khác", href: "#", subItems: otherItems });
+        }
+        setServicesMenuList(mainItems);
+      }
+      setLoading(false);
+      return;
+    }
+
     let active = true;
     const fetchMenuData = async () => {
       try {

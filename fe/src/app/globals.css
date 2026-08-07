@@ -1,180 +1,93 @@
 @import "tailwindcss";
 
-/* Ford Antenna (with space) */
+/* Ford Antenna — Optimized: WOFF2 first, essential weights only (400-900)
+   Giữ cả 'Ford Antenna' và 'Ford_Antenna' vì codebase dùng cả hai tên */
+
+/* Regular 400 */
 @font-face {
   font-family: 'Ford Antenna';
-  src: url('/fonts/FordAntenna-Thin.eot');
-  src: local('Ford Antenna Thin'), local('FordAntenna-Thin'),
-       url('/fonts/FordAntenna-Thin.eot?#iefix') format('embedded-opentype'),
-       url('/fonts/FordAntenna-Thin.woff') format('woff'),
-       url('/fonts/FordAntenna-Thin.ttf') format('truetype');
-  font-weight: 100;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Ford Antenna';
-  src: url('/fonts/FordAntenna-ExtraLight.eot');
-  src: local('Ford Antenna ExtraLight'), local('FordAntenna-ExtraLight'),
-       url('/fonts/FordAntenna-ExtraLight.eot?#iefix') format('embedded-opentype'),
-       url('/fonts/FordAntenna-ExtraLight.woff') format('woff'),
-       url('/fonts/FordAntenna-ExtraLight.ttf') format('truetype');
-  font-weight: 200;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Ford Antenna';
-  src: url('/fonts/FordAntenna-Light.eot');
-  src: local('Ford Antenna Light'), local('FordAntenna-Light'),
-       url('/fonts/FordAntenna-Light.eot?#iefix') format('embedded-opentype'),
-       url('/fonts/FordAntenna-Light.woff') format('woff'),
-       url('/fonts/FordAntenna-Light.ttf') format('truetype');
-  font-weight: 300;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Ford Antenna';
-  src: url('/fonts/FordAntenna-Regular.eot');
-  src: local('Ford Antenna Regular'), local('FordAntenna-Regular'),
-       url('/fonts/FordAntenna-Regular.eot?#iefix') format('embedded-opentype'),
-       url('/fonts/FordAntenna-Regular.woff') format('woff'),
-       url('/fonts/FordAntenna-Regular.ttf') format('truetype');
+  src: url('/fonts/FordAntenna-Regular.woff2') format('woff2'),
+       url('/fonts/FordAntenna-Regular.woff') format('woff');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
-  font-family: 'Ford Antenna';
-  src: url('/fonts/FordAntenna-Medium.eot');
-  src: local('Ford Antenna Medium'), local('FordAntenna-Medium'),
-       url('/fonts/FordAntenna-Medium.eot?#iefix') format('embedded-opentype'),
-       url('/fonts/FordAntenna-Medium.woff') format('woff'),
-       url('/fonts/FordAntenna-Medium.ttf') format('truetype');
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Ford Antenna';
-  src: url('/fonts/FordAntenna-Semibold.eot');
-  src: local('Ford Antenna Semibold'), local('FordAntenna-Semibold'),
-       url('/fonts/FordAntenna-Semibold.eot?#iefix') format('embedded-opentype'),
-       url('/fonts/FordAntenna-Semibold.woff') format('woff'),
-       url('/fonts/FordAntenna-Semibold.ttf') format('truetype');
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Ford Antenna';
-  src: url('/fonts/FordAntenna-Bold.eot');
-  src: local('Ford Antenna Bold'), local('FordAntenna-Bold'),
-       url('/fonts/FordAntenna-Bold.eot?#iefix') format('embedded-opentype'),
-       url('/fonts/FordAntenna-Bold.woff') format('woff'),
-       url('/fonts/FordAntenna-Bold.ttf') format('truetype');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Ford Antenna';
-  src: url('/fonts/FordAntenna-Black.eot');
-  src: local('Ford Antenna Black'), local('FordAntenna-Black'),
-       url('/fonts/FordAntenna-Black.eot?#iefix') format('embedded-opentype'),
-       url('/fonts/FordAntenna-Black.woff') format('woff'),
-       url('/fonts/FordAntenna-Black.ttf') format('truetype');
-  font-weight: 900;
+  font-family: 'Ford_Antenna';
+  src: url('/fonts/FordAntenna-Regular.woff2') format('woff2'),
+       url('/fonts/FordAntenna-Regular.woff') format('woff');
+  font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 
-/* Ford_Antenna (with underscore) */
+/* Medium 500 */
 @font-face {
-  font-family: 'Ford_Antenna';
-  src: url('/fonts/FordAntenna-Thin.eot');
-  src: local('Ford Antenna Thin'), local('FordAntenna-Thin'),
-       url('/fonts/FordAntenna-Thin.eot?#iefix') format('embedded-opentype'),
-       url('/fonts/FordAntenna-Thin.woff') format('woff'),
-       url('/fonts/FordAntenna-Thin.ttf') format('truetype');
-  font-weight: 100;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Ford_Antenna';
-  src: url('/fonts/FordAntenna-ExtraLight.eot');
-  src: local('Ford Antenna ExtraLight'), local('FordAntenna-ExtraLight'),
-       url('/fonts/FordAntenna-ExtraLight.eot?#iefix') format('embedded-opentype'),
-       url('/fonts/FordAntenna-ExtraLight.woff') format('woff'),
-       url('/fonts/FordAntenna-ExtraLight.ttf') format('truetype');
-  font-weight: 200;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Ford_Antenna';
-  src: url('/fonts/FordAntenna-Light.eot');
-  src: local('Ford Antenna Light'), local('FordAntenna-Light'),
-       url('/fonts/FordAntenna-Light.eot?#iefix') format('embedded-opentype'),
-       url('/fonts/FordAntenna-Light.woff') format('woff'),
-       url('/fonts/FordAntenna-Light.ttf') format('truetype');
-  font-weight: 300;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Ford_Antenna';
-  src: url('/fonts/FordAntenna-Regular.eot');
-  src: local('Ford Antenna Regular'), local('FordAntenna-Regular'),
-       url('/fonts/FordAntenna-Regular.eot?#iefix') format('embedded-opentype'),
-       url('/fonts/FordAntenna-Regular.woff') format('woff'),
-       url('/fonts/FordAntenna-Regular.ttf') format('truetype');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Ford_Antenna';
-  src: url('/fonts/FordAntenna-Medium.eot');
-  src: local('Ford Antenna Medium'), local('FordAntenna-Medium'),
-       url('/fonts/FordAntenna-Medium.eot?#iefix') format('embedded-opentype'),
-       url('/fonts/FordAntenna-Medium.woff') format('woff'),
-       url('/fonts/FordAntenna-Medium.ttf') format('truetype');
+  font-family: 'Ford Antenna';
+  src: url('/fonts/FordAntenna-Medium.woff2') format('woff2'),
+       url('/fonts/FordAntenna-Medium.woff') format('woff');
   font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'Ford_Antenna';
-  src: url('/fonts/FordAntenna-Semibold.eot');
-  src: local('Ford Antenna Semibold'), local('FordAntenna-Semibold'),
-       url('/fonts/FordAntenna-Semibold.eot?#iefix') format('embedded-opentype'),
-       url('/fonts/FordAntenna-Semibold.woff') format('woff'),
-       url('/fonts/FordAntenna-Semibold.ttf') format('truetype');
+  src: url('/fonts/FordAntenna-Medium.woff2') format('woff2'),
+       url('/fonts/FordAntenna-Medium.woff') format('woff');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Semibold 600 */
+@font-face {
+  font-family: 'Ford Antenna';
+  src: url('/fonts/FordAntenna-Semibold.woff2') format('woff2'),
+       url('/fonts/FordAntenna-Semibold.woff') format('woff');
   font-weight: 600;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'Ford_Antenna';
-  src: url('/fonts/FordAntenna-Bold.eot');
-  src: local('Ford Antenna Bold'), local('FordAntenna-Bold'),
-       url('/fonts/FordAntenna-Bold.eot?#iefix') format('embedded-opentype'),
-       url('/fonts/FordAntenna-Bold.woff') format('woff'),
-       url('/fonts/FordAntenna-Bold.ttf') format('truetype');
+  src: url('/fonts/FordAntenna-Semibold.woff2') format('woff2'),
+       url('/fonts/FordAntenna-Semibold.woff') format('woff');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Bold 700 */
+@font-face {
+  font-family: 'Ford Antenna';
+  src: url('/fonts/FordAntenna-Bold.woff2') format('woff2'),
+       url('/fonts/FordAntenna-Bold.woff') format('woff');
   font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'Ford_Antenna';
-  src: url('/fonts/FordAntenna-Black.eot');
-  src: local('Ford Antenna Black'), local('FordAntenna-Black'),
-       url('/fonts/FordAntenna-Black.eot?#iefix') format('embedded-opentype'),
-       url('/fonts/FordAntenna-Black.woff') format('woff'),
-       url('/fonts/FordAntenna-Black.ttf') format('truetype');
+  src: url('/fonts/FordAntenna-Bold.woff2') format('woff2'),
+       url('/fonts/FordAntenna-Bold.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Black 900 */
+@font-face {
+  font-family: 'Ford Antenna';
+  src: url('/fonts/FordAntenna-Black.woff2') format('woff2'),
+       url('/fonts/FordAntenna-Black.woff') format('woff');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Ford_Antenna';
+  src: url('/fonts/FordAntenna-Black.woff2') format('woff2'),
+       url('/fonts/FordAntenna-Black.woff') format('woff');
   font-weight: 900;
   font-style: normal;
   font-display: swap;

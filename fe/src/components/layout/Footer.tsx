@@ -3,12 +3,17 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { vehiclesAPI, servicesAPI } from "@/lib/api";
+import { useSharedData } from "@/lib/shared-data";
 
 export default function Footer() {
-  const [categoriesList, setCategoriesList] = useState<any[]>([]);
-  const [servicesList, setServicesList] = useState<any[]>([]);
+  const sharedData = useSharedData();
+  const [categoriesList, setCategoriesList] = useState<any[]>(sharedData.categories);
+  const [servicesList, setServicesList] = useState<any[]>(sharedData.services);
 
   useEffect(() => {
+    // Bỏ qua fetch nếu SSR đã cung cấp data (tiết kiệm 2 API calls)
+    if (sharedData.categories.length > 0 || sharedData.services.length > 0) return;
+
     let active = true;
     const fetchFooterData = async () => {
       try {
@@ -34,7 +39,7 @@ export default function Footer() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [sharedData]);
 
   return (
     <footer className="bg-[#00095b] text-white pt-[40px] pb-24 md:pb-8 px-4 lg:px-[144px] border-t border-[#00095b] mt-auto">

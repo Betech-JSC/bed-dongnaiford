@@ -8,7 +8,7 @@ type Props = {
   }>;
 };
 
-export const revalidate = 0; // TẠM TẮT CACHE ĐỂ DEBUG
+export const revalidate = 300; // ISR: Trang dòng xe revalidate 5 phút
 
 const staticCategories = [
   { slug: "suv", title: "SUV" },

@@ -19,6 +19,23 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // Inject x-pathname header cho layout LDP detection
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-pathname", pathname);
+
+  // Bỏ qua redirect lookup cho các path đã biết rõ — tiết kiệm ~100-200ms/request
+  const KNOWN_PATHS = [
+    '/bang-gia', '/gioi-thieu', '/lien-he', '/tin-tuc', '/dich-vu',
+    '/phu-kien', '/tuyen-dung', '/cong-cu', '/dang-ky-lai-thu',
+    '/chinh-sach-bao-mat', '/dieu-khoan-su-dung', '/dong-xe',
+    '/san-pham', '/xe-da-qua-su-dung', '/tim-kiem', '/thu-vien-media',
+    '/khao-sat-dich-vu', '/khao-sat-lai-thu', '/sitemap.xml', '/robots.txt'
+  ];
+  const isKnownPath = pathname === '/' || KNOWN_PATHS.some(p => pathname === p || pathname.startsWith(p + '/'));
+
+  if (isKnownPath) {
+    return NextResponse.next({ request: { headers: requestHeaders } });
+  }
   // 1. Kiểm tra 301 Redirect động từ RAM cache hoặc Laravel API
   const fullPath = pathname + search;
   const now = Date.now();
@@ -56,8 +73,6 @@ export async function middleware(request: NextRequest) {
   }
 
   // 2. Chạy logic proxy LDP cũ (gộp từ proxy.ts)
-  const requestHeaders = new Headers(request.headers);
-  requestHeaders.set("x-pathname", pathname);
 
   const host = request.headers.get("host") || "";
   const cleanHost = host.split(":")[0];

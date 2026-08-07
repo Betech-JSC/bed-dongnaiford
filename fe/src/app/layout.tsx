@@ -5,7 +5,8 @@ import { headers } from "next/headers";
 import LazyWidgets from "@/components/layout/LazyWidgets";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import { settingsAPI } from "@/lib/api";
+import { settingsAPI, vehiclesAPI, servicesAPI, accessoriesAPI, usedVehiclesAPI } from "@/lib/api";
+import { SharedDataProvider, type SharedData } from "@/lib/shared-data";
 import PageTransitionLoader from "@/components/shared/PageTransitionLoader";
 import "./globals.css";
 
@@ -121,6 +122,42 @@ export default async function RootLayout({
     console.warn("Failed to fetch general layout settings:", error);
   }
 
+  // Pre-fetch shared data cho Navbar + Footer (triệt tiêu 7 API calls trùng lắp phía client)
+  let sharedData: SharedData = {
+    categories: [],
+    vehicles: [],
+    services: [],
+    accessories: [],
+    usedVehicles: [],
+    systemNotification: null,
+  };
+
+  try {
+    const [catsRes, vehsRes, svcsRes, accsRes, usedRes] = await Promise.all([
+      vehiclesAPI.getCategories().catch(() => null),
+      vehiclesAPI.getAll().catch(() => null),
+      servicesAPI.getAll().catch(() => null),
+      accessoriesAPI.getAll({ limit: 6 }).catch(() => null),
+      usedVehiclesAPI.getAll({ limit: 3 }).catch(() => null),
+    ]);
+
+    sharedData = {
+      categories: (catsRes as any)?.data || catsRes || [],
+      vehicles: (vehsRes as any)?.data || vehsRes || [],
+      services: (svcsRes as any)?.services || (svcsRes as any)?.data || svcsRes || [],
+      accessories: (accsRes as any)?.data || accsRes || [],
+      usedVehicles: (usedRes as any)?.data || usedRes || [],
+    };
+    // Ensure arrays
+    if (!Array.isArray(sharedData.categories)) sharedData.categories = [];
+    if (!Array.isArray(sharedData.vehicles)) sharedData.vehicles = [];
+    if (!Array.isArray(sharedData.services)) sharedData.services = [];
+    if (!Array.isArray(sharedData.accessories)) sharedData.accessories = [];
+    if (!Array.isArray(sharedData.usedVehicles)) sharedData.usedVehicles = [];
+  } catch (error) {
+    console.warn("Failed to pre-fetch shared layout data:", error);
+  }
+
   return (
     <html
       lang="vi"
@@ -128,6 +165,8 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <head>
+        <link rel="preload" href="/fonts/FordAntenna-Regular.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+        <link rel="preload" href="/fonts/FordAntenna-Bold.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://cms.dongnaiford.com.vn" />
         <link rel="dns-prefetch" href="https://cms.dongnaiford.com.vn" />
         <script
@@ -167,6 +206,7 @@ export default async function RootLayout({
         )}
       </head>
       <body className="min-h-full flex flex-col bg-light text-dark font-sans" suppressHydrationWarning>
+        <SharedDataProvider data={sharedData}>
         {/* Dynamic Body Start Inject Code from CMS */}
         {injectBodyStart && (
           <div
@@ -223,6 +263,7 @@ export default async function RootLayout({
             dangerouslySetInnerHTML={{ __html: injectBodyEnd }}
           />
         )}
+        </SharedDataProvider>
       </body>
     </html>
   );
