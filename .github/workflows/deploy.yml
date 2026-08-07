@@ -1,0 +1,91 @@
+name: CI/CD Deployment to Ubuntu VPS
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  # -------------------------------------------------------------
+  # JOB 1: TEST & CHECK (Continuous Integration)
+  # -------------------------------------------------------------
+  test-and-check:
+    name: 🧪 Check Code Quality
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: 'fe/package-lock.json'
+
+      - name: ⚙️ Install Frontend Dependencies & Typecheck
+        run: |
+          cd fe
+          npm ci
+          npx tsc --noEmit
+
+      - name: 🐘 Setup PHP 8.3
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, pdo_mysql, gd, zip
+
+      - name: ⚙️ Validate Composer & Backend Syntax
+        run: |
+          cd be
+          composer validate --strict --no-check-all
+
+  # -------------------------------------------------------------
+  # JOB 2: DEPLOY TO UBUNTU VPS (Continuous Deployment)
+  # -------------------------------------------------------------
+  deploy-to-vps:
+    name: 🚀 Deploy to Ubuntu VPS
+    needs: test-and-check
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: 🔑 Deploy to VPS via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          script_stop: true
+          script: |
+            set -e
+            echo "🚀 Starting Deployment on Ubuntu VPS..."
+
+            # 1. Move to project directory
+            TARGET_DIR="${{ secrets.VPS_TARGET_DIR || '/var/www/bed-dongnaiford' }}"
+            cd "$TARGET_DIR"
+
+            # 2. Pull latest code from main branch
+            echo "📥 Fetching latest code from main..."
+            git fetch origin main
+            git reset --hard origin/main
+
+            # 3. Build & Restart Docker Containers
+            echo "🐳 Building Docker images and starting services..."
+            docker compose up -d --build --remove-orphans
+
+            # 4. Run Laravel migrations & optimize cache
+            echo "⚡ Running Laravel migrations and clearing cache..."
+            docker compose exec -T backend php artisan migrate --force
+            docker compose exec -T backend php artisan config:cache
+            docker compose exec -T backend php artisan route:cache
+            docker compose exec -T backend php artisan view:cache
+
+            # 5. Clean up old dangling Docker images to preserve VPS storage
+            echo "🧹 Pruning unused Docker images..."
+            docker image prune -f
+
+            echo "✅ Deployment on Ubuntu VPS completed successfully!"
