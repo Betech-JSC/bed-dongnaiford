@@ -40,7 +40,7 @@ type ServiceDetails = {
   sliders: ImageItem[];
 };
 
-export default function GenericServiceLayout({ service }: { service: ServiceDetails }) {
+export default function GenericServiceLayout({ service }: { service: any }) {
   const [activeTab, setActiveTab] = useState(0);
   const [activeSlide, setActiveSlide] = useState(0);
 
@@ -78,7 +78,7 @@ export default function GenericServiceLayout({ service }: { service: ServiceDeta
         {service.is_content_by_tab && tabs.length > 0 && (
           <div className="bg-white border border-gray-200 rounded-none p-6 md:p-8 shadow-xs">
             <div className="flex border-b border-gray-200 overflow-x-auto gap-2 pb-px scrollbar-none font-antenna">
-              {tabs.map((tab, idx) => (
+              {tabs.map((tab: TabContentItem, idx: number) => (
                 <button
                   key={idx}
                   onClick={() => setActiveTab(idx)}
@@ -139,7 +139,7 @@ export default function GenericServiceLayout({ service }: { service: ServiceDeta
                   <ChevronRight className="w-5 h-5" />
                 </button>
                 <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
-                  {sliders.map((_, idx) => (
+                  {sliders.map((_: any, idx: number) => (
                     <button
                       key={idx}
                       onClick={() => setActiveSlide(idx)}
@@ -162,7 +162,7 @@ export default function GenericServiceLayout({ service }: { service: ServiceDeta
                 {service.benefit_title || "Ưu điểm nổi bật"}
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                {benefits.map((benefit, idx) => (
+                {benefits.map((benefit: BenefitItem, idx: number) => (
                   <div key={idx} className="bg-white border border-gray-200 rounded-none p-5 shadow-xs flex flex-col gap-2.5">
                     <h4 className="font-display font-bold text-lg text-gray-950 flex items-center gap-2 uppercase tracking-wide">
                       <span className="shrink-0 size-2.5 bg-[#066fef] rounded-none" />

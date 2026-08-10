@@ -1,8 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Metadata } from "next";
-import { servicesAPI } from "@/lib/api";
-import { siteAssets } from "@/lib/site-assets";
+import { siteAssets, resolveImageUrl } from "@/lib/site-assets";
 
 export const metadata: Metadata = {
   title: "Dịch vụ Bảo hành, Sửa chữa & Chăm sóc xe chính hãng | Đồng Nai Ford",
@@ -13,7 +12,7 @@ export const metadata: Metadata = {
   },
 };
 
-// 5 Fallback services in case CMS returns empty
+// 5 Fallback services for pure static LDP rendering
 const fallbackServices = [
   {
     title: "Bảo dưỡng định kỳ",
@@ -53,38 +52,11 @@ const fallbackServices = [
 ];
 
 export default async function ServicesPage() {
-  let displayServices = [];
-
-  try {
-    const response = await servicesAPI.getAll() as any;
-    const cmsServices = response?.services;
-
-    if (Array.isArray(cmsServices) && cmsServices.length > 0) {
-      displayServices = cmsServices.map((item: any) => {
-        // Find matching badge from fallbacks if applicable
-        const fallback = fallbackServices.find(f => f.slug === item.slug);
-        return {
-          title: item.title || "",
-          slug: item.slug || "",
-          description: item.description || "",
-          image: item.image?.url || fallback?.image || siteAssets.showroomBg,
-          href: `/dich-vu/${item.slug}`,
-          badge: fallback?.badge || "Dịch vụ Ford"
-        };
-      });
-    } else {
-      displayServices = fallbackServices.map(item => ({
-        ...item,
-        href: `/dich-vu/${item.slug}`
-      }));
-    }
-  } catch (error) {
-    console.error("Failed to load services from CMS API, using fallbacks:", error);
-    displayServices = fallbackServices.map(item => ({
-      ...item,
-      href: `/dich-vu/${item.slug}`
-    }));
-  }
+  const displayServices = fallbackServices.map(item => ({
+    ...item,
+    image: resolveImageUrl(item.image) || siteAssets.showroomBg || "/showroom_bg.webp",
+    href: `/dich-vu/${item.slug}`
+  }));
 
   // Schema.org Structured Data
   const jsonLd = {
