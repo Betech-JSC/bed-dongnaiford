@@ -166,17 +166,17 @@ export default function Footer() {
               </Link>
             </li>
             <li>
-              <Link href="/dich-vu" className="hover:text-[#0562d2] transition-colors block">
+              <Link href="/lien-he?reason=Đặt hẹn trực tuyến" className="hover:text-[#0562d2] transition-colors block">
                 Đặt hẹn trực tuyến
               </Link>
             </li>
             <li>
-              <Link href="/san-pham" className="hover:text-[#0562d2] transition-colors block">
+              <Link href="/lien-he?reason=Yêu cầu báo giá xe mới" className="hover:text-[#0562d2] transition-colors block">
                 Yêu cầu báo giá xe mới
               </Link>
             </li>
             <li>
-              <Link href="/lien-he" className="hover:text-[#0562d2] transition-colors block">
+              <Link href="/lien-he?reason=Yêu cầu báo giá sửa chữa" className="hover:text-[#0562d2] transition-colors block">
                 Yêu cầu báo giá sửa chữa
               </Link>
             </li>

@@ -325,12 +325,12 @@ export default function AboutClient({ initialJobs = [] }: AboutClientProps) {
   return (
     <div className="bg-gray-50 flex-1 min-h-screen">
       {/* SECTION 1: HERO BANNER (Frame 1000005577) */}
-      <section className="relative w-full h-[480px] bg-slate-900 overflow-hidden flex items-end">
+      <section className="relative w-full h-[480px] bg-slate-900 overflow-hidden flex items-end group">
         <div className="absolute inset-0 z-0">
           <img
             src="/images/about/banner.jpg"
             alt="Đồng Nai Ford Banner"
-            className="w-full h-full object-cover object-center"
+            className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-1000 ease-out"
           />
           {/* Rectangle 2017: Black gradient shadow overlay on bottom (170px height) */}
           <div className="absolute bottom-0 left-0 right-0 h-[170px] bg-gradient-to-t from-black/80 to-transparent" />
@@ -341,17 +341,18 @@ export default function AboutClient({ initialJobs = [] }: AboutClientProps) {
       <section id="our-story" className="py-[72px] scroll-mt-20">
         <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full flex flex-col gap-20">
           {/* Paragraph intro text */}
-          <p className="text-[28px] font-normal leading-[42px] text-[#1a1a1a] max-w-[1152px] font-antenna">
+          <p className="text-[28px] font-normal leading-[42px] text-[#1a1a1a] max-w-[1152px] font-antenna animate-fade-in-up">
             Được thành lập với mục tiêu mang lại những giá trị di chuyển đích thực, Đồng Nai Ford tự hào là đại lý ủy quyền chính thức đạt tiêu chuẩn 3S toàn cầu của Ford Việt Nam. Chúng tôi không ngừng nỗ lực để cung cấp các dòng xe chất lượng cao và dịch vụ hậu mãi hoàn hảo nhất cho khách hàng.
           </p>
 
           {/* Showroom Image (Rectangle 2024 - 1152x576px, rounded-24) */}
-          <div className="relative w-full aspect-[2/1] rounded-[24px] overflow-hidden shadow-md">
+          <div className="relative w-full aspect-[2/1] rounded-[24px] overflow-hidden shadow-md group cursor-pointer">
             <img
               src="/images/about/image-introduce.jpg"
               alt="Showroom Đồng Nai Ford"
-              className="w-full h-full object-cover object-center"
+              className="w-full h-full object-cover object-center group-hover:scale-[1.03] transition-transform duration-700 ease-out"
             />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           </div>
         </div>
       </section>
@@ -361,7 +362,7 @@ export default function AboutClient({ initialJobs = [] }: AboutClientProps) {
         <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full flex flex-col lg:flex-row gap-20 items-center">
           {/* Left Text Block */}
           <div className="w-full lg:w-[536px] flex flex-col gap-6">
-            <h2 className="text-[36px] font-semibold leading-[47.52px] text-[#00095b] font-antenna uppercase">
+            <h2 className="text-[36px] font-semibold leading-[47.52px] text-[#00095b] font-antenna uppercase tracking-tight">
               ĐỒNG NAI FORD
               <br />
               ĐẠI LÝ ỦY QUYỀN FORD VIỆT NAM
@@ -372,11 +373,11 @@ export default function AboutClient({ initialJobs = [] }: AboutClientProps) {
           </div>
 
           {/* Right Image */}
-          <div className="w-full lg:w-[536px] h-[349.68px] relative rounded-xl overflow-hidden shadow-sm">
+          <div className="w-full lg:w-[536px] h-[349.68px] relative rounded-xl overflow-hidden shadow-sm group">
             <img
               src="/images/about/image-about-1.jpg"
               alt="Xưởng Dịch vụ Đồng Nai Ford"
-              className="w-full h-full object-cover object-center"
+              className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out"
             />
           </div>
         </div>
@@ -398,11 +399,11 @@ export default function AboutClient({ initialJobs = [] }: AboutClientProps) {
           </div>
 
           {/* Left Image */}
-          <div className="w-full lg:w-[536px] h-[349.68px] relative rounded-xl overflow-hidden shadow-sm">
+          <div className="w-full lg:w-[536px] h-[349.68px] relative rounded-xl overflow-hidden shadow-sm group">
             <img
               src="/images/about/image-about-2.jpg"
               alt="Thiết bị sửa chữa Đồng Nai Ford"
-              className="w-full h-full object-cover object-center"
+              className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out"
             />
           </div>
         </div>
@@ -413,7 +414,7 @@ export default function AboutClient({ initialJobs = [] }: AboutClientProps) {
         <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full flex flex-col gap-10">
           {/* Header Block */}
           <div className="flex flex-col gap-6">
-            <h2 className="text-[36px] font-semibold leading-[47.52px] font-antenna uppercase">
+            <h2 className="text-[36px] font-semibold leading-[47.52px] font-antenna uppercase tracking-tight">
               Tầm nhìn dẫn đầu dịch vụ tại Ford
             </h2>
             <p className="text-[20px] font-normal leading-[30px] text-white/90 max-w-[1152px] font-antenna">
@@ -424,39 +425,39 @@ export default function AboutClient({ initialJobs = [] }: AboutClientProps) {
           {/* Asymmetric Gallery (1152x600px container) */}
           <div className="flex flex-col md:flex-row gap-4 w-full h-auto md:h-[600px]">
             {/* Left Column (500x600px image) */}
-            <div className="w-full md:w-[500px] h-[350px] md:h-full relative rounded-xl overflow-hidden shadow-md">
+            <div className="w-full md:w-[500px] h-[350px] md:h-full relative rounded-xl overflow-hidden shadow-md group cursor-pointer">
               <img
                 src="/images/about/image-vision-1.jpg"
                 alt="Vision Gallery Left"
-                className="w-full h-full object-cover object-center"
+                className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out"
               />
             </div>
 
             {/* Right Column (636x600px flex stack) */}
             <div className="flex-1 md:w-[636px] flex flex-col gap-4 h-auto md:h-full">
               {/* Top row image (636x292px) */}
-              <div className="w-full h-[180px] md:h-[292px] relative rounded-xl overflow-hidden shadow-md">
+              <div className="w-full h-[180px] md:h-[292px] relative rounded-xl overflow-hidden shadow-md group cursor-pointer">
                 <img
                   src="/images/about/image-vision-2.jpg"
                   alt="Vision Gallery Top Right"
-                  className="w-full h-full object-cover object-center"
+                  className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out"
                 />
               </div>
 
               {/* Bottom row (two 310x292px images) */}
               <div className="grid grid-cols-2 gap-4 h-[150px] md:h-[292px]">
-                <div className="relative rounded-xl overflow-hidden shadow-md h-full">
+                <div className="relative rounded-xl overflow-hidden shadow-md h-full group cursor-pointer">
                   <img
                     src="/images/about/image-vision-3.jpg"
                     alt="Vision Gallery Bottom Left"
-                    className="w-full h-full object-cover object-center"
+                    className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out"
                   />
                 </div>
-                <div className="relative rounded-xl overflow-hidden shadow-md h-full">
+                <div className="relative rounded-xl overflow-hidden shadow-md h-full group cursor-pointer">
                   <img
                     src="/images/about/image-vision-4.jpg"
                     alt="Vision Gallery Bottom Right"
-                    className="w-full h-full object-cover object-center"
+                    className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out"
                   />
                 </div>
               </div>
@@ -469,7 +470,7 @@ export default function AboutClient({ initialJobs = [] }: AboutClientProps) {
       {jobs && jobs.length > 0 && (
         <section id="recruitment" className="bg-[#f0f0f0] py-16 scroll-mt-20">
           <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full flex flex-col gap-8">
-            <h2 className="text-[36px] font-semibold leading-[47.52px] text-[#1a1a1a] font-antenna uppercase text-center">
+            <h2 className="text-[36px] font-semibold leading-[47.52px] text-[#1a1a1a] font-antenna uppercase text-center tracking-tight">
               TUYỂN DỤNG NHÂN SỰ
             </h2>
 
@@ -479,7 +480,7 @@ export default function AboutClient({ initialJobs = [] }: AboutClientProps) {
                 <div
                   key={job.id || idx}
                   onClick={() => handleJobClick(job)}
-                  className="w-full bg-white rounded-xl shadow-xs p-6 flex items-center gap-4 border border-gray-100 hover:shadow-md transition-all duration-300 group cursor-pointer"
+                  className="w-full bg-white rounded-xl shadow-xs p-6 flex items-center gap-4 border border-gray-100 hover:border-[#066fef]/40 hover:-translate-y-1 hover:shadow-md transition-all duration-300 group cursor-pointer active:scale-[0.99]"
                 >
                   {/* Logo Ford Oval */}
                   <div className="w-[85.3px] h-8 relative flex-shrink-0 flex items-center">
@@ -494,7 +495,7 @@ export default function AboutClient({ initialJobs = [] }: AboutClientProps) {
 
                   {/* Job Title and Short Description */}
                   <div className="flex-1 flex flex-col gap-1 min-w-0">
-                    <h3 className="text-base font-semibold leading-6 text-[#1a1a1a] font-antenna truncate">
+                    <h3 className="text-base font-semibold leading-6 text-[#1a1a1a] font-antenna truncate group-hover:text-[#066fef] transition-colors">
                       {job.title}
                     </h3>
                     <p className="text-sm font-normal leading-[19.6px] text-gray-500 font-antenna truncate">
@@ -504,7 +505,7 @@ export default function AboutClient({ initialJobs = [] }: AboutClientProps) {
 
                   {/* Interactive circular toggle button */}
                   <div className="w-10 h-10 rounded-full flex items-center justify-center border border-gray-200 transition-all duration-300 flex-shrink-0 bg-white group-hover:bg-[#0562d2] group-hover:border-[#0562d2] text-[#0562d2] group-hover:text-white">
-                    <ArrowRight className="w-5 h-5" />
+                    <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
                   </div>
                 </div>
               ))}
@@ -519,7 +520,7 @@ export default function AboutClient({ initialJobs = [] }: AboutClientProps) {
           {/* Header Row */}
           <div className="flex justify-between items-end gap-6 mb-10">
             <div>
-              <h2 className="text-[48px] font-semibold text-[#1a1a1a] leading-[57.6px] font-antenna uppercase">
+              <h2 className="text-[48px] font-semibold text-[#1a1a1a] leading-[57.6px] font-antenna uppercase tracking-tight">
                 Đội ngũ Ford Đồng Nai
               </h2>
             </div>
@@ -528,14 +529,14 @@ export default function AboutClient({ initialJobs = [] }: AboutClientProps) {
             <div className="flex gap-6">
               <button
                 onClick={handlePrev}
-                className="w-10 h-10 rounded-full bg-black hover:bg-gray-800 text-white flex items-center justify-center transition-colors focus:outline-none cursor-pointer"
+                className="w-10 h-10 rounded-full bg-black hover:bg-[#066fef] active:scale-95 text-white flex items-center justify-center transition-all duration-200 focus:outline-none cursor-pointer shadow-sm"
                 aria-label="Previous slide"
               >
                 <ArrowLeft className="w-5 h-5" />
               </button>
               <button
                 onClick={handleNext}
-                className="w-10 h-10 rounded-full bg-black hover:bg-gray-800 text-white flex items-center justify-center transition-colors focus:outline-none cursor-pointer"
+                className="w-10 h-10 rounded-full bg-black hover:bg-[#066fef] active:scale-95 text-white flex items-center justify-center transition-all duration-200 focus:outline-none cursor-pointer shadow-sm"
                 aria-label="Next slide"
               >
                 <ArrowRight className="w-5 h-5" />
@@ -556,7 +557,7 @@ export default function AboutClient({ initialJobs = [] }: AboutClientProps) {
             className="flex gap-6 select-none"
             style={{
               transform: `translateX(-${currentOffset}px)`,
-              transition: isTransitioning ? "transform 500ms ease-in-out" : "none"
+              transition: isTransitioning ? "transform 500ms cubic-bezier(0.16, 1, 0.3, 1)" : "none"
             }}
             onTransitionEnd={handleTransitionEnd}
           >
@@ -569,19 +570,19 @@ export default function AboutClient({ initialJobs = [] }: AboutClientProps) {
                 <Link
                   key={`${card.id}-${idx}`}
                   href={card.link}
-                  className="h-[480px] relative flex-shrink-0 rounded-xl overflow-hidden group cursor-pointer block"
+                  className="h-[480px] relative flex-shrink-0 rounded-xl overflow-hidden group cursor-pointer block shadow-sm hover:shadow-lg transition-shadow duration-300"
                   style={{ width: `${defaultWidth}px` }}
                 >
                   <img
                     src={card.image}
                     alt={card.name}
-                    className="absolute inset-0 h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    className="absolute inset-0 h-full w-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                     onLoad={measureCards}
                     onError={handleImageError}
                   />
                   {/* Dark overlay showing text on hover */}
-                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
-                    <span className="text-[18px] font-semibold text-white text-center font-antenna uppercase truncate max-w-full">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex items-end p-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
+                    <span className="text-[18px] font-semibold text-white font-antenna uppercase truncate max-w-full transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
                       {card.name}
                     </span>
                   </div>
@@ -594,12 +595,12 @@ export default function AboutClient({ initialJobs = [] }: AboutClientProps) {
 
       {/* RECRUITMENT MODAL (Option A) */}
       {selectedJob && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
-          <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl relative border border-[#e5e5e5] p-8 flex flex-col gap-6 scrollbar-thin">
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-xs animate-fade-in">
+          <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl relative border border-[#e5e5e5] p-8 flex flex-col gap-6 scrollbar-thin animate-scale-in">
             {/* Close Button */}
             <button
               onClick={() => setSelectedJob(null)}
-              className="absolute top-6 right-6 text-gray-500 hover:text-black transition-colors focus:outline-none"
+              className="absolute top-6 right-6 text-gray-500 hover:text-black hover:rotate-90 transition-all duration-300 focus:outline-none"
               aria-label="Close modal"
             >
               <X className="w-6 h-6" />
@@ -684,7 +685,7 @@ export default function AboutClient({ initialJobs = [] }: AboutClientProps) {
               <Link
                 href={selectedJob.slug ? `/tuyen-dung/${selectedJob.slug}` : "/lien-he"}
                 onClick={() => setSelectedJob(null)}
-                className="w-full md:w-auto text-center px-6 py-3 bg-[#0562d2] hover:bg-[#00095b] text-white font-semibold text-sm uppercase tracking-wider rounded-full transition-colors duration-200 shadow-sm"
+                className="w-full md:w-auto text-center px-6 py-3 bg-[#0562d2] hover:bg-[#00095b] text-white font-semibold text-sm uppercase tracking-wider rounded-full transition-colors duration-200 shadow-sm active:scale-95"
               >
                 Nộp đơn ứng tuyển
               </Link>
