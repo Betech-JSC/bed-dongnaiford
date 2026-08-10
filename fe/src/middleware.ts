@@ -29,7 +29,9 @@ export async function middleware(request: NextRequest) {
     '/phu-kien', '/tuyen-dung', '/cong-cu', '/dang-ky-lai-thu',
     '/chinh-sach-bao-mat', '/dieu-khoan-su-dung', '/dong-xe',
     '/san-pham', '/xe-da-qua-su-dung', '/tim-kiem', '/thu-vien-media',
-    '/khao-sat-dich-vu', '/khao-sat-lai-thu', '/sitemap.xml', '/robots.txt'
+    '/khao-sat-dich-vu', '/khao-sat-lai-thu', '/sitemap.xml', '/robots.txt',
+    '/ford-ranger', '/ford-everest', '/ford-territory', '/ford-explorer', '/ford-transit', '/ford-mustang-mach-e',
+    '/images-dynamic', '/backup-assets', '/cms-storage', '/cms-uploads', '/ldp'
   ];
   const isKnownPath = pathname === '/' || KNOWN_PATHS.some(p => pathname === p || pathname.startsWith(p + '/'));
 

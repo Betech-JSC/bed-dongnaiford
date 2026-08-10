@@ -1,3 +1,5 @@
+import { cache } from 'react';
+
 function getApiBaseUrl(): string {
   if (process.env.NEXT_PUBLIC_API_URL) {
     return process.env.NEXT_PUBLIC_API_URL;
@@ -65,10 +67,10 @@ export const vehiclesAPI = {
   getBestSellers: (params?: Record<string, any>) => fetchAPI('/vehicles/featured'),
   
   // Get vehicle by slug
-  getBySlug: (slug: string, params?: Record<string, any>) => {
+  getBySlug: cache((slug: string, params?: Record<string, any>) => {
     const query = params ? '?' + new URLSearchParams(params as any).toString() : '';
     return fetchAPI<any>(`/vehicles/${slug}${query}`);
-  },
+  }),
   
   // Get vehicle categories
   getCategories: () => fetchAPI('/vehicles/categories'),
@@ -180,7 +182,7 @@ export const policiesAPI = {
  */
 export const servicesAPI = {
   getAll: () => fetchAPI('/services'),
-  getBySlug: (slug: string) => fetchAPI(`/services/${slug}`),
+  getBySlug: cache((slug: string) => fetchAPI(`/services/${slug}`)),
 };
 
 /**

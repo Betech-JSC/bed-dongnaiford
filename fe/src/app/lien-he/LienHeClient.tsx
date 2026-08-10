@@ -1,0 +1,1033 @@
+"use client";
+
+import { useState, useEffect, Suspense, useRef } from "react";
+import { useSearchParams } from "next/navigation";
+import { MapPin, Phone, Mail, CheckCircle, X, Calendar, User, FileText, Wrench, Gauge, Car } from "lucide-react";
+import { siteAssets } from "@/lib/site-assets";
+import { contactsAPI, vehiclesAPI } from "@/lib/api";
+
+function ContactFormContent() {
+  const searchParams = useSearchParams();
+
+  const vehicleParam = searchParams.get("vehicle");
+  const reasonParam = searchParams.get("reason");
+  const noteParam = searchParams.get("note");
+
+  // Form State
+  const [formType, setFormType] = useState<"new-car" | "service-booking" | "repair-quote" | "general">("new-car");
+  const [formName, setFormName] = useState("");
+  const [formPhone, setFormPhone] = useState("");
+  const [formEmail, setFormEmail] = useState("");
+  const [allVehicles, setAllVehicles] = useState<any[]>([]);
+
+  // Service Booking Form States
+  const [formLicensePlate, setFormLicensePlate] = useState("");
+  const [formAppointmentTime, setFormAppointmentTime] = useState("");
+  const [displayDate, setDisplayDate] = useState("");
+  const [formLocation, setFormLocation] = useState("Tại đại lý");
+  const [formServiceContent, setFormServiceContent] = useState("");
+
+  const dateInputRef = useRef<HTMLInputElement>(null);
+
+  // Sync formAppointmentTime to displayDate in dd/mm/yyyy format
+  useEffect(() => {
+    if (formAppointmentTime) {
+      const parts = formAppointmentTime.split("-");
+      if (parts.length === 3) {
+        const [y, m, d] = parts;
+        setDisplayDate(`${d}/${m}/${y}`);
+        return;
+      }
+    }
+    setDisplayDate("");
+  }, [formAppointmentTime]);
+
+  // Repair Consultation Form States
+  const [selectedVehicle, setSelectedVehicle] = useState("");
+  const [formMileage, setFormMileage] = useState("");
+  const [selectedPackageType, setSelectedPackageType] = useState<"maintenance" | "repair">("maintenance");
+  const [selectedMaintenanceKm, setSelectedMaintenanceKm] = useState("5.000 km");
+
+  // New Car Quote Form States
+  const [formPurchaseMethod, setFormPurchaseMethod] = useState<"Trả góp" | "Tiền mặt">("Trả góp");
+  const [formCity, setFormCity] = useState("Đồng Nai");
+
+  const isRepairQuoteForm = formType === "repair-quote";
+  const isNewCarQuoteForm = formType === "new-car";
+  const isServiceBooking = formType === "service-booking";
+
+  const getVehicleName = (vId: string, vehicleList: any[]) => {
+    const found = vehicleList.find((v) => v.id === vId || v.slug === vId);
+    if (found) return found.name || found.title;
+    return vId.split("-").map(w => w.toUpperCase()).join(" ");
+  };
+
+  // Set formType dynamically from reasonParam on load
+  useEffect(() => {
+    if (reasonParam) {
+      const reasonLower = reasonParam.toLowerCase();
+      if (
+        reasonLower.includes("sửa chữa") || 
+        reasonLower.includes("repair")
+      ) {
+        setFormType("repair-quote");
+      } else if (
+        reasonLower.includes("đặt hẹn") || 
+        reasonLower.includes("đặt lịch") || 
+        reasonLower.includes("dịch vụ") || 
+        reasonLower.includes("bảo dưỡng")
+      ) {
+        setFormType("service-booking");
+      } else if (
+        reasonLower.includes("báo giá") || 
+        reasonLower.includes("tư vấn") || 
+        reasonLower.includes("catalogue") || 
+        reasonLower.includes("lái thử")
+      ) {
+        setFormType("new-car");
+      } else {
+        setFormType("general");
+      }
+    } else {
+      setFormType("new-car"); // default is "new-car" (Tư vấn mua xe mới)
+    }
+
+    // Always scroll to form on mount so users land directly on the form
+    setTimeout(() => {
+      const formEl = document.getElementById("contact-form");
+      if (formEl) {
+        formEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }, 300);
+  }, [reasonParam]);
+
+  useEffect(() => {
+    const fetchVehicles = async () => {
+      try {
+        const res = await vehiclesAPI.getAll().catch(() => null);
+        const items = res?.data || res;
+        let vehicleList: any[] = [];
+        if (Array.isArray(items) && items.length > 0) {
+          vehicleList = items.map((v: any) => ({
+            id: v.slug || v.id,
+            name: v.title || v.name
+          }));
+          setAllVehicles(vehicleList);
+        }
+
+        // Prefill logic
+        if (noteParam) {
+          setFormServiceContent(noteParam);
+        } else if (reasonParam) {
+          if (vehicleParam) {
+            const vName = getVehicleName(vehicleParam, vehicleList);
+            setFormServiceContent(`${reasonParam}: ${vName}`);
+            
+            // Prefill selectedVehicle dropdown
+            const foundVehicle = vehicleList.find(
+              (v) => String(v.id).toLowerCase() === vehicleParam.toLowerCase() || String(v.name).toLowerCase().includes(vehicleParam.toLowerCase())
+            );
+            if (foundVehicle) {
+              setSelectedVehicle(foundVehicle.id);
+            }
+          } else {
+            setFormServiceContent(reasonParam);
+          }
+        }
+      } catch (e) {
+        console.error("Error loading vehicles in ContactPage:", e);
+      }
+    };
+    fetchVehicles();
+  }, [noteParam, reasonParam, vehicleParam]);
+
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formName || !formPhone) {
+      setToastMessage("Vui lòng điền Họ tên và Số điện thoại!");
+      setShowToast(true);
+      return;
+    }
+    
+    if (isRepairQuoteForm) {
+      if (!selectedVehicle) {
+        setToastMessage("Vui lòng chọn dòng xe cần tư vấn!");
+        setShowToast(true);
+        return;
+      }
+    } else if (isServiceBooking) {
+      if (!formLicensePlate) {
+        setToastMessage("Vui lòng điền Biển số xe!");
+        setShowToast(true);
+        return;
+      }
+      if (!formAppointmentTime) {
+        setToastMessage("Vui lòng chọn Thời gian hẹn!");
+        setShowToast(true);
+        return;
+      }
+    }
+    
+    if (!isRepairQuoteForm && !isNewCarQuoteForm && !formServiceContent) {
+      setToastMessage("Vui lòng điền nội dung yêu cầu!");
+      setShowToast(true);
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      let payload;
+      if (isRepairQuoteForm) {
+        const selectedVehicleObj = allVehicles.find((v) => v.id === selectedVehicle);
+        const vehicleTitle = selectedVehicleObj ? selectedVehicleObj.name : selectedVehicle;
+
+        const fullNote = `Yêu cầu tư vấn báo giá dịch vụ.
+- Biển số xe: ${formLicensePlate || "Chưa cung cấp"}
+- Số KM hiện tại: ${formMileage ? `${formMileage} km` : "Chưa cung cấp"}
+- Gói yêu cầu: ${selectedPackageType === "maintenance" ? `Bảo dưỡng định kỳ (${selectedMaintenanceKm})` : "Sửa chữa chung"}
+- Ghi chú thêm: ${formServiceContent || "Không có"}`;
+
+        payload = {
+          contact: {
+            type: "REPAIR_QUOTE_FORM" as const,
+            data: {
+              Name: formName,
+              Phone: formPhone,
+              Email: formEmail || undefined,
+              Product: {
+                id: selectedVehicle,
+                slug: selectedVehicle,
+                title: vehicleTitle,
+                type: "vehicle" as const
+              },
+              "Nội dung cần hỗ trợ": fullNote
+            }
+          }
+        };
+      } else if (isNewCarQuoteForm) {
+        const selectedVehicleObj = allVehicles.find((v) => v.id === selectedVehicle);
+        const vehicleTitle = selectedVehicleObj ? selectedVehicleObj.name : (vehicleParam ? getVehicleName(vehicleParam, allVehicles) : selectedVehicle || "Xe Ford mới");
+
+        payload = {
+          contact: {
+            type: "NEW_CAR_QUOTE_FORM" as const,
+            data: {
+              Name: formName,
+              Phone: formPhone,
+              Email: formEmail || undefined,
+              "Họ và tên": formName,
+              "Số điện thoại": formPhone,
+              "E-mail": formEmail || undefined,
+              "Dòng xe quan tâm": vehicleTitle,
+              "Hình thức mua xe": formPurchaseMethod,
+              "Tỉnh / Thành phố": formCity || "Đồng Nai",
+              "Nội dung yêu cầu": formServiceContent || `Nhận báo giá xe ${vehicleTitle}`
+            }
+          }
+        };
+      } else if (isServiceBooking) {
+        payload = {
+          contact: {
+            type: "SERVICE_BOOKING" as const,
+            data: {
+              Name: formName,
+              Phone: formPhone,
+              Email: formEmail || undefined,
+              "Họ và tên": formName,
+              "Số điện thoại": formPhone,
+              "E-mail": formEmail || undefined,
+              "Biển số xe": formLicensePlate,
+              "Thời gian hẹn": formAppointmentTime,
+              "Nội dung yêu cầu dịch vụ": formServiceContent,
+              "Tại": formLocation
+            }
+          }
+        };
+      } else {
+        payload = {
+          contact: {
+            type: "CONTACT_FORM" as const,
+            data: {
+              Name: formName,
+              Phone: formPhone,
+              Email: formEmail || undefined,
+              "Họ và tên": formName,
+              "Số điện thoại": formPhone,
+              "E-mail": formEmail || undefined,
+              "Nội dung cần hỗ trợ": formServiceContent
+            }
+          }
+        };
+      }
+
+      const response = await contactsAPI.submit(payload);
+
+      if (response && response.success === false) {
+        setToastMessage(response.message || "Gửi yêu cầu thất bại. Vui lòng thử lại!");
+        setShowToast(true);
+      } else {
+        if (isRepairQuoteForm) {
+          setToastMessage(
+            "Cảm ơn quý khách. Yêu cầu tư vấn báo giá của quý khách đã được tiếp nhận. Cố vấn dịch vụ tại Đồng Nai Ford sẽ liên hệ sớm nhất."
+          );
+        } else {
+          setToastMessage(
+            "Đăng ký thành công! Đồng Nai Ford đã nhận được yêu cầu của bạn. Chuyên viên sẽ liên hệ xác nhận trong ít phút."
+          );
+        }
+        setShowToast(true);
+
+        // Clear inputs
+        setFormName("");
+        setFormPhone("");
+        setFormEmail("");
+        setFormLicensePlate("");
+        setFormAppointmentTime("");
+        setFormServiceContent("");
+        setFormLocation("Tại đại lý");
+        setSelectedVehicle("");
+        setFormMileage("");
+        setSelectedPackageType("maintenance");
+        setSelectedMaintenanceKm("5.000 km");
+      }
+    } catch (error: any) {
+      console.error("Contact submit error:", error);
+      let errMsg = "Đã xảy ra lỗi kết nối đến máy chủ. Vui lòng thử lại sau!";
+      if (error && error.data && error.data.message) {
+        const backendMessage = error.data.message;
+        if (typeof backendMessage === "object") {
+          if (backendMessage.Phone || backendMessage["Số điện thoại"]) {
+            errMsg = "Số điện thoại không hợp lệ (yêu cầu từ 9 đến 12 chữ số và bắt đầu bằng số 0)!";
+          } else if (backendMessage.Name || backendMessage["Họ và tên"]) {
+            errMsg = "Họ và tên không hợp lệ!";
+          }
+        } else {
+          errMsg = backendMessage;
+        }
+      }
+      setToastMessage(errMsg);
+      setShowToast(true);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="w-full flex flex-col items-center bg-[#F8F9FA]">
+      {/* Toast Notification (Centered Modal style) */}
+      {showToast && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-fade-in">
+          <div className="bg-white border border-gray-150 text-[#1a1a1a] p-6 max-w-md w-full rounded-2xl shadow-2xl flex gap-4 items-start relative">
+            <div className="w-10 h-10 bg-[#066fef]/10 text-[#066fef] flex items-center justify-center rounded-xl flex-shrink-0">
+              <CheckCircle className="w-6 h-6 text-[#066fef]" />
+            </div>
+            <div className="flex-1 space-y-2 pr-6">
+              <h4 className="font-bold text-sm text-[#002F6C] font-display">Thông báo hệ thống</h4>
+              <p className="text-xs text-[#555] leading-relaxed font-antenna">{toastMessage}</p>
+            </div>
+            <button
+              onClick={() => setShowToast(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 transition-colors cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Top Showroom Hero Banner */}
+      <section className="relative w-full h-[320px] md:h-[420px] bg-slate-900 overflow-hidden flex items-end">
+        <div className="absolute inset-0 z-0">
+          <img
+            src="/images-dynamic/image-hero-1.jpg"
+            alt="Showroom Đồng Nai Ford"
+            className="w-full h-full object-cover object-center"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#00095B]/80 via-black/30 to-transparent" />
+        </div>
+        <div className="relative z-10 max-w-[1440px] mx-auto px-4 xl:px-[80px] pb-12 w-full text-white">
+          <span className="text-xs font-bold uppercase tracking-widest text-[#4db2ff]">LIÊN HỆ VỚI CHÚNG TÔI</span>
+          <h1 className="font-display text-3xl md:text-5xl font-extrabold mt-2 text-white">Đồng Nai Ford</h1>
+        </div>
+      </section>
+
+      {/* Main Content Grid */}
+      <div className="max-w-[1440px] mx-auto px-4 xl:px-[80px] py-16 w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+        
+        {/* Left Side: Contact Information Cards (5 cols) */}
+        <div className="lg:col-span-5 flex flex-col gap-8 w-full">
+          <div className="flex flex-col gap-4">
+            <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#066fef]">
+              THÔNG TIN ĐẠI LÝ
+            </span>
+            <h2 className="font-display font-bold leading-tight text-[#00095B] text-[36px] tracking-tight">
+              Đại lý Đồng Nai Ford
+            </h2>
+            <p className="font-antenna leading-relaxed text-gray-500 text-sm font-medium">
+              Cho dù bạn cần tư vấn dòng xe mới, đặt lịch bảo dưỡng hay phản hồi ý kiến dịch vụ, hãy kết nối với đội ngũ chuyên viên của chúng tôi thông qua các kênh thuận tiện dưới đây.
+            </p>
+          </div>
+
+          {/* Details Column Merged Card (No Borders) */}
+          <div className="bg-white p-8 rounded-[24px] shadow-[0_4px_25px_rgba(0,0,0,0.03)] flex flex-col gap-8 w-full border border-gray-100/50">
+            {/* Showroom Address Item */}
+            <div className="flex gap-4 items-start">
+              <div className="w-11 h-11 bg-[#066fef]/10 text-[#066fef] flex items-center justify-center rounded-xl flex-shrink-0">
+                <MapPin className="w-5.5 h-5.5" />
+              </div>
+              <div className="flex-grow flex flex-col gap-1.5">
+                <span className="font-antenna font-extrabold text-[10px] uppercase tracking-wider text-[#066fef]">
+                  Địa chỉ Showroom
+                </span>
+                <a
+                  href="https://maps.app.goo.gl/dongnaiford"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-antenna text-xs lg:text-sm text-gray-800 leading-relaxed font-semibold hover:text-[#066fef] transition-colors"
+                >
+                  2525 Quốc Lộ 1A, P. Tân Biên, TP. Biên Hòa, T. Đồng Nai
+                </a>
+              </div>
+            </div>
+
+            {/* Hotlines Item */}
+            <div className="flex gap-4 items-start border-t border-gray-100 pt-6">
+              <div className="w-11 h-11 bg-[#066fef]/10 text-[#066fef] flex items-center justify-center rounded-xl flex-shrink-0">
+                <Phone className="w-5.5 h-5.5" />
+              </div>
+              <div className="flex-grow flex flex-col gap-1.5">
+                <span className="font-antenna font-extrabold text-[10px] uppercase tracking-wider text-[#066fef]">
+                  Đường dây nóng Hỗ trợ
+                </span>
+                <div className="font-antenna text-xs lg:text-sm text-gray-800 leading-relaxed space-y-1.5">
+                  <p className="flex items-center justify-between border-b border-gray-100 pb-1.5">
+                    <span className="text-gray-400 font-medium">Hotline Kinh doanh:</span>
+                    <span className="font-bold text-[#002F6C]">0918 90 90 60</span>
+                  </p>
+                  <p className="flex items-center justify-between border-b border-gray-100 pb-1.5">
+                    <span className="text-gray-400 font-medium">Bộ phận Dịch vụ:</span>
+                    <span className="font-bold text-[#002F6C]">0918 90 90 60</span>
+                  </p>
+                  <p className="flex items-center justify-between">
+                    <span className="text-gray-400 font-medium">Bộ phận Cứu hộ:</span>
+                    <span className="font-bold text-[#002F6C]">0918 90 90 60</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Email Item */}
+            <div className="flex gap-4 items-start border-t border-gray-100 pt-6">
+              <div className="w-11 h-11 bg-[#066fef]/10 text-[#066fef] flex items-center justify-center rounded-xl flex-shrink-0">
+                <Mail className="w-5.5 h-5.5" />
+              </div>
+              <div className="flex-grow flex flex-col gap-1.5">
+                <span className="font-antenna font-extrabold text-[10px] uppercase tracking-wider text-[#066fef]">
+                  Hòm thư điện tử
+                </span>
+                <p className="font-antenna text-xs lg:text-sm text-gray-800 font-bold">
+                  info@dongnaiford.com.vn
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Side: Appointment Booking Form Card (7 cols) */}
+        <div id="contact-form" className="lg:col-span-7 relative bg-white border border-gray-200/80 p-8 rounded-[24px] shadow-lg text-gray-900 overflow-hidden scroll-mt-20">
+          {/* Header colorful highlight bar */}
+          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#002F6C] via-[#066fef] to-[#00aaff]" />
+
+          <div className="flex flex-col gap-1.5 mb-6 text-center lg:text-left">
+            <h3 className="font-display font-bold text-2xl text-[#00095B] tracking-tight">
+              {isRepairQuoteForm 
+                ? "Tư vấn & Báo giá sửa chữa xe" 
+                : isNewCarQuoteForm
+                  ? "Yêu cầu báo giá xe mới"
+                  : isServiceBooking 
+                    ? "Đặt hẹn dịch vụ trực tuyến" 
+                    : "Liên hệ & Đóng góp ý kiến"}
+            </h3>
+            <p className="text-xs text-gray-400 font-medium font-antenna">
+              {isRepairQuoteForm
+                ? "Vui lòng điền thông tin chi tiết dưới đây, Cố vấn dịch vụ Đồng Nai Ford sẽ liên hệ báo giá nhanh nhất."
+                : isNewCarQuoteForm
+                  ? "Vui lòng để lại thông tin, Chuyên viên kinh doanh Đồng Nai Ford sẽ gửi báo giá lăn bánh & ưu đãi mới nhất."
+                  : isServiceBooking 
+                    ? "Vui lòng điền thông tin dưới đây để được hỗ trợ nhanh chóng nhất."
+                    : "Vui lòng điền thông tin dưới đây để nhận phản hồi sớm nhất."}
+            </p>
+          </div>
+
+          {/* Form Type Switcher Tab */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-6 p-1 bg-gray-100/70 rounded-2xl">
+            <button
+              type="button"
+              onClick={() => setFormType("new-car")}
+              className={`py-2.5 px-2 rounded-xl text-[11px] md:text-xs font-bold transition-all duration-300 flex items-center justify-center gap-1 cursor-pointer border-0
+                ${isNewCarQuoteForm
+                  ? "bg-[#002F6C] text-white shadow-xs"
+                  : "text-gray-500 hover:text-gray-800 bg-transparent hover:bg-gray-100/30"
+                }`}
+            >
+              <Car className="w-3.5 h-3.5 shrink-0" />
+              <span>Mua xe mới</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setFormType("service-booking")}
+              className={`py-2.5 px-2 rounded-xl text-[11px] md:text-xs font-bold transition-all duration-300 flex items-center justify-center gap-1 cursor-pointer border-0
+                ${isServiceBooking
+                  ? "bg-[#002F6C] text-white shadow-xs"
+                  : "text-gray-500 hover:text-gray-800 bg-transparent hover:bg-gray-100/30"
+                }`}
+            >
+              <Calendar className="w-3.5 h-3.5 shrink-0" />
+              <span>Đặt lịch dịch vụ</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setFormType("repair-quote")}
+              className={`py-2.5 px-2 rounded-xl text-[11px] md:text-xs font-bold transition-all duration-300 flex items-center justify-center gap-1 cursor-pointer border-0
+                ${isRepairQuoteForm
+                  ? "bg-[#002F6C] text-white shadow-xs"
+                  : "text-gray-500 hover:text-gray-800 bg-transparent hover:bg-gray-100/30"
+                }`}
+            >
+              <Wrench className="w-3.5 h-3.5 shrink-0" />
+              <span>Báo giá sửa chữa</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setFormType("general")}
+              className={`py-2.5 px-2 rounded-xl text-[11px] md:text-xs font-bold transition-all duration-300 flex items-center justify-center gap-1 cursor-pointer border-0
+                ${formType === "general"
+                  ? "bg-[#002F6C] text-white shadow-xs"
+                  : "text-gray-500 hover:text-gray-800 bg-transparent hover:bg-gray-100/30"
+                }`}
+            >
+              <Mail className="w-3.5 h-3.5 shrink-0" />
+              <span>Liên hệ khác</span>
+            </button>
+          </div>
+
+          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+            {isRepairQuoteForm ? (
+              <>
+                {/* Họ và tên & Số điện thoại */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-1.5 relative">
+                    <label className="font-antenna font-extrabold text-[10px] text-gray-450 uppercase tracking-wider ml-1">
+                      Họ và tên <span className="text-[#f97066]">*</span>
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        required
+                        value={formName}
+                        onChange={(e) => setFormName(e.target.value)}
+                        placeholder="Nhập họ và tên của bạn"
+                        className="w-full bg-gray-50/30 hover:bg-gray-100/30 focus:bg-white border border-gray-200 focus:border-[#066fef] focus:ring-4 focus:ring-[#066fef]/10 rounded-xl py-3 pl-10 pr-4 text-xs font-semibold font-antenna transition-all outline-none"
+                      />
+                      <User className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="font-antenna font-extrabold text-[10px] text-gray-450 uppercase tracking-wider ml-1">
+                      Số điện thoại <span className="text-[#f97066]">*</span>
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="tel"
+                        required
+                        value={formPhone}
+                        onChange={(e) => setFormPhone(e.target.value)}
+                        placeholder="Nhập số điện thoại"
+                        className="w-full bg-gray-50/30 hover:bg-gray-100/30 focus:bg-white border border-gray-200 focus:border-[#066fef] focus:ring-4 focus:ring-[#066fef]/10 rounded-xl py-3 pl-10 pr-4 text-xs font-semibold font-antenna transition-all outline-none"
+                      />
+                      <Phone className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Email & Biển số xe */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="font-antenna font-extrabold text-[10px] text-gray-450 uppercase tracking-wider ml-1">
+                      Email
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="email"
+                        value={formEmail}
+                        onChange={(e) => setFormEmail(e.target.value)}
+                        placeholder="example@gmail.com"
+                        className="w-full bg-gray-50/30 hover:bg-gray-100/30 focus:bg-white border border-gray-200 focus:border-[#066fef] focus:ring-4 focus:ring-[#066fef]/10 rounded-xl py-3 pl-10 pr-4 text-xs font-semibold font-antenna transition-all outline-none"
+                      />
+                      <Mail className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="font-antenna font-extrabold text-[10px] text-gray-450 uppercase tracking-wider ml-1">
+                      Biển số xe
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value={formLicensePlate}
+                        onChange={(e) => setFormLicensePlate(e.target.value)}
+                        placeholder="Ví dụ: 60C-525.45"
+                        className="w-full bg-gray-50/30 hover:bg-gray-100/30 focus:bg-white border border-gray-200 focus:border-[#066fef] focus:ring-4 focus:ring-[#066fef]/10 rounded-xl py-3 pl-10 pr-4 text-xs font-semibold font-antenna transition-all outline-none"
+                      />
+                      <FileText className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Dòng xe & Số KM */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-1.5 relative">
+                    <label className="font-antenna font-extrabold text-[10px] text-gray-450 uppercase tracking-wider ml-1">
+                      Loại xe <span className="text-[#f97066]">*</span>
+                    </label>
+                    <div className="relative">
+                      <select
+                        required
+                        value={selectedVehicle}
+                        onChange={(e) => setSelectedVehicle(e.target.value)}
+                        className="w-full bg-gray-50/30 hover:bg-gray-100/30 focus:bg-white border border-gray-200 focus:border-[#066fef] focus:ring-4 focus:ring-[#066fef]/10 rounded-xl py-3 pl-10 pr-10 text-xs font-semibold font-antenna transition-all outline-none appearance-none text-gray-700"
+                      >
+                        <option value="">-- Chọn dòng xe Ford --</option>
+                        {allVehicles.map((v) => (
+                          <option key={v.id} value={v.id}>{v.name}</option>
+                        ))}
+                      </select>
+                      <Car className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 text-xs">▼</div>
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="font-antenna font-extrabold text-[10px] text-gray-450 uppercase tracking-wider ml-1">
+                      Số KM hiện tại
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="number"
+                        value={formMileage}
+                        onChange={(e) => setFormMileage(e.target.value)}
+                        placeholder="Ví dụ: 15000"
+                        className="w-full bg-gray-50/30 hover:bg-gray-100/30 focus:bg-white border border-gray-200 focus:border-[#066fef] focus:ring-4 focus:ring-[#066fef]/10 rounded-xl py-3 pl-10 pr-4 text-xs font-semibold font-antenna transition-all outline-none"
+                      />
+                      <Gauge className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Loại gói yêu cầu */}
+                <div className="flex flex-col gap-1.5">
+                  <label className="font-antenna font-extrabold text-[10px] text-gray-450 uppercase tracking-wider ml-1">
+                    Gói dịch vụ yêu cầu <span className="text-[#f97066]">*</span>
+                  </label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedPackageType("maintenance")}
+                      className={`py-3 px-4 rounded-xl border text-xs font-bold transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer
+                        ${selectedPackageType === "maintenance"
+                          ? "bg-[#002F6C] border-[#002F6C] text-white shadow-md shadow-[#002F6C]/10"
+                          : "bg-gray-50/50 border-gray-200 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+                        }`}
+                    >
+                      <Wrench className="w-4 h-4" />
+                      Gói bảo dưỡng
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedPackageType("repair")}
+                      className={`py-3 px-4 rounded-xl border text-xs font-bold transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer
+                        ${selectedPackageType === "repair"
+                          ? "bg-[#002F6C] border-[#002F6C] text-white shadow-md shadow-[#002F6C]/10"
+                          : "bg-gray-50/50 border-gray-200 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+                        }`}
+                    >
+                      <Wrench className="w-4 h-4" />
+                      Sửa chữa chung
+                    </button>
+                  </div>
+                </div>
+
+                {/* Sub-options for Gói bảo dưỡng */}
+                {selectedPackageType === "maintenance" && (
+                  <div className="flex flex-col gap-1.5 p-4 bg-gray-50 border border-gray-100 rounded-2xl transition-all duration-300 animate-in fade-in slide-in-from-top-2">
+                    <label className="font-antenna font-extrabold text-[10px] text-gray-450 uppercase tracking-wider ml-1">
+                      Mốc bảo dưỡng định kỳ <span className="text-[#f97066]">*</span>
+                    </label>
+                    <div className="relative">
+                      <select
+                        value={selectedMaintenanceKm}
+                        onChange={(e) => setSelectedMaintenanceKm(e.target.value)}
+                        className="w-full bg-white border border-gray-200 focus:border-[#066fef] rounded-xl py-3 pl-10 pr-10 text-xs font-semibold font-antenna transition-all outline-none text-gray-700 appearance-none"
+                      >
+                        {["1.000 km", "5.000 km", "10.000 km", "20.000 km", "30.000 km", "40.000 km", "Trên 50.000 km"].map((km) => (
+                          <option key={km} value={km}>{km}</option>
+                        ))}
+                      </select>
+                      <Calendar className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 text-xs">▼</div>
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : isNewCarQuoteForm ? (
+              <>
+                {/* Họ và tên & Số điện thoại */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-1.5 relative">
+                    <label className="font-antenna font-extrabold text-[10px] text-gray-450 uppercase tracking-wider ml-1">
+                      Họ và tên <span className="text-[#f97066]">*</span>
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        required
+                        value={formName}
+                        onChange={(e) => setFormName(e.target.value)}
+                        placeholder="Nhập họ và tên của bạn"
+                        className="w-full bg-gray-50/30 hover:bg-gray-100/30 focus:bg-white border border-gray-200 focus:border-[#066fef] focus:ring-4 focus:ring-[#066fef]/10 rounded-xl py-3 pl-10 pr-4 text-xs font-semibold font-antenna transition-all outline-none"
+                      />
+                      <User className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="font-antenna font-extrabold text-[10px] text-gray-450 uppercase tracking-wider ml-1">
+                      Số điện thoại <span className="text-[#f97066]">*</span>
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="tel"
+                        required
+                        value={formPhone}
+                        onChange={(e) => setFormPhone(e.target.value)}
+                        placeholder="Nhập số điện thoại liên hệ"
+                        className="w-full bg-gray-50/30 hover:bg-gray-100/30 focus:bg-white border border-gray-200 focus:border-[#066fef] focus:ring-4 focus:ring-[#066fef]/10 rounded-xl py-3 pl-10 pr-4 text-xs font-semibold font-antenna transition-all outline-none"
+                      />
+                      <Phone className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Email & Dòng xe quan tâm */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="font-antenna font-extrabold text-[10px] text-gray-450 uppercase tracking-wider ml-1">
+                      Email
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="email"
+                        value={formEmail}
+                        onChange={(e) => setFormEmail(e.target.value)}
+                        placeholder="example@gmail.com"
+                        className="w-full bg-gray-50/30 hover:bg-gray-100/30 focus:bg-white border border-gray-200 focus:border-[#066fef] focus:ring-4 focus:ring-[#066fef]/10 rounded-xl py-3 pl-10 pr-4 text-xs font-semibold font-antenna transition-all outline-none"
+                      />
+                      <Mail className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-1.5 relative">
+                    <label className="font-antenna font-extrabold text-[10px] text-gray-450 uppercase tracking-wider ml-1">
+                      Dòng xe quan tâm
+                    </label>
+                    <div className="relative">
+                      <select
+                        value={selectedVehicle}
+                        onChange={(e) => setSelectedVehicle(e.target.value)}
+                        className="w-full bg-gray-50/30 hover:bg-gray-100/30 focus:bg-white border border-gray-200 focus:border-[#066fef] focus:ring-4 focus:ring-[#066fef]/10 rounded-xl py-3 pl-10 pr-10 text-xs font-semibold font-antenna transition-all outline-none appearance-none text-gray-700"
+                      >
+                        <option value="">-- Chọn dòng xe Ford --</option>
+                        {allVehicles.map((v) => (
+                          <option key={v.id} value={v.id}>{v.name}</option>
+                        ))}
+                      </select>
+                      <Car className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 text-xs">▼</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Hình thức mua xe & Tỉnh/Thành phố */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="font-antenna font-extrabold text-[10px] text-gray-450 uppercase tracking-wider ml-1">
+                      Hình thức mua xe
+                    </label>
+                    <div className="flex gap-3">
+                      {(["Trả góp", "Tiền mặt"] as const).map((method) => {
+                        const isSel = formPurchaseMethod === method;
+                        return (
+                          <button
+                            key={method}
+                            type="button"
+                            onClick={() => setFormPurchaseMethod(method)}
+                            className={`py-2.5 rounded-xl border text-xs font-extrabold transition cursor-pointer text-center flex-1
+                              ${isSel 
+                                ? "bg-[#002F6C] border-[#002F6C] text-white shadow-md shadow-blue-900/10" 
+                                : "bg-gray-50/50 border-gray-200 text-gray-500 hover:bg-gray-150 hover:text-gray-700"}`}
+                          >
+                            {method}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="font-antenna font-extrabold text-[10px] text-gray-450 uppercase tracking-wider ml-1">
+                      Tỉnh / Thành phố nhận xe
+                    </label>
+                    <div className="relative">
+                      <select
+                        value={formCity}
+                        onChange={(e) => setFormCity(e.target.value)}
+                        className="w-full bg-gray-50/30 hover:bg-gray-100/30 focus:bg-white border border-gray-200 focus:border-[#066fef] focus:ring-4 focus:ring-[#066fef]/10 rounded-xl py-3 pl-10 pr-10 text-xs font-semibold font-antenna transition-all outline-none text-gray-700 appearance-none cursor-pointer"
+                      >
+                        <option value="Đồng Nai">Đồng Nai</option>
+                        <option value="TP. Hồ Chí Minh">TP. Hồ Chí Minh</option>
+                        <option value="Bình Dương">Bình Dương</option>
+                        <option value="Bà Rịa - Vũng Tàu">Bà Rịa - Vũng Tàu</option>
+                        <option value="Long An">Long An</option>
+                        <option value="Tây Ninh">Tây Ninh</option>
+                        <option value="Bình Phước">Bình Phước</option>
+                        <option value="Bình Thuận">Bình Thuận</option>
+                        <option value="Lâm Đồng">Lâm Đồng</option>
+                        <option value="Hà Nội">Hà Nội</option>
+                        <option value="Đà Nẵng">Đà Nẵng</option>
+                        <option value="Khác">Khu vực khác</option>
+                      </select>
+                      <MapPin className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 text-xs">▼</div>
+                    </div>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                {/* Họ và tên */}
+                <div className="flex flex-col gap-1.5 relative">
+                  <label className="font-antenna font-extrabold text-[10px] text-gray-450 uppercase tracking-wider ml-1">
+                    Họ và tên <span className="text-[#f97066]">*</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      required
+                      value={formName}
+                      onChange={(e) => setFormName(e.target.value)}
+                      placeholder="Nhập họ và tên của bạn"
+                      className="w-full bg-gray-50/30 hover:bg-gray-100/30 focus:bg-white border border-gray-200 focus:border-[#066fef] focus:ring-4 focus:ring-[#066fef]/10 rounded-xl py-3 pl-10 pr-4 text-xs font-semibold font-antenna transition-all outline-none"
+                    />
+                    <User className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  </div>
+                </div>
+
+                {/* Số điện thoại & Email */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="font-antenna font-extrabold text-[10px] text-gray-450 uppercase tracking-wider ml-1">
+                      Số điện thoại <span className="text-[#f97066]">*</span>
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="tel"
+                        required
+                        value={formPhone}
+                        onChange={(e) => setFormPhone(e.target.value)}
+                        placeholder="Nhập số điện thoại liên hệ"
+                        className="w-full bg-gray-50/30 hover:bg-gray-100/30 focus:bg-white border border-gray-200 focus:border-[#066fef] focus:ring-4 focus:ring-[#066fef]/10 rounded-xl py-3 pl-10 pr-4 text-xs font-semibold font-antenna transition-all outline-none"
+                      />
+                      <Phone className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="font-antenna font-extrabold text-[10px] text-gray-450 uppercase tracking-wider ml-1">
+                      Email
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="email"
+                        value={formEmail}
+                        onChange={(e) => setFormEmail(e.target.value)}
+                        placeholder="example@gmail.com"
+                        className="w-full bg-gray-50/30 hover:bg-gray-100/30 focus:bg-white border border-gray-200 focus:border-[#066fef] focus:ring-4 focus:ring-[#066fef]/10 rounded-xl py-3 pl-10 pr-4 text-xs font-semibold font-antenna transition-all outline-none"
+                      />
+                      <Mail className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    </div>
+                  </div>
+                </div>
+
+                {isServiceBooking && (
+                  <>
+                    {/* Biển số xe & Thời gian hẹn */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="flex flex-col gap-1.5">
+                        <label className="font-antenna font-extrabold text-[10px] text-gray-450 uppercase tracking-wider ml-1">
+                          Biển số xe <span className="text-[#f97066]">*</span>
+                        </label>
+                        <div className="relative">
+                          <input
+                            type="text"
+                            required={isServiceBooking}
+                            value={formLicensePlate}
+                            onChange={(e) => setFormLicensePlate(e.target.value)}
+                            placeholder="Ví dụ: 60C-525.45"
+                            className="w-full bg-gray-50/30 hover:bg-gray-100/30 focus:bg-white border border-gray-200 focus:border-[#066fef] focus:ring-4 focus:ring-[#066fef]/10 rounded-xl py-3 pl-10 pr-4 text-xs font-semibold font-antenna transition-all outline-none"
+                          />
+                          <FileText className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                        </div>
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        <label className="font-antenna font-extrabold text-[10px] text-gray-450 uppercase tracking-wider ml-1">
+                          Thời gian hẹn <span className="text-[#f97066]">*</span>
+                        </label>
+                        <div className="relative">
+                          <input
+                            type="date"
+                            ref={dateInputRef}
+                            value={formAppointmentTime}
+                            onChange={(e) => setFormAppointmentTime(e.target.value)}
+                            className="absolute inset-0 opacity-0 pointer-events-none w-full h-full"
+                          />
+                          <input
+                            type="text"
+                            readOnly
+                            value={displayDate}
+                            placeholder="dd/mm/yyyy"
+                            onClick={() => {
+                              try {
+                                dateInputRef.current?.showPicker();
+                              } catch {
+                                dateInputRef.current?.click();
+                              }
+                            }}
+                            className="w-full bg-gray-50/30 hover:bg-gray-100/30 focus:bg-white border border-gray-200 focus:border-[#066fef] focus:ring-4 focus:ring-[#066fef]/10 rounded-xl py-3 pl-10 pr-10 text-xs font-semibold font-antenna transition-all outline-none text-gray-700 cursor-pointer"
+                          />
+                          <Calendar className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Tại (Địa điểm thực hiện dịch vụ) */}
+                    <div className="flex flex-col gap-1.5">
+                      <label className="font-antenna font-extrabold text-[10px] text-gray-450 uppercase tracking-wider ml-1">
+                        Địa điểm làm dịch vụ <span className="text-[#f97066]">*</span>
+                      </label>
+                      <div className="flex gap-4">
+                        {["Tại đại lý", "Tại nhà"].map((loc) => {
+                          const isSel = formLocation === loc;
+                          return (
+                            <button
+                              key={loc}
+                              type="button"
+                              onClick={() => setFormLocation(loc)}
+                              className={`py-2.5 rounded-xl border text-xs font-extrabold transition cursor-pointer text-center flex-1
+                                ${isSel 
+                                  ? "bg-[#002F6C] border-[#002F6C] text-white shadow-md shadow-blue-900/10" 
+                                  : "bg-gray-50/50 border-gray-200 text-gray-500 hover:bg-gray-150 hover:text-gray-700"}`}
+                            >
+                              {loc}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </>
+                )}
+              </>
+            )}
+
+            {/* Nội dung yêu cầu / Ghi chú thêm */}
+            <div className="flex flex-col gap-1.5">
+              <label className="font-antenna font-extrabold text-[10px] text-gray-450 uppercase tracking-wider ml-1">
+                {isRepairQuoteForm 
+                  ? "Ghi chú thêm (Không bắt buộc)" 
+                  : isNewCarQuoteForm
+                    ? "Ghi chú yêu cầu thêm (Không bắt buộc)"
+                    : isServiceBooking 
+                      ? "Nội dung yêu cầu dịch vụ" 
+                      : "Nội dung yêu cầu"}{" "}
+                {!isRepairQuoteForm && !isNewCarQuoteForm && <span className="text-[#f97066]">*</span>}
+              </label>
+              <textarea
+                required={!isRepairQuoteForm && !isNewCarQuoteForm}
+                value={formServiceContent}
+                onChange={(e) => setFormServiceContent(e.target.value)}
+                placeholder={isRepairQuoteForm 
+                  ? "Nhập thêm các ghi chú hoặc mô tả tình trạng hư hỏng của xe (nếu có)..." 
+                  : isNewCarQuoteForm
+                    ? "Nhập thêm thông tin ưu đãi hoặc quà tặng bạn muốn nhận..."
+                    : isServiceBooking 
+                      ? "Vui lòng cung cấp chi tiết yêu cầu dịch vụ của bạn..." 
+                      : "Vui lòng nhập chi tiết yêu cầu của bạn..."}
+                className="w-full h-[120px] bg-gray-50/30 hover:bg-gray-100/30 focus:bg-white border border-gray-200 focus:border-[#066fef] focus:ring-4 focus:ring-[#066fef]/10 rounded-xl px-3.5 py-3 text-xs font-semibold font-antenna transition-all outline-none resize-none"
+              />
+            </div>
+
+            {/* Action button */}
+            <div className="pt-2 flex justify-center lg:justify-start">
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full sm:w-[240px] py-3.5 bg-gradient-to-r from-[#002F6C] to-[#0562D2] hover:from-[#001D4A] hover:to-[#004ea7] disabled:from-gray-300 disabled:to-gray-400 text-white font-extrabold text-xs tracking-wider uppercase rounded-full shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer active:scale-95 text-center font-antenna"
+              >
+                {isSubmitting 
+                  ? "Đang gửi..." 
+                  : (isRepairQuoteForm 
+                    ? "Yêu cầu báo giá" 
+                    : isNewCarQuoteForm
+                      ? "Nhận báo giá xe mới"
+                      : isServiceBooking 
+                        ? "Đăng ký đặt lịch" 
+                        : "Gửi thông tin")}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      {/* Google Maps Full Width at Bottom */}
+      <div className="max-w-[1440px] mx-auto px-4 xl:px-[80px] w-full mb-20">
+        <div className="w-full h-[450px] rounded-[24px] overflow-hidden border border-gray-200 shadow-sm relative">
+          <iframe
+            src={siteAssets.googleMapsEmbed}
+            width="100%"
+            height="100%"
+            style={{ border: 0 }}
+            allowFullScreen={true}
+            loading="lazy"
+            referrerPolicy="strict-origin-when-cross-origin"
+            title="Địa chỉ Đồng Nai Ford trên Google Map"
+            className="absolute inset-0"
+          ></iframe>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function ContactPage() {
+  return (
+    <div className="bg-[#F8F9FA] flex-1 min-h-screen">
+      <Suspense fallback={
+        <div className="max-w-[1440px] mx-auto px-4 xl:px-[80px] py-24 text-center">
+          <div className="animate-spin inline-block w-8 h-8 border-4 border-[#066fef] border-t-transparent rounded-full" role="status">
+            <span className="sr-only">Đang tải...</span>
+          </div>
+        </div>
+      }>
+        <ContactFormContent />
+      </Suspense>
+    </div>
+  );
+}

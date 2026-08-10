@@ -52,7 +52,9 @@ export async function generateMetadata({ params }: Props) {
         },
       };
     }
-    const response = await servicesAPI.getBySlug(slug) as any;
+    const fetchPromise = servicesAPI.getBySlug(slug) as any;
+    const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve(null), 800));
+    const response = await Promise.race([fetchPromise, timeoutPromise]) as any;
     const service = response?.service;
     const seo = response?.seo;
 
@@ -84,7 +86,11 @@ export default async function ServiceSlugPage({ params }: Props) {
   let serviceData: any = null;
   
   try {
-    const response = await servicesAPI.getBySlug(slug) as any;
+    // Timeout 800ms để tránh chờ đợi trắng màn hình khi CMS API phản hồi chậm
+    const fetchPromise = servicesAPI.getBySlug(slug) as any;
+    const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve(null), 800));
+    const response = await Promise.race([fetchPromise, timeoutPromise]) as any;
+
     if (response && response.service) {
       serviceData = response.service;
     }
