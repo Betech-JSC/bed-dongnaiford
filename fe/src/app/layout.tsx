@@ -183,22 +183,29 @@ export default async function RootLayout({
             dangerouslySetInnerHTML={{
               __html: `
                 (function() {
-                  const temp = document.createElement('div');
-                  temp.innerHTML = \`${injectHead
-                    .replace(/\\/g, '\\\\')
-                    .replace(/`/g, '\\`')
-                    .replace(/\$/g, '\\$')
-                    .replace(/<\/script>/gi, '<\\/script>')}\`;
-                  Array.from(temp.childNodes).forEach(node => {
-                    if (node.tagName === 'SCRIPT') {
-                      const script = document.createElement('script');
-                      Array.from(node.attributes).forEach(attr => script.setAttribute(attr.name, attr.value));
-                      script.innerHTML = node.innerHTML;
-                      document.head.appendChild(script);
-                    } else {
-                      document.head.appendChild(node.cloneNode(true));
-                    }
-                  });
+                  const runInject = function() {
+                    const temp = document.createElement('div');
+                    temp.innerHTML = \`${injectHead
+                      .replace(/\\/g, '\\\\')
+                      .replace(/`/g, '\\`')
+                      .replace(/\$/g, '\\$')
+                      .replace(/<\/script>/gi, '<\\/script>')}\`;
+                    Array.from(temp.childNodes).forEach(node => {
+                      if (node.tagName === 'SCRIPT') {
+                        const script = document.createElement('script');
+                        Array.from(node.attributes).forEach(attr => script.setAttribute(attr.name, attr.value));
+                        script.innerHTML = node.innerHTML;
+                        document.head.appendChild(script);
+                      } else {
+                        document.head.appendChild(node.cloneNode(true));
+                      }
+                    });
+                  };
+                  if ('requestIdleCallback' in window) {
+                    requestIdleCallback(runInject, { timeout: 3000 });
+                  } else {
+                    setTimeout(runInject, 1000);
+                  }
                 })();
               `
             }}

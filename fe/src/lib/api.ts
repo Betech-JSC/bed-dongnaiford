@@ -17,10 +17,10 @@ async function fetchAPI<T = any>(endpoint: string, options?: RequestInit): Promi
   const url = `${getApiBaseUrl()}${endpoint}`;
   const method = options?.method?.toUpperCase() || 'GET';
   
-  // ISR Cache: API GET requests được cache 60s mặc định
+  // ISR Cache: API GET requests được cache 300s mặc định kết hợp tag cms-data
   // Khi CMS publish thay đổi, gọi /api/revalidate để purge cache tức thì
   const defaultCacheOption = method === 'GET' && !options?.cache && !options?.next
-    ? { next: { revalidate: 60 } }
+    ? { next: { revalidate: 300, tags: ['cms-data'] } }
     : {};
 
   try {
