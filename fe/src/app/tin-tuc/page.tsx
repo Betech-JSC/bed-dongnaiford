@@ -32,14 +32,21 @@ export const metadata: Metadata = {
  * Initial page of posts + categories + top_posts are fetched server-side
  * so Googlebot sees article titles, descriptions, and images in the HTML.
  */
-export default async function NewsListPage() {
+export default async function NewsListPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ page?: string }>;
+}) {
+  const resolvedParams = searchParams ? await searchParams : {};
+  const page = resolvedParams?.page || "1";
+
   let initialCategories: any[] = [];
   let initialPosts: any[] = [];
   let initialTopPosts: any[] = [];
   let initialTotalPages = 1;
 
   try {
-    const res: any = await postsAPI.getAll({ page: "1" });
+    const res: any = await postsAPI.getAll({ page });
     if (res) {
       if (res.categories) {
         initialCategories = res.categories;

@@ -238,6 +238,19 @@ function NewsListPageContent({
     setTestimonialDragOffset(0);
   };
 
+  // Sync currentPage from URL query parameter ?page=N
+  useEffect(() => {
+    const pageParam = searchParams.get("page");
+    if (pageParam) {
+      const parsedPage = parseInt(pageParam, 10);
+      if (!isNaN(parsedPage) && parsedPage > 0) {
+        setCurrentPage(parsedPage);
+      }
+    } else {
+      setCurrentPage(1);
+    }
+  }, [searchParams]);
+
   const handleTabChange = (tabId: number | "all") => {
     setCurrentPage(1);
 
@@ -254,6 +267,15 @@ function NewsListPageContent({
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
+      const params = new URLSearchParams(searchParams.toString());
+      if (page <= 1) {
+        params.delete("page");
+      } else {
+        params.set("page", String(page));
+      }
+      const queryString = params.toString();
+      const targetUrl = queryString ? `${pathname}?${queryString}` : pathname;
+      router.push(targetUrl, { scroll: false });
     }
   };
 
