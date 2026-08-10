@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { X, GitCompare, Trash2, ArrowRight } from "lucide-react";
-import { type Vehicle } from "@/data/vehicles";
+import { type Vehicle, vehicles as staticVehicles } from "@/data/vehicles";
 import { getPopularVehicleImage, handleImageError, resolveImageUrl } from "@/lib/site-assets";
 import { formatPriceShort } from "@/lib/rolling-cost";
 import { vehiclesAPI } from "@/lib/api";
@@ -26,7 +26,7 @@ interface ApiVehicleData {
 export default function CompareDrawer() {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isOpen, setIsOpen] = useState(false);
-  const [allVehicles, setAllVehicles] = useState<Vehicle[]>([]);
+  const [allVehicles, setAllVehicles] = useState<Vehicle[]>(staticVehicles);
 
   // Sync with localStorage
   const loadCompareList = () => {
@@ -119,14 +119,30 @@ export default function CompareDrawer() {
     window.dispatchEvent(new Event("compare-updated"));
   };
 
+  // Auto-clean stale or invalid IDs when allVehicles is loaded
+  useEffect(() => {
+    if (selectedIds.length > 0 && allVehicles.length > 0) {
+      const validIds = selectedIds.filter((id) =>
+        allVehicles.some((v) => v.id === id || (v as any).slug === id)
+      );
+      if (validIds.length !== selectedIds.length) {
+        localStorage.setItem("compare-vehicles", JSON.stringify(validIds));
+        setSelectedIds(validIds);
+      }
+    }
+  }, [selectedIds, allVehicles]);
+
   if (selectedIds.length === 0) return null;
 
-  // Resolve vehicles details
+  // Resolve vehicles details (match by id or slug)
   const compareVehicles = selectedIds
     .map((id) => {
-      return allVehicles.find((v) => v.id === id);
+      return allVehicles.find((v) => v.id === id || (v as any).slug === id);
     })
     .filter((v): v is Vehicle => !!v);
+
+  // DO NOT show drawer if zero valid vehicles are resolved
+  if (compareVehicles.length === 0) return null;
 
   return (
     <div
