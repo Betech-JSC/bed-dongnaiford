@@ -270,45 +270,34 @@ function MediaPageContent() {
     fetchVideos();
   }, [currentPage]);
 
-  // Dynamically load/trigger official TikTok Embed Script with polling fallback for client-side navigation
+  // Dynamically load/trigger official TikTok Embed Script once without triggering CDN rate-limit overload
   useEffect(() => {
     if (videos.length > 0) {
-      const triggerRender = () => {
-        if ((window as any).tiktokEmbed) {
+      const renderEmbeds = () => {
+        if ((window as any).tiktokEmbed?.lib) {
           try {
-            const tiktoks = document.querySelectorAll('blockquote.tiktok-embed');
-            if (tiktoks.length > 0) {
-              (window as any).tiktokEmbed.lib.render(Array.from(tiktoks));
-              return true; // render successful
+            const unrendered = document.querySelectorAll('blockquote.tiktok-embed:not([data-rendered="true"])');
+            if (unrendered.length > 0) {
+              (window as any).tiktokEmbed.lib.render(Array.from(unrendered));
+              unrendered.forEach(el => el.setAttribute('data-rendered', 'true'));
             }
           } catch (e) {
-            console.error("Error triggering TikTok render:", e);
+            console.error("Error rendering TikTok embeds:", e);
           }
         }
-        return false; // not ready yet
       };
 
       const existingScript = document.querySelector('script[src="https://www.tiktok.com/embed.js"]');
-      
       if (!existingScript) {
         const script = document.createElement("script");
         script.src = "https://www.tiktok.com/embed.js";
         script.async = true;
+        script.onload = () => setTimeout(renderEmbeds, 200);
         document.body.appendChild(script);
+      } else {
+        const timer = setTimeout(renderEmbeds, 300);
+        return () => clearTimeout(timer);
       }
-
-      // Poll every 100ms up to 20 times (2 seconds) to wait for both the script execution
-      // and React DOM mount to complete, ensuring consistent rendering on client-side routing.
-      let attempts = 0;
-      const interval = setInterval(() => {
-        attempts++;
-        const success = triggerRender();
-        if (success || attempts > 20) {
-          clearInterval(interval);
-        }
-      }, 100);
-
-      return () => clearInterval(interval);
     }
   }, [videos]);
 
