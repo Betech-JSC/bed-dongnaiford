@@ -36,42 +36,30 @@ export const aboutAssets = {
   ],
 } as const;
 
-export const popularVehicleImages: Record<string, string> = {
-  "ford-territory": "/assets/territory-hero.jpg",
-  "ford-everest": "/assets/everest_platinum.jpg",
-  "new-mustang-mach-e": "/assets/mach-e-hero.jpg",
-  "ford-ranger": "/assets/ranger_wildtrak.jpg",
-  "ford-transit-2024": "/assets/transit-hero.jpg",
-  "mustang-fastback": "/assets/mustang-hero.jpg",
-};
+export const popularVehicleImages: Record<string, string> = {};
 
 export function getPopularVehicleImage(slugOrName: string, fallback?: string): string {
-  if (!slugOrName) return fallback || popularVehicleImages["ford-territory"];
-  const key = slugOrName.toLowerCase();
-  for (const [k, v] of Object.entries(popularVehicleImages)) {
-    if (key.includes(k.replace("ford-", ""))) return v;
+  if (fallback && (fallback.startsWith("/") || fallback.startsWith("http"))) {
+    return fallback;
   }
-  return fallback || popularVehicleImages["ford-territory"];
+  return "";
 }
 
-export const imageFallbackSvg = "/images/ford_placeholder.jpg";
+export const imageFallbackSvg = "";
 
 export const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-  const target = e.currentTarget;
-  if (!target.src.includes("territory-hero.jpg")) {
-    target.src = siteAssets.carPlaceholder;
-  }
+  // Silent handler to allow SafeImage component to render clean Skeleton Pulse Loader
 };
 
 export const resolveImageUrl = (img: any): string => {
-  if (!img) return "/images/ford_placeholder.jpg";
+  if (!img) return "";
   let path = "";
   if (typeof img === "string") {
     path = img;
   } else if (typeof img === "object") {
     path = img.url || img.path || "";
   }
-  if (!path) return "/images/ford_placeholder.jpg";
+  if (!path) return "";
   if (path.startsWith("http://") || path.startsWith("https://") || path.startsWith("/") || path.startsWith("//")) {
     return encodeURI(path);
   }

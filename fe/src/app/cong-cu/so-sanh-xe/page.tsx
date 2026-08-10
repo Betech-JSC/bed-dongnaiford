@@ -6,6 +6,7 @@ import Image from "next/image";
 import { ChevronDown, X, Plus, ArrowRight, Trash2, GitCompare } from "lucide-react";
 import { vehicles as staticVehicles, type Vehicle, type Specs } from "@/data/vehicles";
 import { getPopularVehicleImage, handleImageError, resolveImageUrl } from "@/lib/site-assets";
+import SafeImage from "@/components/shared/SafeImage";
 import { formatPriceShort } from "@/lib/rolling-cost";
 import BookingBanner from "@/components/services/BookingBanner";
 import { vehiclesAPI } from "@/lib/api";
@@ -714,7 +715,7 @@ export default function ComparePage() {
                   const targetKey = car.versions && car.versions.length > 0 
                     ? `${car.id}__${car.versions[0].id}` 
                     : car.id;
-                  const carImage = getPopularVehicleImage(car.id, car.image_thumbnail_url || car.image_url || "");
+                  const carImage = car.image_thumbnail_url || car.image_url || getPopularVehicleImage(car.slug || car.name || car.id);
                   return (
                     <button
                       key={car.id}
@@ -727,13 +728,12 @@ export default function ComparePage() {
                       className="p-4 rounded-xl border border-gray-150 hover:border-[#0562d2] hover:bg-blue-50/10 transition-all text-left flex flex-col items-center justify-center gap-2 group cursor-pointer bg-white shadow-sm"
                     >
                       <div className="relative w-full h-[60px]">
-                        <Image
+                        <SafeImage
                           src={resolveImageUrl(carImage)}
                           alt={car.name}
                           fill
                           sizes="120px"
                           className="object-contain group-hover:scale-105 transition-transform"
-                          onError={handleImageError}
                         />
                       </div>
                       <span className="text-xs font-bold text-[#1a1a1a] uppercase text-center truncate w-full mt-1">
@@ -811,14 +811,13 @@ export default function ComparePage() {
                       {opt && (
                         <>
                           <div className="relative w-full h-[130px] mb-3">
-                            <Image
+                            <SafeImage
                               src={resolveImageUrl(opt.image)}
                               alt={opt.displayName}
                               fill
                               unoptimized
                               sizes="300px"
                               className="object-contain animate-fade-in"
-                              onError={handleImageError}
                             />
                           </div>
                           <div className="text-center">

@@ -20,6 +20,9 @@ function removeAccents(str: string): string {
 
 const POPULAR_KEYWORDS = ["Everest", "Raptor", "Nắp thùng", "Khuyến mãi", "Bảo dưỡng"];
 
+// Module-level cache to instantly supply search data on tab switches or navigation (0ms TTFB)
+let searchCache: { vehs: any[]; accs: any[]; posts: any[] } | null = null;
+
 function SearchPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -28,43 +31,48 @@ function SearchPageContent() {
   const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [activeTab, setActiveTab] = useState<"all" | "vehicles" | "accessories" | "articles">("all");
 
-  const [apiVehicles, setApiVehicles] = useState<any[]>([]);
-  const [apiAccessories, setApiAccessories] = useState<any[]>([]);
-  const [apiArticles, setApiArticles] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [apiVehicles, setApiVehicles] = useState<any[]>(() => searchCache?.vehs || []);
+  const [apiAccessories, setApiAccessories] = useState<any[]>(() => searchCache?.accs || []);
+  const [apiArticles, setApiArticles] = useState<any[]>(() => searchCache?.posts || []);
+  const [loading, setLoading] = useState(!searchCache);
 
   // Keep search input state updated with URL changes
   useEffect(() => {
     setSearchQuery(initialQuery);
   }, [initialQuery]);
 
-  // Fetch all CMS data on mount
+  // Fetch all CMS data on mount if not cached
   useEffect(() => {
     let active = true;
+    if (searchCache) {
+      setLoading(false);
+      return;
+    }
+
     const loadAllData = async () => {
       setLoading(true);
       try {
         const [vehsRes, accsRes, postsRes] = await Promise.all([
-          vehiclesAPI.getAll({ with_versions: 1 }).catch(() => null),
+          vehiclesAPI.getAll().catch(() => null),
           accessoriesAPI.getAll().catch(() => null),
-          postsAPI.getAll().catch(() => null),
+          postsAPI.getAll({ per_page: 50 }).catch(() => null),
         ]);
 
         if (!active) return;
 
-        const vehs = vehsRes?.data || vehsRes;
-        const accs = accsRes?.data || accsRes;
-        const postsData = (postsRes as any)?.posts?.data || (postsRes as any)?.posts || (postsRes as any)?.data || postsRes;
+        const vehs = vehsRes?.data || vehsRes || [];
+        const accs = accsRes?.data || accsRes || [];
+        const postsData = (postsRes as any)?.posts?.data || (postsRes as any)?.posts || (postsRes as any)?.data || postsRes || [];
 
-        if (Array.isArray(vehs)) {
-          setApiVehicles(vehs);
-        }
-        if (Array.isArray(accs)) {
-          setApiAccessories(accs);
-        }
-        if (Array.isArray(postsData)) {
-          setApiArticles(postsData);
-        }
+        const vehsArray = Array.isArray(vehs) ? vehs : [];
+        const accsArray = Array.isArray(accs) ? accs : [];
+        const postsArray = Array.isArray(postsData) ? postsData : [];
+
+        searchCache = { vehs: vehsArray, accs: accsArray, posts: postsArray };
+
+        setApiVehicles(vehsArray);
+        setApiAccessories(accsArray);
+        setApiArticles(postsArray);
       } catch (err) {
         console.error("Error loading search page CMS data:", err);
       } finally {
