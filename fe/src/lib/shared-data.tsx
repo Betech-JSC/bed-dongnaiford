@@ -14,6 +14,7 @@ export type SharedData = {
   services: any[];
   accessories: any[];
   usedVehicles: any[];
+  systemNotification?: any;
 };
 
 const defaultData: SharedData = {
@@ -22,6 +23,7 @@ const defaultData: SharedData = {
   services: [],
   accessories: [],
   usedVehicles: [],
+  systemNotification: null,
 };
 
 const SharedDataContext = createContext<SharedData>(defaultData);
