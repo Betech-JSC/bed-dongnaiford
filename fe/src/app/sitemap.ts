@@ -45,7 +45,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   
   try {
     const res = await fetch(`${apiUrl}/sitemap`, {
-      cache: "no-store",
+      next: { revalidate: 3600 },
       headers: { "Accept": "application/xml, text/xml, */*" }
     });
     
