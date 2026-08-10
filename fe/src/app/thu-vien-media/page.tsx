@@ -270,20 +270,26 @@ function MediaPageContent() {
     fetchVideos();
   }, [currentPage]);
 
-  // Dynamically load/trigger official TikTok Embed Script once without triggering CDN rate-limit overload
+  // Dynamically load/trigger official TikTok Embed Script with staggered rendering to bypass CDN 429 Too Many Requests
   useEffect(() => {
     if (videos.length > 0) {
       const renderEmbeds = () => {
         if ((window as any).tiktokEmbed?.lib) {
-          try {
-            const unrendered = document.querySelectorAll('blockquote.tiktok-embed:not([data-rendered="true"])');
-            if (unrendered.length > 0) {
-              (window as any).tiktokEmbed.lib.render(Array.from(unrendered));
-              unrendered.forEach(el => el.setAttribute('data-rendered', 'true'));
-            }
-          } catch (e) {
-            console.error("Error rendering TikTok embeds:", e);
-          }
+          const unrendered = Array.from(
+            document.querySelectorAll('blockquote.tiktok-embed:not([data-rendered="true"])')
+          );
+          unrendered.forEach((el, index) => {
+            el.setAttribute('data-rendered', 'true');
+            setTimeout(() => {
+              try {
+                if ((window as any).tiktokEmbed?.lib) {
+                  (window as any).tiktokEmbed.lib.render([el]);
+                }
+              } catch (e) {
+                console.error("Error rendering TikTok embed:", e);
+              }
+            }, index * 500); // Giãn cách 500ms giữa các video để tránh dính HTTP 429 Too Many Requests từ TikTok CDN
+          });
         }
       };
 
