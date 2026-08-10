@@ -1603,7 +1603,7 @@ export default function HomeClient({
                       <div className="p-6 flex flex-col flex-1 justify-between gap-4">
                         <div className="space-y-3">
                           <div className="flex flex-wrap items-center gap-3">
-                            <span className="text-xs text-[#424242]/70 font-medium">
+                            <span className="text-xs text-slate-600 font-medium">
                               Ngày đăng: {formatDate(homeArticles[0].published_at)}
                             </span>
                             {homeArticles[0].category?.title && (
@@ -1654,7 +1654,7 @@ export default function HomeClient({
                       <div className="p-5 flex flex-col flex-1 justify-between gap-3">
                         <div className="space-y-2">
                           <div className="flex flex-wrap items-center gap-3">
-                            <span className="text-xs text-[#424242]/70 font-medium">
+                            <span className="text-xs text-slate-600 font-medium">
                               Ngày đăng: {formatDate(art.published_at)}
                             </span>
                             {art.category?.title && (
@@ -1885,11 +1885,11 @@ export default function HomeClient({
                 }`}
               >
                 <div className="space-y-2">
-                  <h4 className={`text-[18px] font-semibold uppercase tracking-wider leading-tight transition-colors duration-300 ${
+                  <h3 className={`text-[18px] font-semibold uppercase tracking-wider leading-tight transition-colors duration-300 ${
                     activeStoryCard === 0 ? "text-[#0562d2]" : "text-white"
                   }`}>
                     Bề dày thành tích
-                  </h4>
+                  </h3>
                   <p className={`text-[14px] leading-relaxed font-normal transition-colors duration-300 ${
                     activeStoryCard === 0 ? "text-[#424242]/90" : "text-white/90"
                   }`}>
@@ -1913,11 +1913,11 @@ export default function HomeClient({
                 }`}
               >
                 <div className="space-y-2">
-                  <h4 className={`text-[18px] font-semibold uppercase tracking-wider leading-tight transition-colors duration-300 ${
+                  <h3 className={`text-[18px] font-semibold uppercase tracking-wider leading-tight transition-colors duration-300 ${
                     activeStoryCard === 1 ? "text-[#0562d2]" : "text-white"
                   }`}>
                     Quy mô lớn tại VN
-                  </h4>
+                  </h3>
                   <p className={`text-[14px] leading-relaxed font-normal transition-colors duration-300 ${
                     activeStoryCard === 1 ? "text-[#424242]/90" : "text-white/90"
                   }`}>
@@ -1941,11 +1941,11 @@ export default function HomeClient({
                 }`}
               >
                 <div className="space-y-2">
-                  <h4 className={`text-[18px] font-semibold uppercase tracking-wider leading-tight transition-colors duration-300 ${
+                  <h3 className={`text-[18px] font-semibold uppercase tracking-wider leading-tight transition-colors duration-300 ${
                     activeStoryCard === 2 ? "text-[#0562d2]" : "text-white"
                   }`}>
                     Nhân sự chất lượng
-                  </h4>
+                  </h3>
                   <p className={`text-[14px] leading-relaxed font-normal transition-colors duration-300 ${
                     activeStoryCard === 2 ? "text-[#424242]/90" : "text-white/90"
                   }`}>
@@ -1969,11 +1969,11 @@ export default function HomeClient({
                 }`}
               >
                 <div className="space-y-2">
-                  <h4 className={`text-[18px] font-semibold uppercase tracking-wider leading-tight transition-colors duration-300 ${
+                  <h3 className={`text-[18px] font-semibold uppercase tracking-wider leading-tight transition-colors duration-300 ${
                     activeStoryCard === 3 ? "text-[#0562d2]" : "text-white"
                   }`}>
                     Hài lòng khách hàng
-                  </h4>
+                  </h3>
                   <p className={`text-[14px] leading-relaxed font-normal transition-colors duration-300 ${
                     activeStoryCard === 3 ? "text-[#424242]/90" : "text-white/90"
                   }`}>

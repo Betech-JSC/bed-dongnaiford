@@ -91,7 +91,7 @@ export default function LeftFloatingBar() {
           <PhoneCall className="w-5 h-5 text-white" />
         </div>
         <div className="flex flex-col leading-tight">
-          <span className="text-[10px] md:text-[11px] font-bold text-white/90 tracking-wider uppercase">
+          <span className="text-[10px] md:text-[11px] font-bold text-white tracking-wider uppercase">
             Hotline tư vấn
           </span>
           <span className="text-xs md:text-[14px] font-black text-white tracking-tight uppercase whitespace-nowrap">
