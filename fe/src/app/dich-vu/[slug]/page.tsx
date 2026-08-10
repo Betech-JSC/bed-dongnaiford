@@ -36,133 +36,6 @@ const serviceRedirects: Record<string, string> = {
   "canh-bao-thay-dau-iolm": "intelligent-oil-life-monitor"
 };
 
-const KNOWN_STATIC_SERVICES: Record<string, { title: string; desc: string }> = {
-  "bao-duong-dinh-ky": {
-    title: "Dịch vụ bảo dưỡng xe ô tô định kỳ tiêu chuẩn Ford",
-    desc: "Xưởng dịch vụ lớn nhất khu vực Đồng Nai của đại lý Đồng Nai Ford. Cung cấp các gói bảo dưỡng định kỳ, bảo dưỡng nhanh 60 phút, sửa chữa chung và giao nhận xe tận nhà."
-  },
-  "dich-vu-bao-duong": {
-    title: "Dịch vụ bảo dưỡng xe ô tô định kỳ tiêu chuẩn Ford",
-    desc: "Xưởng dịch vụ lớn nhất khu vực Đồng Nai của đại lý Đồng Nai Ford. Cung cấp các gói bảo dưỡng định kỳ, bảo dưỡng nhanh 60 phút, sửa chữa chung và giao nhận xe tận nhà."
-  },
-  "bao-duong-nhanh": {
-    title: "Dịch vụ bảo dưỡng nhanh 60 phút",
-    desc: "Quy trình bảo dưỡng nhanh 60 phút chuyên nghiệp tại Đồng Nai Ford."
-  },
-  "dich-vu-bao-duong-nhanh": {
-    title: "Dịch vụ bảo dưỡng nhanh 60 phút",
-    desc: "Quy trình bảo dưỡng nhanh 60 phút chuyên nghiệp tại Đồng Nai Ford."
-  },
-  "giao-nhan-xe-tan-noi": {
-    title: "Dịch vụ nhận và giao xe tận nơi",
-    desc: "Dịch vụ giao nhận xe tận nhà của Đồng Nai Ford."
-  },
-  "dich-vu-giao-nhan-xe-tan-noi": {
-    title: "Dịch vụ nhận và giao xe tận nơi",
-    desc: "Dịch vụ giao nhận xe tận nhà của Đồng Nai Ford."
-  },
-  "nhan-va-giao-xe-tan-noi": {
-    title: "Dịch vụ nhận và giao xe tận nơi",
-    desc: "Dịch vụ giao nhận xe tận nhà của Đồng Nai Ford."
-  },
-  "nhan-giao-xe-mien-phi": {
-    title: "Dịch vụ nhận & giao xe tận nơi miễn phí",
-    desc: "Dịch vụ giao nhận xe tận nhà của Đồng Nai Ford."
-  },
-  "nhan-giao-xe-tan-noi-mien-phi": {
-    title: "Dịch vụ nhận & giao xe tận nơi miễn phí",
-    desc: "Dịch vụ giao nhận xe tận nhà của Đồng Nai Ford."
-  },
-  "dich-vu-nhan-giao-xe-mien-phi": {
-    title: "Dịch vụ nhận & giao xe tận nơi miễn phí",
-    desc: "Dịch vụ giao nhận xe tận nhà của Đồng Nai Ford."
-  },
-  "cham-soc-khach-hang": {
-    title: "Dịch vụ chăm sóc khách hàng & Detailing",
-    desc: "Dịch vụ chăm sóc và làm đẹp xe chuyên nghiệp tại Đồng Nai Ford."
-  },
-  "dich-vu-cham-soc-xe": {
-    title: "Dịch vụ chăm sóc khách hàng & Detailing",
-    desc: "Dịch vụ chăm sóc và làm đẹp xe chuyên nghiệp tại Đồng Nai Ford."
-  },
-  "dich-vu-sua-chua": {
-    title: "Dịch vụ sửa chữa chẩn đoán & Đồng sơn 3S",
-    desc: "Xưởng dịch vụ đồng sơn 3S và sửa chữa chung lớn nhất Đồng Nai."
-  },
-  "sua-chua-xe": {
-    title: "Dịch vụ sửa chữa chẩn đoán & Đồng sơn 3S",
-    desc: "Xưởng dịch vụ đồng sơn 3S và sửa chữa chung lớn nhất Đồng Nai."
-  },
-  "cuu-ho-247": {
-    title: "Dịch vụ cứu hộ 24/7",
-    desc: "Hotline cứu hộ giao thông khẩn cấp 24/7 Đồng Nai Ford: 1800 55 68 58."
-  },
-  "dich-vu-cuu-ho-247": {
-    title: "Dịch vụ cứu hộ 24/7",
-    desc: "Hotline cứu hộ giao thông khẩn cấp 24/7 Đồng Nai Ford: 1800 55 68 58."
-  },
-  "cuu-ho-giao-thong": {
-    title: "Dịch vụ cứu hộ 24/7",
-    desc: "Hotline cứu hộ giao thông khẩn cấp 24/7 Đồng Nai Ford: 1800 55 68 58."
-  },
-  "xe-da-qua-su-dung": {
-    title: "Dịch vụ Xe đã qua sử dụng chính hãng Ford Assured",
-    desc: "Xe Ford đã qua sử dụng chính hãng kiểm định 167 điểm."
-  },
-  "dich-vu-xe-da-qua-su-dung": {
-    title: "Dịch vụ Xe đã qua sử dụng chính hãng Ford Assured",
-    desc: "Xe Ford đã qua sử dụng chính hãng kiểm định 167 điểm."
-  },
-  "nang-cap-xe": {
-    title: "Dịch vụ nâng cấp xe & phụ kiện chính hãng",
-    desc: "Nâng cấp phụ kiện và đồ chơi xe Ford chính hãng."
-  },
-  "dich-vu-nang-cap-xe": {
-    title: "Dịch vụ nâng cấp xe & phụ kiện chính hãng",
-    desc: "Nâng cấp phụ kiện và đồ chơi xe Ford chính hãng."
-  },
-  "phu-kien-nang-cap": {
-    title: "Dịch vụ nâng cấp xe & phụ kiện chính hãng",
-    desc: "Nâng cấp phụ kiện và đồ chơi xe Ford chính hãng."
-  },
-  "ford-sync": {
-    title: "Công nghệ kết nối thông minh Ford SYNC®",
-    desc: "Tìm hiểu công nghệ giải trí và điều khiển giọng nói Ford SYNC®."
-  },
-  "sync": {
-    title: "Công nghệ kết nối thông minh Ford SYNC®",
-    desc: "Tìm hiểu công nghệ giải trí và điều khiển giọng nói Ford SYNC®."
-  },
-  "fordpass": {
-    title: "Ứng dụng kết nối thông minh FordPass™",
-    desc: "Ứng dụng quản lý và khởi động xe từ xa FordPass™."
-  },
-  "ung-dung-ford": {
-    title: "Ứng dụng kết nối thông minh FordPass™",
-    desc: "Ứng dụng quản lý và khởi động xe từ xa FordPass™."
-  },
-  "ford-ensure": {
-    title: "Chương trình bảo hiểm & bảo hành mở rộng Ford Ensure",
-    desc: "Bảo hiểm và gia hạn bảo hành chính hãng Ford Ensure."
-  },
-  "ensure": {
-    title: "Chương trình bảo hiểm & bảo hành mở rộng Ford Ensure",
-    desc: "Bảo hiểm và gia hạn bảo hành chính hãng Ford Ensure."
-  },
-  "intelligent-oil-life-monitor": {
-    title: "Hệ thống Cảnh báo Thay dầu Thông minh (IOLM)",
-    desc: "Hệ thống tính toán thời điểm thay dầu động cơ thông minh."
-  },
-  "intelligent-oil-life-monitoring": {
-    title: "Hệ thống Cảnh báo Thay dầu Thông minh (IOLM)",
-    desc: "Hệ thống tính toán thời điểm thay dầu động cơ thông minh."
-  },
-  "canh-bao-thay-dau-iolm": {
-    title: "Hệ thống Cảnh báo Thay dầu Thông minh (IOLM)",
-    desc: "Hệ thống tính toán thời điểm thay dầu động cơ thông minh."
-  },
-};
-
 type Props = {
   params: Promise<{
     slug: string;
@@ -179,17 +52,8 @@ export async function generateMetadata({ params }: Props) {
         },
       };
     }
-    if (KNOWN_STATIC_SERVICES[slug]) {
-      return {
-        title: `${KNOWN_STATIC_SERVICES[slug].title} | Đồng Nai Ford`,
-        description: KNOWN_STATIC_SERVICES[slug].desc,
-        alternates: {
-          canonical: `/dich-vu/${slug}`,
-        },
-      };
-    }
     const fetchPromise = servicesAPI.getBySlug(slug) as any;
-    const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve(null), 300));
+    const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve(null), 800));
     const response = await Promise.race([fetchPromise, timeoutPromise]) as any;
     const service = response?.service;
     const seo = response?.seo;
@@ -220,34 +84,57 @@ export default async function ServiceSlugPage({ params }: Props) {
     redirect(`/dich-vu/${serviceRedirects[slug]}`);
   }
   let serviceData: any = null;
+  
+  try {
+    // Timeout 800ms để tránh chờ đợi trắng màn hình khi CMS API phản hồi chậm
+    const fetchPromise = servicesAPI.getBySlug(slug) as any;
+    const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve(null), 800));
+    const response = await Promise.race([fetchPromise, timeoutPromise]) as any;
 
-  if (KNOWN_STATIC_SERVICES[slug]) {
-    serviceData = {
-      title: KNOWN_STATIC_SERVICES[slug].title,
-      slug: slug,
-      description: KNOWN_STATIC_SERVICES[slug].desc,
-    };
-  } else {
-    try {
-      const fetchPromise = servicesAPI.getBySlug(slug) as any;
-      const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve(null), 300));
-      const response = await Promise.race([fetchPromise, timeoutPromise]) as any;
-
-      if (response && response.service) {
-        serviceData = response.service;
-      }
-    } catch (error: any) {
-      if (error && error.status === 404) {
-        console.warn(`[CMS] Service '${slug}' not found in database. Using static frontend fallback.`);
-      } else {
-        console.error("Failed to load service from CMS API:", error);
-      }
+    if (response && response.service) {
+      serviceData = response.service;
+    }
+  } catch (error: any) {
+    if (error && error.status === 404) {
+      console.warn(`[CMS] Service '${slug}' not found in database. Using static frontend fallback.`);
+    } else {
+      console.error("Failed to load service from CMS API:", error);
     }
   }
 
   if (!serviceData) {
+    const titleMap: Record<string, string> = {
+      "bao-duong-dinh-ky": "Dịch vụ bảo dưỡng xe ô tô định kỳ tiêu chuẩn Ford",
+      "dich-vu-bao-duong": "Dịch vụ bảo dưỡng xe ô tô định kỳ tiêu chuẩn Ford",
+      "bao-duong-nhanh": "Dịch vụ bảo dưỡng nhanh 60 phút",
+      "dich-vu-bao-duong-nhanh": "Dịch vụ bảo dưỡng nhanh 60 phút",
+      "giao-nhan-xe-tan-noi": "Dịch vụ nhận và giao xe tận nơi",
+      "dich-vu-giao-nhan-xe-tan-noi": "Dịch vụ nhận và giao xe tận nơi",
+      "nhan-va-giao-xe-tan-noi": "Dịch vụ nhận và giao xe tận nơi",
+      "nhan-giao-xe-mien-phi": "Dịch vụ nhận & giao xe tận nơi miễn phí",
+      "nhan-giao-xe-tan-noi-mien-phi": "Dịch vụ nhận & giao xe tận nơi miễn phí",
+      "dich-vu-nhan-giao-xe-mien-phi": "Dịch vụ nhận & giao xe tận nơi miễn phí",
+      "cham-soc-khach-hang": "Dịch vụ chăm sóc khách hàng & Detailing",
+      "dich-vu-cham-soc-xe": "Dịch vụ chăm sóc khách hàng & Detailing",
+      "dich-vu-sua-chua": "Dịch vụ sửa chữa chẩn đoán & Đồng sơn 3S",
+      "sua-chua-xe": "Dịch vụ sửa chữa chẩn đoán & Đồng sơn 3S",
+      "dich-vu-cuu-ho-247": "Dịch vụ cứu hộ giao thông 24/7",
+      "cuu-ho-247": "Dịch vụ cứu hộ giao thông 24/7",
+      "dich-vu-xe-da-qua-su-dung": "Dịch vụ xe đã qua sử dụng",
+      "xe-da-qua-su-dung": "Dịch vụ xe đã qua sử dụng",
+      "dich-vu-nang-cap-xe": "Dịch vụ nâng cấp xe",
+      "nang-cap-xe": "Dịch vụ nâng cấp xe",
+      "ford-sync": "Công nghệ kết nối thông minh Ford SYNC®",
+      "ung-dung-ford": "Ứng dụng kết nối thông minh FordPass™",
+      "fordpass": "Ứng dụng kết nối thông minh FordPass™",
+      "ford-ensure": "Chương trình bảo hiểm & bảo hành mở rộng Ford Ensure",
+      "intelligent-oil-life-monitor": "Hệ thống Cảnh báo Thay dầu Thông minh (IOLM)",
+      "intelligent-oil-life-monitoring": "Hệ thống Cảnh báo Thay dầu Thông minh (IOLM)",
+      "canh-bao-thay-dau-iolm": "Hệ thống Cảnh báo Thay dầu Thông minh (IOLM)"
+    };
+
     serviceData = {
-      title: "Dịch vụ chăm sóc xe Ford chính hãng",
+      title: titleMap[slug] || "Dịch vụ chăm sóc xe Ford chính hãng",
       slug: slug,
       description: "Xưởng dịch vụ lớn nhất khu vực Đồng Nai của đại lý Đồng Nai Ford. Cung cấp các gói bảo dưỡng định kỳ, bảo dưỡng nhanh 60 phút, sửa chữa chung và giao nhận xe tận nhà."
     };

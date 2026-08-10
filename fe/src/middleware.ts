@@ -8,29 +8,15 @@ const CACHE_TTL = 60 * 1000; // Cache 1 phút trong bộ nhớ RAM Node.js
 export async function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
 
-  // Bỏ qua các file tĩnh chuẩn hệ thống
+  // Bỏ qua các file tĩnh, file hệ thống, API
   if (
     pathname.startsWith("/api") ||
     pathname.startsWith("/static") ||
     pathname.startsWith("/_next") ||
-    pathname.startsWith("/assets") ||
-    pathname.startsWith("/images") ||
-    pathname.startsWith("/fonts") ||
-    pathname.startsWith("/icons")
+    pathname.includes(".") ||
+    pathname === "/favicon.ico"
   ) {
-    if (/\.(png|jpe?g|gif|svg|webp|avif|ico|json|map|css|js|woff2?|ttf|eot)$/i.test(pathname)) {
-      return new NextResponse(null, { status: 404 });
-    }
     return NextResponse.next();
-  }
-
-  // Trả về 404 tức thì cho các file tĩnh/ảnh không tồn tại để không lọt vào App Router /[id] hay /posts/[id] gây lỗi 404 ở Laravel
-  if (
-    /\.(png|jpe?g|gif|svg|webp|avif|ico|json|map|css|js|woff2?|ttf|eot)$/i.test(pathname) &&
-    !pathname.startsWith("/manifest") &&
-    !pathname.startsWith("/sitemap")
-  ) {
-    return new NextResponse(null, { status: 404 });
   }
 
   // Inject x-pathname header cho layout LDP detection
