@@ -8,15 +8,22 @@ const CACHE_TTL = 60 * 1000; // Cache 1 phút trong bộ nhớ RAM Node.js
 export async function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
 
-  // Bỏ qua các file tĩnh, file hệ thống, API
+  // Bỏ qua các file tĩnh chuẩn hệ thống
   if (
     pathname.startsWith("/api") ||
     pathname.startsWith("/static") ||
-    pathname.startsWith("/_next") ||
-    pathname.includes(".") ||
-    pathname === "/favicon.ico"
+    pathname.startsWith("/_next")
   ) {
     return NextResponse.next();
+  }
+
+  // Trả về 404 tức thì cho các file .json, .ico, .map không thuộc public để không lọt vào route /[id] gây 404 ở Laravel
+  if (
+    (pathname.endsWith(".json") && !pathname.startsWith("/manifest") && !pathname.startsWith("/sitemap")) ||
+    (pathname.endsWith(".ico") && pathname !== "/favicon.ico") ||
+    pathname.endsWith(".map")
+  ) {
+    return new NextResponse(null, { status: 404 });
   }
 
   // Inject x-pathname header cho layout LDP detection
