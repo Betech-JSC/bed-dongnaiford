@@ -11,6 +11,7 @@ type Props = {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
     const { id } = await params;
+    if (!id || id.includes('.') || id.startsWith('_')) return {};
     const res = await vehiclesAPI.getBySlug(id).catch(() => null);
     const vehicle = res?.data || (res?.id ? res : null);
     if (!vehicle) return {};

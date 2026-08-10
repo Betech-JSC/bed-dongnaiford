@@ -12,16 +12,23 @@ export async function middleware(request: NextRequest) {
   if (
     pathname.startsWith("/api") ||
     pathname.startsWith("/static") ||
-    pathname.startsWith("/_next")
+    pathname.startsWith("/_next") ||
+    pathname.startsWith("/assets") ||
+    pathname.startsWith("/images") ||
+    pathname.startsWith("/fonts") ||
+    pathname.startsWith("/icons")
   ) {
+    if (/\.(png|jpe?g|gif|svg|webp|avif|ico|json|map|css|js|woff2?|ttf|eot)$/i.test(pathname)) {
+      return new NextResponse(null, { status: 404 });
+    }
     return NextResponse.next();
   }
 
-  // Trả về 404 tức thì cho các file .json, .ico, .map không thuộc public để không lọt vào route /[id] gây 404 ở Laravel
+  // Trả về 404 tức thì cho các file tĩnh/ảnh không tồn tại để không lọt vào App Router /[id] hay /posts/[id] gây lỗi 404 ở Laravel
   if (
-    (pathname.endsWith(".json") && !pathname.startsWith("/manifest") && !pathname.startsWith("/sitemap")) ||
-    (pathname.endsWith(".ico") && pathname !== "/favicon.ico") ||
-    pathname.endsWith(".map")
+    /\.(png|jpe?g|gif|svg|webp|avif|ico|json|map|css|js|woff2?|ttf|eot)$/i.test(pathname) &&
+    !pathname.startsWith("/manifest") &&
+    !pathname.startsWith("/sitemap")
   ) {
     return new NextResponse(null, { status: 404 });
   }

@@ -2,7 +2,7 @@ export const siteAssets = {
   heroSlides: [
     "/images-dynamic/image-hero-1.jpg",
     "/images-dynamic/image-hero-2.webp",
-    "/assets/car-mach-e.png",
+    "/assets/mach-e-hero.jpg",
   ],
   showroomBg: "/showroom_bg.jpg",
   serviceBannerBg: "/images-services/service-maintenance-banner.jpg",
@@ -15,7 +15,7 @@ export const siteAssets = {
   bookingCar: "/assets/booking-car.png",
   qualityCareBadge: "/assets/quality-care-circle.jpg",
   expressFlow: "/assets/express-maintenance-flow.jpg",
-  carPlaceholder: "/assets/car-mach-e.png",
+  carPlaceholder: "/assets/territory-hero.jpg",
   ourStoryBanner: "/showroom_bg.jpg",
   testDriveBg: "/images-dynamic/image-hero-1.jpg",
   googleMapsEmbed:
@@ -38,10 +38,10 @@ export const aboutAssets = {
 
 export const popularVehicleImages: Record<string, string> = {
   "ford-territory": "/assets/territory-hero.jpg",
-  "ford-everest": "/assets/car-everest.png",
-  "new-mustang-mach-e": "/assets/car-mach-e.png",
-  "ford-ranger": "/assets/car-ranger.png",
-  "ford-transit-2024": "/assets/car-transit.png",
+  "ford-everest": "/assets/everest_platinum.jpg",
+  "new-mustang-mach-e": "/assets/mach-e-hero.jpg",
+  "ford-ranger": "/assets/ranger_wildtrak.jpg",
+  "ford-transit-2024": "/assets/transit-hero.jpg",
   "mustang-fastback": "/assets/mustang-hero.jpg",
 };
 
@@ -58,7 +58,7 @@ export const imageFallbackSvg = "/images/ford_placeholder.jpg";
 
 export const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
   const target = e.currentTarget;
-  if (!target.src.includes("car-mach-e.png")) {
+  if (!target.src.includes("territory-hero.jpg")) {
     target.src = siteAssets.carPlaceholder;
   }
 };
