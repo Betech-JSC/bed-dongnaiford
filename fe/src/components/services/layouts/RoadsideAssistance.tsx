@@ -65,11 +65,11 @@ export default function RoadsideAssistanceLayout({ service }: { service?: any })
               </div>
             </div>
             <a
-              href="tel:0918909060"
+              href="tel:0938229994"
               className="bg-[#066fef] hover:bg-white hover:text-[#002F6C] text-white text-xs font-bold uppercase px-7 py-3.5 rounded-[4px] transition-all duration-300 shrink-0 tracking-wider shadow-sm flex items-center gap-2"
             >
               <PhoneCall className="w-4 h-4" />
-              <span>Hotline Cứu Hộ: 0918 90 90 60</span>
+              <span>Hotline Cứu Hộ: 0938 229 994</span>
             </a>
           </div>
         </div>
@@ -97,7 +97,7 @@ export default function RoadsideAssistanceLayout({ service }: { service?: any })
                   <p className="text-gray-600 text-xs leading-relaxed mb-4">{item.desc}</p>
                 </div>
                 <a
-                  href="tel:0918909060"
+                  href="tel:0938229994"
                   className="pt-3 border-t border-gray-100 flex items-center justify-between text-xs text-[#066fef] font-bold"
                 >
                   <span>Ứng Cứu Nhanh</span>

@@ -125,6 +125,8 @@ class VehicleController extends Controller
             return $this->failure(__('Không tìm thấy xe'), 404);
         }
 
+        $fallbackSpecs = $this->resolveFallbackSpecs($vehicle->versions);
+
         return $this->success([
             'id'                     => $vehicle->id,
             'category_id'            => $vehicle->category_id,
@@ -133,6 +135,13 @@ class VehicleController extends Controller
             'slug'                   => $vehicle->slug,
             'tagline'                => $vehicle->tagline,
             'description'            => $vehicle->description,
+            'seo_meta_title'         => $vehicle->seo_meta_title,
+            'seo_meta_description'   => $vehicle->seo_meta_description,
+            'seo_meta_keywords'      => $vehicle->seo_meta_keywords,
+            'seo_meta_robots'        => $vehicle->seo_meta_robots,
+            'seo_canonical'          => $vehicle->seo_canonical,
+            'seo_image'              => $this->resolveFileUrl($vehicle->seo_image),
+            'seo_schemas'            => $vehicle->seo_schemas,
             'image_url'              => $vehicle->image_url,
             'video_url'              => $vehicle->video_url,
             'video'                  => $this->resolveFileUrl($vehicle->video),
@@ -169,24 +178,26 @@ class VehicleController extends Controller
                 return [
                     'name'                => $color['name'] ?? ($color['color_name'] ?? ''),
                     'hex'                 => $color['hex'] ?? ($color['color_code'] ?? ''),
-                    'price'               => (isset($color['price']) && $color['price'] !== '' && is_numeric($color['price'])) ? (float)$color['price'] : null,
                     'image_path'          => $imagePath,
                     'images_360'          => $images360,
                     'image_360_internal'  => $image360Internal,
                     'images_360_internal' => $images360Internal,
+                    'price'               => $color['price'] ?? null,
                 ];
             })->toArray(),
             'images_360_external'    => collect($vehicle->images_360_external ?? [])->map(fn($img) => $this->resolveFileUrl($img))->filter()->values()->toArray(),
             'images_360_internal'    => collect($vehicle->images_360_internal ?? [])->map(fn($img) => $this->resolveFileUrl($img))->filter()->values()->toArray(),
-            'image_360_internal_url' => $this->resolveFileUrl($vehicle->image_360_internal_url),
-            'type'                   => $vehicle->type,
-            'base_price'             => $vehicle->base_price,
-            'versions'               => $vehicle->versions->map(fn($v) => [
+            'base_price'             => $vehicle->basePrice,
+            'formatted_price'        => $vehicle->formatted_price,
+            'specs'                  => $vehicle->specs ?? $fallbackSpecs,
+            'fallback_specs'         => $fallbackSpecs,
+            'versions'               => collect($vehicle->versions)->map(fn($v) => [
                 'id'                  => $v->id,
                 'name'                => $v->name,
                 'price'               => $v->price,
+                'formatted_price'     => $v->formatted_price,
+                'description'         => $v->description,
                 'image_url'           => $v->image_url,
-                'image_thumbnail_url' => $v->image_thumbnail_url,
                 'specs'               => $v->specs ?? [],
                 'sort_order'          => $v->sort_order,
                 'colors'     => collect($v->colors ?? [])->map(function ($color) {
@@ -229,6 +240,50 @@ class VehicleController extends Controller
             ]),
             'layout_blocks'          => $this->resolveLayoutBlocksUrls($vehicle->layout_blocks),
         ]);
+    }
+
+    private function resolveFallbackSpecs($versions)
+    {
+        if (!$versions || count($versions) === 0) {
+            return [];
+        }
+
+        foreach ($versions as $ver) {
+            if ($this->hasNonEmptySpecs($ver->specs)) {
+                return is_string($ver->specs) ? json_decode($ver->specs, true) : $ver->specs;
+            }
+        }
+
+        return [];
+    }
+
+    private function hasNonEmptySpecs($specs): bool
+    {
+        if (empty($specs)) return false;
+        if (is_string($specs)) {
+            $specs = json_decode($specs, true);
+        }
+        if (!is_array($specs) || count($specs) === 0) return false;
+
+        foreach ($specs as $item) {
+            if (is_array($item)) {
+                if (!empty($item['content']) && trim(strip_tags($item['content'])) !== '') {
+                    return true;
+                }
+                if (!empty($item['items']) && is_array($item['items']) && count($item['items']) > 0) {
+                    return true;
+                }
+                foreach ($item as $k => $v) {
+                    if (!in_array($k, ['title', 'category', 'name']) && !empty($v) && is_string($v) && trim(strip_tags($v)) !== '') {
+                        return true;
+                    }
+                }
+            } elseif (is_string($item) && trim(strip_tags($item)) !== '') {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function resolveLayoutBlocksUrls($blocks)

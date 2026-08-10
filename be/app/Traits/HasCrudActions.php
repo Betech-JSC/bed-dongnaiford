@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use JamstackVietnam\QueryBuilder\EloquentBuilderTrait;
 use JamstackVietnam\RuleGenerator\Facades\RuleGenerator;
+use App\Services\RevalidateService;
 
 trait HasCrudActions
 {
@@ -216,6 +217,7 @@ trait HasCrudActions
         }
 
         $this->afterStore($request, $resource);
+        RevalidateService::revalidateForModel($this->model);
 
         if (request()->wantsJson()) {
             return response()->json($resource);
@@ -302,6 +304,7 @@ trait HasCrudActions
         }
 
         $this->afterStore($request, $resource);
+        RevalidateService::revalidateForModel($this->model);
 
         if (request()->wantsJson()) {
             return response()->json($resource);
@@ -331,7 +334,7 @@ trait HasCrudActions
                 $resource->delete();
             }
             DB::commit();
-            revalidate_frontend();
+            RevalidateService::revalidateForModel($this->model);
 
             if (!is_null($this->model()->getMacro('withTrashed'))) {
                 return $this->redirectBack(__('models.has_crud_action.destroy', [], current_locale()));

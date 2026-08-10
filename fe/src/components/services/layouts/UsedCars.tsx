@@ -35,7 +35,7 @@ export default function UsedCarsLayout({ service }: { service?: any }) {
   return (
     <div className="w-full bg-[#F8F8F8] min-h-screen flex flex-col items-center">
       {/* Hero Banner */}
-      <ServicePageBanner title={service?.title || "Dịch Vụ Mua Bán Xe Ford Đã Qua Sử Dụng Chính Hãng (Ford Assured)"} backgroundImage={service?.banner_image?.url || siteAssets.serviceMaintenance} />
+      <ServicePageBanner title={service?.title || "Dịch vụ xe đã qua sử dụng"} backgroundImage={service?.banner_image?.url || siteAssets.serviceMaintenance} />
 
       {/* Commitments Banner */}
       <section className="w-full bg-[#002F6C] text-white py-8 border-b border-[#066fef]/30 font-antenna">

@@ -60,11 +60,11 @@ export default function CustomerCareLayout({ service }: { service?: any }) {
               </div>
             </div>
             <a
-              href="tel:0918909060"
+              href="tel:1800556858"
               className="bg-[#066fef] hover:bg-white hover:text-[#002F6C] text-white text-xs font-bold uppercase px-7 py-3.5 rounded-[4px] transition-all duration-300 shrink-0 tracking-wider shadow-sm flex items-center gap-2"
             >
               <PhoneCall className="w-4 h-4" />
-              <span>Gọi Cứu Hộ: 0918 90 90 60</span>
+              <span>Gọi Cứu Hộ: 1800 55 68 58</span>
             </a>
           </div>
         </div>

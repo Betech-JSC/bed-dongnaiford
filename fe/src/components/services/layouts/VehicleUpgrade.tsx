@@ -84,7 +84,7 @@ export default function VehicleUpgradeLayout({ service }: { service?: any }) {
   return (
     <div className="w-full bg-[#F8F8F8] min-h-screen flex flex-col items-center">
       {/* Hero Banner */}
-      <ServicePageBanner title={service?.title || "Dịch Vụ Nâng Cấp Phụ Kiện & Đồ Chơi Xe Ford Chính Hãng"} backgroundImage={service?.banner_image?.url || siteAssets.serviceUpgrade} />
+      <ServicePageBanner title={service?.title || "Dịch vụ nâng cấp xe"} backgroundImage={service?.banner_image?.url || siteAssets.serviceUpgrade} />
 
       {/* Safety Guarantees */}
       <section className="w-full bg-[#002F6C] text-white py-8 border-b border-[#066fef]/30 font-antenna">
