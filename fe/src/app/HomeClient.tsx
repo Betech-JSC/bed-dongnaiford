@@ -1197,7 +1197,7 @@ export default function HomeClient({
                       src={slide.image}
                       alt={slide.title}
                       fill
-                      sizes="(max-w-768px) 80vw, 760px"
+                      sizes="(max-width: 768px) 80vw, 760px"
                       className="object-cover pointer-events-none group-hover:scale-103 transition-transform duration-700"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
@@ -1386,7 +1386,7 @@ export default function HomeClient({
                             src={getPopularVehicleImageForSlide(vehicle)}
                             alt={vName}
                             fill
-                            sizes="var(--card-width-popular)"
+                            sizes="(max-width: 640px) 300px, (max-width: 1024px) 450px, 600px"
                             className="object-cover group-hover:scale-105 transition-transform duration-500"
                           />
                           {/* Gradient overlay — Figma: top rgba(0,0,0,0) → bottom heavy */}
@@ -1515,7 +1515,7 @@ export default function HomeClient({
                         src={sImg}
                         alt={sTitle}
                         fill
-                        sizes="var(--card-width-service)"
+                        sizes="(max-width: 640px) 280px, (max-width: 1024px) 380px, 500px"
                         className="object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
