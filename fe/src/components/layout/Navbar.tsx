@@ -369,6 +369,7 @@ export default function Navbar() {
       href: "/gioi-thieu",
       dropdownItems: [
         { name: "Câu chuyện Ford Đồng Nai", href: "/gioi-thieu#our-story" },
+        { name: "Giải thưởng & Thành tựu", href: "/gioi-thieu#awards" },
         { name: "Ban giám đốc & Nhân sự", href: "/gioi-thieu#board-of-directors" },
         { name: "Cơ sở vật chất & Showroom", href: "/gioi-thieu#facilities" },
       ],
