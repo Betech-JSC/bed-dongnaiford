@@ -3,7 +3,7 @@
         :class="embed ? 'left-0 overflow-auto' : 'left-from-sidebar'"
         :style="{ '--sidebar-width': sidebarWidth + 'px' }">
         <input type="file" class="hidden"
-            accept="image/png, image/gif, image/jpeg, image/svg+xml, application/pdf, image/webp, video/mp4, video/x-m4v, video/*" multiple="true"
+            accept="image/png, image/gif, image/jpeg, image/svg+xml, application/pdf, image/webp, video/mp4, video/x-m4v, video/*, .pdf, .doc, .docx, .xls, .xlsx, .zip, .rar, .txt, .csv" multiple="true"
             ref="file" @change="fileChange" />
         <input type="file" class="hidden" webkitdirectory directory multiple ref="folderInput" @change="folderInputChange" />
         <div class="topbar" v-if="!embed">
