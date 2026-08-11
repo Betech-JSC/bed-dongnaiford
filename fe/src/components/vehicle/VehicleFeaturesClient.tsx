@@ -449,9 +449,7 @@ export default function VehicleFeaturesClient() {
       ))}
 
       {/* 4. Shared Booking Call To Action Banner */}
-      <div className="mt-16">
-        <BookingBanner />
-      </div>
+      <BookingBanner />
     </div>
   );
 }

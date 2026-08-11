@@ -2323,7 +2323,7 @@ function BookingBannerBlock({ blockIndex, data, vehicle, isEditMode, onChangeDat
       : 'justify-start';
 
   return (
-    <section id={anchorId || undefined} className="w-full bg-[#00095b] py-8 lg:py-12 px-4 sm:px-6 lg:px-8 flex justify-center overflow-visible">
+    <section id={anchorId || undefined} className="w-full bg-[#00095b] py-8 lg:py-12 px-4 sm:px-6 lg:px-8 flex justify-center overflow-hidden m-0 border-0">
       <div className="max-w-[1152px] w-full relative overflow-visible">
         {/* Inner Rounded Banner */}
         <div className="w-full bg-gradient-to-r from-[#00095B] via-[#02337A] to-[#0562D2] rounded-2xl p-6 sm:p-8 lg:p-10 min-h-[260px] lg:min-h-[280px] flex items-center relative shadow-2xl overflow-visible">

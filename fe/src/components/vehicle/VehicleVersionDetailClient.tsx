@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect, useRef, useMemo } from "react";
+import Link from "next/link";
 import { useVehicle, VehicleTabBar } from "./VehicleLayoutClient";
 import { useParams, useRouter } from "next/navigation";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Car, Calculator, FileText } from "lucide-react";
 import { resolveImageUrl } from "@/components/blocks/Blocks";
 
 // Vietnamese-accent-safe URL slug generator
@@ -113,7 +114,8 @@ const getVersionDisplayName = (verName: string, vehicleName: string) => {
 export default function VehicleVersionDetailClient() {
   const {
     vehicle,
-    openQuoteDrawer
+    openQuoteDrawer,
+    openDriveDrawer
   } = useVehicle();
 
   const { id, versionSlug } = useParams() as { id: string; versionSlug: string };
@@ -578,13 +580,39 @@ export default function VehicleVersionDetailClient() {
               </div>
             </div>
 
-            {/* CTA Button */}
-            <div className="mt-8">
+            {/* 4 Call To Action Buttons (2x2 Grid) */}
+            <div className="grid grid-cols-2 gap-3 pt-6 w-full">
               <button
-                onClick={() => openQuoteDrawer(vehicle.id, selectedVersion?.id)}
-                className="bg-[#0068d9] hover:bg-[#0052b0] transition-colors px-10 py-3 rounded-full text-white text-[15px] font-bold cursor-pointer inline-flex items-center justify-center min-w-[140px] border-0"
+                type="button"
+                onClick={() => openDriveDrawer(activeVersionIndex)}
+                className="bg-[#00095B] hover:bg-[#066fef] transition-all px-3 py-3 rounded-full text-white text-[12px] sm:text-[13px] font-bold cursor-pointer inline-flex items-center justify-center gap-2 border-0 uppercase tracking-tight font-antenna shadow-xs hover:shadow-md w-full"
               >
-                Báo giá
+                <Car className="w-4 h-4 shrink-0 text-white" />
+                <span>Đăng ký lái thử</span>
+              </button>
+
+              <Link
+                href={`/cong-cu/uoc-tinh-lan-banh?car=${vehicle.slug || vehicle.id}`}
+                className="bg-[#00095B] hover:bg-[#066fef] transition-all px-3 py-3 rounded-full text-white text-[12px] sm:text-[13px] font-bold cursor-pointer inline-flex items-center justify-center gap-2 border-0 uppercase tracking-tight font-antenna no-underline shadow-xs hover:shadow-md w-full"
+              >
+                <Calculator className="w-4 h-4 shrink-0 text-white" />
+                <span>Ước tính trả góp</span>
+              </Link>
+
+              <Link
+                href={`/${vehicle.slug || vehicle.id}/du-toan-lan-banh`}
+                className="bg-[#00095B] hover:bg-[#066fef] transition-all px-3 py-3 rounded-full text-white text-[12px] sm:text-[13px] font-bold cursor-pointer inline-flex items-center justify-center gap-2 border-0 uppercase tracking-tight font-antenna no-underline shadow-xs hover:shadow-md w-full"
+              >
+                <FileText className="w-4 h-4 shrink-0 text-white" />
+                <span>Ước tính lăn bánh</span>
+              </Link>
+
+              <button
+                type="button"
+                onClick={() => openQuoteDrawer(vehicle.id, selectedVersion?.id)}
+                className="bg-[#00095B] hover:bg-[#066fef] transition-all px-3 py-3 rounded-full text-white text-[12px] sm:text-[13px] font-bold cursor-pointer inline-flex items-center justify-center gap-2 border-0 uppercase tracking-tight font-antenna shadow-xs hover:shadow-md w-full"
+              >
+                <span>Nhận báo giá</span>
               </button>
             </div>
           </div>

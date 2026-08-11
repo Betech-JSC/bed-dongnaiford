@@ -4,9 +4,10 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { MapPin, Mail, Phone, Search, ChevronDown, ChevronRight } from "lucide-react";
+import { MapPin, Mail, Phone, Search, ChevronDown, ChevronRight, Download, FileText, X } from "lucide-react";
 import { vehiclesAPI, accessoriesAPI, servicesAPI, usedVehiclesAPI } from "@/lib/api";
 import { useSharedData } from "@/lib/shared-data";
+import { resolveImageUrl } from "@/lib/site-assets";
 
 type DropdownItem = {
   name: string;
@@ -31,6 +32,7 @@ export default function Navbar() {
   const [activeTab, setActiveTab] = useState<string>("suv");
   const [isMobileProductOpen, setIsMobileProductOpen] = useState(false);
   const [mobileActiveTab, setMobileActiveTab] = useState<string | null>(null);
+  const [isBrochureModalOpen, setIsBrochureModalOpen] = useState(false);
 
   const [categoriesList, setCategoriesList] = useState<any[]>(sharedData.categories);
   const [vehiclesList, setVehiclesList] = useState<any[]>(sharedData.vehicles);
@@ -718,6 +720,34 @@ export default function Navbar() {
                 </button>
               );
             })()}
+
+            {/* Action Buttons: Xem tất cả dòng xe, Tải Catalogue, So sánh xe */}
+            <div className="mt-4 pt-4 border-t border-gray-100 flex flex-col gap-2.5">
+              <Link
+                href="/san-pham"
+                onClick={handleMouseLeaveImmediate}
+                className="w-full py-2.5 px-4 text-center border border-gray-300 rounded-[4px] font-['Ford_Antenna',sans-serif] font-bold text-xs uppercase tracking-wider text-gray-800 hover:text-[#0562D2] hover:border-[#0562D2] transition-colors block"
+              >
+                XEM TẤT CẢ DÒNG XE
+              </Link>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsProductHovered(false);
+                  setIsBrochureModalOpen(true);
+                }}
+                className="w-full py-2.5 px-4 text-center border border-[#0562D2] rounded-[4px] font-['Ford_Antenna',sans-serif] font-bold text-xs uppercase tracking-wider text-[#0562D2] hover:bg-[#0562D2] hover:text-white transition-all cursor-pointer bg-white"
+              >
+                TẢI CATALOGUE
+              </button>
+              <Link
+                href="/cong-cu/so-sanh-xe"
+                onClick={handleMouseLeaveImmediate}
+                className="w-full py-2.5 px-4 text-center border border-gray-300 rounded-[4px] font-['Ford_Antenna',sans-serif] font-bold text-xs uppercase tracking-wider text-gray-800 hover:text-[#0562D2] hover:border-[#0562D2] transition-colors block"
+              >
+                SO SÁNH XE
+              </Link>
+            </div>
           </div>
 
           {/* Right Product Showcase Panel */}
@@ -1119,6 +1149,136 @@ export default function Navbar() {
             </div>
           </div>
         </div>
+
+      {/* Brochure/Catalogue Download Modal */}
+      {isBrochureModalOpen && (
+        <div 
+          className="fixed inset-0 z-[150] flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs animate-fade-in"
+          onClick={() => setIsBrochureModalOpen(false)}
+        >
+          <div 
+            className="bg-white w-full max-w-2xl rounded-2xl shadow-2xl flex flex-col max-h-[80vh] overflow-hidden border border-neutral-200 animate-scale-in"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="flex items-center justify-between px-6 py-5 border-b border-neutral-100 bg-gradient-to-r from-[#00095B] to-[#003478] text-white">
+              <div className="text-left">
+                <h3 className="font-['Ford_Antenna',sans-serif] font-bold text-lg md:text-xl uppercase tracking-wider text-white">
+                  Tải Catalogue xe Ford
+                </h3>
+                <p className="text-xs text-white/80 font-medium mt-1">
+                  Chọn dòng xe để tải xuống tài liệu Brochure PDF chính thức
+                </p>
+              </div>
+              <button
+                onClick={() => setIsBrochureModalOpen(false)}
+                className="p-2 hover:bg-white/10 rounded-full text-white/80 hover:text-white transition-colors cursor-pointer border-0 bg-transparent flex items-center justify-center"
+                aria-label="Đóng"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-4 scrollbar-thin">
+              {vehiclesList.length === 0 ? (
+                <div className="py-12 text-center text-neutral-500 text-sm italic font-medium">
+                  Đang tải danh sách xe...
+                </div>
+              ) : (
+                <div className="divide-y divide-neutral-100">
+                  {vehiclesList.map((vehicle: any) => {
+                    const brochureLink = (vehicle.brochure_file && typeof vehicle.brochure_file === 'string' && vehicle.brochure_file.trim() !== '') 
+                      ? vehicle.brochure_file 
+                      : (vehicle.brochure_url && typeof vehicle.brochure_url === 'string' && vehicle.brochure_url.trim() !== '') 
+                        ? vehicle.brochure_url 
+                        : null;
+                    
+                    const getTypeName = (type: string) => {
+                      const types: Record<string, string> = {
+                        suv: "SUV",
+                        pickup: "Bán tải",
+                        commercial: "Thương mại",
+                      };
+                      return types[type] || type;
+                    };
+
+                    const vehicleImage = vehicle.image_thumbnail_url || vehicle.image_url || "/assets/img-gradient-1.jpg";
+
+                    return (
+                      <div 
+                        key={vehicle.id || vehicle.slug} 
+                        className="py-4 flex items-center justify-between gap-4 first:pt-0 last:pb-0 text-left hover:bg-neutral-50/80 rounded-xl px-2 transition-all duration-200"
+                      >
+                        {/* Left: Thumbnail & Name */}
+                        <div className="flex items-center gap-4">
+                          <div className="relative w-20 h-14 bg-white rounded-lg border border-neutral-100 p-1 flex-shrink-0 flex items-center justify-center overflow-hidden shadow-xs">
+                            <Image
+                              src={resolveImageUrl(vehicleImage)}
+                              alt={vehicle.title || vehicle.name || "Ford Vehicle"}
+                              fill
+                              sizes="80px"
+                              className="object-contain p-1"
+                              onError={(e: any) => {
+                                e.target.src = "/assets/img-gradient-1.jpg";
+                              }}
+                            />
+                          </div>
+                          <div>
+                            <h4 className="font-['Ford_Antenna',sans-serif] font-bold text-sm md:text-base text-neutral-900 uppercase leading-snug tracking-wider">
+                              {vehicle.title || vehicle.name}
+                            </h4>
+                            <span className="text-[10px] font-bold text-[#0562d2] bg-[#0562d2]/10 px-2.5 py-0.5 rounded-full uppercase mt-1.5 inline-block">
+                              {getTypeName(vehicle.type || "")}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Right: Actions */}
+                        <div>
+                          {brochureLink ? (
+                            <a
+                              href={brochureLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-gradient-to-r from-[#0562d2] to-[#066fef] hover:from-[#044ea7] hover:to-[#0562d2] hover:shadow-md px-4 py-2 rounded-lg transition-all uppercase tracking-wider font-antenna border border-transparent flex-shrink-0"
+                            >
+                              <Download className="w-3.5 h-3.5" />
+                              Tải về
+                            </a>
+                          ) : (
+                            <Link
+                              href={`/lien-he?reason=Tải Catalogue: ${vehicle.title || vehicle.name}`}
+                              onClick={() => setIsBrochureModalOpen(false)}
+                              className="inline-flex items-center gap-1.5 text-xs font-bold text-neutral-700 hover:text-[#0562d2] bg-neutral-100 hover:bg-[#0562d2]/10 hover:border-[#0562d2]/20 border border-neutral-200 px-4 py-2 rounded-lg transition-all uppercase tracking-wider font-antenna flex-shrink-0"
+                            >
+                              <FileText className="w-3.5 h-3.5" />
+                              Yêu cầu
+                            </Link>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+            
+            {/* Modal Footer */}
+            <div className="px-6 py-4 border-t border-neutral-100 bg-neutral-50 flex items-center justify-between">
+              <span className="text-[11px] text-neutral-500 font-medium">
+                Đồng Nai Ford — Đại lý ủy quyền chính thức của Ford Việt Nam
+              </span>
+              <button
+                onClick={() => setIsBrochureModalOpen(false)}
+                className="px-4 py-1.5 text-xs font-bold text-neutral-600 hover:text-neutral-900 bg-neutral-200/60 hover:bg-neutral-200 rounded-md transition-colors font-antenna"
+              >
+                Đóng
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 }
