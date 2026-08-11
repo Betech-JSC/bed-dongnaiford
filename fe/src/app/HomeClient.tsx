@@ -121,7 +121,7 @@ const quickActions = [
     reason: "Đặt lịch hẹn bảo dưỡng",
     note: "Tôi muốn đặt lịch hẹn bảo dưỡng xe Ford tại Đồng Nai Ford.",
     icon: WrenchIcon,
-    link: "/dich-vu",
+    link: "/lien-he?reason=Đặt lịch hẹn bảo dưỡng",
   },
 ];
 

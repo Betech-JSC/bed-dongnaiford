@@ -2,9 +2,49 @@
 
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, X, Building2, ShieldCheck, Zap, Trophy } from "lucide-react";
 import { aboutAssets, handleImageError, resolveImageUrl } from "@/lib/site-assets";
 import { jobsAPI, settingsAPI } from "@/lib/api";
+
+// Development milestones data
+const developmentMilestones = [
+  {
+    year: "2007",
+    tag: "Thành Lập",
+    icon: Building2,
+    title: "Chính Thức Thành Lập Đồng Nai Ford",
+    subtitle: "Đại lý ủy quyền 3S chính thức của Ford Việt Nam tại Tỉnh Đồng Nai",
+    description: "Đồng Nai Ford chính thức thành lập năm 2007 với mục tiêu mang đến cho khách hàng vùng Đông Nam Bộ những dòng xe Ford toàn cầu chất lượng cao cùng dịch vụ chuyên nghiệp nhất.",
+    image: "/images/about/image-about-1.jpg"
+  },
+  {
+    year: "2015",
+    tag: "Nâng Cấp 3S",
+    icon: ShieldCheck,
+    title: "Mở Rộng & Đạt Tiêu Chuẩn 3S Toàn Cầu",
+    subtitle: "Đạt quy chuẩn Brand@Retail mới nhất từ Ford Việt Nam",
+    description: "Đầu tư nâng cấp toàn bộ hệ thống Showroom trưng bày, Xưởng dịch vụ 3S hiện đại và Kho phụ tùng chính hãng, đáp ứng tối đa nhu cầu của hàng chục ngàn lượt xe mỗi năm.",
+    image: "/images/about/image-about-2.jpg"
+  },
+  {
+    year: "2020",
+    tag: "Chuyển Đổi Số",
+    icon: Zap,
+    title: "Tiên Phong Ứng Dụng Công Nghệ & Dịch Vụ Mới",
+    subtitle: "Bảo dưỡng nhanh 60 phút & Dịch vụ Giao nhận xe tận nơi",
+    description: "Đưa vào vận hành mô hình Bảo dưỡng nhanh 60 phút Tier-1, tích hợp công nghệ đặt hẹn dịch vụ online và dịch vụ nhận - giao xe tận nơi (Pickup & Delivery) tối ưu thời gian cho khách hàng.",
+    image: "/images/team/team_2.jpg"
+  },
+  {
+    year: "2024",
+    tag: "Bứt Phá Dẫn Đầu",
+    icon: Trophy,
+    title: "Vinh Danh 'Hit Service Target Thru The Year'",
+    subtitle: "Giải thưởng Xuất sắc toàn diện từ Tổng Công ty Ford Việt Nam",
+    description: "Tự hào khẳng định vị thế đại lý dẫn đầu toàn quốc về chỉ số hài lòng khách hàng (CVP/CSI) và quy mô dịch vụ 3S vượt trội, tiếp tục vững bước trên hành trình phát triển.",
+    image: "/images/team/team_1.jpg"
+  }
+];
 
 // Recruitment position data
 interface JobPosition {
@@ -215,6 +255,23 @@ export default function AboutClient({ initialJobs = [], teamImages: initialTeamI
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setPreviewImage(null);
+        setSelectedJob(null);
+      }
+    };
+
+    if (previewImage || selectedJob) {
+      window.addEventListener("keydown", handleKeyDown);
+    }
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [previewImage, selectedJob]);
+
+  useEffect(() => {
     if (initialJobs.length > 0) return;
     let active = true;
     const fetchJobs = async () => {
@@ -273,11 +330,14 @@ export default function AboutClient({ initialJobs = [], teamImages: initialTeamI
       {/* SECTION 1: HERO BANNER (Frame 1000005577) */}
       <section className="relative w-full h-[480px] bg-slate-900 overflow-hidden flex items-end group">
         <div className="absolute inset-0 z-0">
-          <img
-            src="/images/about/banner.jpg"
-            alt="Đồng Nai Ford Banner"
-            className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-1000 ease-out"
-          />
+          <picture className="w-full h-full block">
+            <source srcSet="/images/about/banner.webp" type="image/webp" />
+            <img
+              src="/images/about/banner.jpg"
+              alt="Đồng Nai Ford Banner - Ban lãnh đạo & Đội ngũ"
+              className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-1000 ease-out"
+            />
+          </picture>
           {/* Rectangle 2017: Black gradient shadow overlay on bottom (170px height) */}
           <div className="absolute bottom-0 left-0 right-0 h-[170px] bg-gradient-to-t from-black/80 to-transparent" />
         </div>
@@ -355,14 +415,96 @@ export default function AboutClient({ initialJobs = [], teamImages: initialTeamI
         </div>
       </section>
 
+      {/* SECTION: GIAI ĐOẠN PHÁT TRIỂN (DEVELOPMENT PHASES VERTICAL TIMELINE) */}
+      <section id="giai-doan-phat-trien" className="py-[80px] bg-slate-50 relative scroll-mt-20 border-t border-b border-gray-200/80">
+        <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full flex flex-col gap-16">
+          {/* Header */}
+          <div className="flex flex-col gap-3 text-center max-w-[800px] mx-auto">
+            <span className="text-[#066fef] font-bold text-xs uppercase tracking-widest font-antenna">
+              HÀNH TRÌNH PHÁT TRIỂN & CỘT MỐC ĐÁNG NHỚ
+            </span>
+            <h2 className="text-[32px] md:text-[40px] font-bold leading-tight font-antenna uppercase tracking-tight text-[#00095b]">
+              Các Giai Đoạn Phát Triển
+            </h2>
+            <p className="text-gray-600 text-base md:text-lg leading-relaxed font-antenna">
+              Nhìn lại chặng đường hơn 17 năm hình thành và bứt phá không ngừng của Đồng Nai Ford từ những ngày đầu thành lập đến vị thế đại lý 3S hàng đầu.
+            </p>
+          </div>
+
+          {/* Vertical Steps Timeline */}
+          <div className="relative max-w-[1100px] mx-auto w-full">
+            {/* Center Vertical Connecting Line */}
+            <div className="absolute left-[24px] md:left-1/2 top-8 bottom-8 w-1 bg-gradient-to-b from-[#066fef] via-[#002F6C] to-[#00095b] -translate-x-1/2 rounded-full hidden md:block" />
+
+            <div className="flex flex-col gap-12 relative">
+              {developmentMilestones.map((item, index) => {
+                const isEven = index % 2 === 0;
+                const Icon = item.icon;
+                return (
+                  <div 
+                    key={index}
+                    className={`flex flex-col md:flex-row items-center gap-8 ${
+                      isEven ? "md:flex-row" : "md:flex-row-reverse"
+                    } relative`}
+                  >
+                    {/* Content Card */}
+                    <div className="w-full md:w-1/2 flex flex-col gap-4 bg-white p-6 md:p-8 rounded-2xl border border-gray-200/90 shadow-md hover:shadow-xl transition-all duration-300 group">
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-2xl font-extrabold text-[#066fef] font-antenna">
+                          Mốc {item.year}
+                        </span>
+                        <span className="bg-blue-50 text-[#066fef] text-xs font-bold px-3 py-1 rounded-full border border-blue-100 uppercase tracking-wider">
+                          {item.tag}
+                        </span>
+                      </div>
+                      
+                      <h3 className="text-xl md:text-2xl font-bold text-[#00095b] font-antenna group-hover:text-[#066fef] transition-colors">
+                        {item.title}
+                      </h3>
+
+                      <p className="text-sm font-semibold text-[#002F6C] font-antenna">
+                        {item.subtitle}
+                      </p>
+
+                      <p className="text-gray-600 text-sm md:text-base leading-relaxed font-antenna">
+                        {item.description}
+                      </p>
+                    </div>
+
+                    {/* Timeline Center Badge Node */}
+                    <div className="z-10 w-12 h-12 rounded-full bg-[#00095b] text-white border-4 border-white shadow-lg flex items-center justify-center shrink-0 -translate-x-1/2 hidden md:flex absolute left-1/2 top-8">
+                      <Icon className="w-5 h-5 text-white" />
+                    </div>
+
+                    {/* Image Card Container */}
+                    <div 
+                      className="w-full md:w-1/2 h-[240px] md:h-[280px] rounded-2xl overflow-hidden border border-gray-200 shadow-md relative group cursor-pointer"
+                      onClick={() => setPreviewImage(item.image)}
+                    >
+                      <img 
+                        src={item.image} 
+                        alt={item.title} 
+                        className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500" 
+                      />
+                      <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                        <span className="bg-white/90 text-[#00095b] text-xs font-semibold px-4 py-2 rounded-full border border-gray-200 shadow-lg flex items-center gap-2">
+                          🔍 Click xem phóng to
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* SECTION: GIẢI THƯỞNG & THÀNH TỰU (AWARDS SECTION - CLEAN WHITE THEME) */}
       <section id="awards" className="py-[72px] bg-white text-slate-900 relative overflow-hidden scroll-mt-20 border-b border-gray-100">
         <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full relative z-10 flex flex-col gap-12">
           {/* Header */}
           <div className="flex flex-col gap-4 text-center max-w-[800px] mx-auto">
-            <span className="inline-block bg-blue-50 text-[#066fef] border border-blue-200/80 px-4 py-1.5 rounded-full font-semibold text-xs uppercase tracking-widest font-antenna w-fit mx-auto shadow-xs">
-              🏆 Vinh danh & Khẳng định chất lượng tiêu chuẩn 3S
-            </span>
             <h2 className="text-[32px] md:text-[40px] font-bold leading-tight font-antenna uppercase tracking-tight text-[#00095b]">
               Giải thưởng Dịch vụ Xuất sắc
             </h2>
@@ -395,9 +537,6 @@ export default function AboutClient({ initialJobs = [], teamImages: initialTeamI
               <div className="flex flex-wrap items-center gap-3">
                 <span className="bg-[#00095b] text-white font-bold px-3 py-1 rounded-full text-xs uppercase tracking-wider shadow-xs">
                   ★ Ford Việt Nam Award
-                </span>
-                <span className="text-[#066fef] text-xs font-semibold bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
-                  Năm 2024 - 2025
                 </span>
               </div>
 

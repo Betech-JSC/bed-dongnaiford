@@ -36,6 +36,23 @@ export default function ConsultationPopup() {
     };
   }, [isHomepage, pathname]);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setIsOpen(false);
+        setShowToast(false);
+      }
+    };
+
+    if (isOpen || showToast) {
+      window.addEventListener("keydown", handleKeyDown);
+    }
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen, showToast]);
+
   const handleClose = () => {
     setIsOpen(false);
   };
@@ -122,7 +139,12 @@ export default function ConsultationPopup() {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 p-4 animate-fade-in font-sans">
+    <div 
+      onClick={(e) => {
+        if (e.target === e.currentTarget) handleClose();
+      }}
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 p-4 animate-fade-in font-sans cursor-pointer"
+    >
       <style jsx global>{`
         @keyframes float-up {
           from {
@@ -213,7 +235,10 @@ export default function ConsultationPopup() {
       )}
 
       {/* Popup Container */}
-      <div className="bg-white rounded-[16px] overflow-hidden max-w-[460px] w-full shadow-2xl relative border border-[#e5e5e5] animate-float-up flex flex-col max-h-[92vh]">
+      <div 
+        onClick={(e) => e.stopPropagation()}
+        className="bg-white rounded-[16px] overflow-hidden max-w-[460px] w-full shadow-2xl relative border border-[#e5e5e5] animate-float-up flex flex-col max-h-[92vh] cursor-default"
+      >
         {/* Close Button */}
         <button
           onClick={handleClose}
