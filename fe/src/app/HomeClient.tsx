@@ -114,12 +114,14 @@ const quickActions = [
     reason: "Nhận chương trình ưu đãi",
     note: "Tôi muốn đăng ký nhận danh sách ưu đãi và quà tặng hiện có.",
     icon: OfferIcon,
+    link: "/khuyen-mai",
   },
   {
     title: "Đặt hẹn bảo dưỡng",
     reason: "Đặt lịch hẹn bảo dưỡng",
-    note: "Tôi muốn đặt hẹn bảo dưỡng xe Ford.",
+    note: "Tôi muốn đặt lịch hẹn bảo dưỡng xe Ford tại Đồng Nai Ford.",
     icon: WrenchIcon,
+    link: "/dich-vu",
   },
 ];
 

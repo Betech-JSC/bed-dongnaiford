@@ -1,18 +1,19 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Metadata } from "next";
+import { servicesAPI } from "@/lib/api";
 import { siteAssets, resolveImageUrl } from "@/lib/site-assets";
 
 export const metadata: Metadata = {
   title: "Dịch vụ Bảo hành, Sửa chữa & Chăm sóc xe chính hãng | Đồng Nai Ford",
-  description: "Xưởng dịch vụ lớn nhất khu vực Đồng Nai của đại lý Đồng Nai Ford. Cung cấp các gói bảo dưỡng định kỳ, bảo dưỡng nhanh 60 phút, sửa chữa chung, và nhận giao xe tận nhà chuyên nghiệp.",
-  keywords: "dịch vụ bảo dưỡng xe ford, sửa xe ford chính hãng, đồng nai ford amata, bảo dưỡng nhanh biên hòa, thay nhớt ford đồng nai",
+  description: "Xưởng dịch vụ lớn nhất khu vực Đồng Nai của đại lý Đồng Nai Ford. Cung cấp đầy đủ các gói bảo dưỡng định kỳ, bảo dưỡng nhanh 60 phút, sửa chữa chung, cứu hộ 24/7 và giao nhận xe tận nhà chuyên nghiệp.",
+  keywords: "dịch vụ bảo dưỡng xe ford, sửa xe ford chính hãng, đồng nai ford amata, bảo dưỡng nhanh biên hòa, thay nhớt ford đồng nai, cứu hộ 24/7 đồng nai ford",
   alternates: {
     canonical: "/dich-vu",
   },
 };
 
-// 5 Fallback services for pure static LDP rendering
+// 11 Comprehensive fallback services matching all 3S Ford Dealership offerings
 const fallbackServices = [
   {
     title: "Bảo dưỡng định kỳ",
@@ -29,34 +30,119 @@ const fallbackServices = [
     badge: "Tiết kiệm thời gian"
   },
   {
+    title: "Dịch vụ sửa chữa chung",
+    slug: "dich-vu-sua-chua",
+    description: "Xưởng đồng sơn và sửa chữa cơ khí 3S hiện đại nhất Đồng Nai, trang bị máy chẩn đoán IDS Ford độc quyền.",
+    image: siteAssets.serviceMaintenance,
+    badge: "Kỹ thuật 3S"
+  },
+  {
+    title: "Cứu hộ giao thông 24/7",
+    slug: "dich-vu-cuu-ho-247",
+    description: "Hỗ trợ ứng cứu sự cố ô tô khẩn cấp 24/7 trên toàn tỉnh Đồng Nai và khu vực lân cận qua Hotline 1800 55 68 58.",
+    image: siteAssets.serviceCustomerCare,
+    badge: "Hỗ trợ 24/7"
+  },
+  {
     title: "Nhận & Giao xe tận nơi",
-    slug: "giao-nhan-xe-tan-noi",
+    slug: "nhan-giao-xe-mien-phi",
     description: "Giải pháp giao nhận xe bảo dưỡng tại nhà hoặc văn phòng vô cùng tiện lợi cho khách hàng có lịch trình bận rộn.",
     image: siteAssets.serviceDelivery,
     badge: "Tiện ích cao cấp"
   },
   {
-    title: "Chăm sóc khách hàng & Cứu hộ",
+    title: "Chăm sóc xe & Detailing",
     slug: "cham-soc-khach-hang",
-    description: "Chính sách hậu mãi chu đáo, hỗ trợ tư vấn kỹ thuật và dịch vụ cứu hộ giao thông 24/7 bảo vệ bạn trên mọi nẻo đường.",
+    description: "Chăm sóc xe toàn diện, phủ ceramic bảo vệ sơn, vệ sinh nội thất khử trùng và đánh bóng cao cấp chính hãng.",
     image: siteAssets.serviceCustomerCare,
-    badge: "Hỗ trợ 24/7"
+    badge: "Chăm sóc xe"
   },
   {
-    title: "Cảnh báo thay dầu thông minh IOLM",
+    title: "Nâng cấp xe & Phụ kiện",
+    slug: "dich-vu-nang-cap-xe",
+    description: "Cung cấp và lắp đặt các trang thiết bị, phụ kiện chính hãng giúp nâng tầm đẳng cấp và tiện nghi cho xe Ford.",
+    image: siteAssets.serviceMaintenance,
+    badge: "Chính hãng Ford"
+  },
+  {
+    title: "Cảnh báo thay dầu IOLM",
     slug: "intelligent-oil-life-monitor",
-    description: "Hệ thống đo lường hiệu suất dầu nhớt động cơ tự động theo thói quen lái xe và điều kiện vận hành thực tế của bạn.",
+    description: "Hệ thống đo lường hiệu suất dầu nhớt động cơ tự động theo thói quen lái xe và điều kiện vận hành thực tế.",
     image: siteAssets.serviceMaintenance,
     badge: "Công nghệ Ford"
+  },
+  {
+    title: "Hệ thống FORD SYNC",
+    slug: "ford-sync",
+    description: "Hướng dẫn cài đặt và khai thác tối đa hệ thống điều khiển giọng nói & giải trí thông minh FORD SYNC trên xe.",
+    image: siteAssets.serviceMaintenance,
+    badge: "Công nghệ kết nối"
+  },
+  {
+    title: "Ứng dụng FordPass",
+    slug: "ung-dung-ford",
+    description: "Kết nối điện thoại thông minh để đề nổ từ xa, kiểm tra áp suất lốp, vị trí xe và đặt lịch bảo dưỡng trực tuyến.",
+    image: siteAssets.serviceDelivery,
+    badge: "Ứng dụng thông minh"
+  },
+  {
+    title: "Gói Ford Ensure",
+    slug: "ford-ensure",
+    description: "Bảo hiểm vật chất xe và các gói gia hạn bảo hành chính hãng Ford giúp bạn an tâm tuyệt đối trên mọi nẻo đường.",
+    image: siteAssets.serviceCustomerCare,
+    badge: "Bảo hiểm & Bảo hành"
   }
 ];
 
 export default async function ServicesPage() {
-  const displayServices = fallbackServices.map(item => ({
-    ...item,
-    image: resolveImageUrl(item.image) || siteAssets.showroomBg || "/showroom_bg.webp",
-    href: `/dich-vu/${item.slug}`
-  }));
+  let displayServices = [];
+
+  try {
+    const response = await servicesAPI.getAll() as any;
+    const cmsServices = response?.services || response?.data || response;
+
+    if (Array.isArray(cmsServices) && cmsServices.length > 0) {
+      const cmsMapped = cmsServices.map((item: any) => {
+        const fallback = fallbackServices.find(f => f.slug === item.slug);
+        const rawImage = item.image?.url || (typeof item.image === "string" ? item.image : "") || fallback?.image || siteAssets.showroomBg;
+        const resolved = resolveImageUrl(rawImage);
+        return {
+          title: item.title || item.name || "",
+          slug: item.slug || "",
+          description: item.description || fallback?.description || "",
+          image: resolved || siteAssets.showroomBg || "/showroom_bg.webp",
+          href: (item.custom_link && item.custom_link.startsWith('/dich-vu/'))
+            ? item.custom_link
+            : `/dich-vu/${item.slug}`,
+          badge: fallback?.badge || "Dịch vụ Ford"
+        };
+      });
+
+      const existingSlugs = new Set(cmsMapped.map(s => s.slug));
+      const missingFallbacks = fallbackServices
+        .filter(f => !existingSlugs.has(f.slug))
+        .map(item => ({
+          ...item,
+          image: resolveImageUrl(item.image) || siteAssets.showroomBg || "/showroom_bg.webp",
+          href: `/dich-vu/${item.slug}`
+        }));
+
+      displayServices = [...cmsMapped, ...missingFallbacks];
+    } else {
+      displayServices = fallbackServices.map(item => ({
+        ...item,
+        image: resolveImageUrl(item.image) || siteAssets.showroomBg || "/showroom_bg.webp",
+        href: `/dich-vu/${item.slug}`
+      }));
+    }
+  } catch (error) {
+    console.error("Failed to load services from CMS API, using fallbacks:", error);
+    displayServices = fallbackServices.map(item => ({
+      ...item,
+      image: resolveImageUrl(item.image) || siteAssets.showroomBg || "/showroom_bg.webp",
+      href: `/dich-vu/${item.slug}`
+    }));
+  }
 
   // Schema.org Structured Data
   const jsonLd = {
@@ -148,7 +234,7 @@ export default async function ServicesPage() {
         <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px]">
           <div className="text-center mb-12">
             <h2 className="text-2xl md:text-3.5xl font-bold text-gray-900 tracking-tight mb-3">
-              DANH MỤC DỊCH VỤ CHÍNH
+              DANH MỤC DỊCH VỤ CHÍNH HÃNG ({displayServices.length})
             </h2>
             <p className="text-gray-500 text-sm md:text-base max-w-xl mx-auto">
               Lựa chọn các gói dịch vụ bảo dưỡng, sửa chữa phù hợp nhất để đảm bảo khả năng hoạt động tốt nhất cho chiếc xe của bạn.
@@ -161,13 +247,13 @@ export default async function ServicesPage() {
                 key={service.slug || index}
                 className="bg-white rounded-2xl border border-gray-200/80 shadow-sm overflow-hidden flex flex-col group hover:shadow-md transition-all duration-300"
               >
-                {/* Image Container with 16:9 aspect ratio and fit/full styles */}
+                {/* Image Container with 16:9 aspect ratio */}
                 <div className="relative w-full aspect-[16/9] overflow-hidden bg-gray-100">
                   <Image
                     src={service.image}
                     alt={service.title}
                     fill
-                    sizes="(max-w-768px) 100vw, (max-w-1200px) 50vw, 33vw"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     className="object-cover object-center w-full h-full transition-transform duration-500 group-hover:scale-105"
                   />
                   <div className="absolute top-4 left-4">
