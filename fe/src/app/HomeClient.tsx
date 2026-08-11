@@ -896,7 +896,7 @@ export default function HomeClient({
                 <button
                   onClick={(e) => {
                     handleCtaFormClick(e, "consultation", () => {
-                      triggerQuickAction("Đăng ký lái thử", "Tôi muốn đăng ký lái thử xe thông qua chương trình khuyến mãi.");
+                      router.push("/dang-ky-lai-thu");
                     });
                   }}
                   className="bg-[#0562d2] hover:bg-[#066FEF] text-white px-5 py-2 md:px-6 md:py-2.5 rounded-full text-xs md:text-base font-semibold tracking-[0.16px] transition-all duration-300 cursor-pointer shadow-md border-0"
@@ -1463,12 +1463,12 @@ export default function HomeClient({
                 </h2>
                 {/* Figma: white bg, border #d6d6d6, text #424242, px-24 py-10, rounded-full, 18px semibold */}
                 <div>
-                  <button
-                    onClick={() => triggerQuickAction("Đăng ký lái thử", "Tôi đặt lịch hẹn lái thử xe.")}
-                    className="px-6 py-[10px] rounded-full bg-white border border-[#d6d6d6] text-[#424242] text-lg font-semibold tracking-[0.18px] shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                  <Link
+                    href="/dang-ky-lai-thu"
+                    className="inline-block px-6 py-[10px] rounded-full bg-white border border-[#d6d6d6] text-[#424242] text-lg font-semibold tracking-[0.18px] shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer hover:bg-[#0562d2] hover:text-white hover:border-[#0562d2]"
                   >
                     Hẹn lái thử
-                  </button>
+                  </Link>
                 </div>
               </div>
             </div>

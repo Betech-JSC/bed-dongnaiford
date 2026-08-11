@@ -177,13 +177,17 @@ export default function AboutClient({ initialJobs = [], teamImages: initialTeamI
 
   const activeTeamItems: TeamVehicle[] = useMemo(() => {
     if (Array.isArray(teamImages) && teamImages.length > 0) {
-      return teamImages.map((img: any, idx: number) => ({
-        id: img.id || `team-cms-${idx}`,
-        name: img.name || img.title || "Đội ngũ Ford Đồng Nai",
-        image: resolveImageUrl(img.image || img.url) || "/images/team/team_1.jpg",
-        link: img.link || "/lien-he",
-        quoteLink: img.link || "/lien-he"
-      }));
+      return teamImages.map((img: any, idx: number) => {
+        const rawPath = typeof img === "string" ? img : (img?.image || img?.url || img?.path || img?.src || "");
+        const rawName = typeof img === "object" && img ? (img?.name || img?.title || img?.alt) : undefined;
+        return {
+          id: `team-cms-${idx}`,
+          name: rawName || "Đội ngũ Ford Đồng Nai",
+          image: resolveImageUrl(rawPath) || "/images/team/team_1.jpg",
+          link: typeof img === "object" && img?.link ? img.link : "/lien-he",
+          quoteLink: typeof img === "object" && img?.link ? img.link : "/lien-he"
+        };
+      });
     }
     return teamVehicles;
   }, [teamImages]);
