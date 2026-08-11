@@ -171,75 +171,19 @@
                 </div>
 
                 <div class="card">
-                    <div class="card-header flex items-center justify-between">
-                        <span class="font-bold text-gray-800">📸 Danh sách ảnh "Đội Ngũ Ford Đồng Nai" (Trang Giới thiệu)</span>
-                        <button type="button" @click="addTeamImage" class="btn btn-sm btn-primary cursor-pointer">
-                            + Thêm ảnh mới
-                        </button>
-                    </div>
+                    <div class="card-header font-bold text-gray-800">📸 Danh sách ảnh "Đội Ngũ Ford Đồng Nai" (Trang Giới thiệu)</div>
                     <div class="card-body">
-                        <p class="text-xs text-gray-500 mb-4">
-                            Quản lý danh sách hình ảnh hoạt động, sự kiện và nhân sự hiển thị trên Slider section "Đội ngũ Ford Đồng Nai" tại trang /gioi-thieu.
-                        </p>
-
-                        <div v-if="!teamImages || teamImages.length === 0" class="text-center py-6 bg-gray-50 rounded-lg text-sm text-gray-500 italic">
-                            Chưa có hình ảnh nào. Bấm "+ Thêm ảnh mới" để tạo.
-                        </div>
-
-                        <div v-else class="space-y-4">
-                            <div 
-                                v-for="(imgItem, idx) in teamImages" 
-                                :key="idx" 
-                                class="p-4 bg-gray-50 rounded-xl border border-gray-200 flex flex-col md:flex-row items-start md:items-center gap-4 relative"
-                            >
-                                <div class="w-8 text-center font-bold text-gray-400 shrink-0">#{{ idx + 1 }}</div>
-                                
-                                <div class="flex-1 w-full grid grid-cols-1 md:grid-cols-3 gap-3">
-                                    <div>
-                                        <label class="block text-xs font-semibold text-gray-700 mb-1">Tên / Tiêu đề ảnh</label>
-                                        <input 
-                                            type="text" 
-                                            v-model="imgItem.name" 
-                                            placeholder="vd: Sự Kiện Trưng Bày & Lái Thử" 
-                                            class="w-full text-xs p-2 border border-gray-300 rounded focus:border-blue-500"
-                                            @change="updateTeamImagesField"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-semibold text-gray-700 mb-1">Hình ảnh</label>
-                                        <Field
-                                            v-model="imgItem.image"
-                                            @update:modelValue="updateTeamImagesField"
-                                            :field="{
-                                                name: `team_img_${idx}`,
-                                                type: 'file_upload',
-                                                accept: 'image/*',
-                                                label: false
-                                            }"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-semibold text-gray-700 mb-1">Đường dẫn liên kết (Link)</label>
-                                        <input 
-                                            type="text" 
-                                            v-model="imgItem.link" 
-                                            placeholder="vd: /lien-he hoặc /dang-ky-lai-thu" 
-                                            class="w-full text-xs p-2 border border-gray-300 rounded focus:border-blue-500"
-                                            @change="updateTeamImagesField"
-                                        />
-                                    </div>
-                                </div>
-
-                                <button 
-                                    type="button" 
-                                    @click="removeTeamImage(idx)" 
-                                    class="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition cursor-pointer shrink-0"
-                                    title="Xóa hình ảnh này"
-                                >
-                                    🗑️ Xóa
-                                </button>
-                            </div>
-                        </div>
+                        <Field
+                            v-model="form.about_team_images"
+                            :field="{
+                                name: 'about_team_images',
+                                type: 'file_upload',
+                                multiple: true,
+                                accept: 'image/*',
+                                label: 'Chọn nhiều hình ảnh cho Đội Ngũ Ford Đồng Nai',
+                                help: 'Nhấp chọn hoặc tải lên cùng lúc nhiều hình ảnh từ Thư viện Media. Các hình ảnh này sẽ được tự động dàn trang trên 2 hàng trượt so le tại trang Giới thiệu (/gioi-thieu).'
+                            }"
+                        />
                     </div>
                 </div>
 
@@ -261,47 +205,16 @@ export default {
     components: { WrapSetting },
     props: ['item', 'schema'],
     data() {
-        let rawTeam = this.item?.about_team_images;
-        while (typeof rawTeam === 'string') {
-            try { rawTeam = JSON.parse(rawTeam); } catch (e) { break; }
-        }
-        if (!Array.isArray(rawTeam)) {
-            rawTeam = [
-                { id: "team-1", name: "Lễ Bàn Giao Xe Mới Cho Khách Hàng", image: "/images/team/team_1.jpg", link: "/lien-he" },
-                { id: "team-2", name: "Đội Ngũ Tư Vấn Bán Hàng Chuyên Nghiệp", image: "/images/team/team_3.jpg", link: "/lien-he" },
-                { id: "team-3", name: "Sự Kiện Trưng Bày & Trải Nghiệm Lái Thử Xe", image: "/images/team/team_2.jpg", link: "/dang-ky-lai-thu" }
-            ];
-        }
-
         return {
-            teamImages: rawTeam,
             formData: {
                 homepage_introduce_video: null,
                 general_logo: null,
                 general_logo_footer: null,
                 general_favicon: null,
-                about_team_images: JSON.stringify(rawTeam),
+                about_team_images: null,
                 ...this.item
             },
         }
     },
-    methods: {
-        addTeamImage() {
-            this.teamImages.push({
-                id: 'team-' + Date.now(),
-                name: '',
-                image: '',
-                link: '/lien-he'
-            });
-            this.updateTeamImagesField();
-        },
-        removeTeamImage(idx) {
-            this.teamImages.splice(idx, 1);
-            this.updateTeamImagesField();
-        },
-        updateTeamImagesField() {
-            this.formData.about_team_images = JSON.stringify(this.teamImages);
-        }
-    }
 }
 </script>
