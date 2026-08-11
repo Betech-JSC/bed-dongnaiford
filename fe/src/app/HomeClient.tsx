@@ -129,21 +129,21 @@ const techSlides = [
   {
     title: "Ứng dụng Ford",
     description: "Ứng dụng Ford mang đến cho bạn trải nghiệm sở hữu trọn vẹn và dễ dàng trong tầm tay. Khi truy cập vào ứng dụng này, bạn có đầy đủ thông tin các tính năng của xe và kiểm tra về tình trạng xe.",
-    image: "/assets/tech_fordpass.jpg",
+    image: "/assets/cq5dam.web.1280.1280.webp",
     category: "Lái xe",
     link: "/dang-ky-lai-thu"
   },
   {
     title: "Ford Co-Pilot360",
     description: "Dù trong thành phố hay ra xa lộ, hệ thống Ford Co-Pilot360™ - Công nghệ An toàn Hỗ trợ Người lái được thiết kế để giúp bạn cảm thấy tự tin hơn khi lái xe.",
-    image: "/assets/tech_copilot360.jpg",
+    image: "/assets/blis-everest.webp",
     category: "Lái xe",
     link: "/dang-ky-lai-thu"
   },
   {
     title: "Hệ thống âm thanh cao cấp",
     description: "Hệ thống loa B&O cho trải nghiệm âm thanh tuyệt vời với chất âm trung thực và rõ ràng đến từng chi tiết.",
-    image: "/assets/tech_audio.jpg",
+    image: "/assets/ford-raptor-tabbed-desktop.webp",
     category: "Giải trí",
     link: "/dang-ky-lai-thu"
   }
@@ -166,7 +166,9 @@ const formatBannersList = (items: any[]) => {
       tagline: "",
       image: item.image_url || siteAssets.heroSlides[0],
       imageMobile: item.image_mobile_url || item.image_url || siteAssets.heroSlides[0],
-      linkVehicleId: item.button_link || ""
+      linkVehicleId: item.button_link || "",
+      buttonText: item.button_text || "",
+      buttonLink: item.button_link || ""
     }));
   }
   return [];
@@ -895,18 +897,22 @@ export default function HomeClient({
               <div className="flex flex-row justify-center gap-3 pt-4 md:pt-6">
                 <button
                   onClick={(e) => {
+                    const currentSlide = heroSlides[activeHeroIndex];
+                    const targetLink = currentSlide?.buttonLink || currentSlide?.linkVehicleId || "/dang-ky-lai-thu";
                     handleCtaFormClick(e, "consultation", () => {
-                      router.push("/dang-ky-lai-thu");
+                      router.push(targetLink);
                     });
                   }}
                   className="bg-[#0562d2] hover:bg-[#066FEF] text-white px-5 py-2 md:px-6 md:py-2.5 rounded-full text-xs md:text-base font-semibold tracking-[0.16px] transition-all duration-300 cursor-pointer shadow-md border-0"
                 >
-                  Book Lái thử
+                  {heroSlides[activeHeroIndex]?.buttonText || "Book Lái thử"}
                 </button>
                 <button
                   onClick={(e) => {
+                    const currentSlide = heroSlides[activeHeroIndex];
+                    const targetLink = currentSlide?.buttonLink || currentSlide?.linkVehicleId || "/lien-he";
                     handleCtaFormClick(e, "consultation", () => {
-                      router.push("/lien-he");
+                      router.push(targetLink);
                     });
                   }}
                   className="bg-transparent hover:bg-white/10 border border-white text-white px-5 py-2 md:px-6 md:py-2.5 rounded-full text-xs md:text-base font-semibold tracking-[0.16px] transition-all duration-300 cursor-pointer"
