@@ -355,6 +355,89 @@ export default function AboutClient({ initialJobs = [], teamImages: initialTeamI
         </div>
       </section>
 
+      {/* SECTION: GIẢI THƯỞNG & THÀNH TỰU (AWARDS SECTION - CLEAN WHITE THEME) */}
+      <section id="awards" className="py-[72px] bg-white text-slate-900 relative overflow-hidden scroll-mt-20 border-b border-gray-100">
+        <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full relative z-10 flex flex-col gap-12">
+          {/* Header */}
+          <div className="flex flex-col gap-4 text-center max-w-[800px] mx-auto">
+            <span className="inline-block bg-blue-50 text-[#066fef] border border-blue-200/80 px-4 py-1.5 rounded-full font-semibold text-xs uppercase tracking-widest font-antenna w-fit mx-auto shadow-xs">
+              🏆 Vinh danh & Khẳng định chất lượng tiêu chuẩn 3S
+            </span>
+            <h2 className="text-[32px] md:text-[40px] font-bold leading-tight font-antenna uppercase tracking-tight text-[#00095b]">
+              Giải thưởng Dịch vụ Xuất sắc
+            </h2>
+            <p className="text-gray-600 text-base md:text-lg leading-relaxed font-antenna max-w-[720px] mx-auto">
+              Đồng Nai Ford tự hào được Ford Việt Nam trao tặng giải thưởng danh giá, khẳng định vị thế đại lý dẫn đầu về chất lượng dịch vụ và sự hài lòng tuyệt đối của khách hàng.
+            </p>
+          </div>
+
+          {/* Award Card Layout (Clean Light Theme Card) */}
+          <div className="bg-slate-50/80 rounded-3xl border border-gray-200/80 p-6 md:p-10 flex flex-col lg:flex-row items-center gap-10 lg:gap-12 shadow-lg hover:shadow-xl transition-shadow duration-500">
+            {/* Award Image Container */}
+            <div 
+              onClick={() => setPreviewImage("/images/awards/hit-service-target-award.jpg")}
+              className="w-full lg:w-[420px] h-[480px] md:h-[500px] relative rounded-2xl overflow-hidden border border-gray-200/90 bg-white group cursor-pointer shadow-md flex-shrink-0"
+            >
+              <img
+                src="/images/awards/hit-service-target-award.jpg"
+                alt="Giải thưởng Hit Service Target Thru The Year - Đồng Nai Ford"
+                className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out"
+              />
+              <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                <span className="bg-white/90 text-[#00095b] text-xs font-semibold px-4 py-2 rounded-full border border-gray-200 shadow-lg flex items-center gap-2">
+                  🔍 Click để phóng to
+                </span>
+              </div>
+            </div>
+
+            {/* Award Details Content */}
+            <div className="flex-1 flex flex-col gap-6 text-slate-800">
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="bg-[#00095b] text-white font-bold px-3 py-1 rounded-full text-xs uppercase tracking-wider shadow-xs">
+                  ★ Ford Việt Nam Award
+                </span>
+                <span className="text-[#066fef] text-xs font-semibold bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
+                  Năm 2024 - 2025
+                </span>
+              </div>
+
+              <h3 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-[#00095b] font-antenna leading-snug tracking-tight">
+                HIT SERVICE TARGET THRU THE YEAR
+              </h3>
+              
+              <p className="text-[#066fef] font-bold text-lg md:text-xl font-antenna">
+                Đại Lý Hoàn Thành Xuất Sắc Mục Tiêu Dịch Vụ Trong Năm
+              </p>
+              
+              <div className="space-y-4 text-gray-600 text-base leading-relaxed font-antenna">
+                <p>
+                  Giải thưởng <strong className="text-[#00095b] font-semibold">“Hit Service Target Thru The Year”</strong> do Ford Việt Nam trao tặng là minh chứng rõ nét cho sự nỗ lực không ngừng nghỉ của toàn thể đội ngũ cán bộ, kỹ thuật viên và cố vấn dịch vụ tại Đồng Nai Ford.
+                </p>
+                <p>
+                  Đạt và vượt qua chuỗi các tiêu chí kiểm định khắt khe toàn cầu từ quy trình tiếp nhận, chất lượng sửa chữa kỹ thuật đến chỉ số hài lòng khách hàng (CVP/CSI), Đồng Nai Ford khẳng định cam kết mang lại sự an tâm tuyệt đối trên từng cây số cho Quý khách hàng.
+                </p>
+              </div>
+
+              {/* Specs Box */}
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 pt-6 border-t border-gray-200">
+                <div className="flex flex-col bg-white p-3.5 rounded-xl border border-gray-200/80 shadow-2xs">
+                  <span className="text-xs text-gray-400 uppercase font-antenna">Đơn vị trao giải</span>
+                  <span className="text-sm font-bold text-[#00095b] mt-1">Ford Việt Nam</span>
+                </div>
+                <div className="flex flex-col bg-white p-3.5 rounded-xl border border-gray-200/80 shadow-2xs">
+                  <span className="text-xs text-gray-400 uppercase font-antenna">Tiêu chuẩn</span>
+                  <span className="text-sm font-bold text-[#00095b] mt-1">Global 3S Ford</span>
+                </div>
+                <div className="flex flex-col bg-white p-3.5 rounded-xl border border-gray-200/80 shadow-2xs col-span-2 md:col-span-1">
+                  <span className="text-xs text-gray-400 uppercase font-antenna">Cam kết</span>
+                  <span className="text-sm font-bold text-[#066fef] mt-1">100% Khách Hàng Hài Lòng</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* SECTION 5: TẦM NHÌN & ĐỘI NGŨ NHÂN SỰ (Frame 1000005589) */}
       <section className="bg-[#066fef] py-[72px] text-white w-full scroll-mt-20">
         <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full flex flex-col gap-10">
