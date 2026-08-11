@@ -33,7 +33,7 @@ const developmentMilestones = [
     title: "Tiên Phong Ứng Dụng Công Nghệ & Dịch Vụ Mới",
     subtitle: "Bảo dưỡng nhanh 60 phút & Dịch vụ Giao nhận xe tận nơi",
     description: "Đưa vào vận hành mô hình Bảo dưỡng nhanh 60 phút Tier-1, tích hợp công nghệ đặt hẹn dịch vụ online và dịch vụ nhận - giao xe tận nơi (Pickup & Delivery) tối ưu thời gian cho khách hàng.",
-    image: "/images/team/team_2.jpg"
+    image: "/images/about/milestone_2020.webp"
   },
   {
     year: "2024",
@@ -42,7 +42,7 @@ const developmentMilestones = [
     title: "Vinh Danh 'Hit Service Target Thru The Year'",
     subtitle: "Giải thưởng Xuất sắc toàn diện từ Tổng Công ty Ford Việt Nam",
     description: "Tự hào khẳng định vị thế đại lý dẫn đầu toàn quốc về chỉ số hài lòng khách hàng (CVP/CSI) và quy mô dịch vụ 3S vượt trội, tiếp tục vững bước trên hành trình phát triển.",
-    image: "/images/team/team_1.jpg"
+    image: "/images/about/milestone_2024.webp"
   }
 ];
 
