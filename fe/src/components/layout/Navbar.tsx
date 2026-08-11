@@ -1188,11 +1188,43 @@ export default function Navbar() {
               ) : (
                 <div className="divide-y divide-neutral-100">
                   {vehiclesList.map((vehicle: any) => {
-                    const brochureLink = (vehicle.brochure_file && typeof vehicle.brochure_file === 'string' && vehicle.brochure_file.trim() !== '') 
-                      ? vehicle.brochure_file 
-                      : (vehicle.brochure_url && typeof vehicle.brochure_url === 'string' && vehicle.brochure_url.trim() !== '') 
-                        ? vehicle.brochure_url 
-                        : null;
+                    const getBrochureUrl = (v: any) => {
+                      if (v.brochure_file && typeof v.brochure_file === 'string' && v.brochure_file.trim() !== '') {
+                        return resolveImageUrl(v.brochure_file);
+                      }
+                      if (v.brochure_url && typeof v.brochure_url === 'string' && v.brochure_url.trim() !== '') {
+                        return v.brochure_url;
+                      }
+                      if (v.brochure && typeof v.brochure === 'string' && v.brochure.trim() !== '') {
+                        return resolveImageUrl(v.brochure);
+                      }
+
+                      const slug = (v.slug || v.id || "").toLowerCase();
+                      const name = (v.title || v.name || "").toLowerCase();
+
+                      if (slug.includes("everest") || name.includes("everest")) {
+                        return "https://www.ford.com.vn/content/dam/Ford/website-assets/asia-pacific/vn/vehicle-category/suv/all-new-everest/brochure/all-new-everest-brochure.pdf";
+                      }
+                      if (slug.includes("raptor") || name.includes("raptor")) {
+                        return "https://www.ford.com.vn/content/dam/Ford/website-assets/asia-pacific/vn/vehicle-category/trucks/next-gen-ranger-raptor/brochure/next-gen-ranger-raptor-brochure.pdf";
+                      }
+                      if (slug.includes("ranger") || name.includes("ranger")) {
+                        return "https://www.ford.com.vn/content/dam/Ford/website-assets/asia-pacific/vn/vehicle-category/trucks/next-gen-ranger/brochure/next-gen-ranger-brochure.pdf";
+                      }
+                      if (slug.includes("territory") || name.includes("territory")) {
+                        return "https://www.ford.com.vn/content/dam/Ford/website-assets/asia-pacific/vn/vehicle-category/suv/next-gen-territory/brochure/next-gen-territory-brochure.pdf";
+                      }
+                      if (slug.includes("transit") || name.includes("transit")) {
+                        return "https://www.ford.com.vn/content/dam/Ford/website-assets/asia-pacific/vn/vehicle-category/commercial-vehicles/transit/brochure/transit-brochure.pdf";
+                      }
+                      if (slug.includes("explorer") || name.includes("explorer")) {
+                        return "https://www.ford.com.vn/content/dam/Ford/website-assets/asia-pacific/vn/vehicle-category/suv/explorer/brochure/explorer-brochure.pdf";
+                      }
+
+                      return "https://www.ford.com.vn/brochures/";
+                    };
+
+                    const brochureLink = getBrochureUrl(vehicle);
                     
                     const getTypeName = (type: string) => {
                       const types: Record<string, string> = {
@@ -1234,28 +1266,17 @@ export default function Navbar() {
                           </div>
                         </div>
 
-                        {/* Right: Actions */}
+                        {/* Right: Actions - Direct Download Button */}
                         <div>
-                          {brochureLink ? (
-                            <a
-                              href={brochureLink}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-gradient-to-r from-[#0562d2] to-[#066fef] hover:from-[#044ea7] hover:to-[#0562d2] hover:shadow-md px-4 py-2 rounded-lg transition-all uppercase tracking-wider font-antenna border border-transparent flex-shrink-0"
-                            >
-                              <Download className="w-3.5 h-3.5" />
-                              Tải về
-                            </a>
-                          ) : (
-                            <Link
-                              href={`/lien-he?reason=Tải Catalogue: ${vehicle.title || vehicle.name}`}
-                              onClick={() => setIsBrochureModalOpen(false)}
-                              className="inline-flex items-center gap-1.5 text-xs font-bold text-neutral-700 hover:text-[#0562d2] bg-neutral-100 hover:bg-[#0562d2]/10 hover:border-[#0562d2]/20 border border-neutral-200 px-4 py-2 rounded-lg transition-all uppercase tracking-wider font-antenna flex-shrink-0"
-                            >
-                              <FileText className="w-3.5 h-3.5" />
-                              Yêu cầu
-                            </Link>
-                          )}
+                          <a
+                            href={brochureLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-gradient-to-r from-[#0562d2] to-[#066fef] hover:from-[#044ea7] hover:to-[#0562d2] hover:shadow-md px-4 py-2 rounded-lg transition-all uppercase tracking-wider font-antenna border border-transparent flex-shrink-0 cursor-pointer"
+                          >
+                            <Download className="w-3.5 h-3.5" />
+                            Tải về
+                          </a>
                         </div>
                       </div>
                     );
