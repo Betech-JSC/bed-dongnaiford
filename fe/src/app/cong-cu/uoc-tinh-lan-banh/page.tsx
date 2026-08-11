@@ -108,7 +108,7 @@ function groupVehiclesBySeries(apiVehicles: any[]) {
 
 function RollingCostContent() {
   const searchParams = useSearchParams();
-  const urlVehicleId = searchParams.get("vehicle");
+  const urlVehicleId = searchParams.get("vehicle") || searchParams.get("car");
   const urlVersionId = searchParams.get("version");
 
   const [vehicles, setVehicles] = useState<any[]>([]);

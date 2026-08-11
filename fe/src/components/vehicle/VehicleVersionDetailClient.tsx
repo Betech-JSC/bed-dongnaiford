@@ -582,7 +582,7 @@ export default function VehicleVersionDetailClient() {
               </button>
 
               <Link
-                href={`/cong-cu/uoc-tinh-lan-banh?car=${vehicle.slug || vehicle.id}`}
+                href={`/cong-cu/uoc-tinh-tra-gop?vehicle=${vehicle.slug || vehicle.id}${selectedVersion?.id ? `&version=${selectedVersion.id}` : ''}`}
                 className="bg-[#00095B] hover:bg-[#066fef] transition-all px-3 py-3 rounded-full text-white text-[12px] sm:text-[13px] font-bold cursor-pointer inline-flex items-center justify-center gap-2 border-0 uppercase tracking-tight font-antenna no-underline shadow-xs hover:shadow-md w-full"
               >
                 <Calculator className="w-4 h-4 shrink-0 text-white" />
@@ -590,20 +590,19 @@ export default function VehicleVersionDetailClient() {
               </Link>
 
               <Link
-                href={`/${vehicle.slug || vehicle.id}/du-toan-lan-banh`}
+                href={`/cong-cu/uoc-tinh-lan-banh?vehicle=${vehicle.slug || vehicle.id}${selectedVersion?.id ? `&version=${selectedVersion.id}` : ''}`}
                 className="bg-[#00095B] hover:bg-[#066fef] transition-all px-3 py-3 rounded-full text-white text-[12px] sm:text-[13px] font-bold cursor-pointer inline-flex items-center justify-center gap-2 border-0 uppercase tracking-tight font-antenna no-underline shadow-xs hover:shadow-md w-full"
               >
                 <FileText className="w-4 h-4 shrink-0 text-white" />
                 <span>Ước tính lăn bánh</span>
               </Link>
 
-              <button
-                type="button"
-                onClick={() => openQuoteDrawer(vehicle.id, selectedVersion?.id)}
-                className="bg-[#00095B] hover:bg-[#066fef] transition-all px-3 py-3 rounded-full text-white text-[12px] sm:text-[13px] font-bold cursor-pointer inline-flex items-center justify-center gap-2 border-0 uppercase tracking-tight font-antenna shadow-xs hover:shadow-md w-full"
+              <Link
+                href={`/lien-he?reason=Nhận báo giá xe&car=${vehicle.slug || vehicle.id}${selectedVersion?.id ? `&version=${selectedVersion.id}` : ''}`}
+                className="bg-[#00095B] hover:bg-[#066fef] transition-all px-3 py-3 rounded-full text-white text-[12px] sm:text-[13px] font-bold cursor-pointer inline-flex items-center justify-center gap-2 border-0 uppercase tracking-tight font-antenna no-underline shadow-xs hover:shadow-md w-full"
               >
                 <span>Nhận báo giá</span>
-              </button>
+              </Link>
             </div>
           </div>
 

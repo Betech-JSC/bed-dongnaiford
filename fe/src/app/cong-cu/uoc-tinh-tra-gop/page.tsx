@@ -20,7 +20,7 @@ interface RepaymentRow {
 
 function InstallmentCalculatorContent() {
   const searchParams = useSearchParams();
-  const urlVehicleId = searchParams.get("vehicle");
+  const urlVehicleId = searchParams.get("vehicle") || searchParams.get("car");
   const urlVersionId = searchParams.get("version");
 
   // Find initial vehicle/version from staticVehicles using robust matching (matching "ford-transit" with "ford-transit-2024", etc.)
