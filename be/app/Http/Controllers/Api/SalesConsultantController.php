@@ -32,7 +32,7 @@ class SalesConsultantController extends Controller
             ->get()
             ->map(fn($t) => $t->toLocalizedSummary($locale));
 
-        return $this->success($consultants)->header('Cache-Control', 'no-cache, must-revalidate');
+        return $this->success($consultants)->header('Cache-Control', 'public, max-age=300, s-maxage=1800, stale-while-revalidate=60');
     }
 
     /**

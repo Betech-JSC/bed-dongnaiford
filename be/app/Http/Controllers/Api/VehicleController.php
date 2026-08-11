@@ -78,7 +78,7 @@ class VehicleController extends Controller
         $vehicles = $query->get()
             ->map(fn($v) => $this->formatList($v));
 
-        return $this->success($vehicles)->header('Cache-Control', 'no-cache, must-revalidate');
+        return $this->success($vehicles)->header('Cache-Control', 'public, max-age=300, s-maxage=1800, stale-while-revalidate=60');
     }
 
     /**
@@ -94,7 +94,7 @@ class VehicleController extends Controller
             ->get()
             ->map(fn($v) => $this->formatList($v));
 
-        return $this->success($vehicles)->header('Cache-Control', 'no-cache, must-revalidate');
+        return $this->success($vehicles)->header('Cache-Control', 'public, max-age=300, s-maxage=1800, stale-while-revalidate=60');
     }
 
     /**

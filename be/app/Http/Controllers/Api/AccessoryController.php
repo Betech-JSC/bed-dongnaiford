@@ -31,7 +31,7 @@ class AccessoryController extends Controller
                 ];
             });
 
-        return $this->success($categories)->header('Cache-Control', 'no-cache, must-revalidate');
+        return $this->success($categories)->header('Cache-Control', 'public, max-age=300, s-maxage=1800, stale-while-revalidate=60');
     }
 
     /**
@@ -108,7 +108,7 @@ class AccessoryController extends Controller
 
         $accessories = $query->get()->map(fn($item) => $item->transform());
 
-        return $this->success($accessories)->header('Cache-Control', 'no-cache, must-revalidate');
+        return $this->success($accessories)->header('Cache-Control', 'public, max-age=300, s-maxage=1800, stale-while-revalidate=60');
     }
 
     /**
@@ -130,6 +130,6 @@ class AccessoryController extends Controller
             return $this->failure(__('Không tìm thấy phụ kiện'), 404);
         }
 
-        return $this->success($accessory->transformDetails())->header('Cache-Control', 'no-cache, must-revalidate');
+        return $this->success($accessory->transformDetails())->header('Cache-Control', 'public, max-age=300, s-maxage=1800, stale-while-revalidate=60');
     }
 }
