@@ -546,20 +546,10 @@ export default function VehicleVersionDetailClient() {
             {/* Version Title & Short Description */}
             <div className="space-y-4 w-full text-left mt-2">
               <h1 className="font-['Ford_Antenna',sans-serif] font-bold text-[32px] sm:text-[38px] text-[#1a1a1a] leading-[1.1] tracking-tight">
-                {vehicle.name === "Ford Mustang Mach-E" ? (
-                  <>
-                    Ford Mustang
-                    <br />
-                    Mach-E
-                  </>
-                ) : (
-                  vehicle.name
-                )}
-                <br />
-                {getVersionDisplayName(selectedVersion?.name || "", vehicle.name)}
+                {selectedVersion?.name || vehicle.name}
               </h1>
               <p className="text-gray-600 text-xs sm:text-[14px] leading-relaxed max-w-md">
-                {selectedVersion?.description || `${vehicle.name} ${selectedVersion?.name} phiên bản thế hệ mới sở hữu nét thiết kế đột phá, trang bị công nghệ lái an toàn hiện đại hàng đầu cùng cảm giác vận hành mạnh mẽ ưu việt.`}
+                {selectedVersion?.description || `${selectedVersion?.name || vehicle.name} phiên bản thế hệ mới sở hữu nét thiết kế đột phá, trang bị công nghệ lái an toàn hiện đại hàng đầu cùng cảm giác vận hành mạnh mẽ ưu việt.`}
               </p>
             </div>
 
@@ -801,7 +791,7 @@ export default function VehicleVersionDetailClient() {
         <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full flex flex-col gap-8 md:gap-10">
           <div className="space-y-1 text-left">
             <h2 className="font-['Ford_Antenna',sans-serif] font-bold text-2xl md:text-[32px] text-[#00095b] leading-tight tracking-tight">
-              Thông số kỹ thuật của {vehicle.name === "Ford Mustang Mach-E" ? "Mach-E" : vehicle.name} {getVersionDisplayName(selectedVersion?.name || "", vehicle.name)}
+              Thông số kỹ thuật của {selectedVersion?.name || vehicle.name}
             </h2>
           </div>
 
