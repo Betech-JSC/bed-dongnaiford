@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { jobsAPI } from "@/lib/api";
+import { jobsAPI, settingsAPI } from "@/lib/api";
 import AboutClient from "./AboutClient";
 
 export const metadata: Metadata = {
@@ -28,12 +28,10 @@ export const metadata: Metadata = {
 
 /**
  * Giới thiệu — Server Component (SSR)
- *
- * Job listings fetched server-side for E-E-A-T signals.
- * Static company content is already in AboutClient.
  */
 export default async function AboutPage() {
   let initialJobs: any[] = [];
+  let teamImages: any[] = [];
 
   try {
     const res = await jobsAPI.getAll() as any;
@@ -45,5 +43,14 @@ export default async function AboutPage() {
     console.error("Error pre-fetching jobs for About page SSR:", error);
   }
 
-  return <AboutClient initialJobs={initialJobs} />;
+  try {
+    const settingsRes = await settingsAPI.getGeneral() as any;
+    if (settingsRes?.data?.about_team_images && Array.isArray(settingsRes.data.about_team_images) && settingsRes.data.about_team_images.length > 0) {
+      teamImages = settingsRes.data.about_team_images;
+    }
+  } catch (error) {
+    console.error("Error pre-fetching team images for About page SSR:", error);
+  }
+
+  return <AboutClient initialJobs={initialJobs} teamImages={teamImages} />;
 }

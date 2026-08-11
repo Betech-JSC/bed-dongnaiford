@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, X } from "lucide-react";
-import { aboutAssets, handleImageError } from "@/lib/site-assets";
-import { jobsAPI } from "@/lib/api";
+import { aboutAssets, handleImageError, resolveImageUrl } from "@/lib/site-assets";
+import { jobsAPI, settingsAPI } from "@/lib/api";
 
 // Recruitment position data
 interface JobPosition {
@@ -148,46 +148,68 @@ const teamVehicles: TeamVehicle[] = [
   }
 ];
 
-// Create a base array that has at least 6 elements to support smooth infinite loop on all screen widths
-const getBaseCards = () => {
-  let base = [...teamVehicles];
-  if (base.length > 0) {
-    while (base.length < 6) {
-      base = [...base, ...teamVehicles];
-    }
-  }
-  return base;
-};
-
-const baseCards = getBaseCards();
-const N = baseCards.length;
-const duplicatedCards = [...baseCards, ...baseCards, ...baseCards];
-
-const initialCardOffsets: number[] = (() => {
-  const defaultWidths = [427, 660, 333];
-  const gap = 24;
-  const offsets: number[] = [];
-  let current = 0;
-  for (let i = 0; i < duplicatedCards.length; i++) {
-    offsets.push(current);
-    const cardWidth = teamVehicles.length > 0 ? defaultWidths[(i % teamVehicles.length) % defaultWidths.length] : 427;
-    current += cardWidth + gap;
-  }
-  return offsets;
-})();
-
 interface AboutClientProps {
   initialJobs?: any[];
+  teamImages?: any[];
 }
 
-export default function AboutClient({ initialJobs = [] }: AboutClientProps) {
-  // Modal State for recruitment details
+export default function AboutClient({ initialJobs = [], teamImages: initialTeamImages = [] }: AboutClientProps) {
   const [selectedJob, setSelectedJob] = useState<any | null>(null);
-
-  // API Jobs State
   const [jobs, setJobs] = useState<any[]>(initialJobs);
+  const [teamImages, setTeamImages] = useState<any[]>(initialTeamImages);
 
-  // Fetch jobs from API (skip if SSR data provided)
+  useEffect(() => {
+    if (initialTeamImages.length > 0) return;
+    let active = true;
+    const fetchTeamImages = async () => {
+      try {
+        const res = await settingsAPI.getGeneral() as any;
+        if (active && res?.data?.about_team_images && Array.isArray(res.data.about_team_images) && res.data.about_team_images.length > 0) {
+          setTeamImages(res.data.about_team_images);
+        }
+      } catch (err) {
+        console.error("Error fetching team images in AboutClient:", err);
+      }
+    };
+    fetchTeamImages();
+    return () => { active = false; };
+  }, [initialTeamImages]);
+
+  const activeTeamItems: TeamVehicle[] = useMemo(() => {
+    if (Array.isArray(teamImages) && teamImages.length > 0) {
+      return teamImages.map((img: any, idx: number) => ({
+        id: img.id || `team-cms-${idx}`,
+        name: img.name || img.title || "Đội ngũ Ford Đồng Nai",
+        image: resolveImageUrl(img.image || img.url) || "/images/team/team_1.jpg",
+        link: img.link || "/lien-he",
+        quoteLink: img.link || "/lien-he"
+      }));
+    }
+    return teamVehicles;
+  }, [teamImages]);
+
+  const teamRow1 = useMemo(() => {
+    let items = activeTeamItems.filter((_, idx) => idx % 2 === 0);
+    if (items.length === 0) items = [...activeTeamItems];
+    let base = [...items];
+    while (base.length < 6) {
+      base = [...base, ...items];
+    }
+    return base;
+  }, [activeTeamItems]);
+
+  const teamRow2 = useMemo(() => {
+    let items = activeTeamItems.filter((_, idx) => idx % 2 !== 0);
+    if (items.length === 0) items = [...activeTeamItems];
+    let base = [...items];
+    while (base.length < 6) {
+      base = [...base, ...items];
+    }
+    return base;
+  }, [activeTeamItems]);
+
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+
   useEffect(() => {
     if (initialJobs.length > 0) return;
     let active = true;
@@ -206,16 +228,13 @@ export default function AboutClient({ initialJobs = [] }: AboutClientProps) {
     return () => {
       active = false;
     };
-  }, []);
+  }, [initialJobs]);
 
   const handleJobClick = async (job: any) => {
-    // If it's a fallback static job, it already has requirements/benefits
     if (job.requirements) {
       setSelectedJob(job);
       return;
     }
-
-    // Otherwise, fetch full details for API job
     setSelectedJob({ ...job, loading: true });
     try {
       const res = await jobsAPI.getBySlug(job.slug) as any;
@@ -231,82 +250,6 @@ export default function AboutClient({ initialJobs = [] }: AboutClientProps) {
     }
   };
 
-  // Slider State (Infinite Loop support)
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [cardOffsets, setCardOffsets] = useState<number[]>(initialCardOffsets);
-  const [activeIndex, setActiveIndex] = useState(N);
-  const [isTransitioning, setIsTransitioning] = useState(true);
-  const [isHovered, setIsHovered] = useState(false);
-  const [isInteracted, setIsInteracted] = useState(false);
-
-  // Dynamically measure cards left offset relative to translated container on mount & resize
-  const measureCards = useCallback(() => {
-    if (!containerRef.current) return;
-    const children = Array.from(containerRef.current.children) as HTMLElement[];
-    const offsets = children.map((child) => child.offsetLeft);
-    setCardOffsets(offsets);
-  }, []);
-
-  useEffect(() => {
-    measureCards();
-    // Allow a small delay for image assets to load fully and measure dimensions
-    const timer = setTimeout(measureCards, 500);
-    window.addEventListener("resize", measureCards);
-    return () => {
-      clearTimeout(timer);
-      window.removeEventListener("resize", measureCards);
-    };
-  }, [measureCards]);
-
-  // Autoplay handler (pauses on hover or user interaction)
-  useEffect(() => {
-    if (isHovered || isInteracted) return;
-    const timer = setInterval(() => {
-      setIsTransitioning(true);
-      setActiveIndex((prev) => prev + 1);
-    }, 5000);
-    return () => clearInterval(timer);
-  }, [isHovered, isInteracted]);
-
-  // Reset interaction timer to resume autoplay after 5s of inactivity
-  useEffect(() => {
-    if (isInteracted) {
-      const timer = setTimeout(() => {
-        setIsInteracted(false);
-      }, 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [isInteracted]);
-
-  const handleTransitionEnd = () => {
-    // Snap back to middle set if active index scrolls beyond bounds
-    if (activeIndex >= 2 * N) {
-      setIsTransitioning(false);
-      setActiveIndex(activeIndex - N);
-      setTimeout(() => {
-        setIsTransitioning(true);
-      }, 0);
-    } else if (activeIndex < N) {
-      setIsTransitioning(false);
-      setActiveIndex(activeIndex + N);
-      setTimeout(() => {
-        setIsTransitioning(true);
-      }, 0);
-    }
-  };
-
-  const handlePrev = () => {
-    setIsInteracted(true);
-    setIsTransitioning(true);
-    setActiveIndex((prev) => prev - 1);
-  };
-
-  const handleNext = () => {
-    setIsInteracted(true);
-    setIsTransitioning(true);
-    setActiveIndex((prev) => prev + 1);
-  };
-
   // Lock body scroll when Modal is active
   useEffect(() => {
     if (selectedJob) {
@@ -319,8 +262,7 @@ export default function AboutClient({ initialJobs = [] }: AboutClientProps) {
     };
   }, [selectedJob]);
 
-  // Compute translation width
-  const currentOffset = cardOffsets[activeIndex] || 0;
+
 
   return (
     <div className="bg-gray-50 flex-1 min-h-screen">
@@ -514,84 +456,137 @@ export default function AboutClient({ initialJobs = [] }: AboutClientProps) {
         </section>
       )}
 
-      {/* SECTION 7: SLIDER CÁC DÒNG XE NỔI BẬT (Board of Directors / Team collection) */}
-      <section id="board-of-directors" className="bg-white py-[72px] overflow-hidden scroll-mt-20 w-full">
-        <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full">
-          {/* Header Row */}
-          <div className="flex justify-between items-end gap-6 mb-10">
+      {/* SECTION 7: SLIDER ĐỘI NGŨ (Filmstrip Infinite Stream - 2 Hàng So Le Như LongKhánh) */}
+      <section id="board-of-directors" className="bg-white py-16 md:py-24 overflow-hidden scroll-mt-20 w-full border-t border-[#e5e5e5]">
+        <style>{`
+          @keyframes marquee-left {
+            0% { transform: translate3d(0, 0, 0); }
+            100% { transform: translate3d(-50%, 0, 0); }
+          }
+          @keyframes marquee-right {
+            0% { transform: translate3d(-50%, 0, 0); }
+            100% { transform: translate3d(0, 0, 0); }
+          }
+          .animate-marquee-l {
+            display: flex;
+            width: max-content;
+            animation: marquee-left 40s linear infinite;
+          }
+          .animate-marquee-r {
+            display: flex;
+            width: max-content;
+            animation: marquee-right 40s linear infinite;
+          }
+          .animate-marquee-l:hover,
+          .animate-marquee-r:hover {
+            animation-play-state: paused;
+          }
+        `}</style>
+
+        <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full mb-10">
+          <div className="flex justify-between items-end gap-6">
             <div>
-              <h2 className="text-[48px] font-semibold text-[#1a1a1a] leading-[57.6px] font-antenna uppercase tracking-tight">
+              <div className="text-xs font-bold text-[#066fef] uppercase tracking-[0.2em] font-antenna mb-2">
+                Đồng hành phát triển
+              </div>
+              <h2 className="text-[32px] md:text-[44px] font-bold text-[#1a1a1a] leading-tight font-antenna uppercase tracking-tight">
                 Đội ngũ Ford Đồng Nai
               </h2>
-            </div>
-
-            {/* Navigation buttons */}
-            <div className="flex gap-6">
-              <button
-                onClick={handlePrev}
-                className="w-10 h-10 rounded-full bg-black hover:bg-[#066fef] active:scale-95 text-white flex items-center justify-center transition-all duration-200 focus:outline-none cursor-pointer shadow-sm"
-                aria-label="Previous slide"
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </button>
-              <button
-                onClick={handleNext}
-                className="w-10 h-10 rounded-full bg-black hover:bg-[#066fef] active:scale-95 text-white flex items-center justify-center transition-all duration-200 focus:outline-none cursor-pointer shadow-sm"
-                aria-label="Next slide"
-              >
-                <ArrowRight className="w-5 h-5" />
-              </button>
             </div>
           </div>
         </div>
 
-        {/* Slider Outer Wrapper - full viewport width */}
-        <div
-          className="w-full relative overflow-hidden"
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
-        >
-          {/* Flex row container with dynamic translation width */}
-          <div
-            ref={containerRef}
-            className="flex gap-6 select-none"
-            style={{
-              transform: `translateX(-${currentOffset}px)`,
-              transition: isTransitioning ? "transform 500ms cubic-bezier(0.16, 1, 0.3, 1)" : "none"
-            }}
-            onTransitionEnd={handleTransitionEnd}
-          >
-            {duplicatedCards.map((card, idx) => {
-              // Determine SSR default widths based on layout cards logic
-              const origIdx = idx % teamVehicles.length;
-              const defaultWidth = origIdx === 0 ? 427 : origIdx === 1 ? 660 : 333;
-
-              return (
-                <Link
-                  key={`${card.id}-${idx}`}
-                  href={card.link}
-                  className="h-[480px] relative flex-shrink-0 rounded-xl overflow-hidden group cursor-pointer block shadow-sm hover:shadow-lg transition-shadow duration-300"
-                  style={{ width: `${defaultWidth}px` }}
+        {/* Carousel 2 rows container so le */}
+        <div className="flex flex-col gap-6 w-full relative">
+          
+          {/* Row 1: Sliding Left */}
+          <div className="w-full overflow-hidden">
+            <div className="animate-marquee-l gap-6">
+              {[...teamRow1, ...teamRow1].map((card, idx) => (
+                <div
+                  key={`r1-${card.id}-${idx}`}
+                  onClick={() => setPreviewImage(card.image)}
+                  className="w-[300px] md:w-[420px] h-[200px] md:h-[260px] relative flex-shrink-0 rounded-xl overflow-hidden group cursor-pointer block border border-[#e5e5e5] bg-gray-50 shadow-sm hover:shadow-md transition-all duration-300"
                 >
                   <img
                     src={card.image}
                     alt={card.name}
                     className="absolute inset-0 h-full w-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                    onLoad={measureCards}
+                    loading="lazy"
                     onError={handleImageError}
                   />
-                  {/* Dark overlay showing text on hover */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex items-end p-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
-                    <span className="text-[18px] font-semibold text-white font-antenna uppercase truncate max-w-full transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
-                      {card.name}
-                    </span>
+                  {/* Subtle info on hover */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent flex items-end justify-between p-5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
+                    <div className="flex flex-col gap-1 min-w-0 pr-2">
+                      <span className="text-[10px] font-extrabold text-[#066fef] tracking-widest uppercase font-antenna">
+                        SỰ KIỆN & ĐỘI NGŨ
+                      </span>
+                      <span className="text-sm md:text-base font-bold text-white font-antenna uppercase truncate max-w-full">
+                        {card.name}
+                      </span>
+                    </div>
                   </div>
-                </Link>
-              );
-            })}
+                </div>
+              ))}
+            </div>
           </div>
+
+          {/* Row 2: Sliding Right */}
+          <div className="w-full overflow-hidden">
+            <div className="animate-marquee-r gap-6">
+              {[...teamRow2, ...teamRow2].map((card, idx) => (
+                <div
+                  key={`r2-${card.id}-${idx}`}
+                  onClick={() => setPreviewImage(card.image)}
+                  className="w-[300px] md:w-[420px] h-[200px] md:h-[260px] relative flex-shrink-0 rounded-xl overflow-hidden group cursor-pointer block border border-[#e5e5e5] bg-gray-50 shadow-sm hover:shadow-md transition-all duration-300"
+                >
+                  <img
+                    src={card.image}
+                    alt={card.name}
+                    className="absolute inset-0 h-full w-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                    loading="lazy"
+                    onError={handleImageError}
+                  />
+                  {/* Subtle info on hover */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent flex items-end justify-between p-5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
+                    <div className="flex flex-col gap-1 min-w-0 pr-2">
+                      <span className="text-[10px] font-extrabold text-[#066fef] tracking-widest uppercase font-antenna">
+                        CƠ SỞ VẬT CHẤT & ĐỘI NGŨ
+                      </span>
+                      <span className="text-sm md:text-base font-bold text-white font-antenna uppercase truncate max-w-full">
+                        {card.name}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
         </div>
       </section>
+
+      {/* Lightbox Image Preview Modal */}
+      {previewImage && (
+        <div 
+          onClick={() => setPreviewImage(null)} 
+          className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-xs animate-fade-in cursor-pointer"
+        >
+          <div className="relative max-w-4xl max-h-[90vh] overflow-hidden rounded-2xl shadow-2xl border border-white/20">
+            <img 
+              src={previewImage} 
+              alt="Preview Team Image" 
+              className="max-h-[85vh] w-auto object-contain rounded-2xl" 
+            />
+            <button
+              onClick={() => setPreviewImage(null)}
+              className="absolute top-4 right-4 text-white bg-black/50 hover:bg-black/80 rounded-full p-2 transition-colors cursor-pointer"
+            >
+              <X className="w-6 h-6" />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* RECRUITMENT MODAL (Option A) */}
       {selectedJob && (
