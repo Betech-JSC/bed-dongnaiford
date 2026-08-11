@@ -11,9 +11,9 @@ const nextConfig = {
     optimizePackageImports: ["lucide-react", "motion"],
   },
   images: {
-    unoptimized: true,
+    unoptimized: false,
     formats: ["image/avif", "image/webp"],
-    minimumCacheTTL: 86400,
+    minimumCacheTTL: 604800,
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     dangerouslyAllowLocalIP: true,
@@ -82,11 +82,11 @@ const nextConfig = {
         ],
       },
 
-      // Cache images: 1 day + stale-while-revalidate 7 days
+      // Cache images: 1 year immutable
       {
-        source: "/:path*.(jpg|jpeg|png|webp|svg|ico|gif)",
+        source: "/:path*.(jpg|jpeg|png|webp|avif|svg|ico|gif)",
         headers: [
-          { key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" },
+          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
         ],
       },
       // Cache fonts

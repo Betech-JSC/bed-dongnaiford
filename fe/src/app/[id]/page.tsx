@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { vehiclesAPI } from "@/lib/api";
 import VehicleDetailClient from "@/components/vehicle/VehicleDetailClient";
 
+export const revalidate = 300; // ISR: Revalidate vehicle detail page every 5 minutes
+
 type Props = {
   params: Promise<{
     id: string;
