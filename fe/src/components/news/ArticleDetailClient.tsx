@@ -77,7 +77,9 @@ export default function ArticleDetailClient({
     if (typeof window !== "undefined") {
       setShareUrl(window.location.href);
     }
-  }, []);
+    // Fix lỗi cuộn: Cuộn lên đầu trang khi bài viết thay đổi (tránh dính lại ở dưới)
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, [article?.id]);
 
   const handleCopyLink = () => {
     if (typeof window !== "undefined") {

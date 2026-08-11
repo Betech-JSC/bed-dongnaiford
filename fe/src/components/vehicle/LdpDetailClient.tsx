@@ -103,7 +103,7 @@ function LdpInnerContent({ salesConsultant, layoutBlocks, promotions, vehicle, a
       />
 
       {/* FLOATING SALES CONSULTANT WIDGET */}
-      <div className="fixed bottom-20 md:bottom-6 right-6 z-[99] flex flex-col gap-3 font-sans">
+      <div className="fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom,0px))] md:bottom-6 right-6 z-[99] flex flex-col gap-3 font-sans">
         {/* Zalo Button */}
         {salesConsultant.zalo_url && (
           <a

@@ -42,10 +42,6 @@ export default function QuickAccessToolbar() {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [hasCompareItems, setHasCompareItems] = useState(false);
 
-  if (isLdp) {
-    return null;
-  }
-
   useEffect(() => {
     const handleScroll = () => {
       setShowScrollTop(window.scrollY > 300);
@@ -74,6 +70,10 @@ export default function QuickAccessToolbar() {
     window.addEventListener("compare-updated", checkCompare);
     return () => window.removeEventListener("compare-updated", checkCompare);
   }, []);
+
+  if (isLdp) {
+    return null;
+  }
 
   const scrollToTop = () => {
     window.scrollTo({
@@ -178,7 +178,7 @@ export default function QuickAccessToolbar() {
       </div>
 
       {/* Floating Quick Contact Action Buttons (Mobile - Left) */}
-      <div className="flex flex-col gap-2.5 md:hidden fixed left-4 bottom-20 z-50 select-none">
+      <div className="flex flex-col gap-2.5 md:hidden fixed left-4 bottom-[calc(5.5rem+env(safe-area-inset-bottom,0px))] z-50 select-none">
         {/* Zalo */}
         <Link
           href="https://zalo.me/4149231651356573695"
@@ -266,7 +266,7 @@ export default function QuickAccessToolbar() {
 
       {/* Mobile Scroll to Top Floating Button */}
       {showScrollTop && (
-        <div className="block md:hidden fixed right-4 bottom-20 z-40 select-none">
+        <div className="block md:hidden fixed right-4 bottom-[calc(5.5rem+env(safe-area-inset-bottom,0px))] z-40 select-none">
           <button
             onClick={scrollToTop}
             type="button"

@@ -146,7 +146,7 @@ export default function CompareDrawer() {
 
   return (
     <div
-      className={`fixed z-50 bg-[#00095B]/95 backdrop-blur-md border border-white/10 text-white shadow-[0_12px_40px_rgba(0,0,0,0.4)] rounded-xl transition-all duration-500 ease-in-out overflow-hidden bottom-[60px] left-4 right-4 sm:left-auto sm:right-24 sm:bottom-6 sm:w-80 ${
+      className={`fixed z-50 bg-[#00095B]/95 backdrop-blur-md border border-white/10 text-white shadow-[0_12px_40px_rgba(0,0,0,0.4)] rounded-xl transition-all duration-500 ease-in-out overflow-hidden bottom-[calc(5.5rem+env(safe-area-inset-bottom,0px))] left-4 right-4 sm:left-auto sm:right-24 sm:bottom-6 sm:w-80 ${
         isOpen ? "max-h-[520px]" : "max-h-12"
       }`}
     >

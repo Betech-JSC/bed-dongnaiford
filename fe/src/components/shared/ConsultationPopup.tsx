@@ -224,36 +224,36 @@ export default function ConsultationPopup() {
         </button>
 
         {/* Scrollable Content Container */}
-        <div className="overflow-y-auto custom-scrollbar flex-1 flex flex-col pb-5">
+        <div className="overflow-y-auto custom-scrollbar flex-1 flex flex-col pb-4 sm:pb-5">
           
           {/* Header Branding */}
-          <div className="pt-7 px-6 text-center flex flex-col items-center select-none">
+          <div className="pt-5 px-5 sm:pt-7 sm:px-6 text-center flex flex-col items-center select-none">
             {/* Ford Logo & Name */}
             <div className="flex items-center gap-[5px]">
               <img
                 src="/ford_logo.svg"
                 alt="Ford Oval Logo"
-                className="h-[22px] w-[58px] object-contain flex-shrink-0"
+                className="h-[20px] w-[52px] sm:h-[22px] sm:w-[58px] object-contain flex-shrink-0"
               />
-              <span className="font-['Ford_Antenna',sans-serif] font-bold text-[#00095b] text-[12px] tracking-tight leading-none uppercase">
+              <span className="font-['Ford_Antenna',sans-serif] font-bold text-[#00095b] text-[11px] sm:text-[12px] tracking-tight leading-none uppercase">
                 ĐỒNG NAI FORD
               </span>
             </div>
-            <p className="text-[9px] text-[#424242] font-semibold mt-1">
+            <p className="text-[8px] sm:text-[9px] text-[#424242] font-semibold mt-1">
               Đại lý uỷ quyền chính thức của Ford Việt Nam
             </p>
 
             {/* Main Header Title */}
-            <h3 className="font-extrabold text-[#00095b] text-[20px] md:text-[22px] tracking-normal uppercase leading-tight mt-3">
+            <h3 className="font-extrabold text-[#00095b] text-[18px] sm:text-[20px] md:text-[22px] tracking-normal uppercase leading-tight mt-2.5 sm:mt-3">
               ĐĂNG KÝ TƯ VẤN<br />FORD ĐỒNG NAI
             </h3>
-            <p className="text-[11px] text-[#424242] max-w-[340px] mx-auto mt-1 leading-relaxed">
+            <p className="text-[10.5px] sm:text-[11px] text-[#424242] max-w-[340px] mx-auto mt-1 leading-relaxed">
               Để lại thông tin, chuyên viên Ford Đồng Nai sẽ liên hệ tư vấn chi tiết cho bạn!
             </p>
           </div>
 
-          {/* Vehicle Group Showcase Image */}
-          <div className="mt-3.5 w-full relative">
+          {/* Vehicle Group Showcase Image - Hợp lý hóa chiều cao trên mobile bằng cách ẩn trên màn hình nhỏ */}
+          <div className="mt-3.5 w-full relative hidden sm:block">
             <img
               src="/assets/vehicle-group.jpg"
               alt="Dòng xe Ford Đồng Nai"
@@ -262,31 +262,31 @@ export default function ConsultationPopup() {
           </div>
 
           {/* Core Brand Features Bar */}
-          <div className="bg-[#002c77] text-white py-2 px-3 text-center flex justify-around items-center select-none gap-1 shrink-0">
-            <div className="flex items-center gap-1.5">
-              <ShieldCheck className="w-3.5 h-3.5 text-white/95 shrink-0" />
-              <span className="text-[9px] md:text-[9.5px] font-bold tracking-wide uppercase text-white/90">
+          <div className="bg-[#002c77] text-white py-1.5 px-2.5 sm:py-2 sm:px-3 text-center flex justify-around items-center select-none gap-1 shrink-0">
+            <div className="flex items-center gap-1 sm:gap-1.5">
+              <ShieldCheck className="w-3 sm:w-3.5 h-3 sm:h-3.5 text-white/95 shrink-0" />
+              <span className="text-[8.5px] sm:text-[9px] md:text-[9.5px] font-bold tracking-wide uppercase text-white/90">
                 Sản phẩm chính hãng
               </span>
             </div>
-            <div className="h-4 w-[1px] bg-white/20" />
-            <div className="flex items-center gap-1.5">
-              <Percent className="w-3.5 h-3.5 text-white/95 shrink-0" />
-              <span className="text-[9px] md:text-[9.5px] font-bold tracking-wide uppercase text-white/90">
+            <div className="h-3.5 sm:h-4 w-[1px] bg-white/20" />
+            <div className="flex items-center gap-1 sm:gap-1.5">
+              <Percent className="w-3 sm:w-3.5 h-3 sm:h-3.5 text-white/95 shrink-0" />
+              <span className="text-[8.5px] sm:text-[9px] md:text-[9.5px] font-bold tracking-wide uppercase text-white/90">
                 Ưu đãi hấp dẫn
               </span>
             </div>
-            <div className="h-4 w-[1px] bg-white/20" />
-            <div className="flex items-center gap-1.5">
-              <Headphones className="w-3.5 h-3.5 text-white/95 shrink-0" />
-              <span className="text-[9px] md:text-[9.5px] font-bold tracking-wide uppercase text-white/90 leading-tight">
+            <div className="h-3.5 sm:h-4 w-[1px] bg-white/20" />
+            <div className="flex items-center gap-1 sm:gap-1.5">
+              <Headphones className="w-3 sm:w-3.5 h-3 sm:h-3.5 text-white/95 shrink-0" />
+              <span className="text-[8.5px] sm:text-[9px] md:text-[9.5px] font-bold tracking-wide uppercase text-white/90 leading-tight">
                 Tư vấn tận tâm
               </span>
             </div>
           </div>
 
           {/* Consultation Form Fields */}
-          <form onSubmit={handleSubmit} className="px-6 pt-5 flex flex-col gap-3.5 w-full">
+          <form onSubmit={handleSubmit} className="px-5 sm:px-6 pt-4 sm:pt-5 flex flex-col gap-3 sm:gap-3.5 w-full">
             {/* Input Name */}
             <div className="relative flex items-center">
               <div className="absolute left-3.5 text-gray-400">
