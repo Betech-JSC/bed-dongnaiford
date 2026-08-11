@@ -41,8 +41,6 @@ export default function QuickAccessToolbar() {
 
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [hasCompareItems, setHasCompareItems] = useState(false);
-  const [autoplayIndex, setAutoplayIndex] = useState<number | null>(null);
-  const [isToolbarHovered, setIsToolbarHovered] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -72,25 +70,6 @@ export default function QuickAccessToolbar() {
     window.addEventListener("compare-updated", checkCompare);
     return () => window.removeEventListener("compare-updated", checkCompare);
   }, []);
-
-  // Alternating autoplay effect to cycle-expand specific items
-  useEffect(() => {
-    if (isToolbarHovered) {
-      setAutoplayIndex(null);
-      return;
-    }
-
-    // Cycle steps: null (pause), 0 (Đăng ký lái thử), null (pause), 3 (Tính phí trả góp), null (pause), 4 (Đặt hẹn dịch vụ)
-    const steps = [null, 0, null, 3, null, 4];
-    let step = 0;
-
-    const interval = setInterval(() => {
-      step = (step + 1) % steps.length;
-      setAutoplayIndex(steps[step]);
-    }, 1000); // Trigger transition every 1.0 second (very fast sequence)
-
-    return () => clearInterval(interval);
-  }, [isToolbarHovered]);
 
   if (isLdp) {
     return null;
@@ -165,14 +144,11 @@ export default function QuickAccessToolbar() {
 
       {/* Desktop Side Quick Access Drawer */}
       <div 
-        onMouseEnter={() => setIsToolbarHovered(true)}
-        onMouseLeave={() => setIsToolbarHovered(false)}
         className="hidden md:flex fixed right-0 top-[60%] -translate-y-1/2 z-50 flex-col items-end gap-1.5 select-none"
       >
         <div className="flex flex-col bg-white border-l border-y border-gray-200 shadow-[0_8px_30px_rgba(0,0,0,0.06)] rounded-l-xl overflow-visible w-12">
           {desktopMenuItems.map((item, idx) => {
             const isExternal = item.target === "_blank";
-            const isActive = autoplayIndex === idx;
             return (
               <div 
                 key={idx} 
@@ -183,27 +159,17 @@ export default function QuickAccessToolbar() {
                   target={item.target}
                   rel={isExternal ? "noopener noreferrer" : undefined}
                   aria-label={item.label}
-                  className={`absolute right-0 top-0 h-full flex items-center justify-start group transition-all duration-300 ease-out ${
-                    isActive
-                      ? "w-44 text-white bg-[#002f6c] rounded-l-xl shadow-[0_8px_20px_rgba(0,47,108,0.25)] z-20"
-                      : "w-12 text-gray-700 hover:text-white bg-white hover:bg-[#002f6c] hover:w-44 hover:rounded-l-xl hover:shadow-[0_8px_20px_rgba(0,47,108,0.25)] z-10 hover:z-20"
-                  } ${
+                  className={`absolute right-0 top-0 h-full flex items-center justify-start group transition-all duration-300 ease-out w-12 text-gray-700 hover:text-white bg-white hover:bg-[#002f6c] hover:w-44 hover:rounded-l-xl hover:shadow-[0_8px_20px_rgba(0,47,108,0.25)] z-10 hover:z-20 ${
                     idx === 0 ? "rounded-tl-xl" : ""
                   } ${
                     idx === desktopMenuItems.length - 1 ? "rounded-bl-xl" : ""
                   } overflow-hidden`}
                 >
-                  <div className={`w-12 h-12 flex-shrink-0 flex items-center justify-center transition-colors duration-300 ${
-                    isActive ? "text-white" : "text-gray-550 group-hover:text-white"
-                  }`}>
+                  <div className="w-12 h-12 flex-shrink-0 flex items-center justify-center transition-colors duration-300 text-gray-550 group-hover:text-white">
                     {item.icon}
                   </div>
                   
-                  <span className={`text-xs font-semibold tracking-wide whitespace-nowrap transform transition-all duration-300 ease-out pr-4 font-sans ${
-                    isActive
-                      ? "opacity-100 translate-x-0 text-white"
-                      : "opacity-0 group-hover:opacity-100 translate-x-4 group-hover:translate-x-0 text-gray-700 group-hover:text-white"
-                  }`}>
+                  <span className="text-xs font-semibold tracking-wide whitespace-nowrap transform transition-all duration-300 ease-out pr-4 font-sans opacity-0 group-hover:opacity-100 translate-x-4 group-hover:translate-x-0 text-gray-700 group-hover:text-white">
                     {item.label}
                   </span>
                 </Link>
