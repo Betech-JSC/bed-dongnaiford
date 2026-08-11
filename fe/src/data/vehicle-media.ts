@@ -129,11 +129,14 @@ export const vehicleMediaAssets: Record<string, VehicleMediaAssets> = {
   },
 };
 
-export function getVehicleMediaAssets(vehicleId: string): VehicleMediaAssets {
+export function getVehicleMediaAssets(vehicleId?: string | null): VehicleMediaAssets {
+  if (!vehicleId) {
+    return vehicleMediaAssets["ford-ranger"];
+  }
   if (vehicleMediaAssets[vehicleId]) {
     return vehicleMediaAssets[vehicleId];
   }
-  const idLower = vehicleId.toLowerCase();
+  const idLower = String(vehicleId || "").toLowerCase();
   if (idLower.includes("everest")) {
     return vehicleMediaAssets["ford-everest"];
   }

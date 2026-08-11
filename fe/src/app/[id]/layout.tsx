@@ -180,7 +180,7 @@ export default async function VehicleDetailLayout({
           (v.slug && v.slug === id) || 
           (v.seo_slug && v.seo_slug === id) || 
           String(v.id) === id || 
-          v.title?.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") === id.toLowerCase()
+          (v.title && String(v.title).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") === String(id || "").toLowerCase())
         ) || null;
       }
     }
@@ -253,18 +253,21 @@ export default async function VehicleDetailLayout({
   }
 
   // Normalize initial vehicle
+  const vTitleLower = String(apiVehicle.title || "").toLowerCase();
+  const vSlugLower = String(apiVehicle.slug || "").toLowerCase();
+
   const normalizedVehicle = {
     ...apiVehicle,
     id: apiVehicle.slug || String(apiVehicle.id),
     name: apiVehicle.title,
-    typeName: (apiVehicle.title?.toLowerCase().includes('raptor') || apiVehicle.slug?.toLowerCase().includes('raptor'))
+    typeName: (vTitleLower.includes('raptor') || vSlugLower.includes('raptor'))
       ? 'Bán Tải Hiệu Suất Cao'
       : (apiVehicle.type_name || apiVehicle.typeName || (
           apiVehicle.type === 'suv'
-            ? (apiVehicle.title?.toLowerCase().includes('everest') ? 'SUV 7 Chỗ' : apiVehicle.title?.toLowerCase().includes('territory') ? 'SUV 5 Chỗ' : 'SUV')
+            ? (vTitleLower.includes('everest') ? 'SUV 7 Chỗ' : vTitleLower.includes('territory') ? 'SUV 5 Chỗ' : 'SUV')
             : apiVehicle.type === 'pickup'
               ? 'Bán tải 5 Chỗ'
-              : (apiVehicle.title?.toLowerCase().includes('transit') ? 'Xe Thương Mại 16 Chỗ' : apiVehicle.title?.toLowerCase().includes('tourneo') ? 'Thương Mại 7 Chỗ' : 'Thương mại')
+              : (vTitleLower.includes('transit') ? 'Xe Thương Mại 16 Chỗ' : vTitleLower.includes('tourneo') ? 'Thương Mại 7 Chỗ' : 'Thương mại')
         )),
     basePrice: typeof apiVehicle.base_price === 'string' ? parseFloat(apiVehicle.base_price) : apiVehicle.base_price,
     image_url: apiVehicle.image_url || resolveFileUrl(apiVehicle.image),

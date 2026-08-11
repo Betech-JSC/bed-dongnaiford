@@ -34,10 +34,10 @@ export function useVehicle() {
   return context;
 }
 
-const getVersionSlug = (verName: string, vehicleName?: string) => {
-  let cleaned = verName.toLowerCase();
+const getVersionSlug = (verName?: string | null, vehicleName?: string | null) => {
+  let cleaned = String(verName || "").toLowerCase();
   if (vehicleName) {
-    const vName = vehicleName.toLowerCase();
+    const vName = String(vehicleName || "").toLowerCase();
     const vNameWithoutFord = vName.replace("ford", "").trim();
 
     let changed = true;
@@ -71,7 +71,7 @@ const getVersionSlug = (verName: string, vehicleName?: string) => {
   }
 
   if (!cleaned.trim()) {
-    cleaned = verName.toLowerCase();
+    cleaned = String(verName || "").toLowerCase();
   }
 
   return cleaned.trim()

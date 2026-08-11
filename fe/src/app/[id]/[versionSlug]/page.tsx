@@ -11,9 +11,9 @@ type Props = {
 };
 
 // Vietnamese-accent-safe URL slug generator
-const getVersionSlug = (verName: string, vehicleName: string) => {
-  let cleaned = verName.toLowerCase();
-  const vName = vehicleName.toLowerCase();
+const getVersionSlug = (verName?: string | null, vehicleName?: string | null) => {
+  let cleaned = String(verName || "").toLowerCase();
+  const vName = String(vehicleName || "").toLowerCase();
   const vNameWithoutFord = vName.replace("ford", "").trim();
 
   let changed = true;
@@ -46,7 +46,7 @@ const getVersionSlug = (verName: string, vehicleName: string) => {
   }
 
   if (!cleaned.trim()) {
-    cleaned = verName.toLowerCase();
+    cleaned = String(verName || "").toLowerCase();
   }
 
   return cleaned.trim()
@@ -59,8 +59,8 @@ const getVersionSlug = (verName: string, vehicleName: string) => {
     .replace(/\s+/g, "-");
 };
 
-const getLegacyVersionSlug = (verName: string) => {
-  return verName.toLowerCase()
+const getLegacyVersionSlug = (verName?: string | null) => {
+  return String(verName || "").toLowerCase()
     .replace(/\+/g, "-plus")
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
@@ -70,9 +70,9 @@ const getLegacyVersionSlug = (verName: string) => {
     .replace(/\s+/g, "-");
 };
 
-const getVersionDisplayName = (verName: string, vehicleName: string) => {
-  let displayName = verName;
-  const vName = vehicleName.toLowerCase();
+const getVersionDisplayName = (verName?: string | null, vehicleName?: string | null) => {
+  let displayName = verName || "";
+  const vName = String(vehicleName || "").toLowerCase();
   const vNameWithoutFord = vName.replace("ford", "").trim();
   
   let cleaned = displayName.toLowerCase();

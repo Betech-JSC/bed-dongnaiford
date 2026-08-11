@@ -56,10 +56,10 @@ function getVehicleTypeName(type: string): string {
 /**
  * Map API category to frontend category
  */
-function getCategoryName(apiCategory?: string): "Xe Ford" | "Khuyến Mãi" | "Tin tức" {
+function getCategoryName(apiCategory?: string | null): "Xe Ford" | "Khuyến Mãi" | "Tin tức" {
   if (!apiCategory) return "Tin tức";
   
-  const lowerCategory = apiCategory.toLowerCase();
+  const lowerCategory = String(apiCategory || "").toLowerCase();
   if (lowerCategory.includes('ford') || lowerCategory.includes('xe')) {
     return "Xe Ford";
   }

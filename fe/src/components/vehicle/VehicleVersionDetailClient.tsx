@@ -8,9 +8,9 @@ import { ChevronLeft, ChevronRight, Car, Calculator, FileText } from "lucide-rea
 import { resolveImageUrl } from "@/components/blocks/Blocks";
 
 // Vietnamese-accent-safe URL slug generator
-const getVersionSlug = (verName: string, vehicleName: string) => {
-  let cleaned = verName.toLowerCase();
-  const vName = vehicleName.toLowerCase();
+const getVersionSlug = (verName?: string | null, vehicleName?: string | null) => {
+  let cleaned = String(verName || "").toLowerCase();
+  const vName = String(vehicleName || "").toLowerCase();
   const vNameWithoutFord = vName.replace("ford", "").trim();
 
   let changed = true;
@@ -43,7 +43,7 @@ const getVersionSlug = (verName: string, vehicleName: string) => {
   }
 
   if (!cleaned.trim()) {
-    cleaned = verName.toLowerCase();
+    cleaned = String(verName || "").toLowerCase();
   }
 
   return cleaned.trim()
