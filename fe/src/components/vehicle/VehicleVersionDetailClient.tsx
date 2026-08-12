@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import Link from "next/link";
 import { useVehicle, VehicleTabBar } from "./VehicleLayoutClient";
 import { useParams, useRouter } from "next/navigation";
-import { ChevronLeft, ChevronRight, Car, Calculator, FileText } from "lucide-react";
+import { ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Car, Calculator, FileText } from "lucide-react";
 import { resolveImageUrl } from "@/components/blocks/Blocks";
 
 // Vietnamese-accent-safe URL slug generator
@@ -794,29 +794,46 @@ export default function VehicleVersionDetailClient() {
             </h2>
           </div>
 
-          <div className="flex flex-col w-full border-t border-[#e5e5e5]">
+          <div className="flex flex-col gap-4 w-full">
             {getDetailedSpecs().map((catGroup: any) => {
               const isOpen = openSpecsGroup === catGroup.category;
               return (
-                <div key={catGroup.category} className="border-b border-[#e5e5e5] w-full">
+                <div
+                  key={catGroup.category}
+                  className={`relative overflow-hidden border transition-all duration-300 bg-white rounded-xl group ${isOpen
+                    ? "border-[#00095B] shadow-md -translate-y-0.5"
+                    : "border-gray-200 hover:border-gray-300 hover:shadow-sm hover:-translate-y-0.5"
+                    }`}
+                >
                   <button
                     onClick={() => setOpenSpecsGroup(isOpen ? null : catGroup.category)}
-                    className={`flex justify-between items-center w-full text-left font-['Ford_Antenna',sans-serif] font-bold text-base md:text-[18px] py-6 transition-colors cursor-pointer bg-transparent border-0 p-0 focus:outline-none ${isOpen ? "text-[#0562d2]" : "text-[#424242] hover:text-[#0562d2]"
+                    className={`w-full flex items-center justify-between text-left transition-all duration-300 cursor-pointer select-none px-6 py-5 gap-4 ${isOpen
+                      ? "bg-[#00095B] text-white"
+                      : "bg-white text-[#1A1A1A] hover:bg-gray-50/50"
                       }`}
                   >
-                    <span>{catGroup.category}</span>
-                    <span className="text-xl font-medium leading-none text-[#0562d2]">{isOpen ? "−" : "+"}</span>
+                    <span className="text-base md:text-lg font-bold tracking-tight leading-snug pr-4">
+                      {catGroup.category}
+                    </span>
+                    {isOpen ? (
+                      <ChevronUp className="w-5 h-5 text-white flex-shrink-0 transition-transform duration-300" />
+                    ) : (
+                      <ChevronDown className="w-5 h-5 text-gray-400 group-hover:text-[#00095B] flex-shrink-0 transition-transform duration-300" />
+                    )}
                   </button>
 
-                  <div
-                    className={`overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? "max-h-[1200px] opacity-100" : "max-h-0 opacity-0"
-                      }`}
-                  >
-                    <div
-                      className="px-0 pr-4 pb-8 text-[14px] md:text-[15px] text-[#424242] leading-relaxed font-normal whitespace-pre-line prose prose-sm max-w-none [&_ul]:list-disc [&_ul]:pl-4 [&_ul]:space-y-1 [&_p]:mb-1 [&_strong]:text-black"
-                      dangerouslySetInnerHTML={{ __html: catGroup.content }}
-                    />
+                  <div className={`grid transition-[grid-template-rows,opacity] duration-300 ease-in-out ${isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+                    }`}>
+                    <div className="overflow-hidden bg-white">
+                      <div
+                        className="px-6 py-5 text-[14px] md:text-[15px] text-[#424242] leading-relaxed font-normal whitespace-pre-line prose prose-sm max-w-none border-t border-gray-100 [&_ul]:list-disc [&_ul]:pl-4 [&_ul]:space-y-1 [&_p]:mb-1 [&_strong]:text-black"
+                        dangerouslySetInnerHTML={{ __html: catGroup.content }}
+                      />
+                    </div>
                   </div>
+
+                  <div className={`absolute bottom-0 left-0 right-0 h-[3px] bg-[#0562D2] transition-opacity duration-300 ${isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+                    }`} />
                 </div>
               );
             })}
