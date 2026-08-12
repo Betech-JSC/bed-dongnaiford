@@ -792,23 +792,23 @@ export function VehicleTabBar() {
     { label: "Tính năng", path: `/${id}/tinh-nang` },
     { label: "So sánh", path: `/[id]/so-sanh`, actualPath: `/${id}/so-sanh` },
     { label: "Phụ kiện", path: `/[id]/phu-kien`, actualPath: `/${id}/phu-kien` },
-    { label: "Dự toán chi phí lăn bánh", path: `/[id]/du-toan-lan-banh`, actualPath: `/${id}/du-toan-lan-banh` },
+    { label: "Dự toán lăn bánh", path: `/[id]/du-toan-lan-banh`, actualPath: `/${id}/du-toan-lan-banh` },
     { label: "Ước tính trả góp", path: `/cong-cu/uoc-tinh-tra-gop`, actualPath: `/cong-cu/uoc-tinh-tra-gop?vehicle=${id}` }
   ], [id, firstVersionSlug]);
 
   return (
     <div className="sticky-tabs bg-white border-b border-[#e5e5e5] shadow-xs">
-      <div className="max-w-[1440px] mx-auto px-4 xl:px-[128px] w-full flex items-center justify-between gap-4">
-        <div className="flex items-center gap-[16px] xl:gap-[32px] flex-1 min-w-0">
+      <div className="max-w-[1440px] mx-auto px-4 lg:px-6 xl:px-8 w-full flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3 xl:gap-5 flex-1 min-w-0">
           <Link 
             href={`/${id}`}
-            className="font-['Ford_Antenna',sans-serif] font-bold text-[#1a1a1a] text-[13px] uppercase tracking-wider whitespace-nowrap hidden xl:block hover:text-[#0562d2] no-underline"
+            className="font-['Ford_Antenna',sans-serif] font-bold text-[#1a1a1a] text-[13px] uppercase tracking-wider whitespace-nowrap hidden xl:block hover:text-[#0562d2] no-underline shrink-0"
           >
             {vehicle.name}
           </Link>
-          <div className="h-[20px] w-[1px] bg-[#e5e5e5] hidden xl:block" />
+          <div className="h-[20px] w-[1px] bg-[#e5e5e5] hidden xl:block shrink-0" />
 
-          <div className="flex items-center overflow-x-auto scrollbar-none gap-[10px] sm:gap-[14px] xl:gap-[20px] py-1 flex-1 min-w-0">
+          <div className="flex items-center overflow-x-auto scrollbar-none gap-2 sm:gap-3 lg:gap-4 xl:gap-5 py-1 flex-1 min-w-0">
             {subTabs.map((tab) => {
               const targetPath = tab.actualPath || tab.path;
               
@@ -823,6 +823,8 @@ export function VehicleTabBar() {
                 isActive = isOverviewActive;
               } else if (tab.label === "Phiên bản") {
                 isActive = !isOverviewActive && !isFeaturesActive && !isCompareActive && !isAccessoriesActive && !isCalculatorActive;
+              } else if (tab.label === "Dự toán lăn bánh") {
+                isActive = isCalculatorActive;
               } else {
                 isActive = pathname === targetPath;
               }
@@ -831,7 +833,7 @@ export function VehicleTabBar() {
                 <Link
                   key={tab.label}
                   href={targetPath}
-                  className={`py-[16px] px-[4px] sm:px-[6px] xl:px-[8px] text-[13px] sm:text-[14px] xl:text-[15px] font-medium leading-[1.5] cursor-pointer text-center relative whitespace-nowrap bg-transparent border-0 flex-shrink-0 transition-colors no-underline
+                  className={`py-[16px] px-1 sm:px-1.5 xl:px-2 text-[13px] sm:text-[14px] xl:text-[14px] font-medium leading-[1.5] cursor-pointer text-center relative whitespace-nowrap bg-transparent border-0 flex-shrink-0 transition-colors no-underline
                     ${isActive ? "text-[#0562d2]" : "text-[#424242] hover:text-[#0562d2]"}`}
                 >
                   <span>{tab.label}</span>
