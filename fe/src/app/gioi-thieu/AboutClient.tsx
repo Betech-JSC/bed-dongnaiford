@@ -9,12 +9,12 @@ import { jobsAPI, settingsAPI } from "@/lib/api";
 // Development milestones data
 const developmentMilestones = [
   {
-    year: "2007",
+    year: "2006",
     tag: "Thành Lập",
     icon: Building2,
     title: "Chính Thức Thành Lập Đồng Nai Ford",
     subtitle: "Đại lý ủy quyền 3S chính thức của Ford Việt Nam tại Tỉnh Đồng Nai",
-    description: "Đồng Nai Ford chính thức thành lập năm 2007 với mục tiêu mang đến cho khách hàng vùng Đông Nam Bộ những dòng xe Ford toàn cầu chất lượng cao cùng dịch vụ chuyên nghiệp nhất.",
+    description: "Đồng Nai Ford chính thức thành lập năm 2006 với mục tiêu mang đến cho khách hàng vùng Đông Nam Bộ những dòng xe Ford toàn cầu chất lượng cao cùng dịch vụ chuyên nghiệp nhất.",
     image: "/images/about/image-about-1.jpg"
   },
   {
