@@ -85,8 +85,8 @@ const faqs = [
     a: "Đồng Nai Ford ứng dụng các công nghệ sơn và sửa chữa thân vỏ thân thiện với môi trường, sử dụng hệ thống xử lý chất thải đạt chuẩn và tích cực thúc đẩy các dòng xe tiết kiệm nhiên liệu thế hệ mới từ Ford."
   },
   {
-    q: "Chiến lược marketing hiệu quả",
-    a: "Chúng tôi luôn mang đến các chương trình ưu đãi minh bạch, ngày hội lái thử xe trải nghiệm thực tế, và cung cấp thông tin hữu ích giúp khách hàng dễ dàng đưa ra quyết định mua sắm xe phù hợp với nhu cầu."
+    q: "Chương trình ưu đãi và khuyến mãi mua xe",
+    a: "Đồng Nai Ford luôn mang đến các chương trình ưu đãi giá, quà tặng phụ kiện chính hãng minh bạch, ngày hội lái thử xe trải nghiệm thực tế, và chính sách hỗ trợ trả góp lãi suất tốt nhất cho khách hàng."
   },
   {
     q: "Đội ngũ nhân viên chuyên nghiệp và tận tâm",

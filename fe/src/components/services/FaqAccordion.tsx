@@ -26,8 +26,8 @@ const defaultFaqs: FaqItem[] = [
     answer: "Ford cam kết phát triển các dòng xe thân thiện với môi trường, sử dụng các vật liệu tái chế và công nghệ động cơ tiết kiệm nhiên liệu."
   },
   {
-    question: "Chiến lược marketing hiệu quả",
-    answer: "Chúng tôi tập trung vào việc đem lại giá trị thực tế cho khách hàng, minh bạch về thông tin và chính sách giá trị dịch vụ."
+    question: "Chương trình ưu đãi và khuyến mãi mua xe",
+    answer: "Chúng tôi luôn mang đến các chương trình ưu đãi giá, quà tặng phụ kiện chính hãng minh bạch, ngày hội lái thử xe thực tế và chính sách trả góp ưu đãi nhất."
   },
   {
     question: "Đội ngũ nhân viên chuyên nghiệp và tận tâm",
