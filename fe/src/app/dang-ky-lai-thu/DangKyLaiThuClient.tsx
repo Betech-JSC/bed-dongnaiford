@@ -251,7 +251,7 @@ function TestDriveFormContent({ initialVehicles }: { initialVehicles?: any[] }) 
                   rel="noopener noreferrer"
                   className="font-['Ford_Antenna',sans-serif] text-sm text-[#1a1a1a] leading-relaxed hover:text-[#0562d2] transition-colors"
                 >
-                  2525 Quốc Lộ 1A, P. Tam Hiệp, TP. Biên Hòa, Tỉnh Đồng Nai
+                  Số B04, Khu Thương Mại Amata, Khu phố 29, Phường Long Bình, Thành Phố Đồng Nai
                 </a>
               </div>
             </div>

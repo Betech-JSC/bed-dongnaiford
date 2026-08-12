@@ -389,7 +389,7 @@ function ContactFormContent() {
                   rel="noopener noreferrer"
                   className="font-antenna text-xs lg:text-sm text-gray-800 leading-relaxed font-semibold hover:text-[#066fef] transition-colors"
                 >
-                  2525 Quốc Lộ 1A, P. Tân Biên, TP. Biên Hòa, T. Đồng Nai
+                  Số B04, Khu Thương Mại Amata, Khu phố 29, Phường Long Bình, Thành Phố Đồng Nai
                 </a>
               </div>
             </div>
