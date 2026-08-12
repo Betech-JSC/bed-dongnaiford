@@ -65,132 +65,39 @@ function getTikTokId(urlOrId: string): string {
 }
 
 const TikTokCard = ({ video }: { video: VideoItem }) => {
-  const [iframeLoaded, setIframeLoaded] = useState(false);
-
-  useEffect(() => {
-    let active = true;
-    let observer: MutationObserver | null = null;
-    let checkInterval: NodeJS.Timeout | null = null;
-    let fallbackTimeout: NodeJS.Timeout | null = null;
-
-    const container = document.getElementById(`tiktok-card-${video.id}`);
-    if (!container) return;
-
-    const setupIframeListener = (iframe: HTMLIFrameElement) => {
-      const handleLoad = () => {
-        if (active) setIframeLoaded(true);
-      };
-
-      try {
-        if (iframe.contentDocument?.readyState === 'complete') {
-          setIframeLoaded(true);
-          return;
-        }
-      } catch (e) {
-        // Cross-origin fallback
-      }
-
-      iframe.addEventListener('load', handleLoad);
-
-      fallbackTimeout = setTimeout(() => {
-        if (active) setIframeLoaded(true);
-      }, 6000);
-
-      return () => {
-        iframe.removeEventListener('load', handleLoad);
-        if (fallbackTimeout) clearTimeout(fallbackTimeout);
-      };
-    };
-
-    const existingIframe = container.querySelector('iframe');
-    let cleanupLoad: (() => void) | undefined;
-    if (existingIframe) {
-      cleanupLoad = setupIframeListener(existingIframe);
-    } else {
-      observer = new MutationObserver(() => {
-        const iframe = container.querySelector('iframe');
-        if (iframe) {
-          cleanupLoad = setupIframeListener(iframe);
-          if (observer) {
-            observer.disconnect();
-            observer = null;
-          }
-        }
-      });
-      observer.observe(container, { childList: true, subtree: true });
-
-      checkInterval = setInterval(() => {
-        const iframe = container.querySelector('iframe');
-        if (iframe) {
-          cleanupLoad = setupIframeListener(iframe);
-          if (observer) {
-            observer.disconnect();
-            observer = null;
-          }
-          if (checkInterval) {
-            clearInterval(checkInterval);
-            checkInterval = null;
-          }
-        }
-      }, 100);
-    }
-
-    return () => {
-      active = false;
-      if (observer) observer.disconnect();
-      if (checkInterval) clearInterval(checkInterval);
-      if (cleanupLoad) cleanupLoad();
-      if (fallbackTimeout) clearTimeout(fallbackTimeout);
-    };
-  }, [video.id]);
+  const [loaded, setLoaded] = useState(false);
 
   return (
-    <div
-      id={`tiktok-card-${video.id}`}
-      className={`w-full max-w-[325px] relative rounded-2xl border border-gray-200/60 shadow-sm bg-white flex justify-center animate-fade-in ${
-        iframeLoaded ? "h-auto" : "h-[580px] overflow-hidden"
-      }`}
-    >
-      {!iframeLoaded && (
-        <div className="absolute inset-0 bg-white p-4 flex flex-col justify-between animate-pulse z-10 pointer-events-none">
+    <div className="w-full max-w-[325px] h-[580px] min-h-[580px] relative rounded-2xl border border-gray-200/80 shadow-sm bg-black overflow-hidden flex flex-col justify-between transition-all duration-300 hover:shadow-md animate-fade-in group">
+      {/* Loading Skeleton */}
+      {!loaded && (
+        <div className="absolute inset-0 bg-gray-900 p-4 flex flex-col justify-between animate-pulse z-10">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gray-200" />
+            <div className="w-10 h-10 rounded-full bg-gray-700" />
             <div className="flex flex-col gap-2 flex-1">
-              <div className="h-3 bg-gray-200 rounded w-2/3" />
-              <div className="h-2 bg-gray-200 rounded w-1/3" />
+              <div className="h-3 bg-gray-700 rounded w-2/3" />
+              <div className="h-2 bg-gray-700 rounded w-1/3" />
             </div>
-            <div className="w-12 h-6 bg-gray-200 rounded-full" />
+            <div className="w-12 h-6 bg-gray-700 rounded-full" />
           </div>
-
-          <div className="flex-1 bg-gray-100 rounded-xl my-4 flex items-center justify-center relative overflow-hidden">
-            <div className="w-12 h-12 rounded-full bg-white/40 flex items-center justify-center">
+          <div className="flex-1 my-4 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
               <div className="w-0 h-0 border-t-8 border-t-transparent border-l-[14px] border-l-white/60 border-b-8 border-b-transparent ml-1" />
             </div>
-            <div className="absolute right-3 bottom-6 flex flex-col gap-4 items-center">
-              <div className="w-8 h-8 rounded-full bg-gray-200/50" />
-              <div className="w-8 h-8 rounded-full bg-gray-200/50" />
-              <div className="w-8 h-8 rounded-full bg-gray-200/50" />
-            </div>
           </div>
-
-          <div className="flex flex-col gap-2">
-            <div className="h-3 bg-gray-200 rounded w-1/2" />
-            <div className="h-2.5 bg-gray-200 rounded w-5/6" />
-            <div className="h-2.5 bg-gray-200 rounded w-4/5" />
-          </div>
+          <div className="h-3 bg-gray-700 rounded w-3/4 mx-auto" />
         </div>
       )}
 
-      <div className={`w-full transition-opacity duration-300 ${iframeLoaded ? 'opacity-100 h-auto' : 'opacity-0 h-full'}`}>
-        <blockquote
-          className="tiktok-embed"
-          cite={video.url}
-          data-video-id={video.tiktokId}
-          style={{ width: "100%", margin: "0px" }}
-        >
-          <section />
-        </blockquote>
-      </div>
+      {/* Direct TikTok Embed Iframe */}
+      <iframe
+        src={`https://www.tiktok.com/embed/v2/${video.tiktokId}?lang=vi-VN`}
+        className={`w-full h-full border-0 transition-opacity duration-300 ${loaded ? "opacity-100" : "opacity-0"}`}
+        onLoad={() => setLoaded(true)}
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowFullScreen
+        title={video.title || `TikTok Video ${video.tiktokId}`}
+      />
     </div>
   );
 };
