@@ -65,41 +65,69 @@ function getTikTokId(urlOrId: string): string {
 }
 
 const TikTokCard = ({ video }: { video: VideoItem }) => {
-  const [loaded, setLoaded] = useState(false);
+  const [iframeLoaded, setIframeLoaded] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    const container = document.getElementById(`tiktok-card-${video.id}`);
+    if (!container) return;
+
+    const checkIframe = () => {
+      const iframe = container.querySelector("iframe");
+      if (iframe && active) {
+        setIframeLoaded(true);
+      }
+    };
+
+    const interval = setInterval(checkIframe, 300);
+    const timeout = setTimeout(() => {
+      if (active) setIframeLoaded(true);
+    }, 4000);
+
+    return () => {
+      active = false;
+      clearInterval(interval);
+      clearTimeout(timeout);
+    };
+  }, [video.id]);
 
   return (
-    <div className="w-full max-w-[325px] h-[730px] min-h-[730px] relative rounded-2xl border border-gray-200/80 shadow-md bg-black overflow-hidden flex flex-col justify-between transition-all duration-300 hover:shadow-xl animate-fade-in group">
-      {/* Loading Skeleton */}
-      {!loaded && (
-        <div className="absolute inset-0 bg-gray-900 p-4 flex flex-col justify-between animate-pulse z-10">
+    <div
+      id={`tiktok-card-${video.id}`}
+      className="w-full max-w-[325px] h-[730px] min-h-[730px] relative rounded-2xl border border-gray-200/80 shadow-md bg-white overflow-hidden flex justify-center items-start transition-all duration-300 hover:shadow-xl animate-fade-in group [&_iframe]:!h-[730px] [&_iframe]:!max-h-[730px] [&_iframe]:!w-full [&_iframe]:!border-0 [&_iframe]:!overflow-hidden"
+    >
+      {!iframeLoaded && (
+        <div className="absolute inset-0 bg-white p-4 flex flex-col justify-between animate-pulse z-10 pointer-events-none">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gray-700" />
+            <div className="w-10 h-10 rounded-full bg-gray-200" />
             <div className="flex flex-col gap-2 flex-1">
-              <div className="h-3 bg-gray-700 rounded w-2/3" />
-              <div className="h-2 bg-gray-700 rounded w-1/3" />
+              <div className="h-3 bg-gray-200 rounded w-2/3" />
+              <div className="h-2 bg-gray-200 rounded w-1/3" />
             </div>
-            <div className="w-12 h-6 bg-gray-700 rounded-full" />
+            <div className="w-12 h-6 bg-gray-200 rounded-full" />
           </div>
-          <div className="flex-1 my-4 flex items-center justify-center">
-            <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
+          <div className="flex-1 bg-gray-100 rounded-xl my-4 flex items-center justify-center relative overflow-hidden">
+            <div className="w-12 h-12 rounded-full bg-white/40 flex items-center justify-center">
               <div className="w-0 h-0 border-t-8 border-t-transparent border-l-[14px] border-l-white/60 border-b-8 border-b-transparent ml-1" />
             </div>
           </div>
-          <div className="h-3 bg-gray-700 rounded w-3/4 mx-auto" />
+          <div className="flex flex-col gap-2">
+            <div className="h-3 bg-gray-200 rounded w-1/2" />
+            <div className="h-2.5 bg-gray-200 rounded w-5/6" />
+          </div>
         </div>
       )}
 
-      {/* Direct TikTok Embed Iframe without inner scrollbars and full play permissions */}
-      <iframe
-        src={`https://www.tiktok.com/embed/v2/${video.tiktokId}?lang=vi-VN`}
-        className={`w-full h-[730px] border-0 transition-opacity duration-300 ${loaded ? "opacity-100" : "opacity-0"}`}
-        onLoad={() => setLoaded(true)}
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-        sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts allow-top-navigation-by-user-activation"
-        scrolling="no"
-        style={{ overflow: "hidden", height: "730px" }}
-        title={video.title || `TikTok Video ${video.tiktokId}`}
-      />
+      <div className={`w-full h-full transition-opacity duration-300 ${iframeLoaded ? "opacity-100" : "opacity-0"}`}>
+        <blockquote
+          className="tiktok-embed"
+          cite={video.url}
+          data-video-id={video.tiktokId}
+          style={{ width: "100%", height: "730px", margin: 0 }}
+        >
+          <section />
+        </blockquote>
+      </div>
     </div>
   );
 };
