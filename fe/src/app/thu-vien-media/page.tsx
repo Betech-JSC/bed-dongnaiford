@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
-import { Video, AlertCircle, ChevronLeft, ChevronRight } from "lucide-react";
+import { Video, AlertCircle, ChevronLeft, ChevronRight, X, ExternalLink } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { postsAPI } from "@/lib/api";
+import { resolveImageUrl } from "@/lib/site-assets";
 
 interface VideoItem {
   id: string;
@@ -11,37 +12,24 @@ interface VideoItem {
   title: string;
   description: string;
   url: string;
+  image?: string | null;
 }
 
 const SkeletonCard = () => (
-  <div className="w-full max-w-[325px] h-[730px] bg-white rounded-2xl border border-gray-200/60 p-4 flex flex-col justify-between animate-pulse shadow-sm">
-    {/* Header profile skeleton */}
+  <div className="w-full max-w-[320px] h-[540px] bg-gray-200 rounded-2xl border border-gray-300/60 p-4 flex flex-col justify-between animate-pulse shadow-sm">
     <div className="flex items-center gap-3">
-      <div className="w-10 h-10 rounded-full bg-gray-200" />
+      <div className="w-10 h-10 rounded-full bg-gray-300" />
       <div className="flex flex-col gap-2 flex-1">
-        <div className="h-3 bg-gray-200 rounded w-2/3" />
-        <div className="h-2 bg-gray-200 rounded w-1/3" />
-      </div>
-      <div className="w-12 h-6 bg-gray-200 rounded-full" />
-    </div>
-
-    {/* Video player body skeleton */}
-    <div className="flex-1 bg-gray-100 rounded-xl my-4 flex items-center justify-center relative overflow-hidden">
-      <div className="w-12 h-12 rounded-full bg-white/40 flex items-center justify-center">
-        <div className="w-0 h-0 border-t-8 border-t-transparent border-l-[14px] border-l-white/60 border-b-8 border-b-transparent ml-1" />
-      </div>
-      <div className="absolute right-3 bottom-6 flex flex-col gap-4 items-center">
-        <div className="w-8 h-8 rounded-full bg-gray-200/50" />
-        <div className="w-8 h-8 rounded-full bg-gray-200/50" />
-        <div className="w-8 h-8 rounded-full bg-gray-200/50" />
+        <div className="h-3 bg-gray-300 rounded w-2/3" />
+        <div className="h-2 bg-gray-300 rounded w-1/3" />
       </div>
     </div>
-
-    {/* Footer skeleton */}
+    <div className="flex-1 bg-gray-300/60 rounded-xl my-4 flex items-center justify-center">
+      <div className="w-12 h-12 rounded-full bg-gray-400/50" />
+    </div>
     <div className="flex flex-col gap-2">
-      <div className="h-3 bg-gray-200 rounded w-1/2" />
-      <div className="h-2.5 bg-gray-200 rounded w-5/6" />
-      <div className="h-2.5 bg-gray-200 rounded w-4/5" />
+      <div className="h-4 bg-gray-300 rounded w-3/4" />
+      <div className="h-3 bg-gray-300 rounded w-1/2" />
     </div>
   </div>
 );
@@ -50,12 +38,10 @@ function getTikTokId(urlOrId: string): string {
   if (!urlOrId) return "";
   const trimmed = urlOrId.trim();
   
-  // If it's already just digits, it's the video ID
   if (/^\d+$/.test(trimmed)) {
     return trimmed;
   }
   
-  // Match standard link: https://www.tiktok.com/@username/video/731234567890 or photo/731234567890
   const match = trimmed.match(/\/(video|photo)\/(\d+)/);
   if (match && match[2]) {
     return match[2];
@@ -64,69 +50,62 @@ function getTikTokId(urlOrId: string): string {
   return "";
 }
 
-const TikTokCard = ({ video }: { video: VideoItem }) => {
-  const [iframeLoaded, setIframeLoaded] = useState(false);
-
-  useEffect(() => {
-    let active = true;
-    const container = document.getElementById(`tiktok-card-${video.id}`);
-    if (!container) return;
-
-    const checkIframe = () => {
-      const iframe = container.querySelector("iframe");
-      if (iframe && active) {
-        setIframeLoaded(true);
-      }
-    };
-
-    const interval = setInterval(checkIframe, 300);
-    const timeout = setTimeout(() => {
-      if (active) setIframeLoaded(true);
-    }, 4000);
-
-    return () => {
-      active = false;
-      clearInterval(interval);
-      clearTimeout(timeout);
-    };
-  }, [video.id]);
-
+const TikTokCard = ({ video, onSelect }: { video: VideoItem; onSelect: (v: VideoItem) => void }) => {
   return (
     <div
-      id={`tiktok-card-${video.id}`}
-      className="w-full max-w-[325px] h-[730px] min-h-[730px] relative rounded-2xl border border-gray-200/80 shadow-md bg-white overflow-hidden flex justify-center items-start transition-all duration-300 hover:shadow-xl animate-fade-in group [&_iframe]:!h-[730px] [&_iframe]:!max-h-[730px] [&_iframe]:!w-full [&_iframe]:!border-0 [&_iframe]:!overflow-hidden"
+      onClick={() => onSelect(video)}
+      className="w-full max-w-[320px] h-[540px] relative rounded-2xl border border-gray-200/80 shadow-lg bg-black overflow-hidden flex flex-col justify-between cursor-pointer transition-all duration-300 hover:shadow-2xl hover:-translate-y-1.5 group select-none"
     >
-      {!iframeLoaded && (
-        <div className="absolute inset-0 bg-white p-4 flex flex-col justify-between animate-pulse z-10 pointer-events-none">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gray-200" />
-            <div className="flex flex-col gap-2 flex-1">
-              <div className="h-3 bg-gray-200 rounded w-2/3" />
-              <div className="h-2 bg-gray-200 rounded w-1/3" />
-            </div>
-            <div className="w-12 h-6 bg-gray-200 rounded-full" />
-          </div>
-          <div className="flex-1 bg-gray-100 rounded-xl my-4 flex items-center justify-center relative overflow-hidden">
-            <div className="w-12 h-12 rounded-full bg-white/40 flex items-center justify-center">
-              <div className="w-0 h-0 border-t-8 border-t-transparent border-l-[14px] border-l-white/60 border-b-8 border-b-transparent ml-1" />
-            </div>
-          </div>
-          <div className="flex flex-col gap-2">
-            <div className="h-3 bg-gray-200 rounded w-1/2" />
-            <div className="h-2.5 bg-gray-200 rounded w-5/6" />
-          </div>
-        </div>
+      {/* Background Image / Thumbnail */}
+      {video.image ? (
+        <img
+          src={video.image}
+          alt={video.title}
+          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80"
+        />
+      ) : (
+        <div className="absolute inset-0 bg-gradient-to-b from-[#00095B] via-[#0562D2] to-[#00095B] opacity-90" />
       )}
 
-      <div className={`w-full h-full transition-opacity duration-300 ${iframeLoaded ? "opacity-100" : "opacity-0"}`}>
-        <blockquote
-          className="tiktok-embed"
-          cite={video.url}
-          data-video-id={video.tiktokId}
-          style={{ width: "100%", height: "730px", margin: 0 }}
-        >
-          <section />
-        </blockquote>
+      {/* Dark Backdrop Gradient */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/60 pointer-events-none" />
+
+      {/* Top Header Bar */}
+      <div className="relative z-10 p-4 flex items-center justify-between">
+        <div className="flex items-center gap-2 bg-black/50 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/20">
+          <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold text-white">
+            <Video className="w-3.5 h-3.5 text-cyan-400" />
+          </div>
+          <span className="text-xs font-semibold text-white tracking-wide">
+            Đồng Nai Ford
+          </span>
+        </div>
+
+        <span className="bg-[#fe2c55] text-white text-[11px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shadow-sm">
+          TikTok
+        </span>
+      </div>
+
+      {/* Center Big Glossy Play Button */}
+      <div className="relative z-10 flex flex-col items-center justify-center my-auto gap-3">
+        <div className="w-16 h-16 rounded-full bg-[#fe2c55] text-white flex items-center justify-center shadow-xl group-hover:scale-110 group-hover:bg-[#ff0050] transition-all duration-300 ring-4 ring-white/30">
+          <div className="w-0 h-0 border-t-[10px] border-t-transparent border-l-[18px] border-l-white border-b-[10px] border-b-transparent ml-1" />
+        </div>
+        <span className="text-xs font-semibold text-white/90 bg-black/60 px-3 py-1 rounded-full backdrop-blur-xs border border-white/10 group-hover:bg-[#0562d2] transition-colors">
+          Bấm để xem Video
+        </span>
+      </div>
+
+      {/* Bottom Title & Action Bar */}
+      <div className="relative z-10 p-5 flex flex-col gap-2">
+        <h3 className="text-white font-bold text-base line-clamp-2 leading-snug tracking-tight drop-shadow-sm">
+          {video.title || "Video ngắn Đồng Nai Ford"}
+        </h3>
+        {video.description && (
+          <p className="text-gray-300 text-xs line-clamp-2 leading-relaxed opacity-90">
+            {video.description}
+          </p>
+        )}
       </div>
     </div>
   );
@@ -141,6 +120,7 @@ function MediaPageContent() {
   const [videos, setVideos] = useState<VideoItem[]>([]);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [activeVideo, setActiveVideo] = useState<VideoItem | null>(null);
 
   const getPageNumbers = () => {
     const pages: number[] = [];
@@ -187,7 +167,8 @@ function MediaPageContent() {
             tiktokId: getTikTokId(post.author || ""),
             title: post.title || "",
             description: post.description || "",
-            url: post.author || ""
+            url: post.author || "",
+            image: post.featured_image ? resolveImageUrl(post.featured_image) : (post.image ? resolveImageUrl(post.image) : null)
           }));
           // Only show videos that have a valid TikTok ID
           setVideos(mappedVideos.filter(v => v.tiktokId));
@@ -207,26 +188,19 @@ function MediaPageContent() {
     fetchVideos();
   }, [currentPage]);
 
-  // Dynamically load/trigger official TikTok Embed Script with staggered rendering to bypass CDN 429 Too Many Requests
+  // Dynamically load/trigger official TikTok Embed Script inside modal when activeVideo changes
   useEffect(() => {
-    if (videos.length > 0) {
-      const renderEmbeds = () => {
+    if (activeVideo) {
+      const renderEmbed = () => {
         if ((window as any).tiktokEmbed?.lib) {
-          const unrendered = Array.from(
-            document.querySelectorAll('blockquote.tiktok-embed:not([data-rendered="true"])')
-          );
-          unrendered.forEach((el, index) => {
-            el.setAttribute('data-rendered', 'true');
-            setTimeout(() => {
-              try {
-                if ((window as any).tiktokEmbed?.lib) {
-                  (window as any).tiktokEmbed.lib.render([el]);
-                }
-              } catch (e) {
-                console.error("Error rendering TikTok embed:", e);
-              }
-            }, index * 500); // Giãn cách 500ms giữa các video để tránh dính HTTP 429 Too Many Requests từ TikTok CDN
-          });
+          const el = document.querySelector('blockquote.modal-tiktok-embed');
+          if (el) {
+            try {
+              (window as any).tiktokEmbed.lib.render([el]);
+            } catch (e) {
+              console.error("Error rendering TikTok modal embed:", e);
+            }
+          }
         }
       };
 
@@ -235,14 +209,14 @@ function MediaPageContent() {
         const script = document.createElement("script");
         script.src = "https://www.tiktok.com/embed.js";
         script.async = true;
-        script.onload = () => setTimeout(renderEmbeds, 200);
+        script.onload = () => setTimeout(renderEmbed, 200);
         document.body.appendChild(script);
       } else {
-        const timer = setTimeout(renderEmbeds, 300);
+        const timer = setTimeout(renderEmbed, 200);
         return () => clearTimeout(timer);
       }
     }
-  }, [videos]);
+  }, [activeVideo]);
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
@@ -271,18 +245,74 @@ function MediaPageContent() {
 
         {/* Video Grid Section */}
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full max-w-[1000px] mx-auto justify-items-center items-start">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-[1000px] mx-auto justify-items-center items-start">
             <SkeletonCard />
             <SkeletonCard />
             <SkeletonCard />
           </div>
         ) : videos.length > 0 ? (
           <div className="flex flex-col gap-8 w-full">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full max-w-[1000px] mx-auto justify-items-center items-start">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-[1000px] mx-auto justify-items-center items-start">
               {videos.map((video) => (
-                <TikTokCard key={video.id} video={video} />
+                <TikTokCard key={video.id} video={video} onSelect={(v) => setActiveVideo(v)} />
               ))}
             </div>
+
+            {/* Video Lightbox Modal */}
+            {activeVideo && (
+              <div
+                className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in"
+                onClick={() => setActiveVideo(null)}
+              >
+                <div
+                  className="bg-[#121212] border border-white/20 rounded-2xl w-full max-w-[420px] overflow-hidden flex flex-col shadow-2xl relative"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {/* Modal Header */}
+                  <div className="p-4 border-b border-white/10 flex items-center justify-between bg-black/60">
+                    <div className="flex items-center gap-2 pr-2">
+                      <span className="bg-[#fe2c55] text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase shrink-0">
+                        TikTok
+                      </span>
+                      <h3 className="text-white text-sm font-bold truncate max-w-[260px]">
+                        {activeVideo.title || "Xem Video"}
+                      </h3>
+                    </div>
+                    <button
+                      onClick={() => setActiveVideo(null)}
+                      className="text-gray-400 hover:text-white p-1 rounded-full hover:bg-white/10 transition cursor-pointer"
+                      aria-label="Đóng"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  {/* Modal Body / TikTok Player Container */}
+                  <div className="w-full h-[600px] bg-black flex justify-center items-center relative overflow-hidden [&_iframe]:!h-[600px] [&_iframe]:!w-full [&_iframe]:!border-0">
+                    <blockquote
+                      className="tiktok-embed modal-tiktok-embed"
+                      cite={activeVideo.url}
+                      data-video-id={activeVideo.tiktokId}
+                      style={{ width: "100%", height: "600px", margin: 0 }}
+                    >
+                      <section />
+                    </blockquote>
+                  </div>
+
+                  {/* Modal Footer */}
+                  <div className="p-4 border-t border-white/10 bg-black/60 flex items-center justify-between gap-3">
+                    <a
+                      href={activeVideo.url || `https://www.tiktok.com/@dongnaiford.official/video/${activeVideo.tiktokId}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 bg-[#fe2c55] hover:bg-[#ff0050] text-white font-bold text-xs py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition no-underline shadow-md"
+                    >
+                      <ExternalLink className="w-4 h-4" /> Xem trực tiếp trên ứng dụng TikTok
+                    </a>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Pagination Controls */}
             {totalPages > 1 && (
