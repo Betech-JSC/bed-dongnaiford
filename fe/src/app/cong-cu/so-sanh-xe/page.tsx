@@ -716,6 +716,7 @@ export default function ComparePage() {
                     ? `${car.id}__${car.versions[0].id}` 
                     : car.id;
                   const carImage = car.image_thumbnail_url || car.image_url || getPopularVehicleImage(car.slug || car.name || car.id);
+                  const isSelected = selectedIds.includes(targetKey);
                   return (
                     <button
                       key={car.id}
@@ -725,7 +726,11 @@ export default function ComparePage() {
                         window.dispatchEvent(new Event("compare-updated"));
                         setHasClearedAll(false);
                       }}
-                      className="p-4 rounded-xl border border-gray-150 hover:border-[#0562d2] hover:bg-blue-50/10 transition-all text-left flex flex-col items-center justify-center gap-2 group cursor-pointer bg-white shadow-sm"
+                      className={`p-4 rounded-2xl border transition-all text-left flex flex-col items-center justify-center gap-2 group cursor-pointer bg-white shadow-2xs ${
+                        isSelected 
+                          ? "border-[#0562d2] ring-2 ring-[#0562d2]/15" 
+                          : "border-gray-200/60 hover:border-[#0562d2]/60 hover:shadow-sm"
+                      }`}
                     >
                       <div className="relative w-full h-[60px]">
                         <SafeImage
