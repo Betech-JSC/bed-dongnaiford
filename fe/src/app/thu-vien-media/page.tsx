@@ -14,7 +14,7 @@ interface VideoItem {
 }
 
 const SkeletonCard = () => (
-  <div className="w-full max-w-[325px] h-[580px] bg-white rounded-2xl border border-gray-200/60 p-4 flex flex-col justify-between animate-pulse shadow-sm">
+  <div className="w-full max-w-[325px] h-[730px] bg-white rounded-2xl border border-gray-200/60 p-4 flex flex-col justify-between animate-pulse shadow-sm">
     {/* Header profile skeleton */}
     <div className="flex items-center gap-3">
       <div className="w-10 h-10 rounded-full bg-gray-200" />
@@ -68,7 +68,7 @@ const TikTokCard = ({ video }: { video: VideoItem }) => {
   const [loaded, setLoaded] = useState(false);
 
   return (
-    <div className="w-full max-w-[325px] h-[580px] min-h-[580px] relative rounded-2xl border border-gray-200/80 shadow-sm bg-black overflow-hidden flex flex-col justify-between transition-all duration-300 hover:shadow-md animate-fade-in group">
+    <div className="w-full max-w-[325px] h-[730px] min-h-[730px] relative rounded-2xl border border-gray-200/80 shadow-md bg-black overflow-hidden flex flex-col justify-between transition-all duration-300 hover:shadow-xl animate-fade-in group">
       {/* Loading Skeleton */}
       {!loaded && (
         <div className="absolute inset-0 bg-gray-900 p-4 flex flex-col justify-between animate-pulse z-10">
@@ -89,13 +89,15 @@ const TikTokCard = ({ video }: { video: VideoItem }) => {
         </div>
       )}
 
-      {/* Direct TikTok Embed Iframe */}
+      {/* Direct TikTok Embed Iframe without inner scrollbars and full play permissions */}
       <iframe
         src={`https://www.tiktok.com/embed/v2/${video.tiktokId}?lang=vi-VN`}
-        className={`w-full h-full border-0 transition-opacity duration-300 ${loaded ? "opacity-100" : "opacity-0"}`}
+        className={`w-full h-[730px] border-0 transition-opacity duration-300 ${loaded ? "opacity-100" : "opacity-0"}`}
         onLoad={() => setLoaded(true)}
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-        allowFullScreen
+        sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts allow-top-navigation-by-user-activation"
+        scrolling="no"
+        style={{ overflow: "hidden", height: "730px" }}
         title={video.title || `TikTok Video ${video.tiktokId}`}
       />
     </div>
