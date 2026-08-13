@@ -1100,17 +1100,38 @@ h1, h2, h3, h4, h5, h6 {
 /* Make tables responsive inside .prose blocks on mobile */
 @media (max-width: 768px) {
   .prose table {
-    display: block !important;
+    display: table !important;
     width: 100% !important;
-    overflow-x: auto !important;
-    -webkit-overflow-scrolling: touch !important;
-  }
-  .prose table th {
-    white-space: nowrap !important;
+    max-width: 100% !important;
+    table-layout: auto !important;
+    font-size: 11px !important;
+    line-height: 1.35 !important;
+    margin: 12px 0 !important;
+    overflow-x: visible !important;
   }
   .prose table th,
   .prose table td {
-    min-width: 100px !important;
+    padding: 6px 6px !important;
+    min-width: unset !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+    white-space: normal !important;
+  }
+  .prose table th {
+    white-space: normal !important;
+    background-color: #f1f5f9 !important;
+    font-weight: 700 !important;
+  }
+  /* Disable swipe scroll mechanism on potential wrappers */
+  .prose .wp-block-table,
+  .prose .table-responsive,
+  .prose div:has(> table),
+  .prose figure:has(> table) {
+    overflow-x: visible !important;
+    overflow: visible !important;
+    width: 100% !important;
+    max-width: 100% !important;
   }
 }
+
 
