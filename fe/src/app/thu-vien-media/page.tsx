@@ -22,7 +22,7 @@ export default async function MediaPage() {
   let initialData: any = null;
 
   try {
-    const res = await postsAPI.getAll({ type: "MEDIA", page: "1" }).catch(() => null);
+    const res = await postsAPI.getAll({ type: "MEDIA", page: "1", per_page: "6", limit: "6" }).catch(() => null);
     initialData = res;
   } catch (err) {
     console.error("Error prefetching media data (SSR):", err);

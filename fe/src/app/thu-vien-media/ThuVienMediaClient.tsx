@@ -278,7 +278,7 @@ function MediaPageContent({ initialData }: ThuVienMediaClientProps) {
     const fetchVideos = async () => {
       setLoading(true);
       try {
-        const res: any = await postsAPI.getAll({ type: "MEDIA", page: String(currentPage) });
+        const res: any = await postsAPI.getAll({ type: "MEDIA", page: String(currentPage), per_page: "6", limit: "6" });
         const items = res?.posts?.data || res?.posts || res?.data || res;
 
         if (Array.isArray(items) && items.length > 0) {
@@ -383,7 +383,10 @@ function MediaPageContent({ initialData }: ThuVienMediaClientProps) {
 
         {/* Video Grid Section */}
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full max-w-[1000px] mx-auto justify-items-center items-start">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-[1000px] mx-auto justify-items-center items-start">
+            <SkeletonCard />
+            <SkeletonCard />
+            <SkeletonCard />
             <SkeletonCard />
             <SkeletonCard />
             <SkeletonCard />
