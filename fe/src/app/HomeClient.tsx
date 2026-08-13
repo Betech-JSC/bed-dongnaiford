@@ -180,6 +180,7 @@ const formatArticlesList = (items: any[]) => {
       id: item.slug || item.id || String(Math.random()),
       title: item.title || "",
       image: item.image?.url || "/placeholder-news.jpg",
+      imageAlt: item.image?.alt || item.title || "",
       published_at: item.published_at || "",
       category: item.category ? { title: item.category.title } : undefined,
       description: item.description || "",
@@ -1601,7 +1602,7 @@ export default function HomeClient({
                       <div className="aspect-[16/10] relative overflow-hidden w-full bg-gray-100 flex-shrink-0">
                         <img
                           src={homeArticles[0].image}
-                          alt={homeArticles[0].title}
+                          alt={homeArticles[0].imageAlt || homeArticles[0].title}
                           className="absolute inset-0 object-cover w-full h-full group-hover:scale-[1.03] transition-transform duration-500"
                           onError={handleImageError}
                         />
@@ -1652,7 +1653,7 @@ export default function HomeClient({
                       <div className="w-full sm:w-[280px] aspect-[16/10] sm:aspect-auto sm:h-full relative overflow-hidden bg-gray-100 flex-shrink-0">
                         <img
                           src={art.image}
-                          alt={art.title}
+                          alt={art.imageAlt || art.title}
                           className="absolute inset-0 object-cover w-full h-full group-hover:scale-[1.03] transition-transform duration-500"
                           onError={handleImageError}
                         />

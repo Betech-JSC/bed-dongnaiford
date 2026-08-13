@@ -250,7 +250,7 @@ export default function ArticleDetailClient({
             <div className="aspect-[16/9] relative rounded-[12px] overflow-hidden w-full bg-gray-50 border border-gray-100">
               <img 
                 src={article.image.url} 
-                alt={article.title} 
+                alt={article.image.alt || article.title} 
                 className="absolute inset-0 w-full h-full object-cover"
                 onError={handleImageError}
               />

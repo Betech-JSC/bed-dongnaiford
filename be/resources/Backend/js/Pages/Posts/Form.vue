@@ -288,6 +288,39 @@
                         name: 'image',
                         multiple: false,
                     }" />
+                    <div v-if="form.image && form.image.path" class="mt-4">
+                        <label class="block mb-2 font-semibold tracking-wide text-gray-700 font-display text-xs uppercase">
+                            Alt text hình ảnh đại diện (SEO Tags)
+                        </label>
+                        <div class="w-full bg-white border border-gray-300 rounded-lg p-2.5 focus-within:ring-1 focus-within:ring-primary-500 focus-within:border-primary-500 min-h-[90px] flex flex-wrap gap-2 items-start content-start">
+                            <span
+                                v-for="(tag, index) in getAltTags(form.image.alt)"
+                                :key="index"
+                                class="inline-flex items-center bg-[#E5F1FF] text-[#0562D2] text-xs font-semibold px-2.5 py-1 rounded-md border border-[#CDE3FF] select-none"
+                            >
+                                <span>{{ tag }}</span>
+                                <button
+                                    type="button"
+                                    @click="removeAltTag(form.image, index)"
+                                    class="ml-1.5 inline-flex items-center justify-center text-[#0562D2]/60 hover:text-red-500 hover:bg-[#CDE3FF] rounded-full w-4 h-4 focus:outline-none border-0 p-0 cursor-pointer text-xs font-bold"
+                                >
+                                    &times;
+                                </button>
+                            </span>
+                            <input
+                                type="text"
+                                v-model="newAltTag"
+                                @keydown.enter.prevent="addAltTag(form.image)"
+                                @keydown.comma.prevent="addAltTag(form.image)"
+                                @blur="addAltTag(form.image)"
+                                placeholder="Thêm tag (ấn Enter)..."
+                                class="flex-grow min-w-[120px] bg-transparent border-0 p-1 text-xs focus:ring-0 focus:outline-none placeholder-gray-400"
+                            />
+                        </div>
+                        <small class="text-gray-450 text-[11px] block mt-1 leading-normal">
+                            Nhập từ khóa và ấn **Enter** hoặc **dấu phẩy** để tạo các thẻ Alt Text tối ưu SEO cho ảnh.
+                        </small>
+                    </div>
                 </div>
             </div>
             <div class="card">
@@ -331,7 +364,8 @@ export default {
                 en: false
             },
             redirectTags: this.item.redirect_urls ? this.item.redirect_urls.split('\n').filter(Boolean) : [],
-            newRedirectTag: ''
+            newRedirectTag: '',
+            newAltTag: ''
         }
     },
 
@@ -521,6 +555,27 @@ export default {
                 .replace(/\s+/g, separator)
                 .replace(/[^A-Za-z0-9_-]/g, "")
                 .replace(/-+/g, separator);
+        },
+        getAltTags(altValue) {
+            if (!altValue) return [];
+            return altValue.split(',').map(t => t.trim()).filter(Boolean);
+        },
+        addAltTag(imageObj) {
+            if (!this.newAltTag) return;
+            const tag = this.newAltTag.trim().replace(/,/g, '');
+            if (tag) {
+                const currentTags = this.getAltTags(imageObj.alt);
+                if (!currentTags.includes(tag)) {
+                    currentTags.push(tag);
+                    imageObj.alt = currentTags.join(', ');
+                }
+            }
+            this.newAltTag = '';
+        },
+        removeAltTag(imageObj, index) {
+            const currentTags = this.getAltTags(imageObj.alt);
+            currentTags.splice(index, 1);
+            imageObj.alt = currentTags.join(', ');
         }
     },
 }

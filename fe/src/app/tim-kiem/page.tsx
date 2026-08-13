@@ -186,6 +186,7 @@ function SearchPageContent() {
       const date = formatDate(art.published_at || art.created_at);
       const category = art.category?.title || art.category || "Tin tức";
       const image = resolveImageUrl(art.image?.url || art.image_url || art.image || "/placeholder-news.jpg");
+      const imageAlt = art.image?.alt || title;
 
       return {
         id,
@@ -194,6 +195,7 @@ function SearchPageContent() {
         date,
         category,
         image,
+        imageAlt,
         body: []
       };
     });
@@ -542,7 +544,7 @@ function SearchPageContent() {
                       <div className="aspect-[16/10] relative overflow-hidden w-full bg-gray-100">
                         <img
                           src={art.image}
-                          alt={art.title}
+                          alt={art.imageAlt || art.title}
                           className="absolute inset-0 object-cover w-full h-full group-hover:scale-[1.03] transition-transform duration-500"
                           onError={handleImageError}
                         />

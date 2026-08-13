@@ -311,7 +311,7 @@ function NewsListPageContent({
                 <div className="aspect-[600/380] relative overflow-hidden w-full bg-gray-100">
                   <img
                     src={art.image?.url || "/placeholder-news.jpg"}
-                    alt={art.title}
+                    alt={art.image?.alt || art.title}
                     className="absolute inset-0 object-cover w-full h-full group-hover:scale-[1.03] transition-transform duration-500"
                     onError={handleImageError}
                   />
@@ -412,7 +412,7 @@ function NewsListPageContent({
                   <div className="aspect-[600/400] relative overflow-hidden w-full bg-gray-100">
                     <img
                       src={art.image?.url || "/placeholder-news.jpg"}
-                      alt={art.title}
+                      alt={art.image?.alt || art.title}
                       className="absolute inset-0 object-cover w-full h-full group-hover:scale-[1.03] transition-transform duration-500"
                       onError={handleImageError}
                     />
