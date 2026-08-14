@@ -146,20 +146,20 @@ export default function BlogCtaCard({ articleTitle }: Props) {
         <div className="flex flex-col lg:flex-row w-full relative z-10">
           
           {/* Left Side: Brand Visual (36% width, ultra-compact vertical split) */}
-          <div className="w-full lg:w-[36%] bg-gradient-to-b from-[#003882] via-[#002357] to-[#001433] lg:border-r-[2px] lg:border-[#006fef] p-4 lg:p-5 flex flex-col justify-center items-start min-h-[180px] lg:min-h-[220px]">
+          <div className="w-full lg:w-[36%] bg-gradient-to-b from-[#003882] via-[#002357] to-[#001433] lg:border-r-[2px] lg:border-[#006fef] p-4 lg:p-5 flex flex-col justify-center items-center lg:items-start min-h-[180px] lg:min-h-[220px]">
             {/* Brand Header */}
-            <div className="space-y-3.5 relative z-20 w-full flex flex-col items-start my-auto">
+            <div className="space-y-3.5 relative z-20 w-full flex flex-col items-center lg:items-start my-auto">
               {/* Centered Logo container */}
-              <div className="flex items-center justify-center w-full">
+              <div className="flex items-center justify-center lg:justify-start w-full">
                 <img
                   src="/ford_logo.svg"
                   alt="Ford Logo"
-                  className="h-6 w-[80px] object-contain flex-shrink-0 mx-auto"
+                  className="h-6 w-[80px] object-contain flex-shrink-0 mx-auto lg:mx-0"
                 />
               </div>
               
-              {/* Left-aligned Text container */}
-              <div className="space-y-1 text-left flex flex-col items-start w-full">
+              {/* Centered Text container on mobile, left-aligned on desktop */}
+              <div className="space-y-1 text-center lg:text-left flex flex-col items-center lg:items-start w-full">
                 <h3 className="text-xl lg:text-2xl font-black uppercase leading-none font-['Ford_Antenna',sans-serif] tracking-wider text-white">
                   FORD
                   <span className="block mt-0.5 text-base lg:text-lg">ĐỒNG NAI</span>
