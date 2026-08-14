@@ -161,7 +161,21 @@ export default function ArticleDetailClient({
   // Helper function to render article content and parse [cta-form] / [[cta-form]] shortcodes
   const renderArticleBody = () => {
     const rawHtml = article.content || "";
-    const cleanHtml = rawHtml.replace(/<h1([^>]*?)>/gi, "<h2$1>").replace(/<\/h1>/gi, "</h2>");
+    
+    // Trim trailing empty HTML tags and line breaks to prevent blank spaces at the end of the article
+    const trimTrailingHtml = (html: string): string => {
+      let prev;
+      let current = html.trim();
+      const pattern = /<(p|span|div|strong|em|br)[^>]*>\s*(?:&nbsp;|\s|<br\s*\/?>)*\s*<\/\1>|<br\s*\/?>$/i;
+      do {
+        prev = current;
+        current = current.replace(pattern, '').trim();
+      } while (current !== prev);
+      return current;
+    };
+
+    const cleanedHtml = trimTrailingHtml(rawHtml);
+    const cleanHtml = cleanedHtml.replace(/<h1([^>]*?)>/gi, "<h2$1>").replace(/<\/h1>/gi, "</h2>");
 
     // Parse TOC headings and inject unique IDs
     const { parsedHtml, toc } = parseTocAndInjectIds(cleanHtml);
