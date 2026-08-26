@@ -49,7 +49,7 @@ export async function middleware(request: NextRequest) {
     redirectData = cached.data;
   } else {
     try {
-      const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
+      const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
       
       const response = await fetch(`${apiBase}/redirects/lookup?url=${encodeURIComponent(fullPath)}`);
 
@@ -91,7 +91,7 @@ export async function middleware(request: NextRequest) {
 
   if (!isSystemDomain) {
     try {
-      const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
+      const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
       
       // Gọi API tra cứu chủ sở hữu domain
       const lookupRes = await fetch(`${apiBase}/ldp/lookup-domain?domain=${cleanHost}`, {

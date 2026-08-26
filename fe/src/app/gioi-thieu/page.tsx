@@ -5,7 +5,7 @@ import AboutClient from "./AboutClient";
 export const metadata: Metadata = {
   title: "Giới thiệu Đồng Nai Ford | Đại lý ủy quyền chính thức Ford Việt Nam",
   description:
-    "Đồng Nai Ford (Công ty TNHH Dịch vụ – Thương mại Tấn Phát Đạt) — Đại lý ủy quyền chính thức đạt tiêu chuẩn 3S toàn cầu của Ford Việt Nam tại Biên Hòa, Đồng Nai. Hơn 18 năm phục vụ khách hàng.",
+    "Đồng Nai Ford (Công ty TNHH Dịch vụ – Thương mại Tấn Phát Đạt) — Đại lý ủy quyền chính thức đạt tiêu chuẩn 5S toàn cầu của Ford Việt Nam tại Biên Hòa, Đồng Nai. Hơn 18 năm phục vụ khách hàng.",
   keywords: [
     "Đồng Nai Ford",
     "giới thiệu Đồng Nai Ford",
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Giới thiệu Đồng Nai Ford | Đại lý ủy quyền Ford Việt Nam",
     description:
-      "Hơn 18 năm phục vụ — Đồng Nai Ford tự hào là đại lý ủy quyền Ford 3S tại Biên Hòa, Đồng Nai.",
+      "Hơn 18 năm phục vụ — Đồng Nai Ford tự hào là đại lý ủy quyền Ford 5S tại Biên Hòa, Đồng Nai.",
     type: "website",
     locale: "vi_VN",
   },

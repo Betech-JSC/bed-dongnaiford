@@ -70,7 +70,7 @@ const WrenchIcon = ({ className }: { className?: string }) => (
 const faqs = [
   {
     q: "Điều gì tạo nên sự nổi bật thương hiệu Dongnaiford?",
-    a: "Đồng Nai Ford tự hào là đại lý ủy quyền chính thức của Ford Việt Nam với cơ sở vật chất 3S hiện đại bậc nhất, đội ngũ nhân sự chuyên nghiệp và quy trình dịch vụ đạt tiêu chuẩn toàn cầu, mang đến trải nghiệm hài lòng tối đa cho khách hàng."
+    a: "Đồng Nai Ford tự hào là đại lý ủy quyền chính thức của Ford Việt Nam với cơ sở vật chất 5S hiện đại bậc nhất, đội ngũ nhân sự chuyên nghiệp và quy trình dịch vụ đạt tiêu chuẩn toàn cầu, mang đến trải nghiệm hài lòng tối đa cho khách hàng."
   },
   {
     q: "Sự sáng tạo trong thiết kế sản phẩm",

@@ -32,9 +32,9 @@ const fallbackServices = [
   {
     title: "Dịch vụ sửa chữa chung",
     slug: "dich-vu-sua-chua",
-    description: "Xưởng đồng sơn và sửa chữa cơ khí 3S hiện đại nhất Đồng Nai, trang bị máy chẩn đoán IDS Ford độc quyền.",
+    description: "Xưởng đồng sơn và sửa chữa cơ khí 5S hiện đại nhất Đồng Nai, trang bị máy chẩn đoán IDS Ford độc quyền.",
     image: siteAssets.serviceMaintenance,
-    badge: "Kỹ thuật 3S"
+    badge: "Kỹ thuật 5S"
   },
   {
     title: "Cứu hộ giao thông 24/7",
@@ -194,7 +194,7 @@ export default async function ServicesPage() {
       <section className="bg-gradient-to-br from-[#00095B] via-[#02337A] to-[#0562D2] text-white py-16 md:py-20">
         <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] text-center">
           <span className="bg-white/15 text-white/95 text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full border border-white/10 mb-4 inline-block">
-            Xưởng Dịch Vụ Chuẩn 3S Lớn Nhất Đồng Nai
+            Xưởng Dịch Vụ Chuẩn 5S Lớn Nhất Đồng Nai
           </span>
           <h1 className="text-3xl md:text-5xl font-bold tracking-tight leading-tight mb-4 mt-2">
             DỊCH VỤ CHĂM SÓC XE CHUYÊN NGHIỆP

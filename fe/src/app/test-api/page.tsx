@@ -64,7 +64,7 @@ export default function TestAPIPage() {
           <h2 className="text-red-800 font-bold text-lg mb-2">API Error</h2>
           <p className="text-red-600">{error}</p>
           <p className="text-sm text-gray-600 mt-4">
-            Make sure the backend is running at http://localhost:8000
+            Make sure the backend is running at http://localhost:8080
           </p>
         </div>
       </div>

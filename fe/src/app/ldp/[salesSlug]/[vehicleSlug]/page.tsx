@@ -16,8 +16,8 @@ const resolveFileUrl = (file: any): string => {
       return encodeURI(file);
     }
     const cleanPath = file.startsWith("uploads/") ? file.replace("uploads/", "") : file;
-    const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
-    let apiHost = "http://localhost:8000";
+    const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
+    let apiHost = "http://localhost:8080";
     try {
       apiHost = new URL(apiBase).origin;
     } catch (e) { }
@@ -27,8 +27,8 @@ const resolveFileUrl = (file: any): string => {
     if (file.url) return encodeURI(file.url);
     if (file.path) {
       const cleanPath = file.path.startsWith("uploads/") ? file.path.replace("uploads/", "") : file.path;
-      const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
-      let apiHost = "http://localhost:8000";
+      const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
+      let apiHost = "http://localhost:8080";
       try {
         apiHost = new URL(apiBase).origin;
       } catch (e) { }

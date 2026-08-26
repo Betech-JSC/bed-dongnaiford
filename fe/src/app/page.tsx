@@ -5,9 +5,9 @@ import HomeClient from "./HomeClient";
 export const revalidate = 120; // ISR: Trang Chủ revalidate 2 phút
 
 export const metadata: Metadata = {
-  title: "Đồng Nai Ford | Đại Lý 3S Chính Thức Tại Đồng Nai",
+  title: "Đồng Nai Ford | Đại Lý 5S Chính Thức Tại Đồng Nai",
   description:
-    "Đại lý 3S chính thức của Ford Việt Nam tại Đồng Nai. Mua xe Ford Everest, Ranger, Territory, Transit giá ưu đãi tốt nhất, bảo dưỡng chính hãng 3S, tư vấn trả góp 80%.",
+    "Đại lý 5S chính thức của Ford Việt Nam tại Đồng Nai. Mua xe Ford Everest, Ranger, Territory, Transit giá ưu đãi tốt nhất, bảo dưỡng chính hãng 5S, tư vấn trả góp 80%.",
   keywords: [
     "Đồng Nai Ford",
     "đại lý Ford Đồng Nai",
@@ -21,9 +21,9 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   openGraph: {
-    title: "Đồng Nai Ford | Đại Lý 3S Chính Thức Tại Đồng Nai",
+    title: "Đồng Nai Ford | Đại Lý 5S Chính Thức Tại Đồng Nai",
     description:
-      "Đại lý ủy quyền chính thức 3S của Ford Việt Nam. Phân phối xe Ford chính hãng, dịch vụ bảo hành bảo dưỡng, phụ tùng chính hãng.",
+      "Đại lý ủy quyền chính thức 5S của Ford Việt Nam. Phân phối xe Ford chính hãng, dịch vụ bảo hành bảo dưỡng, phụ tùng chính hãng.",
     siteName: "Đồng Nai Ford",
     type: "website",
     locale: "vi_VN",

@@ -55,7 +55,7 @@ const SERVICE_SEO_MAP: Record<string, { title: string; desc: string }> = {
     desc: "Gói chăm sóc xe ô tô toàn diện, phủ ceramic, vệ sinh nội thất, đánh bóng sơn xe ô tô Ford chuyên nghiệp.",
   },
   "dich-vu-sua-chua": {
-    title: "Dịch Vụ Sửa Chữa Chẩn Đoán & Đồng Sơn 3S Ford | Đồng Nai Ford",
+    title: "Dịch Vụ Sửa Chữa Chẩn Đoán & Đồng Sơn 5S Ford | Đồng Nai Ford",
     desc: "Xưởng dịch vụ đồng sơn và sửa chữa ô tô lớn nhất Đồng Nai. Máy chẩn đoán Ford IDS chuyên dụng.",
   },
   "dich-vu-cuu-ho-247": {

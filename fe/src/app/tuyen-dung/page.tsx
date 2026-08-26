@@ -4,7 +4,7 @@ import TuyenDungClient from "./TuyenDungClient";
 export const metadata: Metadata = {
   title: "Tuyển Dụng | Cơ Hội Việc Làm Tại Đồng Nai Ford",
   description:
-    "Gia nhập đội ngũ Đồng Nai Ford — Đại lý 3S ủy quyền chính thức của Ford Việt Nam. Tìm kiếm cơ hội nghề nghiệp hấp dẫn với thu nhập cạnh tranh và môi trường chuyên nghiệp.",
+    "Gia nhập đội ngũ Đồng Nai Ford — Đại lý 5S ủy quyền chính thức của Ford Việt Nam. Tìm kiếm cơ hội nghề nghiệp hấp dẫn với thu nhập cạnh tranh và môi trường chuyên nghiệp.",
   keywords: [
     "Tuyển dụng Đồng Nai Ford",
     "việc làm Ford Đồng Nai",

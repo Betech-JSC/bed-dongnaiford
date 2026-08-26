@@ -13,17 +13,17 @@ const developmentMilestones = [
     tag: "Thành Lập",
     icon: Building2,
     title: "Chính Thức Thành Lập Đồng Nai Ford",
-    subtitle: "Đại lý ủy quyền 3S chính thức của Ford Việt Nam tại Tỉnh Đồng Nai",
+    subtitle: "Đại lý ủy quyền 5S chính thức của Ford Việt Nam tại Tỉnh Đồng Nai",
     description: "Đồng Nai Ford chính thức thành lập năm 2006 với mục tiêu mang đến cho khách hàng vùng Đông Nam Bộ những dòng xe Ford toàn cầu chất lượng cao cùng dịch vụ chuyên nghiệp nhất.",
     image: "/images/about/image-about-1.jpg"
   },
   {
     year: "2015",
-    tag: "Nâng Cấp 3S",
+    tag: "Nâng Cấp 5S",
     icon: ShieldCheck,
-    title: "Mở Rộng & Đạt Tiêu Chuẩn 3S Toàn Cầu",
+    title: "Mở Rộng & Đạt Tiêu Chuẩn 5S Toàn Cầu",
     subtitle: "Đạt quy chuẩn Brand@Retail mới nhất từ Ford Việt Nam",
-    description: "Đầu tư nâng cấp toàn bộ hệ thống Showroom trưng bày, Xưởng dịch vụ 3S hiện đại và Kho phụ tùng chính hãng, đáp ứng tối đa nhu cầu của hàng chục ngàn lượt xe mỗi năm.",
+    description: "Đầu tư nâng cấp toàn bộ hệ thống Showroom trưng bày, Xưởng dịch vụ 5S hiện đại và Kho phụ tùng chính hãng, đáp ứng tối đa nhu cầu của hàng chục ngàn lượt xe mỗi năm.",
     image: "/images/about/image-about-2.jpg"
   },
   {
@@ -41,7 +41,7 @@ const developmentMilestones = [
     icon: Trophy,
     title: "Vinh Danh 'Hit Service Target Thru The Year'",
     subtitle: "Giải thưởng Xuất sắc toàn diện từ Tổng Công ty Ford Việt Nam",
-    description: "Tự hào khẳng định vị thế đại lý dẫn đầu toàn quốc về chỉ số hài lòng khách hàng (CVP/CSI) và quy mô dịch vụ 3S vượt trội, tiếp tục vững bước trên hành trình phát triển.",
+    description: "Tự hào khẳng định vị thế đại lý dẫn đầu toàn quốc về chỉ số hài lòng khách hàng (CVP/CSI) và quy mô dịch vụ 5S vượt trội, tiếp tục vững bước trên hành trình phát triển.",
     image: "/images/about/milestone_2024.webp"
   }
 ];
@@ -348,7 +348,7 @@ export default function AboutClient({ initialJobs = [], teamImages: initialTeamI
         <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full flex flex-col gap-20">
           {/* Paragraph intro text */}
           <p className="text-[28px] font-normal leading-[42px] text-[#1a1a1a] max-w-[1152px] font-antenna animate-fade-in-up">
-            Được thành lập với mục tiêu mang lại những giá trị di chuyển đích thực, Đồng Nai Ford tự hào là đại lý ủy quyền chính thức đạt tiêu chuẩn 3S toàn cầu của Ford Việt Nam. Chúng tôi không ngừng nỗ lực để cung cấp các dòng xe chất lượng cao và dịch vụ hậu mãi hoàn hảo nhất cho khách hàng.
+            Được thành lập với mục tiêu mang lại những giá trị di chuyển đích thực, Đồng Nai Ford tự hào là đại lý ủy quyền chính thức đạt tiêu chuẩn 5S toàn cầu của Ford Việt Nam. Chúng tôi không ngừng nỗ lực để cung cấp các dòng xe chất lượng cao và dịch vụ hậu mãi hoàn hảo nhất cho khách hàng.
           </p>
 
           {/* Showroom Image (Rectangle 2024 - 1152x576px, rounded-24) */}
@@ -427,7 +427,7 @@ export default function AboutClient({ initialJobs = [], teamImages: initialTeamI
               Các Giai Đoạn Phát Triển
             </h2>
             <p className="text-gray-600 text-base md:text-lg leading-relaxed font-antenna">
-              Nhìn lại chặng đường hơn 17 năm hình thành và bứt phá không ngừng của Đồng Nai Ford từ những ngày đầu thành lập đến vị thế đại lý 3S hàng đầu.
+              Nhìn lại chặng đường hơn 17 năm hình thành và bứt phá không ngừng của Đồng Nai Ford từ những ngày đầu thành lập đến vị thế đại lý 5S hàng đầu.
             </p>
           </div>
 
@@ -565,7 +565,7 @@ export default function AboutClient({ initialJobs = [], teamImages: initialTeamI
                 </div>
                 <div className="flex flex-col bg-white p-3.5 rounded-xl border border-gray-200/80 shadow-2xs">
                   <span className="text-xs text-gray-400 uppercase font-antenna">Tiêu chuẩn</span>
-                  <span className="text-sm font-bold text-[#00095b] mt-1">Global 3S Ford</span>
+                  <span className="text-sm font-bold text-[#00095b] mt-1">Global 5S Ford</span>
                 </div>
                 <div className="flex flex-col bg-white p-3.5 rounded-xl border border-gray-200/80 shadow-2xs col-span-2 md:col-span-1">
                   <span className="text-xs text-gray-400 uppercase font-antenna">Cam kết</span>
