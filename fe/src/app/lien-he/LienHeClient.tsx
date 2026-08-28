@@ -13,12 +13,23 @@ function ContactFormContent() {
   const reasonParam = searchParams.get("reason");
   const noteParam = searchParams.get("note");
 
+  // Default Vehicles list fallback
+  const DEFAULT_VEHICLES = [
+    { id: "ford-territory", name: "Ford Territory" },
+    { id: "ford-everest", name: "Ford Everest" },
+    { id: "ford-ranger", name: "Ford Ranger" },
+    { id: "ford-ranger-raptor", name: "Ford Ranger Raptor" },
+    { id: "ford-transit", name: "Ford Transit" },
+    { id: "ford-explorer", name: "Ford Explorer" },
+    { id: "ford-mustang-mach-e", name: "Ford Mustang Mach-E" },
+  ];
+
   // Form State
   const [formType, setFormType] = useState<"new-car" | "service-booking" | "repair-quote" | "general">("new-car");
   const [formName, setFormName] = useState("");
   const [formPhone, setFormPhone] = useState("");
   const [formEmail, setFormEmail] = useState("");
-  const [allVehicles, setAllVehicles] = useState<any[]>([]);
+  const [allVehicles, setAllVehicles] = useState<any[]>(DEFAULT_VEHICLES);
 
   // Service Booking Form States
   const [formLicensePlate, setFormLicensePlate] = useState("");
@@ -198,13 +209,23 @@ function ContactFormContent() {
               Name: formName,
               Phone: formPhone,
               Email: formEmail || undefined,
+              "Họ và tên": formName,
+              "Số điện thoại": formPhone,
+              "E-mail": formEmail || undefined,
+              "Loại xe": vehicleTitle,
+              "Dòng xe": vehicleTitle,
+              "Biển số xe": formLicensePlate || undefined,
+              "Số KM hiện tại": formMileage || undefined,
+              "Gói dịch vụ": selectedPackageType === "maintenance" ? "Gói bảo dưỡng định kỳ" : "Sửa chữa chung",
+              "Mốc bảo dưỡng": selectedPackageType === "maintenance" ? selectedMaintenanceKm : undefined,
+              "Ghi chú thêm": formServiceContent || undefined,
               Product: {
                 id: selectedVehicle,
                 slug: selectedVehicle,
                 title: vehicleTitle,
                 type: "vehicle" as const
               },
-              "Nội dung cần hỗ trợ": fullNote
+              "Nội dung cần hỗ trợ": formServiceContent || fullNote
             }
           }
         };
@@ -258,7 +279,9 @@ function ContactFormContent() {
               "Họ và tên": formName,
               "Số điện thoại": formPhone,
               "E-mail": formEmail || undefined,
-              "Nội dung cần hỗ trợ": formServiceContent
+              "Nội dung yêu cầu": formServiceContent,
+              "Nội dung cần hỗ trợ": formServiceContent,
+              "Message": formServiceContent
             }
           }
         };

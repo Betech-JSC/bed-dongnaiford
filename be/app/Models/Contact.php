@@ -119,7 +119,7 @@ class Contact extends BaseModel
 
     private function setUserAgent()
     {
-        return $_SERVER['HTTP_USER_AGENT'];
+        return $_SERVER['HTTP_USER_AGENT'] ?? request()->userAgent() ?? '';
     }
 
     private function setRequestUrl()

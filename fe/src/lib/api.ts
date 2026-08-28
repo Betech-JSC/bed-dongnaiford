@@ -9,7 +9,7 @@ function getApiBaseUrl(): string {
       return 'https://cms.dongnaiford.com.vn/api';
     }
   }
-  return 'http://localhost:8080/api';
+  return 'http://localhost:8000/api';
 }
 
 /**

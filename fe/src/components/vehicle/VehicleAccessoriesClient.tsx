@@ -37,8 +37,8 @@ const mapAPIAccessoryToItem = (apiAcc: any): any => {
         return file;
       }
       const cleanPath = file.startsWith("uploads/") ? file.replace("uploads/", "") : file;
-      const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
-      let apiHost = "http://localhost:8080";
+      const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
+      let apiHost = "http://localhost:8000";
       try {
         apiHost = new URL(apiBase).origin;
       } catch (e) { }

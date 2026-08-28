@@ -55,6 +55,7 @@ export default function ConsultationPopup() {
 
   const handleClose = () => {
     setIsOpen(false);
+    setShowToast(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -108,9 +109,10 @@ export default function ConsultationPopup() {
         setFullname("");
         setPhone("");
         setMessage("");
-        // Close modal after successful submission
+        // Close modal and Toast after 2.5 seconds
         setTimeout(() => {
-          handleClose();
+          setShowToast(false);
+          setIsOpen(false);
         }, 2500);
       }
     } catch (error: any) {

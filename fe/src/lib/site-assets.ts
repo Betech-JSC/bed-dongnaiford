@@ -67,7 +67,7 @@ export const resolveImageUrl = (img: any): string => {
     return encodeURI(`https://${path}`);
   }
   const cleanPath = path.startsWith("uploads/") ? path.replace("uploads/", "") : path;
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
   const baseDomain = apiUrl.replace(/\/api$/, "");
   return encodeURI(`${baseDomain}/static/${cleanPath}`);
 };
