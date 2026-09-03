@@ -90,7 +90,12 @@ class Setting extends Model
             'installment' => [
                 'installment_rate_year_1' => 'required|numeric|min:0|max:30',
                 'installment_rate_subsequent' => 'required|numeric|min:0|max:30',
-            ]
+            ],
+            'telegram' => [
+                'telegram_enabled' => 'nullable',
+                'telegram_bot_token' => 'nullable|string',
+                'telegram_chat_id' => 'nullable|string',
+            ],
         ][$id] ?? [];
     }
 

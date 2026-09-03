@@ -96,5 +96,7 @@ Route::localized(function () {
         Route::module(ServiceBookingController::class);
         Route::module(RepairQuoteController::class);
         Route::module(RegistrationFeeController::class);
+        Route::post('settings/telegram/test', [\App\Http\Controllers\Backend\TelegramSettingController::class, 'testConnection'])->name('settings.telegram.test');
+        Route::post('settings/telegram/detect-chat-id', [\App\Http\Controllers\Backend\TelegramSettingController::class, 'detectChatId'])->name('settings.telegram.detect');
     });
 });

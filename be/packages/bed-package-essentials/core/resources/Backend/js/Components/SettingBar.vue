@@ -110,6 +110,40 @@
                             {{ tt('models.setting.notification') }}
                         </Link>
                     </AccordionTab>
+                    <AccordionTab :header="tt('Công cụ tính toán')">
+                        <Link
+                            class="item"
+                            :href="
+                                route('admin.settings.form', {
+                                    id: 'installment',
+                                })
+                            "
+                            :class="{
+                                active: isUrl('admin.settings.form', {
+                                    id: 'installment',
+                                }),
+                            }"
+                        >
+                            {{ tt('Lãi suất trả góp') }}
+                        </Link>
+                    </AccordionTab>
+                    <AccordionTab :header="tt('Cảnh báo & Thông báo')">
+                        <Link
+                            class="item"
+                            :href="
+                                route('admin.settings.form', {
+                                    id: 'telegram',
+                                })
+                            "
+                            :class="{
+                                active: isUrl('admin.settings.form', {
+                                    id: 'telegram',
+                                }),
+                            }"
+                        >
+                            {{ tt('Cấu hình Telegram') }}
+                        </Link>
+                    </AccordionTab>
                 </Accordion>
             </div>
         </div>

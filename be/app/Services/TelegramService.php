@@ -9,23 +9,54 @@ class TelegramService
 {
     private string $botToken;
     private string $chatId;
+    private bool $enabled;
     private string $baseUrl = 'https://api.telegram.org';
 
     public function __construct()
     {
-        $botToken = config('services.telegram.bot_token', '');
-        $chatId = config('services.telegram.chat_id', '');
+        $this->loadConfig();
+    }
 
-        if (empty($botToken) && function_exists('settings')) {
-            $botToken = (string) (settings('telegram_bot_token') ?? '');
+    /**
+     * Nạp cấu hình mới nhất từ Database hoặc .env
+     */
+    public function loadConfig(): void
+    {
+        $botToken = '';
+        $chatId = '';
+        $enabled = true;
+
+        if (function_exists('settings')) {
+            // Ưu tiên 1: Đọc từ nhóm 'telegram' do người dùng cấu hình trong CMS Admin
+            $botToken = (string) (settings()->group('telegram')->get('telegram_bot_token') ?? '');
+            $chatId = (string) (settings()->group('telegram')->get('telegram_chat_id') ?? '');
+            $rawEnabled = settings()->group('telegram')->get('telegram_enabled');
+
+            if ($rawEnabled !== null) {
+                $enabled = !in_array($rawEnabled, [false, 0, '0', 'false'], true);
+            }
+
+            // Ưu tiên 2 (dự phòng): Đọc từ nhóm 'notification'
+            if (empty($botToken)) {
+                $botToken = (string) (settings()->group('notification')->get('telegram_bot_token') ?? '');
+            }
+            if (empty($chatId)) {
+                $chatId = (string) (settings()->group('notification')->get('telegram_chat_id') ?? '');
+            }
         }
 
-        if (empty($chatId) && function_exists('settings')) {
-            $chatId = (string) (settings('telegram_chat_id') ?? '');
+        // Ưu tiên 3 (dự phòng cuối): Đọc từ file .env / services.php
+        if (empty($botToken)) {
+            $botToken = (string) config('services.telegram.bot_token', '');
         }
 
-        $this->botToken = $botToken;
-        $this->chatId = $chatId;
+        if (empty($chatId)) {
+            $chatId = (string) config('services.telegram.chat_id', '');
+        }
+
+        $this->botToken = trim($botToken);
+        $this->chatId = trim($chatId);
+        $this->enabled = $enabled;
     }
 
     /**
@@ -33,6 +64,14 @@ class TelegramService
      */
     public function sendHotLeadAlert(array $leadData, string $sessionId): bool
     {
+        // Luôn nạp cấu hình mới nhất từ CSDL
+        $this->loadConfig();
+
+        if (!$this->enabled) {
+            Log::info('Telegram notification is disabled in settings, skipping lead alert');
+            return false;
+        }
+
         if (empty($this->botToken) || empty($this->chatId)) {
             Log::warning('Telegram not configured, skipping lead alert', $leadData);
             return false;
@@ -53,19 +92,22 @@ class TelegramService
             };
         }
 
-        $source = $leadData['source'] ?? ($type === 'chatbot' ? '🤖 AI Chatbot Trực Tuyến' : '🌐 Website Đồng Nai Ford');
+        $title = $this->escapeMarkdown($title);
+        $source = $this->escapeMarkdown($leadData['source'] ?? ($type === 'chatbot' ? '🤖 AI Chatbot Trực Tuyến' : '🌐 Website Đồng Nai Ford'));
 
-        $name = $leadData['name'] ?? 'Chưa rõ';
-        $phone = $leadData['phone'] ?? 'Chưa có';
-        $email = $leadData['email'] ?? null;
-        $vehicle = $leadData['vehicle'] ?? null;
-        $service = $leadData['service'] ?? null;
+        $name = $this->escapeMarkdown($leadData['name'] ?? 'Chưa rõ');
+        $phone = str_replace(['`', '\\'], '', (string) ($leadData['phone'] ?? 'Chưa có'));
+        $email = $this->escapeMarkdown($leadData['email'] ?? null);
+        $vehicle = $this->escapeMarkdown($leadData['vehicle'] ?? null);
+        $service = $this->escapeMarkdown($leadData['service'] ?? null);
         $messageText = $leadData['message'] ?? null;
-        $licensePlate = $leadData['license_plate'] ?? null;
-        $mileage = $leadData['mileage'] ?? null;
-        $appointment = $leadData['appointment'] ?? null;
-        $location = $leadData['location'] ?? null;
-        $city = $leadData['city'] ?? null;
+        $licensePlate = $this->escapeMarkdown($leadData['license_plate'] ?? null);
+        $mileage = $this->escapeMarkdown($leadData['mileage'] ?? null);
+        $appointment = $this->escapeMarkdown($leadData['appointment'] ?? null);
+        $location = $this->escapeMarkdown($leadData['location'] ?? null);
+        $city = $this->escapeMarkdown($leadData['city'] ?? null);
+        $paymentMethod = $this->escapeMarkdown($leadData['payment_method'] ?? null);
+        $safeSessionId = str_replace(['`', '\\'], '', (string) $sessionId);
 
         // Xây dựng nội dung tin nhắn Telegram
         $message = "🔔 *{$title}*\n\n";
@@ -120,7 +162,7 @@ class TelegramService
             $message .= "\n💬 *{$msgLabel}:*\n_{$cleanMsg}_\n";
         }
 
-        $message .= "\n🆔 *Mã phiên (ID):* `{$sessionId}`\n";
+        $message .= "\n🆔 *Mã phiên (ID):* `{$safeSessionId}`\n";
         $message .= "⏰ " . $this->formatTime() . "\n\n";
         $message .= "💡 _Vui lòng kiểm tra và xử lý liên hệ ngay để hỗ trợ khách hàng!_";
 
@@ -151,6 +193,15 @@ class TelegramService
             ]);
             return false;
         }
+    }
+
+    private function escapeMarkdown(?string $text): string
+    {
+        if ($text === null || $text === '') {
+            return '';
+        }
+        // Tránh lỗi Telegram Markdown V1 khi gặp ký tự _, *, `, [
+        return str_replace(['\\', '_', '*', '`', '['], ['\\\\', '\_', '\*', '\`', '\['], (string) $text);
     }
 
     private function formatTime(): string

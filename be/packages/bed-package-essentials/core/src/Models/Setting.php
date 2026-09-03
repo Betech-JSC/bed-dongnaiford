@@ -78,7 +78,12 @@ class Setting extends Model
             ],
             'custom_vars' => [
                 'custom_vars'  => 'nullable',
-            ]
+            ],
+            'telegram' => [
+                'telegram_enabled' => 'nullable',
+                'telegram_bot_token' => 'nullable|string',
+                'telegram_chat_id' => 'nullable|string',
+            ],
         ][$id] ?? [];
     }
 
