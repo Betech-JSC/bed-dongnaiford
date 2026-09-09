@@ -160,7 +160,7 @@ class LandingPageApiController extends Controller
             }
         }
 
-        $layoutBlocks = $this->resolveLayoutBlocksUrls($rawBlocks);
+        $layoutBlocks = $this->resolveLayoutBlocksUrls($rawBlocks, $consultant);
 
         // 6. Lấy toàn bộ danh sách các dòng xe được áp dụng cho LDP này
         $vehicleIds = $ldp->vehicle_ids;
@@ -309,10 +309,12 @@ class LandingPageApiController extends Controller
         return $resolved;
     }
 
-    private function resolveLayoutBlocksUrls($blocks)
+    private function resolveLayoutBlocksUrls($blocks, $consultant = null)
     {
         if (!is_array($blocks)) return $blocks;
         
+        $consultantPhone = is_object($consultant) ? ($consultant->phone ?? null) : (is_array($consultant) ? ($consultant['phone'] ?? null) : null);
+
         foreach ($blocks as $i => $block) {
             if (isset($block['type']) && isset($block['data'])) {
                 if ($block['type'] === 'HeroBanner' && isset($block['data']['background_image'])) {
@@ -321,8 +323,13 @@ class LandingPageApiController extends Controller
                 if ($block['type'] === 'CountdownOfferBanner' && isset($block['data']['background_image'])) {
                     $blocks[$i]['data']['background_image'] = $this->resolveFileUrl($block['data']['background_image']);
                 }
-                if ($block['type'] === 'BookingBanner' && isset($block['data']['car_image'])) {
-                    $blocks[$i]['data']['car_image'] = $this->resolveFileUrl($block['data']['car_image']);
+                if ($block['type'] === 'BookingBanner') {
+                    if (!empty($consultantPhone)) {
+                        $blocks[$i]['data']['phone'] = $consultantPhone;
+                    }
+                    if (isset($block['data']['car_image'])) {
+                        $blocks[$i]['data']['car_image'] = $this->resolveFileUrl($block['data']['car_image']);
+                    }
                 }
                 if ($block['type'] === 'Promotions' && isset($block['data']['image'])) {
                     $blocks[$i]['data']['image'] = $this->resolveFileUrl($block['data']['image']);

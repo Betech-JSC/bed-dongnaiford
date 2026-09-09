@@ -219,6 +219,8 @@ export default function Blocks({
                 isEditMode={isEditMode}
                 onChangeData={(updatedData: any) => onChangeBlock(index, updatedData)}
                 anchorId={block.anchorId}
+                salesConsultant={salesConsultant}
+                openQuoteDrawer={openQuoteDrawer}
               />
             );
             break;
@@ -2281,9 +2283,18 @@ function VersionsGridBlock({ data, vehicle, isEditMode, onChangeData, anchorId, 
 /* ==========================================================================
    9. BOOKING BANNER BLOCK
    ========================================================================== */
-function BookingBannerBlock({ blockIndex, data, vehicle, isEditMode, onChangeData, anchorId }: any) {
+function BookingBannerBlock({
+  blockIndex,
+  data,
+  vehicle,
+  isEditMode,
+  onChangeData,
+  anchorId,
+  salesConsultant,
+  openQuoteDrawer,
+}: any) {
   const title = data.title || "Kết nối ngay với chuyên viên Đồng Nai Ford";
-  const phone = data.phone || "1800 55 68 58";
+  const phone = salesConsultant?.phone || data.phone || "1800 55 68 58";
   const btnText = data.btn_text || "Đặt lịch hẹn";
   const btnLink = data.btn_link || "/lien-he";
   const hasCarImage = hasImageField(data.car_image);
@@ -2347,13 +2358,24 @@ function BookingBannerBlock({ blockIndex, data, vehicle, isEditMode, onChangeDat
                   <Phone className="w-4 h-4 sm:w-5 sm:h-5" />
                   <span>{phone}</span>
                 </a>
-                <a
-                  href={btnLink}
-                  className="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 border border-white/40 transition-all text-white font-bold px-6 py-3 rounded-full text-sm sm:text-base shrink-0 backdrop-blur-xs"
-                >
-                  <Bookmark className="w-4 h-4 sm:w-5 sm:h-5" />
-                  <span>{btnText}</span>
-                </a>
+                {openQuoteDrawer ? (
+                  <button
+                    type="button"
+                    onClick={() => !isEditMode && openQuoteDrawer(vehicle?.id)}
+                    className="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 border border-white/40 transition-all text-white font-bold px-6 py-3 rounded-full text-sm sm:text-base shrink-0 backdrop-blur-xs cursor-pointer"
+                  >
+                    <Bookmark className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <span>{btnText}</span>
+                  </button>
+                ) : (
+                  <a
+                    href={btnLink}
+                    className="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 border border-white/40 transition-all text-white font-bold px-6 py-3 rounded-full text-sm sm:text-base shrink-0 backdrop-blur-xs"
+                  >
+                    <Bookmark className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <span>{btnText}</span>
+                  </a>
+                )}
               </div>
             </>
           </div>
