@@ -112,7 +112,7 @@ trait HasCrudActions
             $item = array_merge($emptyFields, $item);
             $breadcrumbs[] = [
                 'url' => url()->current(),
-                'name' => trans('models.actions.create') . ' ' . trans('models.table_list.' . $this->getTable()),
+                'name' => (trans()->has('models.actions.edit') ? trans('models.actions.edit') : 'Chỉnh sửa') . ' ' . trans('models.table_list.' . $this->getTable()),
             ];
         } else {
             $item = $this->afterForm($emptyFields);

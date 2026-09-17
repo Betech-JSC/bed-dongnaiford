@@ -34,6 +34,7 @@
                 }
             },
             'status',
+            'sent_at',
             'created_at',
         ]"
         :config="{
