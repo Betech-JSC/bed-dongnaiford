@@ -54,11 +54,18 @@ class Contact extends BaseModel
 
     public $fillable = [
         'data',
+        'data_contact',
         'type',
         'status',
         'ip_address',
         'user_agent',
         'sales_consultant_id',
+        'note',
+        'name',
+        'phone',
+        'email',
+        'sent_at',
+        'created_at',
     ];
 
     protected $casts = [
@@ -66,6 +73,7 @@ class Contact extends BaseModel
     ];
 
     protected $appends = [
+        'formatted_sent_at',
         'formatted_created_at',
         'formatted_updated_at',
         'data_contact'
@@ -87,19 +95,86 @@ class Contact extends BaseModel
             $model->request_url = $model->setRequestUrl();
             $model->status = $model->setStatus();
 
+            if (empty($model->sent_at)) {
+                $model->sent_at = now();
+            }
+
             if ($model->status == self::STATUS_IS_SPAM) {
                 $model->deleted_at = now();
             }
         });
     }
 
-    public function modelRules()
+    public function rules(): array
     {
         return [
-            'store' => [
-                'data' => 'exclude_unless:id,null|array|max:20',
-            ],
+            'status' => 'nullable|string',
+            'data' => 'nullable|array',
+            'data_contact' => 'nullable|array',
+            'note' => 'nullable|string',
+            'sent_at' => 'nullable',
+            'created_at' => 'nullable',
         ];
+    }
+
+    public function modelRules(): array
+    {
+        return $this->rules();
+    }
+
+    public function setSentAtAttribute($value)
+    {
+        if ($value) {
+            try {
+                $this->attributes['sent_at'] = \Carbon\Carbon::parse($value)->format('Y-m-d H:i:s');
+            } catch (\Throwable $e) {
+                $this->attributes['sent_at'] = $value;
+            }
+        } else {
+            $this->attributes['sent_at'] = null;
+        }
+    }
+
+    public function getSentAtAttribute($value)
+    {
+        return $value ?? $this->attributes['created_at'] ?? null;
+    }
+
+    public function getFormattedSentAtAttribute(): string
+    {
+        $val = $this->attributes['sent_at'] ?? $this->attributes['created_at'] ?? null;
+        if (!empty($val)) {
+            return \Carbon\Carbon::parse($val)->format('d/m/Y');
+        }
+        return '';
+    }
+
+    public function setCreatedAtAttribute($value)
+    {
+        if ($value) {
+            try {
+                $this->attributes['created_at'] = \Carbon\Carbon::parse($value)->format('Y-m-d H:i:s');
+            } catch (\Throwable $e) {
+                $this->attributes['created_at'] = $value;
+            }
+        }
+    }
+
+    public function setDataContactAttribute($value)
+    {
+        $this->setDataAttribute($value);
+    }
+
+    public function setDataAttribute($value)
+    {
+        $array = is_string($value) ? json_decode($value, true) : $value;
+        $this->attributes['data'] = is_array($array) ? json_encode($array) : $value;
+
+        if (is_array($array)) {
+            $this->attributes['name'] = $array['Họ và tên'] ?? $array['Name'] ?? $this->attributes['name'] ?? null;
+            $this->attributes['phone'] = $array['Số điện thoại'] ?? $array['Phone'] ?? $this->attributes['phone'] ?? null;
+            $this->attributes['email'] = $array['E-mail'] ?? $array['Email'] ?? $this->attributes['email'] ?? null;
+        }
     }
 
     private function setIpAddress()
@@ -140,7 +215,7 @@ class Contact extends BaseModel
 
     public function getDataContactAttribute()
     {
-        return json_decode($this->attributes['data']);
+        return json_decode($this->attributes['data'] ?? '{}') ?: new \stdClass();
     }
 
     public function getFormattedTypeAttribute()

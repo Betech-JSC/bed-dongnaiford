@@ -3,6 +3,7 @@
 return [
     'actions' => [
         'create' => 'Tạo mới',
+        'edit' => 'Chỉnh sửa',
     ],
     'admins' => [
         'id' => 'ID',
@@ -108,7 +109,9 @@ return [
         'images_mobile' => 'Hình ảnh Mobile',
         'view_count' => 'Lượt xem',
         'updated_at' => 'Cập nhật cuối',
-        'created_at' => 'Ngày tạo',
+        'created_at' => 'Ngày thêm',
+        'sent_at' => 'Ngày gửi',
+        'added_at' => 'Ngày thêm',
         'author' => 'Tác giả',
         'related_posts' => 'Bài viết liên quan',
         'posts' => 'Bài viết',

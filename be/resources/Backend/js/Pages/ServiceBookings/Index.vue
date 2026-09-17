@@ -49,6 +49,7 @@
                     return data.data_contact['Địa điểm làm dịch vụ'] || data.data_contact['Tại'] || 'Tại đại lý';
                 }
             },
+            'sent_at',
             'created_at',
         ]"
         :config="{

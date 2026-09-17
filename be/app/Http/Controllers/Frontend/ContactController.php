@@ -44,6 +44,7 @@ class ContactController extends Controller
             }
             $requestData = $request->all()['contact'];
             $requestData['data'] = $data;
+            $requestData['sent_at'] = now();
             $rawType = $requestData['type'] ?? key(config('contact.types'));
             $requestData['type'] = $rawType;
             $rules = config('contact.types.' . $rawType . '.rules');

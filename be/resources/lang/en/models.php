@@ -2,7 +2,8 @@
 
 return [
     'actions' => [
-        'create' => 'Tạo mới',
+        'create' => 'Create',
+        'edit' => 'Edit',
     ],
     'admins' => [
         'id' => 'ID',
@@ -59,7 +60,8 @@ return [
         'interested_vehicle' => 'Interested Vehicle',
         'contact_info' => 'Contact Info',
         'notified' => 'Notified Sales',
-        'created_at' => 'Started At',
+        'created_at' => 'Added At',
+        'sent_at' => 'Sent At',
         'updated_at' => 'Last Updated',
     ],
     'posts' => [
