@@ -38,9 +38,35 @@ class LandingPageSeeder extends Seeder
 
             if (!$vehicle) continue;
 
+            // Lấy blocks từ xe gốc
+            $blocks = $vehicle->layout_blocks ?? [];
+            if (is_array($blocks) && count($blocks) > 0) {
+                $hasVehiclesGrid = false;
+                foreach ($blocks as $b) {
+                    if (isset($b['type']) && $b['type'] === 'LdpVehiclesGrid') {
+                        $hasVehiclesGrid = true;
+                        break;
+                    }
+                }
+                if (!$hasVehiclesGrid) {
+                    $gridBlock = [
+                        'id' => 'block_vehicles_grid_' . ($index + 1),
+                        'type' => 'LdpVehiclesGrid',
+                        'data' => [
+                            'title' => 'CÁC DÒNG XE FORD ĐANG PHÂN PHỐI',
+                            'subtitle' => 'Chọn dòng xe quý khách quan tâm để xem bảng giá, thông số và ưu đãi tốt nhất',
+                        ]
+                    ];
+                    // Chèn vào vị trí Khối 3 (sau HeroBanner & Cố vấn)
+                    $insertIdx = count($blocks) > 2 ? 2 : count($blocks);
+                    array_splice($blocks, $insertIdx, 0, [$gridBlock]);
+                }
+            }
+
             $ldp = LandingPage::create([
                 'sales_consultant_id' => $consultant->id,
                 'vehicle_id' => $vehicle->id,
+                'vehicle_ids' => $vehicles->pluck('id')->toArray(),
                 'status' => 'ACTIVE',
                 'sort_order' => ($index + 1) * 10,
                 'promotions' => [
@@ -60,7 +86,7 @@ class LandingPageSeeder extends Seeder
                         ]
                     ]
                 ],
-                'layout_blocks' => $vehicle->layout_blocks // Tự sao chép layout từ xe gốc
+                'layout_blocks' => $blocks
             ]);
 
             $ldp->translations()->create([

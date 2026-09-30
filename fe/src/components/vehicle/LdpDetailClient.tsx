@@ -13,6 +13,7 @@ function LdpInnerContent({ salesConsultant, layoutBlocks, promotions, vehicle, a
   let resolvedBlocks = [...layoutBlocks];
   const hasConsultantBlock = resolvedBlocks.some((b: any) => b.type === "LdpSalesConsultant");
   const hasPromotionsBlock = resolvedBlocks.some((b: any) => b.type === "LdpPromotions");
+  const hasVehiclesGridBlock = resolvedBlocks.some((b: any) => b.type === "LdpVehiclesGrid");
   
   if (!hasConsultantBlock) {
     const heroIndex = resolvedBlocks.findIndex((b: any) => b.type === "HeroBanner");
@@ -20,6 +21,20 @@ function LdpInnerContent({ salesConsultant, layoutBlocks, promotions, vehicle, a
       id: 'default-sales-consultant',
       type: 'LdpSalesConsultant',
       data: {}
+    });
+  }
+  
+  // Tự động chèn LdpVehiclesGrid ở phần đầu LDP nếu có từ 2 xe trở lên
+  if (!hasVehiclesGridBlock && allVehicles && allVehicles.length > 1) {
+    const consultantIndex = resolvedBlocks.findIndex((b: any) => b.type === "LdpSalesConsultant");
+    const insertIndex = consultantIndex !== -1 ? consultantIndex + 1 : 1;
+    resolvedBlocks.splice(insertIndex, 0, {
+      id: 'default-ldp-vehicles-grid',
+      type: 'LdpVehiclesGrid',
+      data: {
+        title: "Dòng xe Cố vấn phụ trách",
+        subtitle: `Danh sách các mẫu xe chính hãng đang được tư vấn bởi ${salesConsultant?.name || "Cố vấn bán hàng"}.`
+      }
     });
   }
   
@@ -35,14 +50,30 @@ function LdpInnerContent({ salesConsultant, layoutBlocks, promotions, vehicle, a
     });
   }
 
-  // Tách block Hero và các block khác
-  const heroBlock = resolvedBlocks.find((b: any) => b.type === "HeroBanner");
-  const otherBlocks = resolvedBlocks.filter((b: any) => b.type !== "HeroBanner");
+  // Chia danh sách block linh hoạt theo vị trí của HeroBanner (cho phép kéo block lên trước cả Hero)
+  const heroIndex = resolvedBlocks.findIndex((b: any) => b.type === "HeroBanner");
+  const topBlocks = heroIndex > 0 ? resolvedBlocks.slice(0, heroIndex) : [];
+  const heroBlock = heroIndex !== -1 ? resolvedBlocks[heroIndex] : null;
+  const bottomBlocks = heroIndex !== -1 ? resolvedBlocks.slice(heroIndex + 1) : resolvedBlocks;
 
   const consultantSlug = salesConsultant?.slug || salesConsultant?.name?.toLowerCase().replace(/\s+/g, '-');
 
   return (
     <div className="relative pb-16 md:pb-0">
+      {/* 0. CÁC BLOCK ĐƯỢC ĐẶT TRƯỚC HERO (nếu admin kéo lên đầu trang) */}
+      {topBlocks.length > 0 && (
+        <Blocks
+          layout={topBlocks}
+          vehicle={vehicle}
+          openQuoteDrawer={openQuoteDrawer}
+          openDriveModal={() => openDriveDrawer()}
+          startIndex={0}
+          salesConsultant={salesConsultant}
+          promotions={promotions}
+          allVehicles={allVehicles}
+        />
+      )}
+
       {/* 1. HERO BANNER */}
       {heroBlock && (
         <Blocks
@@ -50,9 +81,10 @@ function LdpInnerContent({ salesConsultant, layoutBlocks, promotions, vehicle, a
           vehicle={vehicle}
           openQuoteDrawer={openQuoteDrawer}
           openDriveModal={() => openDriveDrawer()}
-          startIndex={0}
+          startIndex={topBlocks.length}
           salesConsultant={salesConsultant}
           promotions={promotions}
+          allVehicles={allVehicles}
         />
       )}
 
@@ -91,15 +123,16 @@ function LdpInnerContent({ salesConsultant, layoutBlocks, promotions, vehicle, a
         </div>
       )}
 
-      {/* 2. OTHER LAYOUT BLOCKS (including Consultant & Promotions dynamic blocks) */}
+      {/* 2. CÁC BLOCK BÊN DƯỚI (theo đúng thứ tự admin kéo thả trong CMS) */}
       <Blocks
-        layout={otherBlocks}
+        layout={bottomBlocks}
         vehicle={vehicle}
         openQuoteDrawer={openQuoteDrawer}
         openDriveModal={() => openDriveDrawer()}
-        startIndex={heroBlock ? 1 : 0}
+        startIndex={topBlocks.length + (heroBlock ? 1 : 0)}
         salesConsultant={salesConsultant}
         promotions={promotions}
+        allVehicles={allVehicles}
       />
 
       {/* FLOATING SALES CONSULTANT WIDGET */}

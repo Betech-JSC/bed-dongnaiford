@@ -2,6 +2,9 @@ import { notFound } from "next/navigation";
 import { ldpAPI } from "@/lib/api";
 import LdpDetailClient from "@/components/vehicle/LdpDetailClient";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 type Props = {
   params: Promise<{
     salesSlug: string;

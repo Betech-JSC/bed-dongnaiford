@@ -964,6 +964,25 @@
                                 placeholder: 'vd: Mạnh mẽ vượt địa hình...',
                             }" />
                         </div>
+
+                        <!-- 19. LdpVehiclesGrid Edit Form -->
+                        <div v-else-if="blocks[activeIndex].type === 'LdpVehiclesGrid'" class="space-y-4">
+                            <Field v-model="blocks[activeIndex].data.title" :field="{
+                                type: 'text',
+                                name: 'lvg_title_' + activeIndex,
+                                label: 'Tiêu đề khối danh sách xe',
+                                placeholder: 'vd: Dòng xe Cố vấn phụ trách',
+                            }" />
+                            <Field v-model="blocks[activeIndex].data.subtitle" :field="{
+                                type: 'textarea',
+                                name: 'lvg_sub_' + activeIndex,
+                                label: 'Mô tả phụ',
+                                placeholder: 'vd: Chọn dòng xe quý khách quan tâm để xem bảng giá...',
+                            }" />
+                            <div class="p-3 bg-blue-50 border border-blue-200 rounded-lg text-xs text-blue-800">
+                                ℹ️ Khối này tự động lấy tất cả các dòng xe được chỉ định cho Cố vấn bán hàng này trong tab <strong>Thông tin chung</strong> để hiển thị dưới dạng lưới showroom kèm tab lọc phân loại.
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Styling & Layout Panel -->
@@ -1434,6 +1453,7 @@ export default {
             mediaTarget: null, // { index, field, subIndex }
             libraryBlocks: [
                 { type: 'HeroBanner', icon: '📢', name: 'Banner lớn (Hero)', desc: 'Banner trần viền ấn tượng, có chữ và nút bấm hành động' },
+                { type: 'LdpVehiclesGrid', icon: '🚘', name: 'Danh sách dòng xe (Showroom)', desc: 'Lưới hiển thị các dòng xe Cố vấn bán hàng phụ trách kèm bộ lọc' },
                 { type: 'LdpSalesConsultant', icon: '👤', name: 'Cố vấn bán hàng LDP', desc: 'Hiển thị Banner thông tin của Cố vấn phụ trách trang LDP' },
                 { type: 'LdpPromotions', icon: '🎁', name: 'Khuyến mãi LDP', desc: 'Hiển thị các chương trình khuyến mãi đã chọn hoặc tự nhập' },
                 { type: 'Promotions', icon: '🎁', name: 'Ưu đãi khuyến mãi (Tùy biến)', desc: 'Thông tin quà tặng tiền mặt, bảo hiểm và quà độc quyền' },
@@ -1840,6 +1860,7 @@ export default {
                 InstallmentCalculator: 'Bảng tính chi phí trả góp (Installment Calculator)',
                 CountdownOfferBanner: 'Đếm ngược ưu đãi & Giữ suất (Countdown Offer)',
                 DualVehicleComparison: 'So sánh song song 2 xe (Dual Vehicle Comparison)',
+                LdpVehiclesGrid: 'Danh sách dòng xe phụ trách (LdpVehiclesGrid)',
             }[type] || type
         },
         getBlockIcon(type) {
@@ -1862,6 +1883,7 @@ export default {
                 InstallmentCalculator: '🧮',
                 CountdownOfferBanner: '🔥',
                 DualVehicleComparison: '⚖️',
+                LdpVehiclesGrid: '🚘',
             }[type] || '📦'
         },
         addBlockType(type) {
@@ -2071,6 +2093,14 @@ export default {
                     align: 'center',
                     title_size: 'medium',
                     title_color: '#1a1a1a'
+                }
+            } else if (type === 'LdpVehiclesGrid') {
+                newBlock.data = {
+                    title: 'Dòng xe Cố vấn phụ trách',
+                    subtitle: 'Chọn dòng xe quý khách quan tâm để xem bảng giá, thông số và ưu đãi độc quyền.',
+                    align: 'center',
+                    title_size: 'medium',
+                    title_color: '#00095b'
                 }
             }
 

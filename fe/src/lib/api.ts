@@ -122,7 +122,7 @@ export const consultantsAPI = {
  * Landing Pages API
  */
 export const ldpAPI = {
-  getBySlug: (salesSlug: string, vehicleSlug: string) => fetchAPI<any>(`/ldp/${salesSlug}/${vehicleSlug}`),
+  getBySlug: (salesSlug: string, vehicleSlug: string) => fetchAPI<any>(`/ldp/${salesSlug}/${vehicleSlug}`, { cache: 'no-store' }),
 };
 
 /**

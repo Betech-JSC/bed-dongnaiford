@@ -35,6 +35,7 @@ export default function VehicleDetailClient() {
   const [isPreviewInitialized, setIsPreviewInitialized] = useState(false);
   const [salesConsultant, setSalesConsultant] = useState<any>(null);
   const [promotions, setPromotions] = useState<any>({ global: [], custom: [] });
+  const [allVehicles, setAllVehicles] = useState<any[]>([]);
 
   // visual page builder states
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
@@ -63,6 +64,17 @@ export default function VehicleDetailClient() {
     }
   }, []);
 
+  // Fetch all vehicles for grid showroom
+  useEffect(() => {
+    vehiclesAPI
+      .getAll()
+      .then((res: any) => {
+        const data = res?.data || res || [];
+        if (Array.isArray(data)) setAllVehicles(data);
+      })
+      .catch(() => {});
+  }, []);
+
   // Listen to message events from parent window
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
@@ -82,6 +94,9 @@ export default function VehicleDetailClient() {
         if (data.promotions) {
           setPromotions(data.promotions);
         }
+        if (data.allVehicles && Array.isArray(data.allVehicles)) {
+          setAllVehicles(data.allVehicles);
+        }
         setIsPreviewInitialized(true);
       } else if (data.type === "UPDATE_BLOCKS") {
         if (data.blocks) {
@@ -95,6 +110,9 @@ export default function VehicleDetailClient() {
         }
         if (data.promotions) {
           setPromotions(data.promotions);
+        }
+        if (data.allVehicles && Array.isArray(data.allVehicles)) {
+          setAllVehicles(data.allVehicles);
         }
       } else if (data.type === "UPDATE_ACTIVE_INDEX") {
         if (data.activeIndex !== undefined) {
@@ -499,62 +517,68 @@ export default function VehicleDetailClient() {
           >
             <div className="flex flex-col">
               {(() => {
-                const heroBlock = currentBlocks.find((b: any) => b.type === "Hero" || b.type === "HeroBanner");
-                const otherBlocks = currentBlocks.filter((b: any) => b.type !== "Hero" && b.type !== "HeroBanner");
-                
-                const handleHeroChange = (idx: number, updatedData: any) => {
-                  const actualIdx = currentBlocks.findIndex((b: any) => b.type === "Hero" || b.type === "HeroBanner");
-                  if (actualIdx !== -1) {
-                    handleBlockChange(actualIdx, updatedData);
-                  }
-                };
-
-                const handleOtherChange = (idx: number, updatedData: any) => {
-                  const targetBlock = otherBlocks[idx];
-                  const actualIdx = currentBlocks.findIndex((b: any) => b === targetBlock);
-                  if (actualIdx !== -1) {
-                    handleBlockChange(actualIdx, updatedData);
-                  }
-                };
-
-                const heroStartIndex = heroBlock ? currentBlocks.indexOf(heroBlock) : 0;
-                const otherStartIndex = otherBlocks.length > 0 ? (currentBlocks.indexOf(otherBlocks[0]) !== -1 ? currentBlocks.indexOf(otherBlocks[0]) : 0) : 0;
+                const heroIndex = currentBlocks.findIndex((b: any) => b.type === "Hero" || b.type === "HeroBanner");
+                const topBlocks = heroIndex !== -1 ? currentBlocks.slice(0, heroIndex) : [];
+                const heroBlock = heroIndex !== -1 ? currentBlocks[heroIndex] : null;
+                const bottomBlocks = heroIndex !== -1 ? currentBlocks.slice(heroIndex + 1) : currentBlocks;
 
                 return (
                   <>
-                    {heroBlock && (
+                    {topBlocks.length > 0 && (
                       <Blocks
-                        layout={[heroBlock]}
+                        layout={topBlocks}
                         vehicle={vehicle}
+                        allVehicles={allVehicles}
                         isEditMode={isEditMode}
-                        onChangeBlock={handleHeroChange}
+                        onChangeBlock={(idx, data) => handleBlockChange(idx, data)}
                         openQuoteDrawer={openQuoteDrawer}
                         openDriveModal={() => openDriveDrawer()}
                         activeIndex={activeIndex}
                         onSelectBlock={handleSelectBlock}
-                        startIndex={heroStartIndex}
-                        onDeleteBlock={(idx) => handleRemoveBlock(Number(heroStartIndex) + Number(idx))}
+                        startIndex={0}
+                        onDeleteBlock={(idx) => handleRemoveBlock(idx)}
                         salesConsultant={salesConsultant}
                         promotions={promotions}
                       />
                     )}
-                    
+
+                    {heroBlock && (
+                      <Blocks
+                        layout={[heroBlock]}
+                        vehicle={vehicle}
+                        allVehicles={allVehicles}
+                        isEditMode={isEditMode}
+                        onChangeBlock={(_idx, data) => handleBlockChange(heroIndex, data)}
+                        openQuoteDrawer={openQuoteDrawer}
+                        openDriveModal={() => openDriveDrawer()}
+                        activeIndex={activeIndex}
+                        onSelectBlock={handleSelectBlock}
+                        startIndex={heroIndex}
+                        onDeleteBlock={() => handleRemoveBlock(heroIndex)}
+                        salesConsultant={salesConsultant}
+                        promotions={promotions}
+                      />
+                    )}
+
                     {!isEditMode && <VehicleTabBar />}
- 
-                    <Blocks
-                      layout={otherBlocks}
-                      vehicle={vehicle}
-                      isEditMode={isEditMode}
-                      onChangeBlock={handleOtherChange}
-                      openQuoteDrawer={openQuoteDrawer}
-                      openDriveModal={() => openDriveDrawer()}
-                      activeIndex={activeIndex}
-                      onSelectBlock={handleSelectBlock}
-                      startIndex={otherStartIndex}
-                      onDeleteBlock={(idx) => handleRemoveBlock(Number(otherStartIndex) + Number(idx))}
-                      salesConsultant={salesConsultant}
-                      promotions={promotions}
-                    />
+
+                    {bottomBlocks.length > 0 && (
+                      <Blocks
+                        layout={bottomBlocks}
+                        vehicle={vehicle}
+                        allVehicles={allVehicles}
+                        isEditMode={isEditMode}
+                        onChangeBlock={(idx, data) => handleBlockChange(heroIndex !== -1 ? heroIndex + 1 + idx : idx, data)}
+                        openQuoteDrawer={openQuoteDrawer}
+                        openDriveModal={() => openDriveDrawer()}
+                        activeIndex={activeIndex}
+                        onSelectBlock={handleSelectBlock}
+                        startIndex={heroIndex !== -1 ? heroIndex + 1 : 0}
+                        onDeleteBlock={(idx) => handleRemoveBlock(heroIndex !== -1 ? heroIndex + 1 + idx : idx)}
+                        salesConsultant={salesConsultant}
+                        promotions={promotions}
+                      />
+                    )}
                   </>
                 );
               })()}

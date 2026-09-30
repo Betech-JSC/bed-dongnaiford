@@ -333,7 +333,7 @@
                             <button
                                 type="button"
                                 class="bg-[#008060] hover:bg-[#006e52] text-white text-xs font-bold px-5 py-2 rounded-lg cursor-pointer transition-colors border border-solid border-[#006e52] h-9 flex items-center justify-center gap-1.5 shadow-sm"
-                                @click="saveFromBuilder(submit)"
+                                @click="saveFromBuilder(submit, form)"
                                 :disabled="isSaving"
                             >
                                 <span v-if="isSaving">⏳ Đang lưu...</span>
@@ -375,6 +375,7 @@
                             :global-promotions="globalPromotions"
                             :fullscreen="true"
                             :key="'editor-' + activeVehicleTab"
+                            @update:model-value="syncBlocksToForm($event, form)"
                         />
                     </div>
                 </div>
@@ -949,12 +950,14 @@ export default {
 
             return data;
         },
-        // Helper: đảm bảo mỗi bộ blocks có LdpSalesConsultant và LdpPromotions
+        // Helper: đảm bảo mỗi bộ blocks có LdpSalesConsultant, LdpVehiclesGrid và LdpPromotions theo thứ tự chuẩn
         _ensureLdpBlocks(blocks) {
             if (!Array.isArray(blocks)) return;
             const hasConsultant = blocks.some(b => b.type === 'LdpSalesConsultant');
+            const hasVehiclesGrid = blocks.some(b => b.type === 'LdpVehiclesGrid');
             const hasPromotions = blocks.some(b => b.type === 'LdpPromotions');
 
+            // 1. Chèn LdpSalesConsultant ngay sau HeroBanner nếu chưa có (Khối 2)
             if (!hasConsultant) {
                 const heroIdx = blocks.findIndex(b => b.type === 'HeroBanner');
                 blocks.splice(heroIdx !== -1 ? heroIdx + 1 : 0, 0, {
@@ -963,9 +966,28 @@ export default {
                     data: {}
                 });
             }
-            if (!hasPromotions) {
+
+            // 2. Chèn LdpVehiclesGrid sau LdpSalesConsultant nếu chưa có (Khối 3)
+            if (!hasVehiclesGrid) {
                 const consultantIdx = blocks.findIndex(b => b.type === 'LdpSalesConsultant');
-                blocks.splice(consultantIdx !== -1 ? consultantIdx + 1 : 1, 0, {
+                const heroIdx = blocks.findIndex(b => b.type === 'HeroBanner');
+                const insertIdx = consultantIdx !== -1 ? consultantIdx + 1 : (heroIdx !== -1 ? heroIdx + 1 : 1);
+                blocks.splice(insertIdx, 0, {
+                    id: 'ldp-vehicles-grid-' + Math.random().toString(36).substr(2, 9),
+                    type: 'LdpVehiclesGrid',
+                    data: {
+                        title: 'CÁC DÒNG XE FORD ĐANG PHÂN PHỐI',
+                        subtitle: 'Chọn dòng xe quý khách quan tâm để xem bảng giá, thông số và ưu đãi tốt nhất'
+                    }
+                });
+            }
+
+            // 3. Chèn LdpPromotions sau LdpVehiclesGrid / LdpSalesConsultant nếu chưa có (Khối 4)
+            if (!hasPromotions) {
+                const gridIdx = blocks.findIndex(b => b.type === 'LdpVehiclesGrid');
+                const consultantIdx = blocks.findIndex(b => b.type === 'LdpSalesConsultant');
+                const insertIdx = gridIdx !== -1 ? gridIdx + 1 : (consultantIdx !== -1 ? consultantIdx + 1 : 2);
+                blocks.splice(insertIdx, 0, {
                     id: 'ldp-promotions-' + Math.random().toString(36).substr(2, 9),
                     type: 'LdpPromotions',
                     data: {
@@ -1143,17 +1165,49 @@ export default {
                 this.triggerToast(`Đã nạp bộ khối giao diện mẫu của "${vehicle.title}" thành công!`, 'success');
             }
         },
-        saveFromBuilder(submitFn) {
+        syncBlocksToForm(newBlocks, form) {
+            const tabId = String(this.activeVehicleTab);
+            // 1. Cập nhật vào formData
+            if (!this.formData.layout_blocks || typeof this.formData.layout_blocks !== 'object' || Array.isArray(this.formData.layout_blocks)) {
+                this.formData.layout_blocks = {};
+            }
+            this.formData.layout_blocks[tabId] = newBlocks;
+
+            // 2. Cập nhật trực tiếp vào đối tượng form của Inertia để khi submit gửi đi dữ liệu mới nhất
+            if (form) {
+                if (!form.layout_blocks || typeof form.layout_blocks !== 'object' || Array.isArray(form.layout_blocks)) {
+                    form.layout_blocks = {};
+                }
+                form.layout_blocks[tabId] = newBlocks;
+            }
+        },
+        saveFromBuilder(submitFn, form) {
             this.isSaving = true;
+            // 1. Đảm bảo đồng bộ chắc chắn toàn bộ layout_blocks sang form trước khi submit
+            if (form && this.formData.layout_blocks) {
+                form.layout_blocks = JSON.parse(JSON.stringify(this.formData.layout_blocks));
+            }
+            // 2. Đảm bảo tiêu đề bắt buộc vi.title không bị rỗng làm fail validation
+            if (form) {
+                if (!form.vi) form.vi = {};
+                if (!form.vi.title) {
+                    form.vi.title = this.formData?.vi?.title || ('Ưu đãi xe ' + (this.activeVehicleTitle || 'Ford') + ' tốt nhất');
+                }
+            }
             if (typeof submitFn === 'function') {
                 submitFn();
             }
             setTimeout(() => {
                 this.isSaving = false;
-                this.showSuccessNotification = true;
-                setTimeout(() => {
-                    this.showSuccessNotification = false;
-                }, 3000);
+                if (form && form.errors && Object.keys(form.errors).length > 0) {
+                    const firstErr = Object.values(form.errors)[0];
+                    this.triggerToast(Array.isArray(firstErr) ? firstErr[0] : String(firstErr), 'warning');
+                } else {
+                    this.showSuccessNotification = true;
+                    setTimeout(() => {
+                        this.showSuccessNotification = false;
+                    }, 3000);
+                }
             }, 1000);
         }
     }

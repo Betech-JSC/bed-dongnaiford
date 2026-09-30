@@ -18,6 +18,7 @@ const formatUploadError = (err: any): string => {
 };
 
 import { resolveImageUrl, hasImageField } from "@/lib/site-assets";
+import LdpVehiclesGridBlock from "./LdpVehiclesGridBlock";
 export { resolveImageUrl, hasImageField };
 
 export const getYoutubeId = (url: string | null | undefined): string | null => {
@@ -50,6 +51,7 @@ interface BlocksProps {
   draggedOverIndex?: number | null;
   salesConsultant?: any;
   promotions?: any;
+  allVehicles?: any[];
 }
 
 export default function Blocks({
@@ -73,7 +75,8 @@ export default function Blocks({
   draggedIndex = null,
   draggedOverIndex = null,
   salesConsultant,
-  promotions
+  promotions,
+  allVehicles,
 }: BlocksProps) {
   if (!layout || !Array.isArray(layout) || layout.length === 0) {
     return null;
@@ -122,6 +125,17 @@ export default function Blocks({
                 openQuoteDrawer={openQuoteDrawer}
                 isEditMode={isEditMode}
                 onChangeData={(updatedData: any) => onChangeBlock(index, updatedData)}
+                anchorId={block.anchorId}
+              />
+            );
+            break;
+          case "LdpVehiclesGrid":
+            blockComponent = (
+              <LdpVehiclesGridBlock
+                data={block.data}
+                salesConsultant={salesConsultant}
+                allVehicles={allVehicles}
+                currentVehicle={vehicle}
                 anchorId={block.anchorId}
               />
             );
@@ -296,6 +310,7 @@ export default function Blocks({
           const getBlockLabel = (type: string) => {
             switch (type) {
               case "HeroBanner": return "Banner lớn";
+              case "LdpVehiclesGrid": return "Danh sách dòng xe (Showroom)";
               case "LdpSalesConsultant": return "Cố vấn bán hàng LDP";
               case "LdpPromotions": return "Khuyến mãi LDP";
               case "Promotions": return "Khuyến mãi";
