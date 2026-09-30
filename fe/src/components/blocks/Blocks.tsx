@@ -137,6 +137,7 @@ export default function Blocks({
                 allVehicles={allVehicles}
                 currentVehicle={vehicle}
                 anchorId={block.anchorId}
+                isEditMode={isEditMode}
               />
             );
             break;

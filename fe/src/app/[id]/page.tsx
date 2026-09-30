@@ -38,6 +38,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-export default function Page() {
-  return <VehicleDetailClient />;
+export default async function Page() {
+  let initialVehicles: any[] = [];
+  try {
+    const res: any = await vehiclesAPI.getAll().catch(() => null);
+    const list = res?.data || res || [];
+    if (Array.isArray(list)) initialVehicles = list;
+  } catch {}
+
+  return <VehicleDetailClient initialVehicles={initialVehicles} />;
 }

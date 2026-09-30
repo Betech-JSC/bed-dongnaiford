@@ -20,7 +20,7 @@ import {
   ChevronRight
 } from "lucide-react";
 
-export default function VehicleDetailClient() {
+export default function VehicleDetailClient({ initialVehicles = [] }: { initialVehicles?: any[] }) {
   const {
     vehicle,
     openQuoteDrawer,
@@ -35,7 +35,7 @@ export default function VehicleDetailClient() {
   const [isPreviewInitialized, setIsPreviewInitialized] = useState(false);
   const [salesConsultant, setSalesConsultant] = useState<any>(null);
   const [promotions, setPromotions] = useState<any>({ global: [], custom: [] });
-  const [allVehicles, setAllVehicles] = useState<any[]>([]);
+  const [allVehicles, setAllVehicles] = useState<any[]>(initialVehicles);
 
   // visual page builder states
   const [activeIndex, setActiveIndex] = useState<number | null>(null);

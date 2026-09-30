@@ -1,9 +1,8 @@
-"use client";
-
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import SafeImage from "@/components/shared/SafeImage";
 import { getPopularVehicleImage, resolveImageUrl } from "@/lib/site-assets";
+import { vehiclesAPI } from "@/lib/api";
 import { Car, Check } from "lucide-react";
 
 interface LdpVehiclesGridBlockProps {
@@ -15,6 +14,7 @@ interface LdpVehiclesGridBlockProps {
   allVehicles?: any[];
   currentVehicle?: any;
   anchorId?: string;
+  isEditMode?: boolean;
 }
 
 // Phân nhóm danh mục dựa trên loại xe hoặc tên xe
@@ -43,8 +43,44 @@ export default function LdpVehiclesGridBlock({
   allVehicles = [],
   currentVehicle,
   anchorId,
+  isEditMode = false,
 }: LdpVehiclesGridBlockProps) {
   const [selectedCat, setSelectedCat] = useState<string>("all");
+  const [vehicles, setVehicles] = useState<any[]>(() => {
+    if (Array.isArray(allVehicles) && allVehicles.length > 0) return allVehicles;
+    if (currentVehicle) return [currentVehicle];
+    return [];
+  });
+  const [isLoading, setIsLoading] = useState<boolean>(!allVehicles || allVehicles.length === 0);
+
+  // Tự động đồng bộ data xe từ trang chính khi allVehicles rỗng
+  useEffect(() => {
+    if (Array.isArray(allVehicles) && allVehicles.length > 0) {
+      setVehicles(allVehicles);
+      setIsLoading(false);
+      return;
+    }
+
+    // Nạp toàn bộ danh mục xe từ trang chính website Đồng Nai Ford
+    vehiclesAPI
+      .getAll()
+      .then((res: any) => {
+        const list = res?.data || res || [];
+        if (Array.isArray(list) && list.length > 0) {
+          setVehicles(list);
+        } else if (currentVehicle) {
+          setVehicles([currentVehicle]);
+        }
+      })
+      .catch(() => {
+        if (currentVehicle) {
+          setVehicles([currentVehicle]);
+        }
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, [allVehicles, currentVehicle]);
 
   const consultantSlug =
     salesConsultant?.slug ||
@@ -58,23 +94,43 @@ export default function LdpVehiclesGridBlock({
     return new Intl.NumberFormat("vi-VN").format(num) + "đ";
   };
 
-  // Xác định các danh mục thực tế đang có trong danh sách xe của cố vấn
+  // Xác định các danh mục thực tế đang có trong danh sách xe
   const availableCategories = useMemo(() => {
     const set = new Set<string>();
-    allVehicles.forEach((v) => {
+    vehicles.forEach((v) => {
       const cat = resolveCategory(v);
       if (cat !== "other") set.add(cat);
     });
     return Array.from(set);
-  }, [allVehicles]);
+  }, [vehicles]);
 
   // Lọc xe theo tab đang chọn
   const filteredVehicles = useMemo(() => {
-    if (selectedCat === "all") return allVehicles;
-    return allVehicles.filter((v) => resolveCategory(v) === selectedCat);
-  }, [allVehicles, selectedCat]);
+    if (selectedCat === "all") return vehicles;
+    return vehicles.filter((v) => resolveCategory(v) === selectedCat);
+  }, [vehicles, selectedCat]);
 
-  if (!allVehicles || allVehicles.length === 0) return null;
+  // Nếu không có xe nào và đang ở chế độ xem trước trong CMS: Hiển thị placeholder thông minh
+  if (!vehicles || vehicles.length === 0) {
+    if (isEditMode) {
+      return (
+        <section
+          id={anchorId || "ldp-vehicles-grid"}
+          className="w-full bg-[#f8f9fa] py-8 border-y border-dashed border-gray-300 text-center select-none my-4"
+        >
+          <div className="max-w-[1152px] mx-auto px-4">
+            <p className="text-[#0562D2] font-bold text-sm flex items-center justify-center gap-1.5">
+              <Car className="w-4 h-4" /> 🚗 KHỐI DANH SÁCH DÒNG XE PHỤ TRÁCH (LDP SHOWROOM)
+            </p>
+            <p className="text-gray-500 text-xs mt-1">
+              {isLoading ? "Đang tải danh sách xe từ trang chính..." : "Chưa có danh sách xe để hiển thị."}
+            </p>
+          </div>
+        </section>
+      );
+    }
+    return null;
+  }
 
   const title = data?.title || "Dòng xe Cố vấn phụ trách";
   const subtitle =
@@ -93,7 +149,7 @@ export default function LdpVehiclesGridBlock({
         <div className="text-center max-w-2xl mx-auto space-y-2.5 mb-8">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-[#0562D2] text-xs font-bold border border-blue-100">
             <Car className="w-3.5 h-3.5" />
-            <span>Showroom Cố vấn ({allVehicles.length} dòng xe)</span>
+            <span>Showroom Cố vấn ({vehicles.length} dòng xe)</span>
           </div>
           <h2 className="text-2xl md:text-3xl font-black text-[#00095B] tracking-tight">
             {title}
@@ -116,10 +172,10 @@ export default function LdpVehiclesGridBlock({
                     : "text-gray-500 hover:text-[#0562D2]"
                 }`}
               >
-                Tất cả ({allVehicles.length})
+                Tất cả ({vehicles.length})
               </button>
               {availableCategories.map((catKey) => {
-                const count = allVehicles.filter((v) => resolveCategory(v) === catKey).length;
+                const count = vehicles.filter((v) => resolveCategory(v) === catKey).length;
                 return (
                   <button
                     key={catKey}

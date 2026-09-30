@@ -13,7 +13,7 @@ function getApiBaseUrl(): string {
       return 'https://cms.dnf.betech-digital.com/api';
     }
   }
-  return 'http://localhost:8000/api';
+  return 'https://dongnaiford.com.vn/api';
 }
 
 /**

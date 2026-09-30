@@ -1504,7 +1504,7 @@ export default {
                 }
             }
             const slug = this.vehicleSlug || 'preview';
-            return `${host}/san-pham/${slug}?edit=true&embed=true`;
+            return `${host}/${slug}?edit=true&embed=true`;
         }
     },
     watch: {
