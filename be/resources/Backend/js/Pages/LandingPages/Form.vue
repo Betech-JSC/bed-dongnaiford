@@ -373,6 +373,7 @@
                             :vehicle-data="form"
                             :sales-consultants="salesConsultants"
                             :global-promotions="globalPromotions"
+                            :all-vehicles="vehicles"
                             :fullscreen="true"
                             :key="'editor-' + activeVehicleTab"
                             @update:model-value="syncBlocksToForm($event, form)"
@@ -1020,15 +1021,12 @@ export default {
             const hostname = window.location.hostname;
             const port = window.location.port;
 
-            if (port === '8000') {
-                // Local dev: CMS chạy port 8000, frontend chạy port 3000
+            if (port === '8000' || hostname === 'localhost' || hostname === '127.0.0.1') {
+                // Môi trường Local dev: CMS chạy port 8000, frontend chạy port 3000
                 clientUrl = origin.replace(':8000', ':3000');
-            } else if (hostname.startsWith('cms.')) {
-                // Production CMS: cms.dongnaiford.com.vn → dongnaiford.com.vn
-                clientUrl = `https://${hostname.replace('cms.', '')}`;
             } else {
-                // Fallback: dùng domain chính
-                clientUrl = `https://dongnaiford.com.vn`;
+                // Môi trường Web đại lý (staging hoặc production): luôn dùng domain chính thức
+                clientUrl = 'https://dongnaiford.com.vn';
             }
             const consultantSlug = consultant.slug || this.slugify(consultant.name);
 

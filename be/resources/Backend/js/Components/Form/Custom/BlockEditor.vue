@@ -1430,6 +1430,10 @@ export default {
         globalPromotions: {
             type: Array,
             default: () => [],
+        },
+        allVehicles: {
+            type: Array,
+            default: () => [],
         }
     },
     emits: ['update:modelValue'],
@@ -1681,7 +1685,8 @@ export default {
                         blocks: JSON.parse(JSON.stringify(resolvedBlocks || [])),
                         activeIndex: this.activeIndex,
                         promotions: resolvedPromotions,
-                        salesConsultant: resolvedConsultant
+                        salesConsultant: resolvedConsultant,
+                        allVehicles: JSON.parse(JSON.stringify(this.allVehicles || []))
                     }, '*');
                 } catch (e) {
                     console.error('Failed to postMessage INIT_PREVIEW:', e);
@@ -1737,7 +1742,8 @@ export default {
                         blocks: JSON.parse(JSON.stringify(this.resolveBlockImages(this.blocks) || [])),
                         activeIndex: this.activeIndex,
                         promotions: resolvedPromotions,
-                        salesConsultant: resolvedConsultant
+                        salesConsultant: resolvedConsultant,
+                        allVehicles: JSON.parse(JSON.stringify(this.allVehicles || []))
                     }, '*');
                 } catch (e) {
                     console.error('Failed to postMessage UPDATE_BLOCKS:', e);

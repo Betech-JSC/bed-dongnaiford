@@ -5,8 +5,12 @@ function getApiBaseUrl(): string {
     return process.env.NEXT_PUBLIC_API_URL;
   }
   if (typeof window !== 'undefined') {
-    if (window.location.hostname.includes('dongnaiford')) {
+    const hostname = window.location.hostname;
+    if (hostname.includes('dongnaiford')) {
       return 'https://cms.dongnaiford.com.vn/api';
+    }
+    if (hostname.includes('betech-digital.com')) {
+      return 'https://cms.dnf.betech-digital.com/api';
     }
   }
   return 'http://localhost:8000/api';

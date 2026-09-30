@@ -46,6 +46,9 @@ class LandingPageController extends Controller
                 'label' => $v->title,
                 'title' => $v->title,
                 'slug' => $v->slug,
+                'base_price' => $v->base_price,
+                'type' => $v->type,
+                'image' => $v->image ? (is_string($v->image) ? $v->image : ($v->image->path ?? null)) : null,
                 'layout_blocks' => $v->layout_blocks,
             ]);
 
