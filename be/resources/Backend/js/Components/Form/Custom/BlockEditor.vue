@@ -1348,7 +1348,7 @@
                     <span class="w-3 h-3 rounded-full bg-green-400 inline-block"></span>
                 </div>
                 <div class="flex-1 bg-white border border-gray-300 rounded-lg py-1 px-4 text-gray-500 text-xs font-mono truncate select-all flex items-center space-x-2">
-                    <span class="text-gray-400">🌐 https://dongnaiford.com.vn/xe/chi-tiet-xem-truoc</span>
+                    <span class="text-gray-400">🌐 {{ iframeUrl }}</span>
                 </div>
                 <span class="text-[10px] text-[#008060] font-bold uppercase ml-4 select-none tracking-widest bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
                     Live Preview
@@ -1490,18 +1490,13 @@ export default {
             }
         },
         iframeUrl() {
-            let host = 'http://localhost:3000';
+            let host = 'https://dongnaiford.com.vn';
             const hostname = window.location.hostname;
-            if (hostname === 'localhost' || hostname === '127.0.0.1') {
+            const port = window.location.port;
+            if (port === '8000' || hostname === 'localhost' || hostname === '127.0.0.1') {
                 host = 'http://localhost:3000';
-            } else if (hostname === 'cms.dongnaiford.com.vn') {
-                host = 'https://dongnaiford.com.vn';
             } else {
-                if (hostname.startsWith('cms.')) {
-                    host = window.location.origin.replace('//cms.', '//client.');
-                } else {
-                    host = window.location.origin;
-                }
+                host = 'https://dongnaiford.com.vn';
             }
             const slug = this.vehicleSlug || 'preview';
             return `${host}/${slug}?edit=true&embed=true`;

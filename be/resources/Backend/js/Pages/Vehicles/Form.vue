@@ -2469,9 +2469,11 @@ export default {
         },
         getPreviewUrl(slug) {
             if (!slug) return '#';
-            const feUrl = window.location.origin.includes('dongnaiford.com.vn')
-                ? 'https://dongnaiford.com.vn'
-                : 'http://localhost:3000';
+            const hostname = window.location.hostname;
+            const port = window.location.port;
+            const feUrl = (port === '8000' || hostname === 'localhost' || hostname === '127.0.0.1')
+                ? 'http://localhost:3000'
+                : 'https://dongnaiford.com.vn';
             return `${feUrl}/${slug}?preview=true`;
         },
         addFeatureCategory() {
