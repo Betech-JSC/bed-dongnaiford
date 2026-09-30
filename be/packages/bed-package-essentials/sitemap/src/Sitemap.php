@@ -21,7 +21,7 @@ class Sitemap
     public function addStaticRoutes(): static
     {
         foreach (Route::getRoutes() as $route) {
-            if ($route->getName() === 'dynamic-redirect') continue;
+            if ($route->getName() === 'dynamic-redirect' || str_starts_with($route->getName() ?? '', 'dynamic-redirect.')) continue;
 
             if (isset($route->getAction()['middleware']) && $route->methods()[0] == 'GET') {
                 $middleware = $route->getAction()['middleware'];
