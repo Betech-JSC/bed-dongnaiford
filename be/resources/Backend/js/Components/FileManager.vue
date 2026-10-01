@@ -3,7 +3,7 @@
         :class="embed ? 'left-0 overflow-auto' : 'left-from-sidebar'"
         :style="{ '--sidebar-width': sidebarWidth + 'px' }">
         <input type="file" class="hidden"
-            accept="image/png, image/gif, image/jpeg, image/svg+xml, application/pdf, image/webp, video/mp4, video/x-m4v, video/*, .pdf, .doc, .docx, .xls, .xlsx, .zip, .rar, .txt, .csv" multiple="true"
+            accept="image/png, image/gif, image/jpeg, image/svg+xml, application/pdf, image/webp, video/mp4, video/x-m4v, video/*, .pdf, .doc, .docx, .xls, .xlsx, .zip, .rar, .txt, .csv" multiple
             ref="file" @change="fileChange" />
         <input type="file" class="hidden" webkitdirectory directory multiple ref="folderInput" @change="folderInputChange" />
         <div class="topbar" v-if="!embed">
@@ -817,99 +817,123 @@ export default {
             this.$refs.folderInput.value = ''
         },
         uploadFilesWithPaths(filesToUpload) {
-            if (filesToUpload.length === 0) {
+            this.uploadBatch(filesToUpload)
+        },
+        uploadFiles(images) {
+            const items = []
+            for (let i = 0; i < images.length; i++) {
+                items.push({
+                    file: images[i],
+                    relativePath: null,
+                })
+            }
+            this.uploadBatch(items)
+        },
+        async uploadBatch(items) {
+            if (!items || items.length === 0 || this.loading) return
+            this.loading = true
+
+            // 1. Kiểm tra kích thước từng file
+            const validItems = []
+            const oversizedFiles = []
+
+            for (const item of items) {
+                const fileCheck = this.fileCheck(item.file)
+                if (fileCheck.valid) {
+                    validItems.push(item)
+                } else {
+                    oversizedFiles.push(item.relativePath || item.file.name)
+                }
+            }
+
+            if (oversizedFiles.length > 0) {
+                alert(
+                    oversizedFiles.join('\n') + '\n\n' +
+                    this.tt('models.files.maximum_size') + ' (Tối đa: ' + MAX_SIZE_OF_IMAGE + 'MB). ' +
+                    this.tt('models.files.try_again')
+                )
+            }
+
+            if (validItems.length === 0) {
+                if (this.$refs.file) this.$refs.file.value = ''
+                if (this.$refs.folderInput) this.$refs.folderInput.value = ''
                 this.loading = false
                 return
             }
 
-            for (const item of filesToUpload) {
-                const fileCheck = this.fileCheck(item.file)
-                if (!fileCheck.valid) {
-                    alert(
-                        item.relativePath + ': ' +
-                        this.tt('models.files.maximum_size') +
-                        ' ' +
-                        fileCheck.maxSize +
-                        this.tt('models.files.try_again')
-                    )
-                    this.loading = false
-                    return false
-                }
-            }
+            // 2. Upload từng file theo hàng đợi song song (concurrency pool = 2)
+            let successCount = 0
+            const failedFiles = []
+            const total = validItems.length
+            const concurrency = 2
+            let currentIndex = 0
 
-            var formData = new FormData()
-            for (let index = 0; index < filesToUpload.length; index++) {
-                const item = filesToUpload[index]
-                const file = item.file
-                const relativePath = item.relativePath
+            const uploadWorker = async () => {
+                while (currentIndex < validItems.length) {
+                    const index = currentIndex++
+                    const item = validItems[index]
+                    const file = item.file
+                    const relativePath = item.relativePath
 
-                if (this.isImage(file.name)) {
-                    const reader = new FileReader()
-                    reader.onload = (e) => {
-                        this.uploadingFiles.push({
-                            filename: relativePath,
-                            base64_code: e.target.result,
-                        })
+                    const formData = new FormData()
+                    formData.append('files[0]', file)
+                    if (relativePath) {
+                        formData.append('relative_paths[0]', relativePath)
                     }
-                    reader.readAsDataURL(file)
-                } else {
-                    this.uploadingFiles.push({
-                        filename: relativePath,
-                        base64_code: null,
-                        size: file.size,
-                    })
-                }
-                formData.append('files[' + index + ']', file)
-                formData.append('relative_paths[' + index + ']', relativePath)
-            }
-            
-            formData.append('path', this.currentPath)
-            this.postFiles(formData)
-        },
-        uploadFiles(images) {
-            if (images.length === 0 || this.loading) return
-            this.loading = true
+                    formData.append('path', this.currentPath)
 
-            for (const image of images) {
-                const fileCheck = this.fileCheck(image)
-                if (!fileCheck.valid) {
-                    alert(
-                        this.tt('models.files.maximum_size') +
-                        ' ' +
-                        fileCheck.maxSize +
-                        this.tt('models.files.try_again')
-                    )
-                    this.$refs.file.value = ''
-                    this.loading = false
-                    return false
-                }
-            }
-
-            var formData = new FormData()
-            for (let index = 0; index < images.length; index++) {
-                const image = images[index]
-
-                if (this.isImage(image.name)) {
-                    const reader = new FileReader()
-                    reader.onload = (e) => {
-                        this.uploadingFiles.push({
-                            filename: image.name,
-                            base64_code: e.target.result,
-                        })
+                    try {
+                        const response = await this.$axios.post(this.route('admin.files.store'), formData)
+                        if (response.status === 200 && (!response.data.failureFiles || response.data.failureFiles.length === 0)) {
+                            successCount++
+                        } else {
+                            failedFiles.push(relativePath || file.name)
+                        }
+                    } catch (err) {
+                        failedFiles.push(relativePath || file.name)
                     }
-                    reader.readAsDataURL(image)
-                } else {
-                    this.uploadingFiles.push({
-                        filename: image.name,
-                        base64_code: null,
-                        size: image.size,
-                    })
                 }
-                formData.append('files[' + index + ']', image)
-                formData.append('path', this.currentPath)
             }
-            this.$refs.file.value = ''
-            this.postFiles(formData)
+
+            const workers = []
+            for (let i = 0; i < Math.min(concurrency, validItems.length); i++) {
+                workers.push(uploadWorker())
+            }
+            await Promise.all(workers)
+
+            if (this.$refs.file) this.$refs.file.value = ''
+            if (this.$refs.folderInput) this.$refs.folderInput.value = ''
+            this.uploadingFiles = []
+            this.loading = false
+
+            // Tải lại danh sách tệp
+            this.getFiles({ page: 1 })
+
+            // 3. Thông báo kết quả
+            if (failedFiles.length === 0) {
+                this.$toast.add({
+                    severity: 'success',
+                    summary: this.tt('models.admins.success') || 'Thành công',
+                    detail: total === 1
+                        ? (this.tt('models.has_crud_action.store') || 'Tải file lên thành công!')
+                        : `Đã tải lên thành công ${successCount} tệp!`,
+                    life: 3000,
+                })
+            } else if (successCount > 0) {
+                this.$toast.add({
+                    severity: 'warn',
+                    summary: 'Cảnh báo',
+                    detail: `Đã tải lên ${successCount}/${total} tệp. Thất bại (${failedFiles.length}): ${failedFiles.slice(0, 3).join(', ')}${failedFiles.length > 3 ? '...' : ''}`,
+                    life: 5000,
+                })
+            } else {
+                this.$toast.add({
+                    severity: 'error',
+                    summary: 'Lỗi tải tệp',
+                    detail: `Tải lên thất bại ${failedFiles.length} tệp. Vui lòng kiểm tra lại cấu hình upload PHP hoặc định dạng file.`,
+                    life: 5000,
+                })
+            }
         },
         postFiles(formData) {
             this.loading = true

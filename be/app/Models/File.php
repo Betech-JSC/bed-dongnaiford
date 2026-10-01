@@ -218,8 +218,16 @@ class File
         $successFiles = [];
         $failureFiles = [];
 
+        if (empty($files) || !is_iterable($files)) {
+            return [
+                'successFiles' => [],
+                'failureFiles' => ['no_files_uploaded'],
+            ];
+        }
+
         foreach ($files as $index => $file) {
-            if (is_string($file) && preg_match('/^data:([^;]+);base64,(.*)$/', $file, $matches)) {
+            try {
+                if (is_string($file) && preg_match('/^data:([^;]+);base64,(.*)$/', $file, $matches)) {
                 $mimeType = $matches[1];
                 $data = base64_decode($matches[2]);
                 
@@ -376,6 +384,12 @@ class File
                 } else {
                     $failureFiles[] = 'unknown_file';
                 }
+            }
+            } catch (\Throwable $e) {
+                logger()->error('Store single file error: ' . $e->getMessage());
+                $failureFiles[] = (is_object($file) && method_exists($file, 'getClientOriginalName'))
+                    ? $file->getClientOriginalName()
+                    : 'unknown_file';
             }
         }
         return [

@@ -35,12 +35,24 @@ class FileController extends Controller
         $files = $request->file('files');
         $relativePaths = $request->input('relative_paths', []);
 
+        if (!$files && $request->hasFile('file')) {
+            $files = [$request->file('file')];
+            $relativePaths = [$request->input('relative_path')];
+        }
+
+        if (empty($files)) {
+            return response()->json([
+                'message' => 'Tải file thất bại: Không tìm thấy tệp hoặc dung lượng vượt quá giới hạn máy chủ (post_max_size/upload_max_filesize).',
+                'failureFiles' => ['no_file']
+            ], 422);
+        }
+
         $file = new File($request->input('path', '/'));
         $result = $file->store($files, $relativePaths);
 
-        if (!empty($result['failureFiles'])) {
+        if (!empty($result['failureFiles']) && empty($result['successFiles'])) {
             return response()->json([
-                'message' => 'Tải file thất bại: File vượt quá giới hạn cấu hình PHP (upload_max_filesize / post_max_size) hoặc dung lượng tối đa cho phép.',
+                'message' => 'Tải file thất bại: File vượt quá giới hạn cấu hình PHP (upload_max_filesize / post_max_size) hoặc định dạng không được hỗ trợ.',
                 'errors' => $result['failureFiles']
             ], 422);
         }
