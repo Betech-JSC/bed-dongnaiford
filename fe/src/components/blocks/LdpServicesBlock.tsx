@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { servicesAPI } from "@/lib/api";
+import { resolveImageUrl } from "@/lib/site-assets";
 
 interface LdpServicesBlockProps {
   data?: any;
@@ -27,30 +28,77 @@ const DEFAULT_SERVICES: ServiceItem[] = [
     title: "Bảo Dưỡng Định Kỳ",
     slug: "bao-duong-dinh-ky",
     description: "Quy trình kiểm tra 75 hạng mục chuẩn Ford toàn cầu giúp xe vận hành bền bỉ và an toàn tối đa.",
-    image: "/service-support-customer.jpg",
+    image: "/images-services/service-maintenance-banner.webp",
   },
   {
     id: 2,
     title: "Sửa Chữa Chung & Đồng Sơn",
     slug: "sua-chua-dong-son",
     description: "Trang thiết bị chẩn đoán hiện đại cùng phòng sơn sấy đạt tiêu chuẩn khắt khe từ Ford Việt Nam.",
-    image: "/service-support-customer.jpg",
+    image: "/service-fixed-car.jpg",
   },
   {
     id: 3,
-    title: "Phụ Tùng & Phụ Kiện Chính Hãng",
+    title: "Phụ Tùng & Nâng Cấp Phụ Kiện",
     slug: "phu-tung-chinh-hang",
     description: "100% phụ tùng, dầu nhớt và phụ kiện nâng cấp được nhập khẩu chính hãng với bảo hành đầy đủ.",
-    image: "/service-support-customer.jpg",
+    image: "/images-services/service-upgrade-banner.webp",
   },
   {
     id: 4,
     title: "Cứu Hộ 24/7 & Giao Xe Tận Nơi",
     slug: "cuu-ho-24-7",
     description: "Đội ngũ kỹ thuật cơ động túc trực 24/7 sẵn sàng hỗ trợ khách hàng trên mọi cung đường.",
+    image: "/service-delivery.jpg",
+  },
+  {
+    id: 5,
+    title: "Chăm Sóc & Làm Đẹp Xe",
+    slug: "dich-vu-cham-soc-xe",
+    description: "Công nghệ phủ bóng ceramic, vệ sinh khoang động cơ và nội thất chuyên sâu cao cấp.",
+    image: "/images-services/service-detailing-banner.webp",
+  },
+  {
+    id: 6,
+    title: "Tư Vấn & Hỗ Trợ Kỹ Thuật",
+    slug: "tu-van-ho-tro-ky-thuat",
+    description: "Đội ngũ chuyên gia và cố vấn kỹ thuật được đào tạo bài bản luôn sẵn sàng đồng hành 1:1.",
     image: "/service-support-customer.jpg",
   }
 ];
+
+const FALLBACK_SERVICE_IMAGES = [
+  "/images-services/service-maintenance-banner.webp",
+  "/service-fixed-car.jpg",
+  "/images-services/service-upgrade-banner.webp",
+  "/service-delivery.jpg",
+  "/images-services/service-detailing-banner.webp",
+  "/service-support-customer.jpg",
+];
+
+function resolveServiceImage(item: any, index: number): string {
+  const candidate = item?.image?.url || (typeof item?.image === "string" ? item.image : null);
+  if (candidate && typeof candidate === "string" && candidate.length > 5 && !candidate.includes("null")) {
+    return resolveImageUrl(candidate);
+  }
+  const str = (item?.slug || item?.title || "").toLowerCase();
+  if (str.includes("bao-duong") || str.includes("bảo dưỡng")) {
+    return "/images-services/service-maintenance-banner.webp";
+  }
+  if (str.includes("sua-chua") || str.includes("sửa chữa") || str.includes("dong-son") || str.includes("đồng sơn")) {
+    return "/service-fixed-car.jpg";
+  }
+  if (str.includes("cuu-ho") || str.includes("cứu hộ") || str.includes("giao-xe") || str.includes("delivery")) {
+    return "/service-delivery.jpg";
+  }
+  if (str.includes("phu-tung") || str.includes("phụ tùng") || str.includes("nang-cap") || str.includes("phụ kiện")) {
+    return "/images-services/service-upgrade-banner.webp";
+  }
+  if (str.includes("cham-soc") || str.includes("chăm sóc") || str.includes("detailing")) {
+    return "/images-services/service-detailing-banner.webp";
+  }
+  return FALLBACK_SERVICE_IMAGES[index % FALLBACK_SERVICE_IMAGES.length];
+}
 
 export default function LdpServicesBlock({
   data,
@@ -73,15 +121,15 @@ export default function LdpServicesBlock({
     servicesAPI
       .getAll()
       .then((res: any) => {
-        const raw = res?.data || res || [];
+        const raw = (res as any)?.services || (res as any)?.data || res || [];
         if (Array.isArray(raw) && raw.length > 0) {
-          const formatted = raw.map((item: any) => ({
+          const formatted = raw.map((item: any, idx: number) => ({
             id: item.id,
             title: item.title,
             slug: item.slug,
             custom_link: item.custom_link,
             description: item.description || item.excerpt || "",
-            image: item.image?.url || item.image || "/service-support-customer.jpg",
+            image: resolveServiceImage(item, idx),
           }));
           setServices(formatted);
         }
@@ -118,7 +166,10 @@ export default function LdpServicesBlock({
           <div className="animate-marquee-continuous gap-[var(--card-gap-service,24px)] flex">
             {marqueeItems.map((srv, idx) => {
               const sTitle = srv.title;
-              const sImg = typeof srv.image === "object" ? srv.image?.url : (srv.image || "/service-support-customer.jpg");
+              const rawImg = typeof srv.image === "object" ? srv.image?.url : srv.image;
+              const sImg = (rawImg && typeof rawImg === "string" && !rawImg.includes("null"))
+                ? rawImg
+                : FALLBACK_SERVICE_IMAGES[idx % FALLBACK_SERVICE_IMAGES.length];
               const sHref = (srv.custom_link && srv.custom_link.startsWith("/dich-vu/"))
                 ? srv.custom_link
                 : `/dich-vu/${srv.slug || ""}`;
