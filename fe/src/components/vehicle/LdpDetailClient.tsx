@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useVehicle } from "./VehicleLayoutClient";
 import VehicleLayoutClient from "./VehicleLayoutClient";
 import Blocks, { resolveImageUrl } from "@/components/blocks/Blocks";
-import { Phone, Sparkles, Car } from "lucide-react";
+import { Phone, Car } from "lucide-react";
 
 const ZaloIcon = ({ className = "w-6 h-6" }: { className?: string }) => (
   <svg viewBox="0 0 100 100" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -13,8 +13,25 @@ const ZaloIcon = ({ className = "w-6 h-6" }: { className?: string }) => (
   </svg>
 );
 
+const resolveZaloUrl = (zaloUrl?: string, phone?: string): string => {
+  const target = (zaloUrl || phone || "").trim();
+  if (!target) return "";
+  if (target.startsWith("http://") || target.startsWith("https://")) {
+    return target;
+  }
+  if (target.startsWith("zalo.me/")) {
+    return `https://${target}`;
+  }
+  const cleanPhone = target.replace(/[^0-9]/g, "");
+  if (cleanPhone) {
+    return `https://zalo.me/${cleanPhone}`;
+  }
+  return target;
+};
+
 function LdpInnerContent({ salesConsultant, layoutBlocks, promotions, vehicle, allVehicles }: any) {
   const { openQuoteDrawer, openDriveDrawer } = useVehicle();
+  const finalZaloUrl = resolveZaloUrl(salesConsultant?.zalo_url, salesConsultant?.phone);
 
   // Backwards compatibility dynamic injection for existing LDP pages
   let resolvedBlocks = [...layoutBlocks].filter((b: any) => b.type !== "ThreeSixtyViewer");
@@ -199,9 +216,9 @@ function LdpInnerContent({ salesConsultant, layoutBlocks, promotions, vehicle, a
       {/* FLOATING SALES CONSULTANT WIDGET */}
       <div className="fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom,0px))] md:bottom-6 right-4 md:right-6 z-[99] flex flex-col items-end gap-2.5 font-sans">
         {/* Zalo Button */}
-        {salesConsultant.zalo_url && (
+        {finalZaloUrl && (
           <a
-            href={salesConsultant.zalo_url}
+            href={finalZaloUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-2 px-3.5 py-2.5 md:px-4 md:py-2.5 bg-[#0068ff] hover:bg-[#0057d6] text-white rounded-full shadow-lg shadow-blue-500/30 hover:scale-105 active:scale-95 transition-all duration-200 border border-blue-400/30"

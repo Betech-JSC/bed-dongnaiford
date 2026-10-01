@@ -112,6 +112,24 @@ class SalesConsultant extends BaseModel
         return isset($this->cover_image['path']) ? static_url($this->cover_image['path']) : null;
     }
 
+    public function getZaloUrlAttribute($value): ?string
+    {
+        $val = trim($value ?? '');
+        if (empty($val)) {
+            $val = trim($this->attributes['phone'] ?? '');
+        }
+        if (empty($val)) return null;
+
+        if (str_starts_with($val, 'http://') || str_starts_with($val, 'https://')) {
+            return $val;
+        }
+        if (str_starts_with($val, 'zalo.me/')) {
+            return 'https://' . $val;
+        }
+        $digits = preg_replace('/[^0-9]/', '', $val);
+        return $digits ? ('https://zalo.me/' . $digits) : ('https://' . $val);
+    }
+
     public function getDefaultLocale(): ?string
     {
         return 'vi';

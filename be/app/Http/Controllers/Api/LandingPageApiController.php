@@ -92,6 +92,19 @@ class LandingPageApiController extends Controller
         }
 
         if (!$consultant) {
+            $cleanPhone = preg_replace('/[^0-9]/', '', $sales_slug);
+            if (!empty($cleanPhone)) {
+                $consultant = SalesConsultant::query()
+                    ->where('status', SalesConsultant::STATUS_ACTIVE)
+                    ->where(function ($q) use ($sales_slug, $cleanPhone) {
+                        $q->where('phone', $sales_slug)
+                          ->orWhere('phone', $cleanPhone);
+                    })
+                    ->first();
+            }
+        }
+
+        if (!$consultant) {
             return $this->failure(__('Không tìm thấy cố vấn bán hàng'), 404);
         }
 
@@ -196,6 +209,19 @@ class LandingPageApiController extends Controller
                 ->where('status', SalesConsultant::STATUS_ACTIVE)
                 ->whereSlug('toan')
                 ->first();
+        }
+
+        if (!$consultant) {
+            $cleanPhone = preg_replace('/[^0-9]/', '', $sales_slug);
+            if (!empty($cleanPhone)) {
+                $consultant = SalesConsultant::query()
+                    ->where('status', SalesConsultant::STATUS_ACTIVE)
+                    ->where(function ($q) use ($sales_slug, $cleanPhone) {
+                        $q->where('phone', $sales_slug)
+                          ->orWhere('phone', $cleanPhone);
+                    })
+                    ->first();
+            }
         }
 
         if (!$consultant) {
