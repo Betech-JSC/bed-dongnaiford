@@ -166,6 +166,9 @@ class LandingPageApiController extends Controller
 
         // 6. Thông tin SEO
         $consultantDetail = $consultant->toLocalizedDetail($locale);
+        if (!empty($ldp?->zalo_url)) {
+            $consultantDetail['zalo_url'] = $ldp->formatted_zalo_url ?? $ldp->zalo_url;
+        }
         $consultantName = $consultantDetail['name'] ?? $consultant->name;
         $seoTitle = $ldp?->seo_meta_title ?: ("Cố vấn " . $consultantName . " | Đồng Nai Ford");
         $seoDesc = $ldp?->seo_meta_description ?: ("Cố vấn bán hàng " . $consultantName . " tại Đồng Nai Ford. Tư vấn báo giá lăn bánh, hỗ trợ thủ tục mua xe Ford trả góp, lái thử tận nhà.");
@@ -354,9 +357,14 @@ class LandingPageApiController extends Controller
             ])->toArray();
         }
 
+        $consultantDetail = $consultant->toLocalizedDetail($locale);
+        if (!empty($ldp?->zalo_url)) {
+            $consultantDetail['zalo_url'] = $ldp->formatted_zalo_url ?? $ldp->zalo_url;
+        }
+
         return $this->success([
             'id'                  => $ldp->id,
-            'sales_consultant'    => $consultant->toLocalizedDetail($locale),
+            'sales_consultant'    => $consultantDetail,
             'vehicle'             => [
                 'id'            => $vehicle->id,
                 'title'         => $vehicle->title,

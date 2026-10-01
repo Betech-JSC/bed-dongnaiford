@@ -19,6 +19,7 @@ class LandingPage extends BaseModel
 
     protected $fillable = [
         'sales_consultant_id',
+        'zalo_url',
         'vehicle_id',
         'vehicle_ids',
         'layout_blocks',
@@ -196,6 +197,21 @@ class LandingPage extends BaseModel
         return $this->belongsTo(Vehicle::class, 'vehicle_id');
     }
 
+    public function getFormattedZaloUrlAttribute(): ?string
+    {
+        $val = trim($this->zalo_url ?? '');
+        if (empty($val)) return null;
+
+        if (str_starts_with($val, 'http://') || str_starts_with($val, 'https://')) {
+            return $val;
+        }
+        if (str_starts_with($val, 'zalo.me/')) {
+            return 'https://' . $val;
+        }
+        $digits = preg_replace('/[^0-9]/', '', $val);
+        return $digits ? ('https://zalo.me/' . $digits) : ('https://' . $val);
+    }
+
     public function rules(): array
     {
         $salesConsultantId = request()->input('sales_consultant_id');
@@ -203,6 +219,7 @@ class LandingPage extends BaseModel
 
         $base = [
             'sales_consultant_id' => 'required|integer|exists:sales_consultants,id',
+            'zalo_url' => 'nullable|string|max:255',
             'vehicle_ids' => 'required|array|min:1',
             'vehicle_id' => 'nullable|integer',
             'status' => 'required|string|in:ACTIVE,INACTIVE',

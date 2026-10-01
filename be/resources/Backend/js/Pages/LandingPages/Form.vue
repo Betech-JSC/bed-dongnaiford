@@ -452,6 +452,18 @@
                         }"
                     />
 
+                    <!-- Số điện thoại / Zalo OA liên kết -->
+                    <Field
+                        v-model="form.zalo_url"
+                        :field="{
+                            type: 'text',
+                            name: 'zalo_url',
+                            label: 'SĐT / Zalo OA Liên Kết',
+                            placeholder: 'vd: 0905905706 hoặc https://zalo.me/...',
+                            help: 'Nhập SĐT hoặc link Zalo OA riêng cho Landing Page này. Nếu để trống sẽ tự dùng Zalo của Cố vấn.',
+                        }"
+                    />
+
 
 
                     <!-- Trạng thái hoạt động -->
