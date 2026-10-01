@@ -586,6 +586,11 @@ class LandingPageApiController extends Controller
         if (empty($layoutBlocks)) {
             $layoutBlocks = [
                 [
+                    'id' => 'consultant-hero-banner',
+                    'type' => 'LdpHeroBanner',
+                    'data' => []
+                ],
+                [
                     'id' => 'consultant-card',
                     'type' => 'LdpSalesConsultant',
                     'data' => []
@@ -605,6 +610,27 @@ class LandingPageApiController extends Controller
                         'title' => 'Chương Trình Khuyến Mãi Đặc Biệt',
                         'description' => 'Nhận ưu đãi độc quyền từ Cố vấn khi đăng ký mua xe trong tháng này.'
                     ]
+                ],
+                [
+                    'id' => 'consultant-technology',
+                    'type' => 'LdpTechnology',
+                    'data' => [
+                        'title' => 'Khơi nguồn trải nghiệm lái hoàn hảo',
+                        'subtitle' => 'Khám phá các trang bị công nghệ thông minh dẫn đầu phân khúc trên các dòng xe Ford thế hệ mới.'
+                    ]
+                ],
+                [
+                    'id' => 'consultant-services',
+                    'type' => 'LdpServices',
+                    'data' => [
+                        'title' => 'Các dịch vụ của chúng tôi',
+                        'subtitle' => 'Các giải pháp dịch vụ toàn diện, tận tâm và chính hãng từ Đồng Nai Ford.'
+                    ]
+                ],
+                [
+                    'id' => 'consultant-faq',
+                    'type' => 'LdpFaq',
+                    'data' => []
                 ]
             ];
         }

@@ -11,21 +11,41 @@ function LdpInnerContent({ salesConsultant, layoutBlocks, promotions, vehicle, a
 
   // Backwards compatibility dynamic injection for existing LDP pages
   let resolvedBlocks = [...layoutBlocks];
+  const hasLdpHeroBlock = resolvedBlocks.some((b: any) => b.type === "LdpHeroBanner");
   const hasConsultantBlock = resolvedBlocks.some((b: any) => b.type === "LdpSalesConsultant");
   const hasPromotionsBlock = resolvedBlocks.some((b: any) => b.type === "LdpPromotions");
   const hasVehiclesGridBlock = resolvedBlocks.some((b: any) => b.type === "LdpVehiclesGrid");
-  
+  const hasTechnologyBlock = resolvedBlocks.some((b: any) => b.type === "LdpTechnology");
+  const hasServicesBlock = resolvedBlocks.some((b: any) => b.type === "LdpServices");
+  const hasLdpFaqBlock = resolvedBlocks.some((b: any) => b.type === "LdpFaq");
+
+  if (!hasLdpHeroBlock) {
+    const oldHeroIdx = resolvedBlocks.findIndex((b: any) => b.type === "HeroBanner");
+    if (oldHeroIdx !== -1) {
+      resolvedBlocks[oldHeroIdx] = {
+        ...resolvedBlocks[oldHeroIdx],
+        type: 'LdpHeroBanner',
+      };
+    } else {
+      resolvedBlocks.unshift({
+        id: 'default-hero-banner',
+        type: 'LdpHeroBanner',
+        data: {}
+      });
+    }
+  }
+
   if (!hasConsultantBlock) {
-    const heroIndex = resolvedBlocks.findIndex((b: any) => b.type === "HeroBanner");
-    resolvedBlocks.splice(heroIndex !== -1 ? heroIndex + 1 : 0, 0, {
+    const heroIdx = resolvedBlocks.findIndex((b: any) => b.type === "HeroBanner" || b.type === "LdpHeroBanner");
+    resolvedBlocks.splice(heroIdx !== -1 ? heroIdx + 1 : 0, 0, {
       id: 'default-sales-consultant',
       type: 'LdpSalesConsultant',
       data: {}
     });
   }
-  
-  // Tự động chèn LdpVehiclesGrid ở phần đầu LDP nếu có từ 2 xe trở lên
-  if (!hasVehiclesGridBlock && allVehicles && allVehicles.length > 1) {
+
+  // Tự động chèn LdpVehiclesGrid ở phần đầu LDP nếu có xe
+  if (!hasVehiclesGridBlock && allVehicles && allVehicles.length > 0) {
     const consultantIndex = resolvedBlocks.findIndex((b: any) => b.type === "LdpSalesConsultant");
     const insertIndex = consultantIndex !== -1 ? consultantIndex + 1 : 1;
     resolvedBlocks.splice(insertIndex, 0, {
@@ -37,10 +57,12 @@ function LdpInnerContent({ salesConsultant, layoutBlocks, promotions, vehicle, a
       }
     });
   }
-  
+
   if (!hasPromotionsBlock) {
+    const vGridIndex = resolvedBlocks.findIndex((b: any) => b.type === "LdpVehiclesGrid");
     const consultantIndex = resolvedBlocks.findIndex((b: any) => b.type === "LdpSalesConsultant");
-    resolvedBlocks.splice(consultantIndex !== -1 ? consultantIndex + 1 : 1, 0, {
+    const baseIndex = vGridIndex !== -1 ? vGridIndex + 1 : (consultantIndex !== -1 ? consultantIndex + 1 : 1);
+    resolvedBlocks.splice(baseIndex, 0, {
       id: 'default-ldp-promotions',
       type: 'LdpPromotions',
       data: {
@@ -50,8 +72,40 @@ function LdpInnerContent({ salesConsultant, layoutBlocks, promotions, vehicle, a
     });
   }
 
+  if (!hasTechnologyBlock) {
+    resolvedBlocks.push({
+      id: 'default-ldp-technology',
+      type: 'LdpTechnology',
+      data: {}
+    });
+  }
+
+  if (!hasServicesBlock) {
+    resolvedBlocks.push({
+      id: 'default-ldp-services',
+      type: 'LdpServices',
+      data: {}
+    });
+  }
+
+  if (!hasLdpFaqBlock) {
+    const oldFaqIdx = resolvedBlocks.findIndex((b: any) => b.type === "AccordionFAQs");
+    if (oldFaqIdx !== -1) {
+      resolvedBlocks[oldFaqIdx] = {
+        ...resolvedBlocks[oldFaqIdx],
+        type: 'LdpFaq',
+      };
+    } else {
+      resolvedBlocks.push({
+        id: 'default-ldp-faq',
+        type: 'LdpFaq',
+        data: {}
+      });
+    }
+  }
+
   // Chia danh sách block linh hoạt theo vị trí của HeroBanner (cho phép kéo block lên trước cả Hero)
-  const heroIndex = resolvedBlocks.findIndex((b: any) => b.type === "HeroBanner");
+  const heroIndex = resolvedBlocks.findIndex((b: any) => b.type === "HeroBanner" || b.type === "LdpHeroBanner");
   const topBlocks = heroIndex > 0 ? resolvedBlocks.slice(0, heroIndex) : [];
   const heroBlock = heroIndex !== -1 ? resolvedBlocks[heroIndex] : null;
   const bottomBlocks = heroIndex !== -1 ? resolvedBlocks.slice(heroIndex + 1) : resolvedBlocks;

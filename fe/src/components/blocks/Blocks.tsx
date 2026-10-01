@@ -19,6 +19,10 @@ const formatUploadError = (err: any): string => {
 
 import { resolveImageUrl, hasImageField } from "@/lib/site-assets";
 import LdpVehiclesGridBlock from "./LdpVehiclesGridBlock";
+import LdpHeroBannerBlock from "./LdpHeroBannerBlock";
+import LdpTechnologyBlock from "./LdpTechnologyBlock";
+import LdpServicesBlock from "./LdpServicesBlock";
+import LdpFaqBlock from "./LdpFaqBlock";
 export { resolveImageUrl, hasImageField };
 
 export const getYoutubeId = (url: string | null | undefined): string | null => {
@@ -136,6 +140,50 @@ export default function Blocks({
                 salesConsultant={salesConsultant}
                 allVehicles={allVehicles}
                 currentVehicle={vehicle}
+                anchorId={block.anchorId}
+                isEditMode={isEditMode}
+              />
+            );
+            break;
+          case "LdpHeroBanner":
+            blockComponent = (
+              <LdpHeroBannerBlock
+                data={block.data}
+                salesConsultant={salesConsultant}
+                openQuoteDrawer={openQuoteDrawer}
+                openDriveModal={openDriveModal}
+                anchorId={block.anchorId}
+                isEditMode={isEditMode}
+              />
+            );
+            break;
+          case "LdpTechnology":
+            blockComponent = (
+              <LdpTechnologyBlock
+                data={block.data}
+                salesConsultant={salesConsultant}
+                openQuoteDrawer={openQuoteDrawer}
+                openDriveModal={openDriveModal}
+                anchorId={block.anchorId}
+                isEditMode={isEditMode}
+              />
+            );
+            break;
+          case "LdpServices":
+            blockComponent = (
+              <LdpServicesBlock
+                data={block.data}
+                salesConsultant={salesConsultant}
+                anchorId={block.anchorId}
+                isEditMode={isEditMode}
+              />
+            );
+            break;
+          case "LdpFaq":
+            blockComponent = (
+              <LdpFaqBlock
+                data={block.data}
+                salesConsultant={salesConsultant}
                 anchorId={block.anchorId}
                 isEditMode={isEditMode}
               />
@@ -311,9 +359,13 @@ export default function Blocks({
           const getBlockLabel = (type: string) => {
             switch (type) {
               case "HeroBanner": return "Banner lớn";
+              case "LdpHeroBanner": return "Hero Banner (Trang chủ)";
               case "LdpVehiclesGrid": return "Danh sách dòng xe (Showroom)";
               case "LdpSalesConsultant": return "Cố vấn bán hàng LDP";
               case "LdpPromotions": return "Khuyến mãi LDP";
+              case "LdpTechnology": return "Công nghệ Ford";
+              case "LdpServices": return "Dịch vụ của chúng tôi";
+              case "LdpFaq": return "Câu hỏi thường gặp (FAQs)";
               case "Promotions": return "Khuyến mãi";
               case "ThreeSixtyViewer": return "Xoay 360°";
               case "FeaturesGrid": return "Lưới tính năng";
