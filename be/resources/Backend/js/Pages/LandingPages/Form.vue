@@ -165,49 +165,87 @@
                 <!-- Card Đường Dẫn LDP Thực Tế trên Website -->
                 <div class="card mt-4">
                     <div class="card-header font-bold text-gray-900 border-b pb-2 flex items-center justify-between">
-                        <span>🔗 Đường Dẫn LDP Thực Tế Trên Website</span>
+                        <span>Đường Dẫn LDP Thực Tế Trên Website</span>
                         <span v-if="getLdpUrls().length > 0" class="text-xs bg-blue-50 text-blue-700 font-bold px-2 py-0.5 rounded border border-blue-200">
                             {{ getLdpUrls().length }} đường dẫn LDP
                         </span>
                     </div>
                     <div class="card-body mt-3">
-                        <div v-if="getLdpUrls().length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            <div
-                                v-for="item in getLdpUrls()"
-                                :key="item.id"
-                                class="p-3 bg-gray-50 border border-gray-200 rounded-lg flex flex-col justify-between space-y-2 hover:border-blue-300 transition"
-                            >
-                                <div class="flex items-center justify-between">
-                                    <span class="text-xs font-bold text-gray-900 flex items-center gap-1.5">
-                                        🚗 {{ item.title }}
-                                    </span>
-                                    <a
-                                        :href="item.url"
-                                        target="_blank"
-                                        class="text-xs font-bold text-blue-600 hover:text-blue-800 underline flex items-center gap-1"
-                                    >
-                                        Xem thực tế ↗
-                                    </a>
-                                </div>
-                                <div class="flex items-center space-x-2">
-                                    <input
-                                        type="text"
-                                        readonly
-                                        :value="item.url"
-                                        class="w-full text-xs bg-white text-gray-700 px-2.5 py-1.5 border border-gray-300 rounded font-mono select-all focus:outline-none"
-                                        @click="$event.target.select()"
-                                    />
-                                    <button
-                                        type="button"
-                                        class="text-xs bg-gray-200 hover:bg-gray-300 text-gray-800 px-2.5 py-1.5 rounded font-semibold whitespace-nowrap cursor-pointer"
-                                        @click="copyToClipboard(item.url)"
-                                    >
-                                        📋 Copy
-                                    </button>
+                        <!-- Đường Dẫn LDP Tổng (Showroom Cố vấn) -->
+                        <div v-if="getConsultantMainLdpUrl()" class="mb-4 p-3 bg-blue-50/70 border border-blue-200 rounded-lg flex flex-col justify-between space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-blue-900 uppercase tracking-wide">
+                                    {{ getConsultantMainLdpUrl().title }}
+                                </span>
+                                <a
+                                    :href="getConsultantMainLdpUrl().url"
+                                    target="_blank"
+                                    class="text-xs font-bold text-blue-700 hover:text-blue-900 underline"
+                                >
+                                    Xem thực tế ↗
+                                </a>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <input
+                                    type="text"
+                                    readonly
+                                    :value="getConsultantMainLdpUrl().url"
+                                    class="w-full text-xs bg-white text-blue-900 font-medium px-3 py-2 border border-blue-300 rounded font-mono select-all focus:outline-none"
+                                    @click="$event.target.select()"
+                                />
+                                <button
+                                    type="button"
+                                    class="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded font-bold whitespace-nowrap cursor-pointer transition"
+                                    @click="copyToClipboard(getConsultantMainLdpUrl().url)"
+                                >
+                                    Copy URL Tổng
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Danh sách chi tiết từng xe -->
+                        <div v-if="getLdpUrls().length > 0">
+                            <div class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
+                                Đường Dẫn Chi Tiết Từng Dòng Xe:
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div
+                                    v-for="item in getLdpUrls()"
+                                    :key="item.id"
+                                    class="p-3 bg-gray-50 border border-gray-200 rounded-lg flex flex-col justify-between space-y-2 hover:border-blue-300 transition"
+                                >
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-xs font-bold text-gray-900">
+                                            {{ item.title }}
+                                        </span>
+                                        <a
+                                            :href="item.url"
+                                            target="_blank"
+                                            class="text-xs font-bold text-blue-600 hover:text-blue-800 underline"
+                                        >
+                                            Xem thực tế ↗
+                                        </a>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <input
+                                            type="text"
+                                            readonly
+                                            :value="item.url"
+                                            class="w-full text-xs bg-white text-gray-700 px-2.5 py-1.5 border border-gray-300 rounded font-mono select-all focus:outline-none"
+                                            @click="$event.target.select()"
+                                        />
+                                        <button
+                                            type="button"
+                                            class="text-xs bg-gray-200 hover:bg-gray-300 text-gray-800 px-2.5 py-1.5 rounded font-semibold whitespace-nowrap cursor-pointer"
+                                            @click="copyToClipboard(item.url)"
+                                        >
+                                            Copy
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div v-else class="text-xs text-gray-500 italic p-3 bg-gray-50 rounded-lg border border-dashed text-center">
+                        <div v-else-if="!getConsultantMainLdpUrl()" class="text-xs text-gray-500 italic p-3 bg-gray-50 rounded-lg border border-dashed text-center">
                             ⚠️ Vui lòng chọn <strong>Cố vấn phụ trách</strong> và chọn ít nhất 1 <strong>Dòng xe áp dụng</strong> để tạo đường dẫn LDP.
                         </div>
                     </div>
@@ -1011,6 +1049,35 @@ export default {
         },
         removeCustomPromo(index) {
             this.formData.promotions.custom_promotions.splice(index, 1);
+        },
+        getConsultantMainLdpUrl() {
+            const consultant = this.salesConsultants.find(c => String(c.id) === String(this.formData.sales_consultant_id));
+            if (!consultant) return null;
+
+            let clientUrl = '';
+            const origin = window.location.origin;
+            const hostname = window.location.hostname;
+            const port = window.location.port;
+
+            if (port === '8000' || hostname === 'localhost' || hostname === '127.0.0.1') {
+                clientUrl = origin.replace(':8000', ':3000');
+            } else {
+                clientUrl = 'https://dongnaiford.com.vn';
+            }
+            const consultantSlug = consultant.slug || this.slugify(consultant.name);
+
+            if (consultant.custom_domain) {
+                const cleanDomain = consultant.custom_domain.replace(/^https?:\/\//i, '').replace(/\/$/, '');
+                return {
+                    title: `Showroom Cố Vấn (Tên miền riêng: ${cleanDomain})`,
+                    url: `https://${cleanDomain}`
+                };
+            }
+
+            return {
+                title: `Showroom Cố Vấn: ${consultant.name || ''} (Đường Dẫn Tổng)`,
+                url: `${clientUrl}/ldp/${consultantSlug}`
+            };
         },
         getLdpUrls() {
             const consultant = this.salesConsultants.find(c => String(c.id) === String(this.formData.sales_consultant_id));

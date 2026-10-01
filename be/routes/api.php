@@ -56,6 +56,7 @@ Route::localized(function () {
     });
 
     Route::get('ldp/lookup-domain', [\App\Http\Controllers\Api\LandingPageApiController::class, 'lookupDomain'])->name('api.ldp.lookup-domain');
+    Route::get('ldp/{sales_slug}', [\App\Http\Controllers\Api\LandingPageApiController::class, 'showConsultant'])->name('api.ldp.consultant');
     Route::get('ldp/{sales_slug}/{vehicle_slug}', [\App\Http\Controllers\Api\LandingPageApiController::class, 'show'])->name('api.ldp.show');
     Route::post('contacts', [App\Http\Controllers\Frontend\ContactController::class, 'store'])->name('api.contacts.store');
     Route::get('services', [\App\Http\Controllers\Frontend\ServiceController::class, 'index'])->name('api.services');

@@ -103,13 +103,12 @@ export async function middleware(request: NextRequest) {
         if (resJson.success && resJson.data?.found) {
           const salesSlug = resJson.data.sales_slug;
           let vehicleSlug = pathname.replace(/^\//, "");
-          
-          if (!vehicleSlug) {
-            vehicleSlug = resJson.data.default_vehicle_slug || "ford-territory";
-          }
-
           const url = request.nextUrl.clone();
-          url.pathname = `/ldp/${salesSlug}/${vehicleSlug}`;
+          if (!vehicleSlug) {
+            url.pathname = `/ldp/${salesSlug}`;
+          } else {
+            url.pathname = `/ldp/${salesSlug}/${vehicleSlug}`;
+          }
           
           return NextResponse.rewrite(url, {
             request: {

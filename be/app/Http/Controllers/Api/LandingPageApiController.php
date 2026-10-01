@@ -71,6 +71,113 @@ class LandingPageApiController extends Controller
     }
 
     /**
+     * GET /api/ldp/{sales_slug}
+     * Lấy thông tin Showroom & Landing Page của Cố vấn bán hàng
+     */
+    public function showConsultant(string $sales_slug): JsonResponse
+    {
+        $locale = current_locale();
+
+        // 1. Tìm Sales Consultant
+        $consultant = SalesConsultant::query()
+            ->where('status', SalesConsultant::STATUS_ACTIVE)
+            ->whereSlug($sales_slug)
+            ->first();
+
+        if (!$consultant && $sales_slug === 'ton') {
+            $consultant = SalesConsultant::query()
+                ->where('status', SalesConsultant::STATUS_ACTIVE)
+                ->whereSlug('toan')
+                ->first();
+        }
+
+        if (!$consultant) {
+            return $this->failure(__('Không tìm thấy cố vấn bán hàng'), 404);
+        }
+
+        // 2. Tìm Landing Page tương ứng
+        $ldp = LandingPage::query()
+            ->where('status', LandingPage::STATUS_ACTIVE)
+            ->where('sales_consultant_id', $consultant->id)
+            ->first();
+
+        // 3. Lấy danh sách ID xe phụ trách
+        $vehicleIds = $ldp?->vehicle_ids;
+        if (empty($vehicleIds)) {
+            $consultantVehicleIds = LandingPage::query()
+                ->where('status', LandingPage::STATUS_ACTIVE)
+                ->where('sales_consultant_id', $consultant->id)
+                ->pluck('vehicle_id')
+                ->filter()
+                ->toArray();
+
+            if (!empty($consultantVehicleIds)) {
+                $vehicleIds = array_values(array_unique(array_map('intval', $consultantVehicleIds)));
+            } elseif ($ldp?->vehicle_id) {
+                $vehicleIds = [(int)$ldp->vehicle_id];
+            }
+        }
+
+        // 4. Lấy danh sách xe chi tiết
+        $vehiclesQuery = Vehicle::query()
+            ->where('status', Vehicle::STATUS_ACTIVE)
+            ->sortByPosition()
+            ->with([
+                'categories',
+                'versions' => fn($q) => $q->where('status', 'ACTIVE')->sortByPosition()
+            ]);
+
+        if (!empty($vehicleIds)) {
+            $vehiclesQuery->whereIn('id', (array)$vehicleIds);
+        }
+
+        $allVehicles = $vehiclesQuery->get();
+        if ($allVehicles->isEmpty()) {
+            $allVehicles = Vehicle::query()
+                ->where('status', Vehicle::STATUS_ACTIVE)
+                ->sortByPosition()
+                ->with([
+                    'categories',
+                    'versions' => fn($q) => $q->where('status', 'ACTIVE')->sortByPosition()
+                ])
+                ->get();
+        }
+
+        $allVehiclesData = $this->formatVehiclesCollection($allVehicles);
+        $leadVehicle = $allVehicles->first();
+        $leadVehicleData = $leadVehicle ? $this->formatSingleVehicle($leadVehicle) : null;
+
+        // 5. Khuyến mãi & Layout blocks
+        $promotionsData = $ldp ? $this->resolvePromotions($ldp->promotions) : ['global' => [], 'custom' => []];
+        $layoutBlocks = $this->resolveConsultantLayoutBlocks($ldp, $consultant);
+
+        // 6. Thông tin SEO
+        $consultantDetail = $consultant->toLocalizedDetail($locale);
+        $consultantName = $consultantDetail['name'] ?? $consultant->name;
+        $seoTitle = $ldp?->seo_meta_title ?: ("Cố vấn " . $consultantName . " | Đồng Nai Ford");
+        $seoDesc = $ldp?->seo_meta_description ?: ("Cố vấn bán hàng " . $consultantName . " tại Đồng Nai Ford. Tư vấn báo giá lăn bánh, hỗ trợ thủ tục mua xe Ford trả góp, lái thử tận nhà.");
+
+        return $this->success([
+            'id'                  => $ldp?->id,
+            'sales_consultant'    => $consultantDetail,
+            'vehicle'             => $leadVehicleData,
+            'vehicles'            => $allVehiclesData,
+            'title'               => $seoTitle,
+            'layout_blocks'       => $layoutBlocks,
+            'promotions'          => $promotionsData,
+            'seo' => [
+                'meta_title'       => $seoTitle,
+                'meta_description' => $seoDesc,
+                'meta_keywords'    => $ldp?->seo_meta_keywords ?: ("Ford Dong Nai, Cố vấn bán hàng " . $consultantName),
+                'meta_robots'      => $ldp?->seo_meta_robots ?: 'index, follow',
+                'canonical'        => $ldp?->seo_canonical ?: ("/ldp/" . $sales_slug),
+                'image'            => $ldp?->seo_image ? $this->resolveFileUrl($ldp->seo_image) : ($consultantDetail['avatar'] ?? null),
+                'seo_schemas'      => $ldp?->seo_schemas,
+            ]
+        ]);
+    }
+
+    /**
      * GET /api/ldp/{sales_slug}/{vehicle_slug}
      */
     public function show(string $sales_slug, string $vehicle_slug): JsonResponse
@@ -396,4 +503,113 @@ class LandingPageApiController extends Controller
         }
         return $file;
     }
+
+    private function formatVehiclesCollection($vehicles): array
+    {
+        return $vehicles->map(fn($v) => [
+            'id'            => (string)($v->slug ?: $v->id),
+            'name'          => $v->title,
+            'title'         => $v->title,
+            'slug'          => $v->slug,
+            'tagline'       => $v->tagline,
+            'base_price'    => $v->base_price,
+            'basePrice'     => (float)$v->base_price,
+            'image'         => $v->image,
+            'image_url'     => $v->image_url,
+            'images'        => $v->images,
+            'video_url'     => $v->video_url,
+            'video'         => $v->video,
+            'versions'      => $v->versions->map(fn($ver) => [
+                'id'                  => (string)$ver->id,
+                'name'                => $ver->name,
+                'price'               => (float)$ver->price,
+                'image_url'           => $ver->image_url,
+                'image_thumbnail_url' => $ver->image_thumbnail_url,
+                'specs'               => $ver->specs ?? [],
+                'colors'              => collect($ver->colors ?? [])->map(fn($c) => [
+                    'name'       => $c['name'] ?? ($c['color_name'] ?? ''),
+                    'hex'        => $c['hex'] ?? ($c['color_code'] ?? ''),
+                    'price'      => (isset($c['price']) && $c['price'] !== '' && is_numeric($c['price'])) ? (float)$c['price'] : null,
+                    'image_path' => isset($c['image_path']) ? static_url($c['image_path']) : (isset($c['image']) ? $this->resolveFileUrl($c['image']) : null),
+                ])->toArray()
+            ])->toArray()
+        ])->toArray();
+    }
+
+    private function formatSingleVehicle($vehicle): array
+    {
+        return [
+            'id'                  => $vehicle->id,
+            'title'               => $vehicle->title,
+            'slug'                => $vehicle->slug,
+            'tagline'             => $vehicle->tagline,
+            'base_price'          => $vehicle->base_price,
+            'image'               => $vehicle->image,
+            'image_url'           => $vehicle->image_url,
+            'images'              => $vehicle->images,
+            'video_url'           => $vehicle->video_url,
+            'video'               => $vehicle->video,
+            'versions'            => $vehicle->versions->map(fn($v) => [
+                'id'                  => $v->id,
+                'name'                => $v->name,
+                'price'               => $v->price,
+                'image_url'           => $v->image_url,
+                'image_thumbnail_url' => $v->image_thumbnail_url,
+                'specs'               => $v->specs ?? [],
+                'colors'              => collect($v->colors ?? [])->map(fn($c) => [
+                    'name'       => $c['name'] ?? ($c['color_name'] ?? ''),
+                    'hex'        => $c['hex'] ?? ($c['color_code'] ?? ''),
+                    'price'      => (isset($c['price']) && $c['price'] !== '' && is_numeric($c['price'])) ? (float)$c['price'] : null,
+                    'image_path' => isset($c['image_path']) ? static_url($c['image_path']) : (isset($c['image']) ? $this->resolveFileUrl($c['image']) : null),
+                ])->toArray()
+            ])->toArray()
+        ];
+    }
+
+    private function resolveConsultantLayoutBlocks($ldp, $consultant): array
+    {
+        $layoutBlocks = [];
+        if ($ldp && !empty($ldp->layout_blocks)) {
+            $rawBlocks = $ldp->layout_blocks;
+            if (is_string($rawBlocks)) {
+                $rawBlocks = json_decode($rawBlocks, true);
+            }
+            if (is_array($rawBlocks)) {
+                if (!empty($rawBlocks) && !isset($rawBlocks[0])) {
+                    $firstKey = array_key_first($rawBlocks);
+                    $rawBlocks = $rawBlocks[$firstKey] ?? [];
+                }
+                $layoutBlocks = $this->resolveLayoutBlocksUrls($rawBlocks, $consultant);
+            }
+        }
+
+        if (empty($layoutBlocks)) {
+            $layoutBlocks = [
+                [
+                    'id' => 'consultant-card',
+                    'type' => 'LdpSalesConsultant',
+                    'data' => []
+                ],
+                [
+                    'id' => 'consultant-vehicles-grid',
+                    'type' => 'LdpVehiclesGrid',
+                    'data' => [
+                        'title' => 'Dòng xe Cố vấn phụ trách',
+                        'subtitle' => 'Danh sách các mẫu xe chính hãng đang được tư vấn bởi ' . ($consultant->name ?: 'Cố vấn bán hàng') . '.'
+                    ]
+                ],
+                [
+                    'id' => 'consultant-promotions',
+                    'type' => 'LdpPromotions',
+                    'data' => [
+                        'title' => 'Chương Trình Khuyến Mãi Đặc Biệt',
+                        'description' => 'Nhận ưu đãi độc quyền từ Cố vấn khi đăng ký mua xe trong tháng này.'
+                    ]
+                ]
+            ];
+        }
+
+        return $layoutBlocks;
+    }
 }
+
