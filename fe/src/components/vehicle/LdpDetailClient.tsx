@@ -10,7 +10,7 @@ function LdpInnerContent({ salesConsultant, layoutBlocks, promotions, vehicle, a
   const { openQuoteDrawer, openDriveDrawer } = useVehicle();
 
   // Backwards compatibility dynamic injection for existing LDP pages
-  let resolvedBlocks = [...layoutBlocks];
+  let resolvedBlocks = [...layoutBlocks].filter((b: any) => b.type !== "ThreeSixtyViewer");
   const hasLdpHeroBlock = resolvedBlocks.some((b: any) => b.type === "LdpHeroBanner");
   const hasConsultantBlock = resolvedBlocks.some((b: any) => b.type === "LdpSalesConsultant");
   const hasPromotionsBlock = resolvedBlocks.some((b: any) => b.type === "LdpPromotions");

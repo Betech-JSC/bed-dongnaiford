@@ -1543,11 +1543,14 @@ function ThreeSixtyViewerBlock({ data, vehicle, isEditMode, onChangeData, threeS
   const descStyle = data.desc_color ? { color: data.desc_color } : {};
 
   if (!threeSixtyProps) {
-    return (
-      <section className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full py-16 border-t border-[#e5e5e5] text-center text-gray-400">
-        360 Viewer đang tải...
-      </section>
-    );
+    if (isEditMode) {
+      return (
+        <section className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full py-12 border-t border-[#e5e5e5] text-center text-gray-400">
+          [360 Viewer - Yêu cầu cấu hình dữ liệu xoay 360°]
+        </section>
+      );
+    }
+    return null;
   }
 
   const {
