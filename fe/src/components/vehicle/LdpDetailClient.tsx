@@ -4,7 +4,14 @@ import Link from "next/link";
 import { useVehicle } from "./VehicleLayoutClient";
 import VehicleLayoutClient from "./VehicleLayoutClient";
 import Blocks, { resolveImageUrl } from "@/components/blocks/Blocks";
-import { Phone, MessageCircle, Sparkles, Car } from "lucide-react";
+import { Phone, Sparkles, Car } from "lucide-react";
+
+const ZaloIcon = ({ className = "w-6 h-6" }: { className?: string }) => (
+  <svg viewBox="0 0 100 100" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="50" cy="50" r="50" fill="white" />
+    <text x="50" y="63" fontStyle="normal" fontWeight="900" fontSize="32" fill="#0068FF" textAnchor="middle">Zalo</text>
+  </svg>
+);
 
 function LdpInnerContent({ salesConsultant, layoutBlocks, promotions, vehicle, allVehicles }: any) {
   const { openQuoteDrawer, openDriveDrawer } = useVehicle();
@@ -190,17 +197,20 @@ function LdpInnerContent({ salesConsultant, layoutBlocks, promotions, vehicle, a
       />
 
       {/* FLOATING SALES CONSULTANT WIDGET */}
-      <div className="fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom,0px))] md:bottom-6 right-6 z-[99] flex flex-col gap-3 font-sans">
+      <div className="fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom,0px))] md:bottom-6 right-4 md:right-6 z-[99] flex flex-col items-end gap-2.5 font-sans">
         {/* Zalo Button */}
         {salesConsultant.zalo_url && (
           <a
             href={salesConsultant.zalo_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-center w-14 h-14 bg-[#0068ff] text-white rounded-full shadow-lg hover:scale-110 active:scale-95 transition-all duration-200"
-            title="Chat Zalo"
+            className="flex items-center gap-2 px-3.5 py-2.5 md:px-4 md:py-2.5 bg-[#0068ff] hover:bg-[#0057d6] text-white rounded-full shadow-lg shadow-blue-500/30 hover:scale-105 active:scale-95 transition-all duration-200 border border-blue-400/30"
+            title="Liên hệ Zalo"
           >
-            <MessageCircle className="w-7 h-7" />
+            <div className="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center">
+              <ZaloIcon className="w-full h-full" />
+            </div>
+            <span className="text-xs md:text-sm font-bold tracking-wide pr-1">Liên hệ Zalo</span>
           </a>
         )}
         
@@ -208,10 +218,11 @@ function LdpInnerContent({ salesConsultant, layoutBlocks, promotions, vehicle, a
         {salesConsultant.phone && (
           <a
             href={`tel:${salesConsultant.phone}`}
-            className="flex items-center justify-center w-14 h-14 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full shadow-lg hover:scale-110 active:scale-95 transition-all duration-200"
+            className="flex items-center gap-2 px-3.5 py-2.5 md:px-4 md:py-2.5 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white rounded-full shadow-lg shadow-green-600/30 hover:scale-105 active:scale-95 transition-all duration-200 border border-emerald-400/30"
             title="Gọi Hotline"
           >
-            <Phone className="w-6 h-6 animate-pulse" />
+            <Phone className="w-4 h-4 md:w-5 md:h-5 animate-pulse flex-shrink-0" />
+            <span className="text-xs md:text-sm font-bold tracking-wide pr-1">Hotline: {salesConsultant.phone}</span>
           </a>
         )}
       </div>
