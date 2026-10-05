@@ -330,7 +330,7 @@ import Pagination from '@Core/Components/Pagination.vue'
 import Thumbnail from '@Core/Components/Thumbnail.vue'
 import { onMounted, onUnmounted } from 'vue'
 
-const MAX_SIZE_OF_IMAGE = 20
+const MAX_SIZE_OF_IMAGE = 50 // Giới hạn kích thước ảnh tối đa 50MB
 const MAX_SIZE_OF_VIDEO = 200
 
 export default {
@@ -864,6 +864,7 @@ export default {
             // 2. Upload từng file theo hàng đợi song song (concurrency pool = 2)
             let successCount = 0
             const failedFiles = []
+            let lastErrorMessage = ''
             const total = validItems.length
             const concurrency = 2
             let currentIndex = 0
@@ -888,9 +889,15 @@ export default {
                             successCount++
                         } else {
                             failedFiles.push(relativePath || file.name)
+                            if (response.data?.message) {
+                                lastErrorMessage = response.data.message
+                            }
                         }
                     } catch (err) {
                         failedFiles.push(relativePath || file.name)
+                        if (err.response?.data?.message) {
+                            lastErrorMessage = err.response.data.message
+                        }
                     }
                 }
             }
@@ -930,7 +937,7 @@ export default {
                 this.$toast.add({
                     severity: 'error',
                     summary: 'Lỗi tải tệp',
-                    detail: `Tải lên thất bại ${failedFiles.length} tệp. Vui lòng kiểm tra lại cấu hình upload PHP hoặc định dạng file.`,
+                    detail: lastErrorMessage || `Tải lên thất bại ${failedFiles.length} tệp. Vui lòng kiểm tra lại cấu hình upload PHP hoặc định dạng file.`,
                     life: 5000,
                 })
             }

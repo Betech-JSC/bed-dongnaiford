@@ -18,7 +18,7 @@ class File
     protected $contents;
 
     public const MAX_SIZE_LIST = [
-        'image' => 20,
+        'image' => 50, // Nâng giới hạn ảnh lên 50MB cho phép upload ảnh dung lượng cao
         'video' => 200,
         'application' => 200,
         'others' => 50,
@@ -322,7 +322,9 @@ class File
                     }
 
                     if (!$file->isValid()) {
-                        $failureFiles[] = $fileName;
+                        $errorDetail = $file->getErrorMessage() ?: 'Lỗi tải tệp máy chủ';
+                        $failureFiles[] = $fileName . ' (' . $errorDetail . ')';
+                        logger()->warning("Upload invalid file [{$fileName}]: {$errorDetail}");
                         continue;
                     }
 
@@ -332,6 +334,10 @@ class File
 
                         if ($isImage) {
                             try {
+                                // Tăng bộ nhớ và thời gian thực thi tạm thời cho xử lý ảnh phân giải lớn
+                                @ini_set('memory_limit', '1024M');
+                                @ini_set('max_execution_time', 300);
+
                                 $image = Image::make($file->path());
 
                                 if ($image->width() > 2000) {
@@ -349,16 +355,17 @@ class File
                                     $encoded = (string) $image->encode('webp', $quality);
                                 }
 
-                                $fileName = pathinfo($fileName, PATHINFO_FILENAME) . '.webp';
-                                $targetPath = ($targetDir == '/' ? '' : rtrim($targetDir, '/') . '/') . $fileName;
+                                $webpFileName = pathinfo($fileName, PATHINFO_FILENAME) . '.webp';
+                                $targetPath = ($targetDir == '/' ? '' : rtrim($targetDir, '/') . '/') . $webpFileName;
 
                                 $filePath = $this->storage->put($targetPath, $encoded) ? $targetPath : false;
-                            } catch (\Exception $e) {
+                            } catch (\Throwable $e) {
+                                // Bắt trọn Throwable bao gồm Error/OutOfMemory từ GD và fallback an toàn sang lưu file gốc
                                 logger()->error('Image processing failed: ' . $e->getMessage());
                                 $filePath = $this->storage->putFileAs(
                                     $targetDir,
                                     $file,
-                                    $fileName
+                                    $originalName
                                 );
                             }
                         } else {
@@ -368,18 +375,16 @@ class File
                                 $fileName
                             );
                         }
-                        $successFiles[] = static_url($filePath, [], false);
 
-                        if (!$filePath) {
-                            logger('Store file');
-                            logger($file);
-                            logger("Disk: $this->disk");
-                            logger("Folder: $this->path");
-                            logger("File name: $fileName");
-                            logger('End store file');
+                        // Chỉ thêm vào successFiles nếu filePath hợp lệ, ngược lại ghi nhận lỗi
+                        if ($filePath) {
+                            $successFiles[] = static_url($filePath, [], false);
+                        } else {
+                            $failureFiles[] = $originalName;
+                            logger()->error("Store file failed: {$originalName} to {$targetDir}");
                         }
                     } else {
-                        $failureFiles[] = $fileName;
+                        $failureFiles[] = $originalName;
                     }
                 } else {
                     $failureFiles[] = 'unknown_file';

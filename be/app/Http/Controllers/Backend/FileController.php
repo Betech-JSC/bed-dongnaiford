@@ -51,8 +51,9 @@ class FileController extends Controller
         $result = $file->store($files, $relativePaths);
 
         if (!empty($result['failureFiles']) && empty($result['successFiles'])) {
+            $errDetail = implode(', ', array_slice($result['failureFiles'], 0, 3));
             return response()->json([
-                'message' => 'Tải file thất bại: File vượt quá giới hạn cấu hình PHP (upload_max_filesize / post_max_size) hoặc định dạng không được hỗ trợ.',
+                'message' => 'Tải file thất bại: ' . $errDetail . '. Vui lòng kiểm tra lại dung lượng file (tối đa 50MB) hoặc cấu hình máy chủ PHP.',
                 'errors' => $result['failureFiles']
             ], 422);
         }
