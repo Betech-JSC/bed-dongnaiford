@@ -94,6 +94,21 @@ export default function LdpVehiclesGridBlock({
     return new Intl.NumberFormat("vi-VN").format(num) + "đ";
   };
 
+  // Cuộn mượt xuống phần giới thiệu xe, tự động bù trừ chiều cao thanh tab cố định
+  const scrollToVehicleIntro = () => {
+    if (typeof window === "undefined") return;
+    const target = document.getElementById("ldp-vehicle-intro");
+    if (target) {
+      const tabsBar = document.getElementById("ldp-vehicles-tabs");
+      const headerOffset = tabsBar ? tabsBar.getBoundingClientRect().height : 80;
+      const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - headerOffset;
+      window.scrollTo({
+        top: Math.max(0, targetPosition),
+        behavior: "smooth"
+      });
+    }
+  };
+
   // Xác định các danh mục thực tế đang có trong danh sách xe
   const availableCategories = useMemo(() => {
     const set = new Set<string>();
@@ -140,10 +155,11 @@ export default function LdpVehiclesGridBlock({
     }.`;
 
   return (
-    <section
-      id={anchorId || "ldp-vehicles-grid"}
-      className="w-full bg-[#f8f9fa] py-10 md:py-14 border-b border-gray-200"
-    >
+    <>
+      <section
+        id={anchorId || "ldp-vehicles-grid"}
+        className="w-full bg-[#f8f9fa] py-10 md:py-14 border-b border-gray-200"
+      >
       <div className="max-w-[1152px] mx-auto px-4">
         {/* Tiêu đề & mô tả */}
         <div className="text-center max-w-2xl mx-auto space-y-2.5 mb-8">
@@ -209,14 +225,21 @@ export default function LdpVehiclesGridBlock({
               getPopularVehicleImage(vehicleSlug, vehicle.images?.[0] || "");
 
             const href = salesConsultant?.custom_domain
-              ? `/${vehicleSlug}#ldp-vehicles-tabs`
-              : `/ldp/${consultantSlug}/${vehicleSlug}#ldp-vehicles-tabs`;
+              ? `/${vehicleSlug}#ldp-vehicle-intro`
+              : `/ldp/${consultantSlug}/${vehicleSlug}#ldp-vehicle-intro`;
 
             return (
               <Link
                 key={vehicle.id || vehicleSlug}
                 href={href}
                 scroll={false}
+                onClick={(e) => {
+                  // Nếu là dòng xe đang xem sẵn, cuộn ngay xuống phần giới thiệu xe
+                  if (isCurrent) {
+                    e.preventDefault();
+                    scrollToVehicleIntro();
+                  }
+                }}
                 className={`bg-white border rounded-2xl p-6 flex flex-col justify-between hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 relative group cursor-pointer h-full ${
                   isCurrent
                     ? "border-[#0562D2] ring-2 ring-[#0562D2]/20 shadow-md"
@@ -259,6 +282,9 @@ export default function LdpVehiclesGridBlock({
           })}
         </div>
       </div>
-    </section>
+      </section>
+      {/* Neo định danh bắt đầu phần thông tin chi tiết & giới thiệu xe */}
+      <div id="ldp-vehicle-intro" className="scroll-mt-28 md:scroll-mt-24 pointer-events-none" />
+    </>
   );
 }

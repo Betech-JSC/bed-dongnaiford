@@ -34,11 +34,28 @@ function LdpInnerContent({ salesConsultant, layoutBlocks, promotions, vehicle, a
   const { openQuoteDrawer, openDriveDrawer } = useVehicle();
   const finalZaloUrl = resolveZaloUrl(salesConsultant?.zalo_url, salesConsultant?.phone);
 
+  // Cuộn mượt xuống phần giới thiệu xe, tự động đo và bù trừ chiều cao thanh tab cố định
+  const scrollToVehicleIntro = () => {
+    if (typeof window === "undefined") return;
+    const target = document.getElementById("ldp-vehicle-intro") || document.getElementById("ldp-vehicles-tabs");
+    if (target) {
+      const tabsBar = document.getElementById("ldp-vehicles-tabs");
+      const headerOffset = tabsBar ? tabsBar.getBoundingClientRect().height : 80;
+      const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - headerOffset;
+      window.scrollTo({
+        top: Math.max(0, targetPosition),
+        behavior: "smooth",
+      });
+    }
+  };
+
   useEffect(() => {
-    if (typeof window !== "undefined" && window.location.hash === "#ldp-vehicles-tabs") {
-      const el = document.getElementById("ldp-vehicles-tabs");
-      if (el) {
-        el.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (typeof window !== "undefined") {
+      const hash = window.location.hash;
+      if (hash === "#ldp-vehicle-intro" || hash === "#ldp-vehicles-tabs") {
+        // Chờ DOM cập nhật xong trước khi cuộn
+        const timer = setTimeout(scrollToVehicleIntro, 60);
+        return () => clearTimeout(timer);
       }
     }
   }, [vehicle?.slug, vehicle?.id]);
@@ -107,6 +124,7 @@ function LdpInnerContent({ salesConsultant, layoutBlocks, promotions, vehicle, a
   const topBlocks = heroIndex > 0 ? resolvedBlocks.slice(0, heroIndex) : [];
   const heroBlock = heroIndex !== -1 ? resolvedBlocks[heroIndex] : null;
   const bottomBlocks = heroIndex !== -1 ? resolvedBlocks.slice(heroIndex + 1) : resolvedBlocks;
+  const hasVehiclesGrid = bottomBlocks.some((b: any) => b.type === "LdpVehiclesGrid");
 
   const consultantSlug = salesConsultant?.slug || salesConsultant?.name?.toLowerCase().replace(/\s+/g, '-');
 
@@ -155,13 +173,20 @@ function LdpInnerContent({ salesConsultant, layoutBlocks, promotions, vehicle, a
                 const href = salesConsultant.custom_domain
                   ? `/${vehicleSlug}`
                   : `/ldp/${consultantSlug}/${vehicleSlug}`;
-                const targetHref = `${href}#ldp-vehicles-tabs`;
+                const targetHref = `${href}#ldp-vehicle-intro`;
 
                 return (
                   <Link
                     key={v.id}
                     href={targetHref}
                     scroll={false}
+                    onClick={(e) => {
+                      // Nếu chọn chính xe đang hiển thị, cuộn ngay xuống phần giới thiệu xe
+                      if (isActive) {
+                        e.preventDefault();
+                        scrollToVehicleIntro();
+                      }
+                    }}
                     className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all shrink-0 border ${
                       isActive
                         ? "bg-[#0562D2] text-white border-[#0562D2] shadow-sm"
@@ -178,6 +203,9 @@ function LdpInnerContent({ salesConsultant, layoutBlocks, promotions, vehicle, a
       )}
 
       {/* 2. CÁC BLOCK BÊN DƯỚI (theo đúng thứ tự admin kéo thả trong CMS) */}
+      {!hasVehiclesGrid && (
+        <div id="ldp-vehicle-intro" className="scroll-mt-28 md:scroll-mt-24 pointer-events-none" />
+      )}
       <Blocks
         layout={bottomBlocks}
         vehicle={vehicle}
