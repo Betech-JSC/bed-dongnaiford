@@ -83,12 +83,14 @@ fe/build/
 .env.backup
 
 *.env
+.env
 
 
 
 # IDEs
 
 .idea/
+.vscode/
 
 
 *.suo
