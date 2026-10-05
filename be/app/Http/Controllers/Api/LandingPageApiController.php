@@ -173,12 +173,16 @@ class LandingPageApiController extends Controller
         if (!empty($ldp?->zalo_url)) {
             $consultantDetail['zalo_url'] = $ldp->formatted_zalo_url ?? $ldp->zalo_url;
         }
+        if (!empty($ldp?->sales_email)) {
+            $consultantDetail['email'] = $ldp->sales_email;
+        }
         $consultantName = $consultantDetail['name'] ?? $consultant->name;
         $seoTitle = $ldp?->seo_meta_title ?: ("Cố vấn " . $consultantName . " | Đồng Nai Ford");
         $seoDesc = $ldp?->seo_meta_description ?: ("Cố vấn bán hàng " . $consultantName . " tại Đồng Nai Ford. Tư vấn báo giá lăn bánh, hỗ trợ thủ tục mua xe Ford trả góp, lái thử tận nhà.");
 
         return $this->success([
             'id'                  => $ldp?->id,
+            'sales_email'         => $ldp?->sales_email,
             'sales_consultant'    => $consultantDetail,
             'vehicle'             => $leadVehicleData,
             'vehicles'            => $allVehiclesData,
@@ -367,9 +371,13 @@ class LandingPageApiController extends Controller
         if (!empty($ldp?->zalo_url)) {
             $consultantDetail['zalo_url'] = $ldp->formatted_zalo_url ?? $ldp->zalo_url;
         }
+        if (!empty($ldp?->sales_email)) {
+            $consultantDetail['email'] = $ldp->sales_email;
+        }
 
         return $this->success([
             'id'                  => $ldp->id,
+            'sales_email'         => $ldp?->sales_email,
             'sales_consultant'    => $consultantDetail,
             'vehicle'             => [
                 'id'            => $vehicle->id,

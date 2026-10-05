@@ -267,6 +267,8 @@ export default function LdpDetailClient({ initialData }: { initialData: any }) {
       initialVehicle={vehicle}
       allVehicles={allVehicles}
       salesConsultantId={sales_consultant?.id}
+      salesEmail={initialData.sales_email || sales_consultant?.email}
+      landingPageId={initialData.id}
     >
       <LdpInnerContent
         salesConsultant={sales_consultant}

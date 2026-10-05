@@ -436,6 +436,7 @@
                             options: salesConsultants,
                             emptyLabel: '-- Chọn cố vấn bán hàng --',
                         }"
+                        @update:modelValue="onSalesConsultantChange(form, $event)"
                     />
 
                     <!-- Chọn dòng xe (Cho phép chọn nhiều dòng xe) -->
@@ -464,7 +465,17 @@
                         }"
                     />
 
-
+                    <!-- Email nhận báo giá riêng của Sale -->
+                    <Field
+                        v-model="form.sales_email"
+                        :field="{
+                            type: 'text',
+                            name: 'sales_email',
+                            label: 'Email Cố Vấn / Nhận Báo Giá',
+                            placeholder: 'vd: sale@dongnaiford.com.vn',
+                            help: 'Nhập email nhận thông báo báo giá từ Landing Page này. Nếu để trống sẽ tự dùng Email của Cố vấn hoặc Email đại lý.',
+                        }"
+                    />
 
                     <!-- Trạng thái hoạt động -->
                     <Field
@@ -792,6 +803,18 @@ export default {
                 }
             },
             deep: true
+        },
+        'formData.sales_consultant_id': {
+            handler(newVal) {
+                if (!newVal) return;
+                // Tự động gợi ý email của Cố vấn nếu ô sales_email đang để trống
+                if (!this.formData.sales_email) {
+                    const consultant = (this.salesConsultants || []).find(c => String(c.id) === String(newVal));
+                    if (consultant && consultant.email) {
+                        this.formData.sales_email = consultant.email;
+                    }
+                }
+            }
         }
     },
     computed: {
@@ -856,6 +879,16 @@ export default {
         }
     },
     methods: {
+        onSalesConsultantChange(form, consultantId) {
+            if (!consultantId || !form) return;
+            // Tự động điền email của Cố vấn nếu form chưa có sales_email
+            if (!form.sales_email) {
+                const c = (this.salesConsultants || []).find(sc => String(sc.id) === String(consultantId));
+                if (c && c.email) {
+                    form.sales_email = c.email;
+                }
+            }
+        },
         getFirstVehicleId() {
             let ids = this.formData.vehicle_ids;
             if (typeof ids === 'string') {
@@ -896,11 +929,21 @@ export default {
             }
 
             const cleanItem = JSON.parse(JSON.stringify(item || {}));
+            let initialSalesEmail = cleanItem.sales_email || '';
+            if (!initialSalesEmail && cleanItem.sales_consultant_id && this.salesConsultants) {
+                const c = this.salesConsultants.find(sc => String(sc.id) === String(cleanItem.sales_consultant_id));
+                if (c && c.email) {
+                    initialSalesEmail = c.email;
+                }
+            }
+
             const data = {
                 status: 'ACTIVE',
                 sort_order: 0,
                 layout_blocks: {},
+                zalo_url: cleanItem.zalo_url || '',
                 ...cleanItem,
+                sales_email: initialSalesEmail,
                 vehicle_ids: vehicleIds,
                 promotions: cleanItem.promotions || {
                     global_promotion_ids: [],

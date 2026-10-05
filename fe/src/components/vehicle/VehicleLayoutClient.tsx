@@ -88,12 +88,16 @@ export default function VehicleLayoutClient({
   children,
   initialVehicle,
   allVehicles,
-  salesConsultantId
+  salesConsultantId,
+  salesEmail,
+  landingPageId
 }: {
   children: React.ReactNode;
   initialVehicle: any;
   allVehicles: any[];
   salesConsultantId?: number;
+  salesEmail?: string;
+  landingPageId?: number;
 }) {
   const searchParams = useSearchParams();
   const isPreview = searchParams ? (searchParams.get("preview") === "true" || searchParams.get("preview") === "1") : false;
@@ -316,6 +320,8 @@ export default function VehicleLayoutClient({
           type: "ADVISE_FORM",
           sales_consultant_id: salesConsultantId,
           data: {
+            landing_page_id: landingPageId,
+            sales_email: salesEmail,
             Name: formData.fullName,
             Phone: formData.phone,
             Email: formData.email || undefined,

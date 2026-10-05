@@ -2,7 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
-import { Plus, Minus, ChevronDown, ChevronUp, Phone, Bookmark, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
+import { Plus, Minus, ChevronDown, ChevronUp, Phone, Bookmark, ChevronLeft, ChevronRight, Sparkles, Mail } from "lucide-react";
 import { mediaAPI } from "@/lib/api";
 
 const formatUploadError = (err: any): string => {
@@ -1258,7 +1258,22 @@ function LdpSalesConsultantBlock({ blockIndex, data, salesConsultant, openQuoteD
               <Sparkles className="w-3.5 h-3.5" /> Cố vấn bán hàng chính hãng
             </div>
             <h2 className="text-2xl font-bold tracking-tight text-white">{salesConsultant.name}</h2>
-            <p className="text-blue-200 text-sm mt-1">{salesConsultant.job_title || "Đại diện kinh doanh Đồng Nai Ford"}</p>
+            <div className="flex flex-wrap items-center gap-2 mt-1 text-blue-200 text-sm">
+              <span>{salesConsultant.job_title || "Đại diện kinh doanh Đồng Nai Ford"}</span>
+              {salesConsultant.email && (
+                <>
+                  <span className="opacity-40">•</span>
+                  <a
+                    href={`mailto:${salesConsultant.email}`}
+                    className="inline-flex items-center gap-1 text-blue-200 hover:text-white transition underline"
+                    title="Gửi email cho Cố vấn"
+                  >
+                    <Mail className="w-3.5 h-3.5" />
+                    <span>{salesConsultant.email}</span>
+                  </a>
+                </>
+              )}
+            </div>
             {salesConsultant.short_bio && (
               <p className="text-gray-300 text-sm mt-3 max-w-xl italic">
                 "{salesConsultant.short_bio}"

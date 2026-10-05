@@ -20,6 +20,7 @@ class LandingPage extends BaseModel
     protected $fillable = [
         'sales_consultant_id',
         'zalo_url',
+        'sales_email',
         'vehicle_id',
         'vehicle_ids',
         'layout_blocks',
@@ -220,6 +221,7 @@ class LandingPage extends BaseModel
         $base = [
             'sales_consultant_id' => 'required|integer|exists:sales_consultants,id',
             'zalo_url' => 'nullable|string|max:255',
+            'sales_email' => 'nullable|email|max:255',
             'vehicle_ids' => 'required|array|min:1',
             'vehicle_id' => 'nullable|integer',
             'status' => 'required|string|in:ACTIVE,INACTIVE',

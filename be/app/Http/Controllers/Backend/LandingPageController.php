@@ -34,6 +34,7 @@ class LandingPageController extends Controller
                 'id' => $c->id,
                 'label' => $c->name,
                 'name' => $c->name,
+                'email' => $c->email,
                 'slug' => $c->slug,
                 'custom_domain' => $c->custom_domain,
             ]);
