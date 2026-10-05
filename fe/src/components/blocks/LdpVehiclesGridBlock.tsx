@@ -209,13 +209,14 @@ export default function LdpVehiclesGridBlock({
               getPopularVehicleImage(vehicleSlug, vehicle.images?.[0] || "");
 
             const href = salesConsultant?.custom_domain
-              ? `/${vehicleSlug}`
-              : `/ldp/${consultantSlug}/${vehicleSlug}`;
+              ? `/${vehicleSlug}#ldp-vehicles-tabs`
+              : `/ldp/${consultantSlug}/${vehicleSlug}#ldp-vehicles-tabs`;
 
             return (
               <Link
                 key={vehicle.id || vehicleSlug}
                 href={href}
+                scroll={false}
                 className={`bg-white border rounded-2xl p-6 flex flex-col justify-between hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 relative group cursor-pointer h-full ${
                   isCurrent
                     ? "border-[#0562D2] ring-2 ring-[#0562D2]/20 shadow-md"

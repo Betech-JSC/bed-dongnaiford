@@ -74,7 +74,8 @@ export default {
         form: {
             deep: true,
             handler(value) {
-                this.$emit("update:modelValue", value);
+                const plainData = typeof value?.data === 'function' ? value.data() : value;
+                this.$emit("update:modelValue", plainData);
             },
         },
     },
@@ -131,10 +132,21 @@ export default {
             return confirm(this.tt('models.message.confirm_message'));
         },
 
-        confirmStayInDirtyForm() {
+        confirmStayInDirtyForm(e) {
+            // Không chặn nếu đang trong tiến trình lưu/gửi dữ liệu
+            if (this.isLoading || this.form?.processing) {
+                return false;
+            }
+
+            // Cho qua nếu là request lưu dữ liệu của Inertia (POST, PUT, PATCH, DELETE)
+            if (e && e.detail && e.detail.visit) {
+                const method = (e.detail.visit.method || '').toLowerCase();
+                if (['post', 'put', 'patch', 'delete'].includes(method)) {
+                    return false;
+                }
+            }
+
             return (
-                !this.isLoading &&
-                !this.form.processing &&
                 this.formValueChanged() &&
                 this.form.isDirty &&
                 !this.confirmLeave()
@@ -142,7 +154,7 @@ export default {
         },
 
         beforeWindowUnload(e) {
-            if (this.confirmStayInDirtyForm()) {
+            if (this.confirmStayInDirtyForm(e)) {
                 e.preventDefault();
                 e.returnValue = "";
             }
@@ -177,20 +189,35 @@ export default {
         },
 
         submit() {
-            this.isLoading = true,
-                this.$inertia.post(
-                    this.route(`admin.${this.currentResource}.store`, {
-                        id: this.form?.id,
-                    }),
-                    this.form,
-                    {
-                        onSuccess: () => {
-                            this.form = this.$inertia.form(this.modelValue);
-                            this.isLoading = true
-                        },
-                    }
-                );
-            this.isLoading = false
+            this.isLoading = true;
+            const url = this.route(`admin.${this.currentResource}.store`, {
+                id: this.form?.id,
+            });
+            const handleFinish = () => {
+                this.isLoading = false;
+            };
+            if (this.form && typeof this.form.post === 'function') {
+                this.form.post(url, {
+                    onSuccess: () => {
+                        this.initFormValue = JSON.parse(JSON.stringify(this.modelValue || {}));
+                        this.form = this.$inertia.form(this.modelValue);
+                        handleFinish();
+                    },
+                    onError: handleFinish,
+                    onFinish: handleFinish,
+                });
+            } else {
+                const payload = this.form && typeof this.form.data === 'function' ? this.form.data() : this.form;
+                this.$inertia.post(url, payload, {
+                    onSuccess: () => {
+                        this.initFormValue = JSON.parse(JSON.stringify(this.modelValue || {}));
+                        this.form = this.$inertia.form(this.modelValue);
+                        handleFinish();
+                    },
+                    onError: handleFinish,
+                    onFinish: handleFinish,
+                });
+            }
         },
 
         storeDraft() {

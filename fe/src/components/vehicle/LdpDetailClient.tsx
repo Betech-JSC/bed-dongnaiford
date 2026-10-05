@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 import { useVehicle } from "./VehicleLayoutClient";
 import VehicleLayoutClient from "./VehicleLayoutClient";
@@ -33,99 +34,72 @@ function LdpInnerContent({ salesConsultant, layoutBlocks, promotions, vehicle, a
   const { openQuoteDrawer, openDriveDrawer } = useVehicle();
   const finalZaloUrl = resolveZaloUrl(salesConsultant?.zalo_url, salesConsultant?.phone);
 
-  // Backwards compatibility dynamic injection for existing LDP pages
-  let resolvedBlocks = [...layoutBlocks].filter((b: any) => b.type !== "ThreeSixtyViewer");
-  const hasLdpHeroBlock = resolvedBlocks.some((b: any) => b.type === "LdpHeroBanner");
-  const hasConsultantBlock = resolvedBlocks.some((b: any) => b.type === "LdpSalesConsultant");
-  const hasPromotionsBlock = resolvedBlocks.some((b: any) => b.type === "LdpPromotions");
-  const hasVehiclesGridBlock = resolvedBlocks.some((b: any) => b.type === "LdpVehiclesGrid");
-  const hasTechnologyBlock = resolvedBlocks.some((b: any) => b.type === "LdpTechnology");
-  const hasServicesBlock = resolvedBlocks.some((b: any) => b.type === "LdpServices");
-  const hasLdpFaqBlock = resolvedBlocks.some((b: any) => b.type === "LdpFaq");
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.location.hash === "#ldp-vehicles-tabs") {
+      const el = document.getElementById("ldp-vehicles-tabs");
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+  }, [vehicle?.slug, vehicle?.id]);
 
-  if (!hasLdpHeroBlock) {
-    const oldHeroIdx = resolvedBlocks.findIndex((b: any) => b.type === "HeroBanner");
-    if (oldHeroIdx !== -1) {
-      resolvedBlocks[oldHeroIdx] = {
-        ...resolvedBlocks[oldHeroIdx],
-        type: 'LdpHeroBanner',
-      };
-    } else {
-      resolvedBlocks.unshift({
+  // Backwards compatibility dynamic injection for existing LDP pages
+  // Chuẩn hóa và map các block legacy (nếu có)
+  let resolvedBlocks = [...layoutBlocks]
+    .filter((b: any) => b && b.type !== "ThreeSixtyViewer")
+    .map((b: any) => {
+      if (b.type === "HeroBanner") return { ...b, type: "LdpHeroBanner" };
+      if (b.type === "AccordionFAQs") return { ...b, type: "LdpFaq" };
+      return b;
+    });
+
+  // Chỉ nạp block mặc định nếu LDP hoàn toàn chưa có cấu hình layout_blocks nào (fallback)
+  const isBlocksEmpty = resolvedBlocks.length === 0;
+
+  if (isBlocksEmpty) {
+    resolvedBlocks = [
+      {
         id: 'default-hero-banner',
         type: 'LdpHeroBanner',
         data: {}
-      });
-    }
-  }
-
-  if (!hasConsultantBlock) {
-    const heroIdx = resolvedBlocks.findIndex((b: any) => b.type === "HeroBanner" || b.type === "LdpHeroBanner");
-    resolvedBlocks.splice(heroIdx !== -1 ? heroIdx + 1 : 0, 0, {
-      id: 'default-sales-consultant',
-      type: 'LdpSalesConsultant',
-      data: {}
-    });
-  }
-
-  // Tự động chèn LdpVehiclesGrid ở phần đầu LDP nếu có xe
-  if (!hasVehiclesGridBlock && allVehicles && allVehicles.length > 0) {
-    const consultantIndex = resolvedBlocks.findIndex((b: any) => b.type === "LdpSalesConsultant");
-    const insertIndex = consultantIndex !== -1 ? consultantIndex + 1 : 1;
-    resolvedBlocks.splice(insertIndex, 0, {
-      id: 'default-ldp-vehicles-grid',
-      type: 'LdpVehiclesGrid',
-      data: {
-        title: "Dòng xe Cố vấn phụ trách",
-        subtitle: `Danh sách các mẫu xe chính hãng đang được tư vấn bởi ${salesConsultant?.name || "Cố vấn bán hàng"}.`
-      }
-    });
-  }
-
-  if (!hasPromotionsBlock) {
-    const vGridIndex = resolvedBlocks.findIndex((b: any) => b.type === "LdpVehiclesGrid");
-    const consultantIndex = resolvedBlocks.findIndex((b: any) => b.type === "LdpSalesConsultant");
-    const baseIndex = vGridIndex !== -1 ? vGridIndex + 1 : (consultantIndex !== -1 ? consultantIndex + 1 : 1);
-    resolvedBlocks.splice(baseIndex, 0, {
-      id: 'default-ldp-promotions',
-      type: 'LdpPromotions',
-      data: {
-        title: "Chương Trình Khuyến Mãi Đặc Biệt",
-        description: "Nhận ưu đãi độc quyền từ Cố vấn khi đăng ký mua xe trong tháng này."
-      }
-    });
-  }
-
-  if (!hasTechnologyBlock) {
-    resolvedBlocks.push({
-      id: 'default-ldp-technology',
-      type: 'LdpTechnology',
-      data: {}
-    });
-  }
-
-  if (!hasServicesBlock) {
-    resolvedBlocks.push({
-      id: 'default-ldp-services',
-      type: 'LdpServices',
-      data: {}
-    });
-  }
-
-  if (!hasLdpFaqBlock) {
-    const oldFaqIdx = resolvedBlocks.findIndex((b: any) => b.type === "AccordionFAQs");
-    if (oldFaqIdx !== -1) {
-      resolvedBlocks[oldFaqIdx] = {
-        ...resolvedBlocks[oldFaqIdx],
-        type: 'LdpFaq',
-      };
-    } else {
-      resolvedBlocks.push({
+      },
+      {
+        id: 'default-sales-consultant',
+        type: 'LdpSalesConsultant',
+        data: {}
+      },
+      {
+        id: 'default-ldp-vehicles-grid',
+        type: 'LdpVehiclesGrid',
+        data: {
+          title: "Dòng xe Cố vấn phụ trách",
+          subtitle: `Danh sách các mẫu xe chính hãng đang được tư vấn bởi ${salesConsultant?.name || "Cố vấn bán hàng"}.`
+        }
+      },
+      {
+        id: 'default-ldp-promotions',
+        type: 'LdpPromotions',
+        data: {
+          title: "Chương Trình Khuyến Mãi Đặc Biệt",
+          description: "Nhận ưu đãi độc quyền từ Cố vấn khi đăng ký mua xe trong tháng này."
+        }
+      },
+      {
+        id: 'default-ldp-technology',
+        type: 'LdpTechnology',
+        data: {}
+      },
+      {
+        id: 'default-ldp-services',
+        type: 'LdpServices',
+        data: {}
+      },
+      {
         id: 'default-ldp-faq',
         type: 'LdpFaq',
         data: {}
-      });
-    }
+      }
+    ];
   }
 
   // Chia danh sách block linh hoạt theo vị trí của HeroBanner (cho phép kéo block lên trước cả Hero)
@@ -168,7 +142,7 @@ function LdpInnerContent({ salesConsultant, layoutBlocks, promotions, vehicle, a
 
       {/* MULTI-VEHICLE SWITCHER TAB BAR */}
       {allVehicles && allVehicles.length > 1 && (
-        <div className="bg-[#0b192e] text-white py-3.5 px-4 border-y border-white/10 sticky top-0 z-[40] shadow-md">
+        <div id="ldp-vehicles-tabs" className="bg-[#0b192e] text-white py-3.5 px-4 border-y border-white/10 sticky top-0 z-[40] shadow-md scroll-mt-2">
           <div className="max-w-[1152px] mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div className="flex items-center gap-2 text-xs font-semibold text-blue-300 shrink-0">
               <Car className="w-4 h-4 text-[#0562D2]" />
@@ -181,11 +155,13 @@ function LdpInnerContent({ salesConsultant, layoutBlocks, promotions, vehicle, a
                 const href = salesConsultant.custom_domain
                   ? `/${vehicleSlug}`
                   : `/ldp/${consultantSlug}/${vehicleSlug}`;
-                
+                const targetHref = `${href}#ldp-vehicles-tabs`;
+
                 return (
                   <Link
                     key={v.id}
-                    href={href}
+                    href={targetHref}
+                    scroll={false}
                     className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all shrink-0 border ${
                       isActive
                         ? "bg-[#0562D2] text-white border-[#0562D2] shadow-sm"

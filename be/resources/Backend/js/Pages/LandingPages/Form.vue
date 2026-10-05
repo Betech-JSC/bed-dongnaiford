@@ -895,13 +895,14 @@ export default {
                 vehicleIds = [String(item.vehicle_id)];
             }
 
+            const cleanItem = JSON.parse(JSON.stringify(item || {}));
             const data = {
                 status: 'ACTIVE',
                 sort_order: 0,
                 layout_blocks: {},
-                ...item,
+                ...cleanItem,
                 vehicle_ids: vehicleIds,
-                promotions: (item && item.promotions) || {
+                promotions: cleanItem.promotions || {
                     global_promotion_ids: [],
                     custom_promotions: []
                 },
@@ -971,14 +972,16 @@ export default {
                 data.layout_blocks = map;
             }
 
-            // Đảm bảo mỗi bộ blocks có LdpSalesConsultant và LdpPromotions
-            const layoutMap = data.layout_blocks;
-            if (layoutMap && typeof layoutMap === 'object' && !Array.isArray(layoutMap)) {
-                Object.keys(layoutMap).forEach(vid => {
-                    const arr = layoutMap[vid];
-                    if (!Array.isArray(arr)) return;
-                    this._ensureLdpBlocks(arr);
-                });
+            // Chỉ tự động bổ sung blocks mẫu chuẩn khi tạo mới LDP (chưa lưu vào DB)
+            if (!item.id) {
+                const layoutMap = data.layout_blocks;
+                if (layoutMap && typeof layoutMap === 'object' && !Array.isArray(layoutMap)) {
+                    Object.keys(layoutMap).forEach(vid => {
+                        const arr = layoutMap[vid];
+                        if (!Array.isArray(arr)) return;
+                        this._ensureLdpBlocks(arr);
+                    });
+                }
             }
 
             const locales = ['vi'];
@@ -1260,32 +1263,54 @@ export default {
         },
         saveFromBuilder(submitFn, form) {
             this.isSaving = true;
-            // 1. Đảm bảo đồng bộ chắc chắn toàn bộ layout_blocks sang form trước khi submit
-            if (form && this.formData.layout_blocks) {
-                form.layout_blocks = JSON.parse(JSON.stringify(this.formData.layout_blocks));
-            }
-            // 2. Đảm bảo tiêu đề bắt buộc vi.title không bị rỗng làm fail validation
-            if (form) {
-                if (!form.vi) form.vi = {};
-                if (!form.vi.title) {
-                    form.vi.title = this.formData?.vi?.title || ('Ưu đãi xe ' + (this.activeVehicleTitle || 'Ford') + ' tốt nhất');
+            try {
+                // 1. Đảm bảo đồng bộ chắc chắn toàn bộ layout_blocks sạch (plain JSON) sang form trước khi submit
+                const cleanBlocks = JSON.parse(JSON.stringify(this.formData?.layout_blocks || {}));
+                if (form) {
+                    form.layout_blocks = cleanBlocks;
+                    if (!form.vi) form.vi = {};
+                    if (!form.vi.title) {
+                        form.vi.title = this.formData?.vi?.title || ('Ưu đãi xe ' + (this.activeVehicleTitle || 'Ford') + ' tốt nhất');
+                    }
                 }
-            }
-            if (typeof submitFn === 'function') {
-                submitFn();
-            }
-            setTimeout(() => {
-                this.isSaving = false;
-                if (form && form.errors && Object.keys(form.errors).length > 0) {
-                    const firstErr = Object.values(form.errors)[0];
-                    this.triggerToast(Array.isArray(firstErr) ? firstErr[0] : String(firstErr), 'warning');
+
+                const targetUrl = this.route(`admin.${this.currentResource || 'landing-pages'}.store`, {
+                    id: form?.id || this.formData?.id || this.item?.id,
+                });
+
+                if (form && typeof form.post === 'function') {
+                    form.post(targetUrl, {
+                        preserveScroll: true,
+                        onSuccess: () => {
+                            this.isSaving = false;
+                            if (form && typeof form.defaults === 'function') {
+                                form.defaults();
+                            }
+                            this.showSuccessNotification = true;
+                            setTimeout(() => {
+                                this.showSuccessNotification = false;
+                            }, 3000);
+                        },
+                        onError: (errors) => {
+                            this.isSaving = false;
+                            const firstErr = Object.values(errors || {})[0];
+                            this.triggerToast(Array.isArray(firstErr) ? firstErr[0] : String(firstErr || 'Có lỗi xảy ra khi lưu!'), 'warning');
+                        },
+                        onFinish: () => {
+                            this.isSaving = false;
+                        }
+                    });
+                } else if (typeof submitFn === 'function') {
+                    submitFn();
+                    this.isSaving = false;
                 } else {
-                    this.showSuccessNotification = true;
-                    setTimeout(() => {
-                        this.showSuccessNotification = false;
-                    }, 3000);
+                    this.isSaving = false;
                 }
-            }, 1000);
+            } catch (err) {
+                console.error('Lỗi khi gọi saveFromBuilder:', err);
+                this.isSaving = false;
+                this.triggerToast('Lỗi khi gửi dữ liệu: ' + (err.message || err), 'warning');
+            }
         }
     }
 }

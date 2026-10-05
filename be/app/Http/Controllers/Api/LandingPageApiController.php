@@ -50,6 +50,8 @@ class LandingPageApiController extends Controller
         $firstLdp = LandingPage::query()
             ->where('status', LandingPage::STATUS_ACTIVE)
             ->where('sales_consultant_id', $consultant->id)
+            ->orderByDesc('updated_at')
+            ->orderByDesc('id')
             ->first();
 
         if ($firstLdp) {
@@ -112,6 +114,8 @@ class LandingPageApiController extends Controller
         $ldp = LandingPage::query()
             ->where('status', LandingPage::STATUS_ACTIVE)
             ->where('sales_consultant_id', $consultant->id)
+            ->orderByDesc('updated_at')
+            ->orderByDesc('id')
             ->first();
 
         // 3. Lấy danh sách ID xe phụ trách
@@ -162,7 +166,7 @@ class LandingPageApiController extends Controller
 
         // 5. Khuyến mãi & Layout blocks
         $promotionsData = $ldp ? $this->resolvePromotions($ldp->promotions) : ['global' => [], 'custom' => []];
-        $layoutBlocks = $this->resolveConsultantLayoutBlocks($ldp, $consultant);
+        $layoutBlocks = $this->resolveConsultantLayoutBlocks($ldp, $consultant, $leadVehicle?->id);
 
         // 6. Thông tin SEO
         $consultantDetail = $consultant->toLocalizedDetail($locale);
@@ -254,6 +258,8 @@ class LandingPageApiController extends Controller
                   ->orWhereJsonContains('vehicle_ids', (int)$vehicle->id)
                   ->orWhereJsonContains('vehicle_ids', (string)$vehicle->id);
             })
+            ->orderByDesc('updated_at')
+            ->orderByDesc('id')
             ->first();
 
         if (!$ldp) {
@@ -600,7 +606,7 @@ class LandingPageApiController extends Controller
         ];
     }
 
-    private function resolveConsultantLayoutBlocks($ldp, $consultant): array
+    private function resolveConsultantLayoutBlocks($ldp, $consultant, $leadVehicleId = null): array
     {
         $layoutBlocks = [];
         if ($ldp && !empty($ldp->layout_blocks)) {
@@ -610,8 +616,13 @@ class LandingPageApiController extends Controller
             }
             if (is_array($rawBlocks)) {
                 if (!empty($rawBlocks) && !isset($rawBlocks[0])) {
-                    $firstKey = array_key_first($rawBlocks);
-                    $rawBlocks = $rawBlocks[$firstKey] ?? [];
+                    $targetKey = $leadVehicleId ? (string)$leadVehicleId : null;
+                    if ($targetKey && (isset($rawBlocks[$targetKey]) || isset($rawBlocks[(int)$targetKey]))) {
+                        $rawBlocks = $rawBlocks[$targetKey] ?? ($rawBlocks[(int)$targetKey] ?? []);
+                    } else {
+                        $firstKey = array_key_first($rawBlocks);
+                        $rawBlocks = $rawBlocks[$firstKey] ?? [];
+                    }
                 }
                 $layoutBlocks = $this->resolveLayoutBlocksUrls($rawBlocks, $consultant);
             }
