@@ -133,3 +133,14 @@ config.bat
 *.docx
 
 *.pdf
+
+# OpenSpec
+openspec/
+.openspec/
+openspect/
+.openspect/
+.agents/skills/openspec-*
+.agents/skills/.openspec-target
+.agents/workflows/opsx-*
+.kiro/prompts/opsx-*
+.kiro/skills/openspec-*

@@ -719,40 +719,42 @@ function LdpHomeInner({
       {/* 3. SHOWROOM SECTION (#showroom) */}
       <section id="showroom" className="w-full py-16 md:py-20 bg-gray-50 scroll-mt-12">
         <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full">
+          {/* Centered title block */}
           <div className="text-center max-w-2xl mx-auto space-y-3 mb-10">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-100 text-[#0562D2] text-xs font-bold">
-              <Car className="w-4 h-4" />
-              <span>Showroom Dòng Xe Ford ({filteredVehicles.length} mẫu xe)</span>
-            </div>
-            <h2 className="text-2xl md:text-4xl font-extrabold text-[#00095B] uppercase tracking-tight">
-              KHÁM PHÁ CÁC DÒNG XE FORD
+            <h2 className="text-2xl md:text-3xl font-black text-[#00095B] tracking-tight">
+              Dòng xe Ford Đồng Nai
             </h2>
-            <p className="text-xs md:text-sm text-gray-600 font-medium">
-              Bảng giá niêm yết, thông số và ưu đãi tốt nhất từ Cố vấn {salesConsultant?.name || "bán hàng Đồng Nai Ford"}.
+            <p className="text-sm text-gray-500 font-medium">
+              Đa dạng lựa chọn từ SUV, bán tải đến xe thương mại — tất cả đều có sẵn tại showroom Đồng Nai.
             </p>
+          </div>
 
-            {/* Filter Tabs */}
-            <div className="flex flex-wrap items-center justify-center gap-2 pt-4">
+          {/* Underline tab switcher — centered */}
+          <div className="flex justify-center mb-12 border-b border-gray-200 w-full">
+            <div className="flex gap-8 md:gap-12">
               {[
                 { key: "all", label: "Tất cả" },
                 { key: "suv", label: "SUV" },
                 { key: "pickup", label: "Bán tải" },
                 { key: "commercial", label: "Thương mại" },
                 { key: "ev", label: "Xe Điện" },
-              ].map((tab) => (
-                <button
-                  key={tab.key}
-                  type="button"
-                  onClick={() => setSelectedCategory(tab.key)}
-                  className={`px-5 py-2 rounded-full text-xs md:text-sm font-bold transition-all cursor-pointer border ${
-                    selectedCategory === tab.key
-                      ? "bg-[#0562D2] text-white border-[#0562D2] shadow-sm"
-                      : "bg-white text-gray-700 border-gray-200 hover:border-[#0562D2] hover:text-[#0562D2]"
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
+              ].map((tab) => {
+                const isActive = selectedCategory === tab.key;
+                return (
+                  <button
+                    key={tab.key}
+                    type="button"
+                    onClick={() => setSelectedCategory(tab.key)}
+                    className={`pb-4 text-sm md:text-base font-semibold transition-all duration-300 relative cursor-pointer ${
+                      isActive
+                        ? "text-[#0562D2] border-b-2 border-[#0562D2] -mb-[2px]"
+                        : "text-gray-500 hover:text-[#0562D2] border-b-2 border-transparent -mb-[2px]"
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
