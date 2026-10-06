@@ -48,6 +48,13 @@ class CommonNotification extends Notification implements ShouldQueue
             ->subject($this->data['mail_title'])
             ->greeting($this->data['mail_title']);
 
+        // Gắn Reply-To về email khách hàng nếu có, giúp Cố vấn bấm Trả lời là gửi trực tiếp cho khách
+        $customerEmail = $this->data['Email khách hàng'] ?? $this->data['Email'] ?? null;
+        $customerName = $this->data['Họ và tên khách hàng'] ?? $this->data['Họ và tên'] ?? null;
+        if (!empty($customerEmail) && filter_var($customerEmail, FILTER_VALIDATE_EMAIL)) {
+            $email->replyTo($customerEmail, $customerName ?: null);
+        }
+
         foreach ($this->data as $key => $value) {
             if($key != 'mail_title') {
                 if (is_array($this->data[$key])) {

@@ -57,8 +57,8 @@ class ContactController extends Controller
                 $data['Nội dung cần hỗ trợ'] = $noteVal;
             }
 
-            // Chuẩn hóa trường Product cho ADVISE_FORM để tránh lỗi validation khi form gửi từ Landing Page
-            if ($rawType === 'ADVISE_FORM') {
+            // Chuẩn hóa trường Product cho ADVISE_FORM và TEST_DRIVE để tránh lỗi validation khi form gửi từ Landing Page
+            if ($rawType === 'ADVISE_FORM' || $rawType === 'TEST_DRIVE') {
                 if (empty($data['Product']) || !is_array($data['Product'])) {
                     $vehicleId = $data['vehicle_id'] ?? 'ford-dongnai';
                     $vehicleTitle = 'Đồng Nai Ford';
@@ -383,13 +383,24 @@ class ContactController extends Controller
                     $consultantName = $consultant?->name ?? $landingPage?->salesConsultant?->name ?? '';
                     $isLandingPage = !empty($landingPageId) || !empty($salesConsultantId) || !empty($salesEmail);
 
-                    $mailSubject = $isLandingPage 
-                        ? ('🔥 [Landing Page' . ($consultantName ? " - {$consultantName}" : '') . '] Thông báo khách hàng mới: ' . $contactName)
-                        : ('🔥 [Đồng Nai Ford] ' . ($formTitle ?? 'Yêu cầu liên hệ mới') . ': ' . $contactName);
+                    $isTestDrive = ($requestData['type'] ?? '') === 'TEST_DRIVE' 
+                        || ($contactData['Loại yêu cầu'] ?? '') === 'Đăng ký lái thử xe'
+                        || str_contains(mb_strtolower($formTitle ?? ''), 'lái thử') 
+                        || str_contains(mb_strtolower($cleanMessage ?? ''), 'lái thử') 
+                        || str_contains(mb_strtolower($formSource ?? ''), 'lái thử');
+
+                    if ($isTestDrive) {
+                        $mailSubject = '🚗💨 [Đăng Ký Lái Thử' . ($consultantName ? " - {$consultantName}" : '') . '] ' . $contactName . ($vehicle ? " - {$vehicle}" : '');
+                    } elseif ($isLandingPage) {
+                        $mailSubject = '🔥 [Landing Page' . ($consultantName ? " - {$consultantName}" : '') . '] ' . ($vehicle ? "Báo giá {$vehicle}: " : 'Báo giá xe mới: ') . $contactName;
+                    } else {
+                        $mailSubject = '🔥 [Đồng Nai Ford] ' . ($formTitle ?? 'Yêu cầu liên hệ mới') . ': ' . $contactName;
+                    }
 
                     $emailData = [
                         'mail_title' => $mailSubject,
-                        'Họ và tên' => $contactName,
+                        'Loại yêu cầu' => $isTestDrive ? 'Đăng ký lái thử xe' : ($contactData['Loại yêu cầu'] ?? ($formTitle ?? 'Yêu cầu tư vấn báo giá')),
+                        'Họ và tên khách hàng' => $contactName,
                         'Số điện thoại' => $contactPhone,
                     ];
 
@@ -397,7 +408,13 @@ class ContactController extends Controller
                         $emailData['Email khách hàng'] = $contactEmail;
                     }
                     if (!empty($vehicle)) {
-                        $emailData['Dòng xe quan tâm'] = $vehicle;
+                        $emailData[$isTestDrive ? 'Dòng xe đăng ký lái thử' : 'Dòng xe quan tâm'] = $vehicle;
+                    }
+                    if (!empty($city)) {
+                        $emailData['Khu vực sinh sống'] = $city;
+                    }
+                    if (!empty($cleanMessage)) {
+                        $emailData['Ghi chú yêu cầu thêm'] = $cleanMessage;
                     }
                     if (!empty($selectedService)) {
                         $emailData['Dịch vụ quan tâm'] = $selectedService;
@@ -405,22 +422,16 @@ class ContactController extends Controller
                     if (!empty($paymentMethod)) {
                         $emailData['Hình thức mua xe'] = $paymentMethod;
                     }
-                    if (!empty($city)) {
-                        $emailData['Tỉnh / Thành phố'] = $city;
-                    }
                     if (!empty($appointment)) {
                         $emailData['Thời gian hẹn'] = $appointment;
                     }
                     if (!empty($location)) {
                         $emailData['Địa điểm'] = $location;
                     }
-                    if (!empty($cleanMessage)) {
-                        $emailData['Ghi chú / Yêu cầu'] = $cleanMessage;
-                    }
                     if ($isLandingPage && !empty($consultantName)) {
                         $emailData['Cố vấn phụ trách'] = $consultantName;
                     }
-                    $emailData['Nguồn gửi'] = $formSource ?? 'Website';
+                    $emailData['Nguồn gửi'] = $formSource ?? ($isTestDrive ? 'Form Đăng Ký Lái Thử Xe' : 'Website');
                     $emailData['Thời gian'] = now()->format('H:i d/m/Y');
                     $emailData['url'] = url('/admin/contacts');
 

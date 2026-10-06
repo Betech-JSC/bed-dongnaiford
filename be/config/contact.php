@@ -43,6 +43,28 @@ return [
             ],
             'route' => 'contacts',
         ],
+        'TEST_DRIVE' => [
+            'title' => 'Đăng ký lái thử xe',
+            'columns' => [
+                'Phone',
+            ],
+            'all_columns' => [
+                'Phone',
+                'Product' => [
+                    'column' => 'product_url',
+                    'route' => [
+                        'name' => 'api.vehicles.show',
+                        'params' => [
+                            'slug',
+                        ],
+                    ],
+                ],
+            ],
+            'rules' => [
+                'Phone' => 'required|regex:/(0)[0-9]/|not_regex:/[a-z]/|min:9|max:12',
+            ],
+            'route' => 'contacts',
+        ],
         'TEST_DRIVE_SURVEY' => [
             'title' => 'Khảo sát lái thử',
             'columns' => [

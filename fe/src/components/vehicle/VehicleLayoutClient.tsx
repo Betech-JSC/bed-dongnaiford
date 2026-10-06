@@ -299,6 +299,7 @@ export default function VehicleLayoutClient({
       let productTitle = initialVehicle?.name || "";
       let note = formData.note;
 
+      const isTestDrive = showDriveModal;
       if (showQuoteModal) {
         const list = allVehicles.length > 0 ? allVehicles : [initialVehicle];
         const selVeh = list.find((v: any) => v.id === selectedVehicleId) || initialVehicle;
@@ -317,7 +318,7 @@ export default function VehicleLayoutClient({
 
       const response = await contactsAPI.submit({
         contact: {
-          type: "ADVISE_FORM",
+          type: isTestDrive ? "TEST_DRIVE" : "ADVISE_FORM",
           sales_consultant_id: salesConsultantId,
           data: {
             landing_page_id: landingPageId,
@@ -326,13 +327,20 @@ export default function VehicleLayoutClient({
             Phone: formData.phone,
             Email: formData.email || undefined,
             Province: formData.province,
+            "Tỉnh / Thành phố": formData.province,
+            "Khu vực sinh sống": formData.province,
             Product: {
               id: productId,
               slug: productSlug,
               title: productTitle,
               type: "vehicle",
             },
-            "Nội dung cần hỗ trợ": note
+            "Dòng xe quan tâm": productTitle,
+            "Dòng xe lái thử": productTitle,
+            "Loại yêu cầu": isTestDrive ? "Đăng ký lái thử xe" : "Báo giá lăn bánh xe",
+            "Nội dung cần hỗ trợ": note,
+            "Ghi chú yêu cầu thêm": formData.note || undefined,
+            source: isTestDrive ? "🚘 Form Đăng Ký Lái Thử Xe" : "💰 Form Báo Giá Lăn Bánh Xe",
           }
         }
       });
