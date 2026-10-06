@@ -638,69 +638,58 @@ function LdpHomeInner({
         </div>
       </section>
 
-      {/* 2. QUICK ACTIONS BAR */}
-      <section className="bg-white border-y border-gray-200 py-6 relative z-20 shadow-xs">
+      {/* 2. QUICK ACTIONS BAR (ĐỒNG BỘ 100% GIAO DIỆN HOMEPAGE) */}
+      <section className="bg-white border-y border-gray-200 py-8 relative z-20 shadow-xs">
         <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px]">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Action 1: Đăng ký lái thử */}
             <button
               type="button"
               onClick={() => openDriveDrawer()}
-              className="flex items-center gap-3 p-3 rounded-xl hover:bg-blue-50/60 transition-colors group cursor-pointer text-left border-0 bg-transparent"
+              className="flex flex-col gap-[16px] items-center justify-center text-center p-[20px_24px] rounded-[12px] h-[140px] w-full bg-[#f0f0f0] text-[#1a1a1a] hover:bg-[#0562d2] hover:text-white hover:shadow-[2px_6px_12px_-1px_rgba(16,24,40,0.12),0px_4px_6px_-2px_rgba(16,24,40,0.05)] transition-all duration-300 group cursor-pointer border border-transparent"
             >
-              <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-[#0562D2] group-hover:bg-[#0562D2] group-hover:text-white transition-colors shrink-0">
-                <WheelIcon className="w-6 h-6" />
-              </div>
-              <div>
-                <h4 className="text-sm font-bold text-gray-900 group-hover:text-[#0562D2] transition-colors">Đăng ký lái thử</h4>
-                <p className="text-xs text-gray-500">Trải nghiệm thực tế tận nơi</p>
-              </div>
+              <WheelIcon className="h-[32px] text-[#0562D2] group-hover:text-white transition-colors duration-300 shrink-0" />
+              <h3 className="text-sm font-bold transition-colors duration-300 leading-snug uppercase">
+                Đăng ký lái thử
+              </h3>
             </button>
 
             {/* Action 2: Dự toán chi phí */}
-            <Link
-              href="/cong-cu/uoc-tinh-lan-banh"
-              className="flex items-center gap-3 p-3 rounded-xl hover:bg-blue-50/60 transition-colors group cursor-pointer text-left"
+            <button
+              type="button"
+              onClick={() => openQuoteDrawer()}
+              className="flex flex-col gap-[16px] items-center justify-center text-center p-[20px_24px] rounded-[12px] h-[140px] w-full bg-[#f0f0f0] text-[#1a1a1a] hover:bg-[#0562d2] hover:text-white hover:shadow-[2px_6px_12px_-1px_rgba(16,24,40,0.12),0px_4px_6px_-2px_rgba(16,24,40,0.05)] transition-all duration-300 group cursor-pointer border border-transparent"
             >
-              <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-[#0562D2] group-hover:bg-[#0562D2] group-hover:text-white transition-colors shrink-0">
-                <CostIcon className="w-6 h-6" />
-              </div>
-              <div>
-                <h4 className="text-sm font-bold text-gray-900 group-hover:text-[#0562D2] transition-colors">Dự toán chi phí</h4>
-                <p className="text-xs text-gray-500">Tính giá lăn bánh & trả góp</p>
-              </div>
-            </Link>
+              <CostIcon className="h-[32px] text-[#0562D2] group-hover:text-white transition-colors duration-300 shrink-0" />
+              <h3 className="text-sm font-bold transition-colors duration-300 leading-snug uppercase">
+                Dự toán chi phí
+              </h3>
+            </button>
 
-            {/* Action 3: Ưu đãi đặc quyền */}
+            {/* Action 3: Ưu đãi */}
             <button
               type="button"
               onClick={() => {
-                const target = document.getElementById("news") || document.getElementById("consultation");
+                const target = document.getElementById("promotions") || document.getElementById("news") || document.getElementById("consultation");
                 target?.scrollIntoView({ behavior: "smooth" });
               }}
-              className="flex items-center gap-3 p-3 rounded-xl hover:bg-blue-50/60 transition-colors group cursor-pointer text-left border-0 bg-transparent"
+              className="flex flex-col gap-[16px] items-center justify-center text-center p-[20px_24px] rounded-[12px] h-[140px] w-full bg-[#f0f0f0] text-[#1a1a1a] hover:bg-[#0562d2] hover:text-white hover:shadow-[2px_6px_12px_-1px_rgba(16,24,40,0.12),0px_4px_6px_-2px_rgba(16,24,40,0.05)] transition-all duration-300 group cursor-pointer border border-transparent"
             >
-              <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-[#0562D2] group-hover:bg-[#0562D2] group-hover:text-white transition-colors shrink-0">
-                <OfferIcon className="w-6 h-6" />
-              </div>
-              <div>
-                <h4 className="text-sm font-bold text-gray-900 group-hover:text-[#0562D2] transition-colors">Ưu đãi Cố vấn</h4>
-                <p className="text-xs text-gray-500">Quà tặng & khuyến mãi lớn</p>
-              </div>
+              <OfferIcon className="h-[32px] text-[#0562D2] group-hover:text-white transition-colors duration-300 shrink-0" />
+              <h3 className="text-sm font-bold transition-colors duration-300 leading-snug uppercase">
+                Ưu đãi
+              </h3>
             </button>
 
-            {/* Action 4: Hẹn bảo dưỡng */}
+            {/* Action 4: Đặt hẹn bảo dưỡng */}
             <Link
               href="/lien-he?reason=Đặt lịch hẹn bảo dưỡng"
-              className="flex items-center gap-3 p-3 rounded-xl hover:bg-blue-50/60 transition-colors group cursor-pointer text-left"
+              className="flex flex-col gap-[16px] items-center justify-center text-center p-[20px_24px] rounded-[12px] h-[140px] w-full bg-[#f0f0f0] text-[#1a1a1a] hover:bg-[#0562d2] hover:text-white hover:shadow-[2px_6px_12px_-1px_rgba(16,24,40,0.12),0px_4px_6px_-2px_rgba(16,24,40,0.05)] transition-all duration-300 group cursor-pointer border border-transparent"
             >
-              <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-[#0562D2] group-hover:bg-[#0562D2] group-hover:text-white transition-colors shrink-0">
-                <WrenchIcon className="w-6 h-6" />
-              </div>
-              <div>
-                <h4 className="text-sm font-bold text-gray-900 group-hover:text-[#0562D2] transition-colors">Đặt hẹn bảo dưỡng</h4>
-                <p className="text-xs text-gray-500">Dịch vụ 5S nhanh chóng</p>
-              </div>
+              <WrenchIcon className="h-[32px] text-[#0562D2] group-hover:text-white transition-colors duration-300 shrink-0" />
+              <h3 className="text-sm font-bold transition-colors duration-300 leading-snug uppercase">
+                Đặt hẹn bảo dưỡng
+              </h3>
             </Link>
           </div>
         </div>
