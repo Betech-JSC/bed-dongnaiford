@@ -180,6 +180,7 @@ export type LdpHomeClientProps = {
   allVehicles?: any[];
   leadVehicle?: any;
   landingPageId?: number | string;
+  salesEmail?: string;
   promotions?: any;
   initialBanners?: any[];
   initialCategories?: any[];
@@ -191,6 +192,8 @@ export type LdpHomeClientProps = {
 function LdpHomeInner({
   salesConsultant,
   allVehicles = [],
+  landingPageId,
+  salesEmail,
   promotions,
   initialBanners = [],
   initialCategories = [],
@@ -470,11 +473,12 @@ function LdpHomeInner({
           type: "ADVISE_FORM",
           sales_consultant_id: salesConsultant?.id ? Number(salesConsultant.id) : undefined,
           data: {
+            landing_page_id: landingPageId ? Number(landingPageId) : undefined,
             full_name: leadName.trim(),
             phone: leadPhone.trim(),
             notes: leadNote.trim(),
             vehicle_id: leadVehicleId ? Number(leadVehicleId) : undefined,
-            sales_email: salesConsultant?.email,
+            sales_email: salesEmail || salesConsultant?.email,
             source: "landing_page_consultation",
           },
         },
@@ -1772,14 +1776,14 @@ function LdpHomeInner({
 }
 
 export default function LdpHomeClient(props: LdpHomeClientProps) {
-  const { salesConsultant, allVehicles = [], leadVehicle, landingPageId } = props;
+  const { salesConsultant, allVehicles = [], leadVehicle, landingPageId, salesEmail } = props;
 
   return (
     <VehicleLayoutClient
       initialVehicle={leadVehicle || allVehicles[0]}
       allVehicles={allVehicles}
       salesConsultantId={salesConsultant?.id}
-      salesEmail={salesConsultant?.email}
+      salesEmail={salesEmail || salesConsultant?.email}
       landingPageId={typeof landingPageId === "string" ? parseInt(landingPageId, 10) : landingPageId}
     >
       <LdpHomeInner {...props} />

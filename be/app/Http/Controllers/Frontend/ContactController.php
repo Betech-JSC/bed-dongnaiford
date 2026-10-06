@@ -10,6 +10,8 @@ use App\Models\File;
 use Illuminate\Support\Facades\Notification;
 use App\Http\Notifications\CommonNotification;
 use App\Http\Notifications\ServiceBookingNotification;
+use App\Models\Vehicle\LandingPage;
+use App\Models\Vehicle\SalesConsultant;
 use App\Traits\ApiResponse;
 
 class ContactController extends Controller
@@ -268,6 +270,128 @@ class ContactController extends Controller
                 $telegramService->sendHotLeadAlert($leadData, 'FORM-' . $createdContact->id);
             } catch (\Throwable $e) {
                 \Illuminate\Support\Facades\Log::error('Telegram form notification error: ' . $e->getMessage());
+            }
+
+            // Tự động gửi Email thông báo Lead mới (ưu tiên Cố vấn / Landing Page đã setup)
+            try {
+                $contactData = $requestData['data'] ?? [];
+                $landingPageId = $contactData['landing_page_id'] ?? $requestData['landing_page_id'] ?? null;
+                $salesConsultantId = $requestData['sales_consultant_id'] ?? $contactData['sales_consultant_id'] ?? null;
+
+                $targetEmails = [];
+
+                // 1. Email từ trường sales_email gửi trực tiếp từ form hoặc LDP
+                $salesEmail = $contactData['sales_email'] ?? $requestData['sales_email'] ?? null;
+                if (!empty($salesEmail) && filter_var($salesEmail, FILTER_VALIDATE_EMAIL)) {
+                    $targetEmails[] = trim($salesEmail);
+                }
+
+                // 2. Nếu có landing_page_id, truy vấn Landing Page để lấy sales_email cấu hình và email của cố vấn
+                $landingPage = null;
+                if (!empty($landingPageId)) {
+                    try {
+                        $landingPage = LandingPage::with('salesConsultant')->find($landingPageId);
+                        if ($landingPage) {
+                            if (!empty($landingPage->sales_email) && filter_var($landingPage->sales_email, FILTER_VALIDATE_EMAIL)) {
+                                $targetEmails[] = trim($landingPage->sales_email);
+                            }
+                            if ($landingPage->salesConsultant && !empty($landingPage->salesConsultant->email) && filter_var($landingPage->salesConsultant->email, FILTER_VALIDATE_EMAIL)) {
+                                $targetEmails[] = trim($landingPage->salesConsultant->email);
+                            }
+                            if (empty($salesConsultantId) && $landingPage->sales_consultant_id) {
+                                $salesConsultantId = $landingPage->sales_consultant_id;
+                            }
+                        }
+                    } catch (\Throwable $e) {
+                        \Illuminate\Support\Facades\Log::warning('Error loading LandingPage for email notification: ' . $e->getMessage());
+                    }
+                }
+
+                // 3. Nếu có sales_consultant_id mà chưa có cố vấn
+                $consultant = null;
+                if (!empty($salesConsultantId)) {
+                    try {
+                        $consultant = SalesConsultant::find($salesConsultantId);
+                        if ($consultant && !empty($consultant->email) && filter_var($consultant->email, FILTER_VALIDATE_EMAIL)) {
+                            $targetEmails[] = trim($consultant->email);
+                        }
+                    } catch (\Throwable $e) {
+                        \Illuminate\Support\Facades\Log::warning('Error loading SalesConsultant for email notification: ' . $e->getMessage());
+                    }
+                }
+
+                // 4. Email thông báo chung của đại lý (nếu có cấu hình)
+                $generalEmailSetting = function_exists('notification_to') ? notification_to() : null;
+                if (!empty($generalEmailSetting)) {
+                    $arr = explode(',', $generalEmailSetting);
+                    foreach ($arr as $gm) {
+                        $gm = trim($gm);
+                        if (filter_var($gm, FILTER_VALIDATE_EMAIL)) {
+                            $targetEmails[] = $gm;
+                        }
+                    }
+                }
+
+                // Loại bỏ trùng lặp email và lọc rỗng
+                $targetEmails = array_values(array_unique(array_filter($targetEmails)));
+
+                if (!empty($targetEmails)) {
+                    $consultantName = $consultant?->name ?? $landingPage?->salesConsultant?->name ?? '';
+                    $isLandingPage = !empty($landingPageId) || !empty($salesConsultantId) || !empty($salesEmail);
+
+                    $mailSubject = $isLandingPage 
+                        ? ('🔥 [Landing Page' . ($consultantName ? " - {$consultantName}" : '') . '] Thông báo khách hàng mới: ' . $contactName)
+                        : ('🔥 [Đồng Nai Ford] ' . ($formTitle ?? 'Yêu cầu liên hệ mới') . ': ' . $contactName);
+
+                    $emailData = [
+                        'mail_title' => $mailSubject,
+                        'Họ và tên' => $contactName,
+                        'Số điện thoại' => $contactPhone,
+                    ];
+
+                    if (!empty($contactEmail)) {
+                        $emailData['Email khách hàng'] = $contactEmail;
+                    }
+                    if (!empty($vehicle)) {
+                        $emailData['Dòng xe quan tâm'] = $vehicle;
+                    }
+                    if (!empty($selectedService)) {
+                        $emailData['Dịch vụ quan tâm'] = $selectedService;
+                    }
+                    if (!empty($paymentMethod)) {
+                        $emailData['Hình thức mua xe'] = $paymentMethod;
+                    }
+                    if (!empty($city)) {
+                        $emailData['Tỉnh / Thành phố'] = $city;
+                    }
+                    if (!empty($appointment)) {
+                        $emailData['Thời gian hẹn'] = $appointment;
+                    }
+                    if (!empty($location)) {
+                        $emailData['Địa điểm'] = $location;
+                    }
+                    if (!empty($cleanMessage)) {
+                        $emailData['Ghi chú / Yêu cầu'] = $cleanMessage;
+                    }
+                    if ($isLandingPage && !empty($consultantName)) {
+                        $emailData['Cố vấn phụ trách'] = $consultantName;
+                    }
+                    $emailData['Nguồn gửi'] = $formSource ?? 'Website';
+                    $emailData['Thời gian'] = now()->format('H:i d/m/Y');
+                    $emailData['url'] = url('/admin/contacts');
+
+                    foreach ($targetEmails as $recipientEmail) {
+                        try {
+                            Notification::route('mail', $recipientEmail)
+                                ->notifyNow(new CommonNotification($emailData));
+                            \Illuminate\Support\Facades\Log::info("Sent contact notification email to: {$recipientEmail} for contact ID {$createdContact->id}");
+                        } catch (\Throwable $e) {
+                            \Illuminate\Support\Facades\Log::error("Failed to send contact notification email to {$recipientEmail}: " . $e->getMessage());
+                        }
+                    }
+                }
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::error('Contact notification email general error: ' . $e->getMessage());
             }
 
             if ($request->wantsJson() || $request->ajax()) {

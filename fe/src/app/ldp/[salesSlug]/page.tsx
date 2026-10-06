@@ -270,6 +270,7 @@ export default async function Page({ params }: Props) {
       allVehicles={allVehicles}
       leadVehicle={normalizedLeadVehicle || allVehicles[0]}
       landingPageId={ldpData.id}
+      salesEmail={ldpData.sales_email || ldpData.sales_consultant?.email}
       promotions={ldpData.promotions}
       initialBanners={initialBanners}
       initialCategories={initialCategories}
