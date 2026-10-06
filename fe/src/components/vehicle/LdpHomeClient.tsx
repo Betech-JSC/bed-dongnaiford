@@ -192,6 +192,7 @@ export type LdpHomeClientProps = {
 function LdpHomeInner({
   salesConsultant,
   allVehicles = [],
+  leadVehicle,
   landingPageId,
   salesEmail,
   promotions,
@@ -468,21 +469,41 @@ function LdpHomeInner({
     setLeadErrorMessage("");
 
     try {
-      await contactsAPI.submit({
+      const selectedVehicle = vehiclesList.find((v: any) => String(v.id) === String(leadVehicleId) || v.slug === leadVehicleId) || leadVehicle;
+      const pId = selectedVehicle ? String(selectedVehicle.id || selectedVehicle.slug) : "ford-dongnai";
+      const pSlug = selectedVehicle?.slug || "ford-dongnai";
+      const pTitle = selectedVehicle?.title || selectedVehicle?.name || "Tất cả các dòng xe Ford";
+
+      const response = await contactsAPI.submit({
         contact: {
           type: "ADVISE_FORM",
           sales_consultant_id: salesConsultant?.id ? Number(salesConsultant.id) : undefined,
           data: {
             landing_page_id: landingPageId ? Number(landingPageId) : undefined,
-            full_name: leadName.trim(),
-            phone: leadPhone.trim(),
-            notes: leadNote.trim(),
-            vehicle_id: leadVehicleId ? Number(leadVehicleId) : undefined,
             sales_email: salesEmail || salesConsultant?.email,
+            Name: leadName.trim(),
+            Phone: leadPhone.trim(),
+            "Họ và tên": leadName.trim(),
+            "Số điện thoại": leadPhone.trim(),
+            "Nội dung cần hỗ trợ": leadNote.trim(),
+            Product: {
+              id: pId,
+              slug: pSlug,
+              title: pTitle,
+              type: "vehicle",
+            },
             source: "landing_page_consultation",
           },
         },
       });
+
+      if (response && response.success === false) {
+        setLeadSubmitStatus("error");
+        const msg = typeof response.message === "object" ? Object.values(response.message).flat().join(", ") : response.message;
+        setLeadErrorMessage(msg || "Gửi yêu cầu không thành công. Vui lòng thử lại sau.");
+        return;
+      }
+
       setLeadSubmitStatus("success");
       setLeadName("");
       setLeadPhone("");

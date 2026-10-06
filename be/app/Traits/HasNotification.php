@@ -88,8 +88,13 @@ trait HasNotification
                         }
 
                         foreach ($emails as $email) {
-                            Notification::route('mail', $email)
-                                ->notify(new CommonNotification($data));
+                            try {
+                                Notification::route('mail', $email)
+                                    ->notifyNow(new CommonNotification($data));
+                            } catch (\Throwable $e) {
+                                Notification::route('mail', $email)
+                                    ->notify(new CommonNotification($data));
+                            }
                         }
                     }
                 }

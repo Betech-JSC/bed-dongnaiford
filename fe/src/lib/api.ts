@@ -43,6 +43,9 @@ async function fetchAPI<T = any>(endpoint: string, options?: RequestInit): Promi
     if (!response.ok) {
       const errorData = await response.json().catch(() => null);
       console.warn(`[API ${response.status}] ${endpoint}:`, errorData);
+      if (method !== 'GET') {
+        return (errorData || { success: false, status: response.status, message: 'Yêu cầu không thành công' }) as any;
+      }
       return null as any;
     }
 

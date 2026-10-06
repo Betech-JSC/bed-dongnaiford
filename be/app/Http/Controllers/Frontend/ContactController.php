@@ -26,29 +26,73 @@ class ContactController extends Controller
                 return $this->empty();
             }
             $data = $request->input('contact')['data'] ?? [];
-            if (empty($data['Name']) && !empty($data['Họ và tên'])) {
-                $data['Name'] = $data['Họ và tên'];
-            }
-            if (empty($data['Phone']) && !empty($data['Số điện thoại'])) {
-                $data['Phone'] = $data['Số điện thoại'];
-            }
-            if (empty($data['Email']) && !empty($data['E-mail'])) {
-                $data['Email'] = $data['E-mail'];
-            }
-            if (empty($data['Họ và tên']) && !empty($data['Name'])) {
-                $data['Họ và tên'] = $data['Name'];
-            }
-            if (empty($data['Số điện thoại']) && !empty($data['Phone'])) {
-                $data['Số điện thoại'] = $data['Phone'];
-            }
-            if (empty($data['E-mail']) && !empty($data['Email'])) {
-                $data['E-mail'] = $data['Email'];
-            }
-            $requestData = $request->all()['contact'];
-            $requestData['data'] = $data;
-            $requestData['sent_at'] = now();
+            $requestData = $request->all()['contact'] ?? [];
             $rawType = $requestData['type'] ?? key(config('contact.types'));
             $requestData['type'] = $rawType;
+
+            // Chuẩn hóa Họ và tên
+            $nameVal = $data['Name'] ?? $data['Họ và tên'] ?? $data['full_name'] ?? $data['fullname'] ?? $data['name'] ?? null;
+            if ($nameVal) {
+                $data['Name'] = $nameVal;
+                $data['Họ và tên'] = $nameVal;
+            }
+
+            // Chuẩn hóa Số điện thoại
+            $phoneVal = $data['Phone'] ?? $data['Số điện thoại'] ?? $data['phone'] ?? $data['telephone'] ?? $data['sdt'] ?? null;
+            if ($phoneVal) {
+                $data['Phone'] = $phoneVal;
+                $data['Số điện thoại'] = $phoneVal;
+            }
+
+            // Chuẩn hóa Email
+            $emailVal = $data['Email'] ?? $data['E-mail'] ?? $data['email'] ?? null;
+            if ($emailVal) {
+                $data['Email'] = $emailVal;
+                $data['E-mail'] = $emailVal;
+            }
+
+            // Chuẩn hóa Lời nhắn / Ghi chú
+            $noteVal = $data['Nội dung cần hỗ trợ'] ?? $data['notes'] ?? $data['note'] ?? $data['message'] ?? $data['Ghi chú'] ?? null;
+            if ($noteVal) {
+                $data['Nội dung cần hỗ trợ'] = $noteVal;
+            }
+
+            // Chuẩn hóa trường Product cho ADVISE_FORM để tránh lỗi validation khi form gửi từ Landing Page
+            if ($rawType === 'ADVISE_FORM') {
+                if (empty($data['Product']) || !is_array($data['Product'])) {
+                    $vehicleId = $data['vehicle_id'] ?? 'ford-dongnai';
+                    $vehicleTitle = 'Đồng Nai Ford';
+                    $vehicleSlug = 'ford-dongnai';
+                    if (!empty($data['vehicle_id']) && is_numeric($data['vehicle_id'])) {
+                        try {
+                            $vModel = \App\Models\Vehicle\Vehicle::find($data['vehicle_id']);
+                            if ($vModel) {
+                                $vehicleTitle = $vModel->title ?? $vModel->name ?? 'Đồng Nai Ford';
+                                $vehicleSlug = $vModel->slug ?? 'ford-dongnai';
+                            }
+                        } catch (\Throwable $e) {}
+                    }
+                    $data['Product'] = [
+                        'id' => (string)$vehicleId,
+                        'slug' => $vehicleSlug,
+                        'title' => $vehicleTitle,
+                        'type' => 'vehicle',
+                    ];
+                } else {
+                    if (empty($data['Product']['id'])) {
+                        $data['Product']['id'] = 'ford-dongnai';
+                    }
+                    if (empty($data['Product']['slug'])) {
+                        $data['Product']['slug'] = 'ford-dongnai';
+                    }
+                    if (empty($data['Product']['title'])) {
+                        $data['Product']['title'] = 'Đồng Nai Ford';
+                    }
+                }
+            }
+
+            $requestData['data'] = $data;
+            $requestData['sent_at'] = now();
             $rules = config('contact.types.' . $rawType . '.rules');
 
             if (!is_array($rules)) {
