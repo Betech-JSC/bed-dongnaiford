@@ -59,6 +59,62 @@ Route::localized(function () {
     Route::get('ldp/{sales_slug}', [\App\Http\Controllers\Api\LandingPageApiController::class, 'showConsultant'])->name('api.ldp.consultant');
     Route::get('ldp/{sales_slug}/{vehicle_slug}', [\App\Http\Controllers\Api\LandingPageApiController::class, 'show'])->name('api.ldp.show');
     Route::post('contacts', [App\Http\Controllers\Frontend\ContactController::class, 'store'])->name('api.contacts.store');
+    Route::get('system/check-mail', function (\Illuminate\Http\Request $request) {
+        $targetEmail = $request->query('email', 'ninjadog654@gmail.com');
+        $mailer = config('mail.default');
+        $host = config('mail.mailers.smtp.host');
+        $port = config('mail.mailers.smtp.port');
+        $username = config('mail.mailers.smtp.username');
+        $hasPassword = !empty(config('mail.mailers.smtp.password'));
+        $encryption = config('mail.mailers.smtp.encryption');
+        $fromAddress = config('mail.from.address');
+        $fromName = config('mail.from.name');
+
+        $smtpInfo = [
+            'default_mailer' => $mailer,
+            'smtp_host' => $host,
+            'smtp_port' => $port,
+            'smtp_username' => $username ? (strlen($username) > 4 ? substr($username, 0, 3) . '***' : '***') : null,
+            'has_password' => $hasPassword,
+            'encryption' => $encryption,
+            'from_address' => $fromAddress,
+            'from_name' => $fromName,
+            'recipient' => $targetEmail,
+        ];
+
+        if (!$hasPassword || empty($username)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'MAIL_USERNAME hoặc MAIL_PASSWORD chưa được cấu hình trong file .env trên server!',
+                'smtp_config' => $smtpInfo,
+            ], 500);
+        }
+
+        try {
+            $emailData = [
+                'mail_title' => '🧪 [Đồng Nai Ford] Kiểm tra hệ thống gửi Mail',
+                'Trạng thái' => 'Hệ thống gửi mail đang hoạt động bình thường!',
+                'Thời gian' => now()->format('H:i:s d/m/Y'),
+                'Người nhận' => $targetEmail,
+                'url' => url('/admin'),
+            ];
+
+            \Illuminate\Support\Facades\Notification::route('mail', $targetEmail)
+                ->notifyNow(new \App\Http\Notifications\CommonNotification($emailData));
+
+            return response()->json([
+                'success' => true,
+                'message' => "Email test đã được gửi thành công đến {$targetEmail}!",
+                'smtp_config' => $smtpInfo,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi kết nối / xác thực SMTP: ' . $e->getMessage(),
+                'smtp_config' => $smtpInfo,
+            ], 500);
+        }
+    })->name('api.system.check-mail.localized');
     Route::get('services', [\App\Http\Controllers\Frontend\ServiceController::class, 'index'])->name('api.services');
     Route::get('services/{slug}', [\App\Http\Controllers\Frontend\ServiceController::class, 'show'])->name('api.services.show');
     Route::get('posts', [\App\Http\Controllers\Frontend\PostController::class, 'index'])->name('api.posts');
