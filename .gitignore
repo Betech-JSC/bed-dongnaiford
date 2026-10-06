@@ -108,6 +108,7 @@ fe/build/
 # Uploaded files
 
 be/public/uploads/
+be/public/static/uploads/customer_handover_*
 
 
 

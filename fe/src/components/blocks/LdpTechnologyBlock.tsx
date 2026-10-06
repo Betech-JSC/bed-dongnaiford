@@ -16,19 +16,19 @@ interface LdpTechnologyBlockProps {
 const DEFAULT_TECH_SLIDES = [
   {
     title: "Ứng dụng Ford",
-    description: "Ứng dụng Ford mang đến cho bạn trải nghiệm sở hữu trọn vẹn và dễ dàng trong tầm tay. Khi truy cập vào ứng dụng này, bạn có đầy đủ thông tin các tính năng của xe và kiểm tra về tình trạng xe từ xa.",
+    description: "Ứng dụng Ford mang đến cho bạn trải nghiệm sở hữu trọn vẹn và dễ dàng trong tầm tay. Khi truy cập vào ứng dụng này, bạn có đầy đủ thông tin các tính năng của xe và kiểm tra về tình trạng xe.",
     image: "/assets/cq5dam.web.1280.1280.webp",
     category: "Lái xe",
   },
   {
-    title: "Ford Co-Pilot360™",
-    description: "Dù trong đô thị đông đúc hay bứt tốc trên xa lộ, hệ thống Ford Co-Pilot360™ - Công nghệ An toàn Hỗ trợ Người lái thông minh giúp bạn luôn làm chủ tình huống và tự tin tuyệt đối.",
+    title: "Ford Co-Pilot360",
+    description: "Dù trong thành phố hay ra xa lộ, hệ thống Ford Co-Pilot360™ - Công nghệ An toàn Hỗ trợ Người lái được thiết kế để giúp bạn cảm thấy tự tin hơn khi lái xe.",
     image: "/assets/blis-everest.webp",
-    category: "An toàn",
+    category: "Lái xe",
   },
   {
-    title: "Hệ thống âm thanh B&O cao cấp",
-    description: "Hệ thống loa B&O danh tiếng mang lại không gian âm nhạc sống động đỉnh cao với chất âm trung thực, rõ nét đến từng dải tần số trên mọi hành trình.",
+    title: "Hệ thống âm thanh cao cấp",
+    description: "Hệ thống loa B&O cho trải nghiệm âm thanh tuyệt vời với chất âm trung thực và rõ ràng đến từng chi tiết.",
     image: "/assets/ford-raptor-tabbed-desktop.webp",
     category: "Giải trí",
   }
@@ -82,32 +82,29 @@ export default function LdpTechnologyBlock({
   };
 
   return (
-    <section id={anchorId} className="w-full bg-[#00095b] py-16 md:py-20 text-white overflow-hidden relative select-none">
+    <section id={anchorId} className="w-full bg-[#00095b] py-20 text-white overflow-hidden relative select-none">
       <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full">
         <div className="max-w-[1152px] mx-auto w-full">
 
           {/* Title Block */}
-          <div className="mb-8 md:mb-12">
-            <span className="text-xs font-semibold text-blue-300 uppercase tracking-wider block mb-2">
-              Công nghệ đỉnh cao
+          <div className="mb-12">
+            <span className="text-xs font-semibold text-white uppercase tracking-wider block mb-2">
+              Công nghệ
             </span>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-semibold leading-tight tracking-tight">
+            <h2 className="text-4xl md:text-5xl font-semibold leading-tight tracking-[-0.96px]">
               {data?.title || "Khơi nguồn trải nghiệm lái hoàn hảo"}
             </h2>
-            <p className="mt-2 text-sm sm:text-base text-white/75 max-w-2xl">
-              {data?.subtitle || `Cùng ${salesConsultant?.name || "Cố vấn bán hàng"} khám phá các trang bị công nghệ thông minh dẫn đầu phân khúc trên dòng xe Ford.`}
-            </p>
           </div>
 
           {/* Desktop Tabs */}
-          <div className="hidden md:flex gap-8 mb-10">
+          <div className="hidden md:flex gap-8 mb-12">
             {slides.map((slide: any, idx: number) => (
               <div
                 key={idx}
                 className="flex-1 cursor-pointer group"
                 onClick={() => setActiveTab(idx)}
               >
-                <div className="pb-4 relative border-b border-white/15">
+                <div className="pb-4 relative border-b border-white/10">
                   <h3 className={`text-lg font-semibold transition-colors duration-300 ${activeTab === idx ? "text-white" : "text-white/60 group-hover:text-white"}`}>
                     {slide.title}
                   </h3>
@@ -117,7 +114,7 @@ export default function LdpTechnologyBlock({
                     }`}
                   />
                 </div>
-                <p className={`mt-3 text-sm leading-relaxed transition-opacity duration-300 ${activeTab === idx ? "text-white/90 font-medium" : "text-white/60 font-light"}`}>
+                <p className={`mt-4 text-sm leading-relaxed transition-opacity duration-300 ${activeTab === idx ? "text-white/95 font-medium" : "text-white/60 font-light"}`}>
                   {slide.description}
                 </p>
               </div>
@@ -223,9 +220,9 @@ export default function LdpTechnologyBlock({
           <div className="mt-8 flex justify-start">
             <button
               onClick={handleCta}
-              className="inline-flex items-center gap-2 bg-transparent hover:bg-white border border-white text-white hover:text-[#00095b] px-6 py-2.5 md:py-3 rounded-full text-sm md:text-base font-semibold transition-all duration-300 shadow-md group cursor-pointer active:scale-95"
+              className="inline-flex items-center gap-2 bg-transparent hover:bg-white border border-white text-white hover:text-[#00095b] px-6 py-3 rounded-full text-base font-semibold transition-all duration-300 shadow-md group cursor-pointer active:scale-95"
             >
-              <span>Trải nghiệm thực tế cùng Cố vấn</span>
+              <span>Trải nghiệm ngay</span>
               <span className="group-hover:translate-x-1.5 transition-transform duration-300">→</span>
             </button>
           </div>

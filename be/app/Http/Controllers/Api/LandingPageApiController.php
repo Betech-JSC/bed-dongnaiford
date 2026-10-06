@@ -194,9 +194,10 @@ class LandingPageApiController extends Controller
                 'meta_description' => $seoDesc,
                 'meta_keywords'    => $ldp?->seo_meta_keywords ?: ("Ford Dong Nai, Cố vấn bán hàng " . $consultantName),
                 'meta_robots'      => $ldp?->seo_meta_robots ?: 'index, follow',
-                'canonical'        => $ldp?->seo_canonical ?: ("/ldp/" . $sales_slug),
-                'image'            => $ldp?->seo_image ? $this->resolveFileUrl($ldp->seo_image) : ($consultantDetail['avatar'] ?? null),
-                'seo_schemas'      => $ldp?->seo_schemas,
+                // Chuẩn hóa ảnh đại diện luôn là URL hợp lệ, không trả về raw array avatar
+                'image'            => $this->resolveFileUrl($ldp?->seo_image)
+                    ?: ($this->resolveFileUrl($consultantDetail['avatar'] ?? null)
+                        ?: ($consultantDetail['avatar_url'] ?? null)),
             ]
         ]);
     }
@@ -528,15 +529,19 @@ class LandingPageApiController extends Controller
     {
         if (empty($file)) return null;
         if (is_array($file)) {
+            // Ưu tiên static_url hoặc url trực tiếp nếu có sẵn
+            if (!empty($file['static_url']) && is_string($file['static_url'])) {
+                return $file['static_url'];
+            }
+            if (!empty($file['url']) && is_string($file['url'])) {
+                return $file['url'];
+            }
             if (isset($file['path'])) {
                 $path = $file['path'];
                 if (str_starts_with($path, 'uploads/')) {
                     $path = str_replace('uploads/', '', $path);
                 }
                 return static_url($path);
-            }
-            if (isset($file['url'])) {
-                return $file['url'];
             }
         }
         if (is_string($file)) {

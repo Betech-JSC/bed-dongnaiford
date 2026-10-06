@@ -12,6 +12,8 @@ export default function MainLayoutStructure({
 }) {
   const pathname = usePathname();
   const isLdp = pathname?.startsWith("/ldp/") ?? false;
+  const pathParts = pathname ? pathname.split("/").filter(Boolean) : [];
+  const isLdpHome = pathParts.length === 2 && pathParts[0] === "ldp";
 
   return (
     <>
@@ -42,7 +44,7 @@ export default function MainLayoutStructure({
 
       <main className="flex-1 flex flex-col pb-20 md:pb-0">{children}</main>
 
-      {isLdp ? (
+      {isLdp && !isLdpHome ? (
         <footer className="bg-slate-900 text-gray-400 py-6 pb-24 md:pb-6 border-t border-slate-800 font-sans text-xs select-none">
           <div className="max-w-[1152px] mx-auto px-4 text-center">
             <p className="font-bold text-white mb-2">ĐỒNG NAI FORD - ĐẠI LÝ ỦY QUYỀN CHÍNH THỨC CỦA FORD VIỆT NAM</p>

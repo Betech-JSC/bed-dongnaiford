@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { ldpAPI } from "@/lib/api";
-import LdpDetailClient from "@/components/vehicle/LdpDetailClient";
+import { ldpAPI, bannersAPI, vehiclesAPI, servicesAPI, customerHandoversAPI, postsAPI } from "@/lib/api";
+import LdpHomeClient from "@/components/vehicle/LdpHomeClient";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -27,11 +27,12 @@ const resolveFileUrl = (file: any): string => {
     return encodeURI(`${apiHost}/static/${cleanPath}`);
   }
   if (typeof file === "object") {
-    if (file.url) return encodeURI(file.url);
-    if (file.path) {
+    if (file.url && typeof file.url === "string") return encodeURI(file.url);
+    if (file.static_url && typeof file.static_url === "string") return encodeURI(file.static_url);
+    if (file.path && typeof file.path === "string") {
       const cleanPath = file.path.startsWith("uploads/") ? file.path.replace("uploads/", "") : file.path;
-      const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
-      let apiHost = "http://localhost:8080";
+      const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
+      let apiHost = "http://localhost:8000";
       try {
         apiHost = new URL(apiBase).origin;
       } catch (e) { }
@@ -184,6 +185,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const noIndex = robotsStr.includes("noindex");
     const noFollow = robotsStr.includes("nofollow");
 
+    const rawImage = ldp.seo?.image || ldp.sales_consultant?.avatar || ldp.sales_consultant?.avatar_url;
+    const resolvedImageUrl = resolveFileUrl(rawImage);
+
     return {
       title,
       description,
@@ -201,7 +205,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         type: "website",
         locale: "vi_VN",
         url: `https://dongnaiford.com.vn/ldp/${salesSlug}`,
-        images: ldp.seo?.image ? [{ url: ldp.seo.image }] : (ldp.sales_consultant?.avatar ? [{ url: ldp.sales_consultant.avatar }] : []),
+        // Đảm bảo url ảnh luôn là chuỗi string URL hợp lệ, tránh lỗi Server Component render
+        images: resolvedImageUrl ? [{ url: resolvedImageUrl }] : [],
       },
     };
   } catch {
@@ -212,10 +217,38 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function Page({ params }: Props) {
   const { salesSlug } = await params;
 
-  let ldpData = null;
+  let ldpData: any = null;
+  let initialBanners: any[] = [];
+  let initialCategories: any[] = [];
+  let initialServices: any[] = [];
+  let initialHandovers: any[] = [];
+  let initialArticles: any[] = [];
+
   try {
-    const res = await ldpAPI.getBySalesSlug(salesSlug);
-    ldpData = res?.data;
+    const [ldpRes, bannersRes, categoriesRes, servicesRes, handoversRes, postsRes] = await Promise.all([
+      ldpAPI.getBySalesSlug(salesSlug),
+      bannersAPI.getAll().catch(() => null),
+      vehiclesAPI.getCategories().catch(() => null),
+      servicesAPI.getAll().catch(() => null),
+      customerHandoversAPI.getAll().catch(() => null),
+      postsAPI.getAll({ categories: 3 }).catch(() => null),
+    ]);
+
+    ldpData = ldpRes?.data;
+    const bItems = (bannersRes as any)?.data || bannersRes;
+    if (Array.isArray(bItems)) initialBanners = bItems;
+
+    const cItems = (categoriesRes as any)?.data || categoriesRes;
+    if (Array.isArray(cItems)) initialCategories = cItems;
+
+    const sItems = (servicesRes as any)?.services || (servicesRes as any)?.data || servicesRes;
+    if (Array.isArray(sItems)) initialServices = sItems;
+
+    const hItems = (handoversRes as any)?.data || handoversRes;
+    if (Array.isArray(hItems)) initialHandovers = hItems;
+
+    const pItems = (postsRes as any)?.posts?.data || (postsRes as any)?.data || postsRes;
+    if (Array.isArray(pItems)) initialArticles = pItems;
   } catch (err: any) {
     if (err?.status !== 404) {
       console.error("Error loading LDP consultant page:", err);
@@ -226,9 +259,23 @@ export default async function Page({ params }: Props) {
     notFound();
   }
 
-  if (ldpData.vehicle) {
-    ldpData.vehicle = normalizeVehicle(ldpData.vehicle);
-  }
+  const normalizedLeadVehicle = ldpData.vehicle ? normalizeVehicle(ldpData.vehicle) : null;
+  const allVehicles = Array.isArray(ldpData.vehicles) && ldpData.vehicles.length > 0
+    ? ldpData.vehicles
+    : (normalizedLeadVehicle ? [normalizedLeadVehicle] : []);
 
-  return <LdpDetailClient initialData={ldpData} />;
+  return (
+    <LdpHomeClient
+      salesConsultant={ldpData.sales_consultant}
+      allVehicles={allVehicles}
+      leadVehicle={normalizedLeadVehicle || allVehicles[0]}
+      landingPageId={ldpData.id}
+      promotions={ldpData.promotions}
+      initialBanners={initialBanners}
+      initialCategories={initialCategories}
+      initialServices={initialServices}
+      initialHandovers={initialHandovers}
+      initialArticles={initialArticles}
+    />
+  );
 }

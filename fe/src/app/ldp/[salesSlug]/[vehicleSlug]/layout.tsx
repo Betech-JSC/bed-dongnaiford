@@ -27,6 +27,36 @@ function getCanonicalUrl(host: string, salesSlug: string, vehicleSlug: string, s
   return `https://dongnaiford.com.vn/ldp/${salesSlug}/${vehicleSlug}`;
 }
 
+const resolveFileUrl = (file: any): string => {
+  if (!file) return "";
+  if (typeof file === "string") {
+    if (file.startsWith("http://") || file.startsWith("https://") || file.startsWith("/")) {
+      return encodeURI(file);
+    }
+    const cleanPath = file.startsWith("uploads/") ? file.replace("uploads/", "") : file;
+    const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
+    let apiHost = "http://localhost:8000";
+    try {
+      apiHost = new URL(apiBase).origin;
+    } catch (e) { }
+    return encodeURI(`${apiHost}/static/${cleanPath}`);
+  }
+  if (typeof file === "object") {
+    if (file.url && typeof file.url === "string") return encodeURI(file.url);
+    if (file.static_url && typeof file.static_url === "string") return encodeURI(file.static_url);
+    if (file.path && typeof file.path === "string") {
+      const cleanPath = file.path.startsWith("uploads/") ? file.path.replace("uploads/", "") : file.path;
+      const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
+      let apiHost = "http://localhost:8000";
+      try {
+        apiHost = new URL(apiBase).origin;
+      } catch (e) { }
+      return encodeURI(`${apiHost}/static/${cleanPath}`);
+    }
+  }
+  return "";
+};
+
 export async function generateMetadata({ params }: { params: Promise<{ salesSlug: string; vehicleSlug: string }> }) {
   try {
     const { salesSlug, vehicleSlug } = await params;
@@ -47,6 +77,9 @@ export async function generateMetadata({ params }: { params: Promise<{ salesSlug
     const noIndex = robotsStr.includes("noindex");
     const noFollow = robotsStr.includes("nofollow");
 
+    const rawImage = ldp.seo?.image || ldp.vehicle?.image_url || ldp.vehicle?.image || ldp.sales_consultant?.avatar;
+    const resolvedImageUrl = resolveFileUrl(rawImage);
+
     return {
       title,
       description,
@@ -63,7 +96,7 @@ export async function generateMetadata({ params }: { params: Promise<{ salesSlug
         description,
         type: "website",
         locale: "vi_VN",
-        images: ldp.seo?.image ? [{ url: ldp.seo.image }] : [],
+        images: resolvedImageUrl ? [{ url: resolvedImageUrl }] : [],
       },
     };
   } catch (error) {
@@ -105,7 +138,7 @@ export default async function LdpLayout({
         "@type": "Product",
         "@id": `${canonicalUrl}/#product`,
         "name": ldp.vehicle.title,
-        "image": ldp.vehicle.image_url || ldp.seo?.image,
+        "image": resolveFileUrl(ldp.vehicle.image_url || ldp.vehicle.image) || resolveFileUrl(ldp.seo?.image),
         "description": ldp.vehicle.description || description,
         "offers": {
           "@type": "Offer",
