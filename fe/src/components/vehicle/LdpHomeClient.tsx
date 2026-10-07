@@ -30,6 +30,7 @@ import { handleCtaFormClick } from "@/lib/scroll-helper";
 import { getPopularVehicleImage, siteAssets, handleImageError, resolveImageUrl } from "@/lib/site-assets";
 import { bannersAPI, postsAPI, vehiclesAPI, servicesAPI, customerHandoversAPI, contactsAPI } from "@/lib/api";
 import SafeImage from "@/components/shared/SafeImage";
+import LdpUsedVehiclesBlock from "@/components/blocks/LdpUsedVehiclesBlock";
 import VehicleLayoutClient, { useVehicle } from "./VehicleLayoutClient";
 
 // Custom SVG Icons
@@ -1114,6 +1115,15 @@ function LdpHomeInner({
           )}
         </div>
       </section>
+
+      {/* 6.5. XE ĐÃ QUA SỬ DỤNG CHÍNH HÃNG (FORD ASSURED SLIDER) */}
+      <LdpUsedVehiclesBlock
+        salesConsultant={salesConsultant}
+        landingPageId={landingPageId}
+        salesEmail={salesEmail}
+        openQuoteDrawer={openQuoteDrawer}
+        anchorId="used-vehicles"
+      />
 
       {/* 7. NEWS & PROMOTION */}
       <section id="news" className="w-full bg-[#00095b] py-20 scroll-mt-12">

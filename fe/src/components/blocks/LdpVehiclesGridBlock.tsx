@@ -17,7 +17,7 @@ interface LdpVehiclesGridBlockProps {
   isEditMode?: boolean;
 }
 
-// Phân nhóm danh mục dựa trên loại xe hoặc tên xe
+// Phân nhóm danh mục dựa trên loại xe hoặc tên xe (fallback)
 function resolveCategory(vehicle: any): string {
   const type = (vehicle.type || "").toLowerCase();
   const title = (vehicle.title || vehicle.name || "").toLowerCase();
@@ -29,14 +29,6 @@ function resolveCategory(vehicle: any): string {
   return "other";
 }
 
-const CATEGORY_LABELS: Record<string, string> = {
-  suv: "SUV",
-  pickup: "Bán tải",
-  commercial: "Thương mại",
-  ev: "Xe Điện",
-  other: "Khác",
-};
-
 export default function LdpVehiclesGridBlock({
   data,
   salesConsultant,
@@ -46,12 +38,26 @@ export default function LdpVehiclesGridBlock({
   isEditMode = false,
 }: LdpVehiclesGridBlockProps) {
   const [selectedCat, setSelectedCat] = useState<string>("all");
+  const [categories, setCategories] = useState<any[]>([]);
   const [vehicles, setVehicles] = useState<any[]>(() => {
     if (Array.isArray(allVehicles) && allVehicles.length > 0) return allVehicles;
     if (currentVehicle) return [currentVehicle];
     return [];
   });
   const [isLoading, setIsLoading] = useState<boolean>(!allVehicles || allVehicles.length === 0);
+
+  // Nạp danh mục xe từ API đồng bộ với trang Homepage
+  useEffect(() => {
+    vehiclesAPI
+      .getCategories()
+      .then((res: any) => {
+        const list = res?.data || res || [];
+        if (Array.isArray(list) && list.length > 0) {
+          setCategories(list);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   // Tự động đồng bộ data xe từ trang chính khi allVehicles rỗng
   useEffect(() => {
@@ -61,7 +67,6 @@ export default function LdpVehiclesGridBlock({
       return;
     }
 
-    // Nạp toàn bộ danh mục xe từ trang chính website Đồng Nai Ford
     vehiclesAPI
       .getAll()
       .then((res: any) => {
@@ -87,11 +92,11 @@ export default function LdpVehiclesGridBlock({
     salesConsultant?.name?.toLowerCase().trim().replace(/\s+/g, "-") ||
     "tu-van";
 
-  // Định dạng tiền tệ VND chuẩn
+  // Định dạng tiền tệ VND chuẩn (phân tách hàng nghìn bằng dấu phẩy giống homepage)
   const formatPrice = (price: number | string) => {
     const num = typeof price === "string" ? parseFloat(price) : price;
     if (!num || isNaN(num)) return "Liên hệ";
-    return new Intl.NumberFormat("vi-VN").format(num) + "đ";
+    return new Intl.NumberFormat("en-US").format(num) + "đ";
   };
 
   // Cuộn mượt xuống phần giới thiệu xe, tự động bù trừ chiều cao thanh tab cố định
@@ -104,26 +109,48 @@ export default function LdpVehiclesGridBlock({
       const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - headerOffset;
       window.scrollTo({
         top: Math.max(0, targetPosition),
-        behavior: "smooth"
+        behavior: "smooth",
       });
     }
   };
 
-  // Xác định các danh mục thực tế đang có trong danh sách xe
-  const availableCategories = useMemo(() => {
-    const set = new Set<string>();
-    vehicles.forEach((v) => {
-      const cat = resolveCategory(v);
-      if (cat !== "other") set.add(cat);
-    });
-    return Array.from(set);
-  }, [vehicles]);
+  // Danh sách tab phân loại chuẩn trang chủ
+  const displayCategories = useMemo(() => {
+    if (categories.length > 0) {
+      return [{ slug: "all", title: "Tất cả" }, ...categories];
+    }
+    return [
+      { slug: "all", title: "Tất cả" },
+      { slug: "suv", title: "SUV" },
+      { slug: "thuong-mai", title: "Thương mại" },
+      { slug: "xe-dien", title: "Xe Điện" },
+    ];
+  }, [categories]);
 
   // Lọc xe theo tab đang chọn
   const filteredVehicles = useMemo(() => {
     if (selectedCat === "all") return vehicles;
-    return vehicles.filter((v) => resolveCategory(v) === selectedCat);
-  }, [vehicles, selectedCat]);
+    const cat = categories.find((c) => c.slug === selectedCat);
+    return vehicles.filter((v) => {
+      if (cat && cat.id) {
+        if (Array.isArray(v.category_ids) && v.category_ids.includes(cat.id)) return true;
+        if (v.category_id === cat.id) return true;
+      }
+      const catSlug = v.category?.slug || v.category_slug;
+      if (catSlug && catSlug === selectedCat) return true;
+      const resolved = resolveCategory(v);
+      if (selectedCat === "suv" && resolved === "suv") return true;
+      if (
+        (selectedCat === "thuong-mai" || selectedCat === "commercial") &&
+        (resolved === "commercial" || resolved === "pickup")
+      ) {
+        return true;
+      }
+      if ((selectedCat === "xe-dien" || selectedCat === "ev") && resolved === "ev") return true;
+      if (selectedCat === "pickup" && resolved === "pickup") return true;
+      return false;
+    });
+  }, [vehicles, selectedCat, categories]);
 
   // Nếu không có xe nào và đang ở chế độ xem trước trong CMS: Hiển thị placeholder thông minh
   if (!vehicles || vehicles.length === 0) {
@@ -133,7 +160,7 @@ export default function LdpVehiclesGridBlock({
           id={anchorId || "ldp-vehicles-grid"}
           className="w-full bg-[#f8f9fa] py-8 border-y border-dashed border-gray-300 text-center select-none my-4"
         >
-          <div className="max-w-[1152px] mx-auto px-4">
+          <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px]">
             <p className="text-[#0562D2] font-bold text-sm flex items-center justify-center gap-1.5">
               <Car className="w-4 h-4" /> 🚗 KHỐI DANH SÁCH DÒNG XE PHỤ TRÁCH (LDP SHOWROOM)
             </p>
@@ -147,141 +174,136 @@ export default function LdpVehiclesGridBlock({
     return null;
   }
 
-  const title = data?.title || "Dòng xe Cố vấn phụ trách";
-  const subtitle =
-    data?.subtitle ||
-    `Chọn dòng xe quý khách quan tâm để xem bảng giá, thông số và ưu đãi độc quyền từ ${
-      salesConsultant?.name || "Cố vấn bán hàng"
-    }.`;
+  // Tiêu đề & mô tả chuẩn giống Homepage
+  const isDefaultOrOldTitle =
+    !data?.title ||
+    data?.title === "CÁC DÒNG XE FORD ĐANG PHÂN PHỐI" ||
+    data?.title === "Dòng xe Cố vấn phụ trách";
+  const title = isDefaultOrOldTitle ? "Dòng xe Ford Đồng Nai" : data.title;
+
+  const isDefaultOrOldSubtitle =
+    !data?.subtitle ||
+    data?.subtitle.includes("Chọn dòng xe quý khách quan tâm") ||
+    data?.subtitle.includes("ưu đãi độc quyền");
+  const subtitle = isDefaultOrOldSubtitle
+    ? "Đa dạng lựa chọn từ SUV, bán tải đến xe thương mại — tất cả đều có sẵn tại showroom Đồng Nai."
+    : data.subtitle;
 
   return (
     <>
       <section
         id={anchorId || "ldp-vehicles-grid"}
-        className="w-full bg-[#f8f9fa] py-10 md:py-14 border-b border-gray-200"
+        className="w-full py-16 md:py-20 bg-gray-50 border-b border-gray-200"
       >
-      <div className="max-w-[1152px] mx-auto px-4">
-        {/* Tiêu đề & mô tả */}
-        <div className="text-center max-w-2xl mx-auto space-y-2.5 mb-8">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-[#0562D2] text-xs font-bold border border-blue-100">
-            <Car className="w-3.5 h-3.5" />
-            <span>Showroom Cố vấn ({vehicles.length} dòng xe)</span>
+        <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full">
+          {/* Tiêu đề & mô tả căn giữa chuẩn Homepage */}
+          <div className="text-center max-w-2xl mx-auto space-y-3 mb-10">
+            <h2 className="text-2xl md:text-3xl font-black text-[#00095B] tracking-tight">
+              {title}
+            </h2>
+            <p className="text-sm text-gray-500 font-medium">
+              {subtitle}
+            </p>
           </div>
-          <h2 className="text-2xl md:text-3xl font-black text-[#00095B] tracking-tight">
-            {title}
-          </h2>
-          <p className="text-xs md:text-sm text-gray-500 font-medium">
-            {subtitle}
-          </p>
-        </div>
 
-        {/* Tab phân loại (Tất cả, SUV, Bán tải, Thương mại, Xe Điện) */}
-        {availableCategories.length > 0 && (
-          <div className="flex justify-center mb-8 border-b border-gray-200 w-full overflow-x-auto scrollbar-none">
-            <div className="flex gap-6 md:gap-10">
-              <button
-                type="button"
-                onClick={() => setSelectedCat("all")}
-                className={`pb-3 text-xs md:text-sm font-bold transition-all duration-200 relative cursor-pointer border-0 bg-transparent ${
-                  selectedCat === "all"
-                    ? "text-[#0562D2] border-b-2 border-solid border-[#0562D2] -mb-[2px]"
-                    : "text-gray-500 hover:text-[#0562D2]"
-                }`}
-              >
-                Tất cả ({vehicles.length})
-              </button>
-              {availableCategories.map((catKey) => {
-                const count = vehicles.filter((v) => resolveCategory(v) === catKey).length;
+          {/* Tab phân loại gạch chân căn giữa (Tất cả, SUV, Thương mại, Xe Điện) - Không hiển thị số lượng */}
+          <div className="flex justify-center mb-12 border-b border-gray-200 w-full overflow-x-auto scrollbar-none">
+            <div className="flex gap-8 md:gap-12">
+              {displayCategories.map((cat) => {
+                const isActive = selectedCat === cat.slug;
                 return (
                   <button
-                    key={catKey}
+                    key={cat.slug}
                     type="button"
-                    onClick={() => setSelectedCat(catKey)}
-                    className={`pb-3 text-xs md:text-sm font-bold transition-all duration-200 relative cursor-pointer border-0 bg-transparent ${
-                      selectedCat === catKey
+                    onClick={() => setSelectedCat(cat.slug)}
+                    className={`pb-4 text-sm md:text-base font-semibold transition-all duration-300 relative cursor-pointer border-0 bg-transparent whitespace-nowrap ${
+                      isActive
                         ? "text-[#0562D2] border-b-2 border-solid border-[#0562D2] -mb-[2px]"
-                        : "text-gray-500 hover:text-[#0562D2]"
+                        : "text-gray-500 hover:text-[#0562D2] border-b-2 border-transparent -mb-[2px]"
                     }`}
                   >
-                    {CATEGORY_LABELS[catKey] || catKey} ({count})
+                    {cat.title}
                   </button>
                 );
               })}
             </div>
           </div>
-        )}
 
-        {/* Lưới thẻ xe - 3 cột chuẩn phong cách Ford Đồng Nai */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredVehicles.map((vehicle) => {
-            const vehicleSlug = vehicle.slug || vehicle.id;
-            const vehicleName = vehicle.title || vehicle.name;
-            const vehiclePrice = vehicle.base_price || vehicle.basePrice || 0;
-            const isCurrent =
-              currentVehicle && (currentVehicle.slug || currentVehicle.id) === vehicleSlug;
+          {/* Lưới thẻ xe - 3 cột chuẩn phong cách Ford Đồng Nai */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {filteredVehicles.map((vehicle) => {
+              const vehicleSlug = vehicle.slug || vehicle.id;
+              const vehicleName = vehicle.title || vehicle.name;
+              const vehiclePrice = vehicle.base_price || vehicle.basePrice || 0;
+              const isCurrent =
+                currentVehicle && (currentVehicle.slug || currentVehicle.id) === vehicleSlug;
 
-            const vehicleCardImage =
-              resolveImageUrl(vehicle.image_thumbnail_url || vehicle.image_url || vehicle.image) ||
-              getPopularVehicleImage(vehicleSlug, vehicle.images?.[0] || "");
+              const vehicleCardImage =
+                resolveImageUrl(vehicle.image_thumbnail_url || vehicle.image_url || vehicle.image) ||
+                getPopularVehicleImage(vehicleSlug, vehicle.images?.[0] || "");
 
-            const href = salesConsultant?.custom_domain
-              ? `/${vehicleSlug}#ldp-vehicle-intro`
-              : `/ldp/${consultantSlug}/${vehicleSlug}#ldp-vehicle-intro`;
+              const href = salesConsultant?.custom_domain
+                ? `/${vehicleSlug}#ldp-vehicle-intro`
+                : `/ldp/${consultantSlug}/${vehicleSlug}#ldp-vehicle-intro`;
 
-            return (
-              <Link
-                key={vehicle.id || vehicleSlug}
-                href={href}
-                scroll={false}
-                onClick={(e) => {
-                  // Nếu là dòng xe đang xem sẵn, cuộn ngay xuống phần giới thiệu xe
-                  if (isCurrent) {
-                    e.preventDefault();
-                    scrollToVehicleIntro();
-                  }
-                }}
-                className={`bg-white border rounded-2xl p-6 flex flex-col justify-between hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 relative group cursor-pointer h-full ${
-                  isCurrent
-                    ? "border-[#0562D2] ring-2 ring-[#0562D2]/20 shadow-md"
-                    : "border-[#EAECF0] hover:border-blue-300"
-                }`}
-              >
-                {/* Badge xe đang xem - z-30 nổi hoàn toàn phía trên ảnh và skeleton */}
-                {isCurrent && (
-                  <div className="absolute top-3 right-3 z-30 bg-[#0562D2] text-white text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1 shadow-md pointer-events-none">
-                    <Check className="w-3 h-3 stroke-[2.5]" />
-                    <span>Đang xem</span>
+              return (
+                <Link
+                  key={vehicle.id || vehicleSlug}
+                  href={href}
+                  scroll={false}
+                  onClick={(e) => {
+                    // Nếu là dòng xe đang xem sẵn, cuộn ngay xuống phần giới thiệu xe
+                    if (isCurrent) {
+                      e.preventDefault();
+                      scrollToVehicleIntro();
+                    }
+                  }}
+                  className={`bg-white border rounded-2xl p-6 flex flex-col justify-between hover:shadow-lg transition-all duration-300 relative group cursor-pointer h-full ${
+                    isCurrent
+                      ? "border-[#0562D2] ring-2 ring-[#0562D2]/20 shadow-md"
+                      : "border-[#EAECF0]"
+                  }`}
+                >
+                  {/* Badge xe đang xem - z-30 nổi hoàn toàn phía trên ảnh */}
+                  {isCurrent && (
+                    <div className="absolute top-3 right-3 z-30 bg-[#0562D2] text-white text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1 shadow-md pointer-events-none">
+                      <Check className="w-3 h-3 stroke-[2.5]" />
+                      <span>Đang xem</span>
+                    </div>
+                  )}
+
+                  {/* Khung ảnh xe */}
+                  <div className="relative h-48 w-full bg-white overflow-hidden mb-6 flex items-center justify-center">
+                    <SafeImage
+                      src={vehicleCardImage}
+                      alt={vehicleName}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 30vw"
+                      className="object-contain object-center group-hover:scale-105 transition-transform duration-500 p-2"
+                    />
                   </div>
-                )}
 
-                {/* Khung ảnh xe */}
-                <div className="relative h-44 w-full bg-white overflow-hidden mb-4 flex items-center justify-center z-0">
-                  <SafeImage
-                    src={vehicleCardImage}
-                    alt={vehicleName}
-                    fill
-                    sizes="(max-width: 768px) 100vw, 33vw"
-                    className="object-contain object-center group-hover:scale-105 transition-transform duration-500 p-2"
-                  />
-                </div>
-
-                {/* Tên xe & Giá khởi điểm */}
-                <div className="space-y-1.5 mt-auto pt-3 border-t border-gray-100">
-                  <h3 className="text-sm md:text-base font-extrabold tracking-tight uppercase text-[#1A1A1A] group-hover:text-[#0562D2] transition-colors">
-                    {vehicleName}
-                  </h3>
-                  <div className="text-xs text-gray-500 font-medium flex items-center justify-between">
-                    <span>Giá khởi điểm:</span>
-                    <span className="text-sm font-extrabold text-[#0562D2]">
-                      {formatPrice(vehiclePrice)}
-                    </span>
+                  {/* Tên xe & Giá khởi điểm chuẩn Homepage */}
+                  <div className="space-y-2 mt-auto">
+                    <h3
+                      className={`text-base font-bold tracking-tight uppercase ${
+                        vehicleSlug === "new-mustang-mach-e" ? "text-[#0562D2]" : "text-[#1A1A1A]"
+                      }`}
+                    >
+                      {vehicleName}
+                    </h3>
+                    <div className="text-xs text-gray-500 font-medium">
+                      <span>Giá khởi điểm: </span>
+                      <span className="text-sm font-bold text-[#0562D2]">
+                        {formatPrice(vehiclePrice)}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              </Link>
-            );
-          })}
+                </Link>
+              );
+            })}
+          </div>
         </div>
-      </div>
       </section>
       {/* Neo định danh bắt đầu phần thông tin chi tiết & giới thiệu xe */}
       <div id="ldp-vehicle-intro" className="scroll-mt-28 md:scroll-mt-24 pointer-events-none" />

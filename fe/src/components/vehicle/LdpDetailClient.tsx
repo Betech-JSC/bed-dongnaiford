@@ -30,7 +30,7 @@ const resolveZaloUrl = (zaloUrl?: string, phone?: string): string => {
   return target;
 };
 
-function LdpInnerContent({ salesConsultant, layoutBlocks, promotions, vehicle, allVehicles }: any) {
+function LdpInnerContent({ salesConsultant, landingPageId, salesEmail, layoutBlocks, promotions, vehicle, allVehicles }: any) {
   const { openQuoteDrawer, openDriveDrawer } = useVehicle();
   const finalZaloUrl = resolveZaloUrl(salesConsultant?.zalo_url, salesConsultant?.phone);
 
@@ -104,6 +104,11 @@ function LdpInnerContent({ salesConsultant, layoutBlocks, promotions, vehicle, a
         data: {}
       },
       {
+        id: 'default-ldp-used-vehicles',
+        type: 'LdpUsedVehicles',
+        data: {}
+      },
+      {
         id: 'default-ldp-faq',
         type: 'LdpFaq',
         data: {}
@@ -133,6 +138,8 @@ function LdpInnerContent({ salesConsultant, layoutBlocks, promotions, vehicle, a
           salesConsultant={salesConsultant}
           promotions={promotions}
           allVehicles={allVehicles}
+          landingPageId={landingPageId}
+          salesEmail={salesEmail}
         />
       )}
 
@@ -147,6 +154,8 @@ function LdpInnerContent({ salesConsultant, layoutBlocks, promotions, vehicle, a
           salesConsultant={salesConsultant}
           promotions={promotions}
           allVehicles={allVehicles}
+          landingPageId={landingPageId}
+          salesEmail={salesEmail}
         />
       )}
 
@@ -207,6 +216,8 @@ function LdpInnerContent({ salesConsultant, layoutBlocks, promotions, vehicle, a
         salesConsultant={salesConsultant}
         promotions={promotions}
         allVehicles={allVehicles}
+        landingPageId={landingPageId}
+        salesEmail={salesEmail}
       />
 
       {/* FLOATING SALES CONSULTANT WIDGET */}
@@ -292,6 +303,8 @@ export default function LdpDetailClient({ initialData }: { initialData: any }) {
     >
       <LdpInnerContent
         salesConsultant={sales_consultant}
+        landingPageId={initialData.id}
+        salesEmail={initialData.sales_email || sales_consultant?.email}
         layoutBlocks={layout_blocks}
         promotions={promotions}
         vehicle={vehicle}

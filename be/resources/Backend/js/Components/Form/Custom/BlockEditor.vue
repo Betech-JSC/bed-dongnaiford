@@ -983,6 +983,31 @@
                                 ℹ️ Khối này tự động lấy tất cả các dòng xe được chỉ định cho Cố vấn bán hàng này trong tab <strong>Thông tin chung</strong> để hiển thị dưới dạng lưới showroom kèm tab lọc phân loại.
                             </div>
                         </div>
+
+                        <!-- 20. LdpUsedVehicles Edit Form -->
+                        <div v-else-if="blocks[activeIndex].type === 'LdpUsedVehicles'" class="space-y-4">
+                            <Field v-model="blocks[activeIndex].data.title" :field="{
+                                type: 'text',
+                                name: 'luv_title_' + activeIndex,
+                                label: 'Tiêu đề khối xe đã qua sử dụng',
+                                placeholder: 'vd: Xe Đã Qua Sử Dụng Chất Lượng Cao',
+                            }" />
+                            <Field v-model="blocks[activeIndex].data.subtitle" :field="{
+                                type: 'textarea',
+                                name: 'luv_sub_' + activeIndex,
+                                label: 'Mô tả phụ',
+                                placeholder: 'vd: Tuyển chọn các dòng xe Ford lướt được kiểm tra 167 điểm kỹ thuật...',
+                            }" />
+                            <Field v-model="blocks[activeIndex].data.limit" :field="{
+                                type: 'number',
+                                name: 'luv_limit_' + activeIndex,
+                                label: 'Số lượng xe hiển thị tối đa',
+                                placeholder: '10',
+                            }" />
+                            <div class="p-3 bg-blue-50 border border-blue-200 rounded-lg text-xs text-blue-800">
+                                ℹ️ Khối này tự động kết nối với module <strong>Xe đã qua sử dụng</strong> trong CMS để trình chiếu Slider các mẫu xe Ford Assured chính hãng.
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Styling & Layout Panel -->
@@ -1458,6 +1483,7 @@ export default {
             libraryBlocks: [
                 { type: 'HeroBanner', icon: '📢', name: 'Banner lớn (Hero)', desc: 'Banner trần viền ấn tượng, có chữ và nút bấm hành động' },
                 { type: 'LdpVehiclesGrid', icon: '🚘', name: 'Danh sách dòng xe (Showroom)', desc: 'Lưới hiển thị các dòng xe Cố vấn bán hàng phụ trách kèm bộ lọc' },
+                { type: 'LdpUsedVehicles', icon: '🚙', name: 'Xe đã qua sử dụng (Slider)', desc: 'Slide hiển thị các dòng xe Ford cũ chính hãng (Ford Assured)' },
                 { type: 'LdpSalesConsultant', icon: '👤', name: 'Cố vấn bán hàng LDP', desc: 'Hiển thị Banner thông tin của Cố vấn phụ trách trang LDP' },
                 { type: 'LdpPromotions', icon: '🎁', name: 'Khuyến mãi LDP', desc: 'Hiển thị các chương trình khuyến mãi đã chọn hoặc tự nhập' },
                 { type: 'Promotions', icon: '🎁', name: 'Ưu đãi khuyến mãi (Tùy biến)', desc: 'Thông tin quà tặng tiền mặt, bảo hiểm và quà độc quyền' },
@@ -1862,6 +1888,7 @@ export default {
                 CountdownOfferBanner: 'Đếm ngược ưu đãi & Giữ suất (Countdown Offer)',
                 DualVehicleComparison: 'So sánh song song 2 xe (Dual Vehicle Comparison)',
                 LdpVehiclesGrid: 'Danh sách dòng xe phụ trách (LdpVehiclesGrid)',
+                LdpUsedVehicles: 'Xe đã qua sử dụng (LdpUsedVehicles)',
             }[type] || type
         },
         getBlockIcon(type) {
@@ -1885,6 +1912,7 @@ export default {
                 CountdownOfferBanner: '🔥',
                 DualVehicleComparison: '⚖️',
                 LdpVehiclesGrid: '🚘',
+                LdpUsedVehicles: '🚙',
             }[type] || '📦'
         },
         addBlockType(type) {
@@ -2099,6 +2127,15 @@ export default {
                 newBlock.data = {
                     title: 'Dòng xe Cố vấn phụ trách',
                     subtitle: 'Chọn dòng xe quý khách quan tâm để xem bảng giá, thông số và ưu đãi độc quyền.',
+                    align: 'center',
+                    title_size: 'medium',
+                    title_color: '#00095b'
+                }
+            } else if (type === 'LdpUsedVehicles') {
+                newBlock.data = {
+                    title: 'Xe Đã Qua Sử Dụng Chất Lượng Cao',
+                    subtitle: 'Tuyển chọn các dòng xe Ford lướt được kiểm tra 167 điểm kỹ thuật, bảo hành chính hãng, nguồn gốc minh bạch.',
+                    limit: 10,
                     align: 'center',
                     title_size: 'medium',
                     title_color: '#00095b'

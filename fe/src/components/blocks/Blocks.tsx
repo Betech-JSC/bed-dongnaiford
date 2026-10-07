@@ -23,6 +23,7 @@ import LdpHeroBannerBlock from "./LdpHeroBannerBlock";
 import LdpTechnologyBlock from "./LdpTechnologyBlock";
 import LdpServicesBlock from "./LdpServicesBlock";
 import LdpFaqBlock from "./LdpFaqBlock";
+import LdpUsedVehiclesBlock from "./LdpUsedVehiclesBlock";
 export { resolveImageUrl, hasImageField };
 
 export const getYoutubeId = (url: string | null | undefined): string | null => {
@@ -56,6 +57,8 @@ interface BlocksProps {
   salesConsultant?: any;
   promotions?: any;
   allVehicles?: any[];
+  landingPageId?: number | string;
+  salesEmail?: string;
 }
 
 export default function Blocks({
@@ -81,6 +84,8 @@ export default function Blocks({
   salesConsultant,
   promotions,
   allVehicles,
+  landingPageId,
+  salesEmail,
 }: BlocksProps) {
   if (!layout || !Array.isArray(layout) || layout.length === 0) {
     return null;
@@ -184,6 +189,19 @@ export default function Blocks({
               <LdpFaqBlock
                 data={block.data}
                 salesConsultant={salesConsultant}
+                anchorId={block.anchorId}
+                isEditMode={isEditMode}
+              />
+            );
+            break;
+          case "LdpUsedVehicles":
+            blockComponent = (
+              <LdpUsedVehiclesBlock
+                data={block.data}
+                salesConsultant={salesConsultant}
+                landingPageId={landingPageId}
+                salesEmail={salesEmail}
+                openQuoteDrawer={openQuoteDrawer}
                 anchorId={block.anchorId}
                 isEditMode={isEditMode}
               />
@@ -365,6 +383,7 @@ export default function Blocks({
               case "LdpPromotions": return "Khuyến mãi LDP";
               case "LdpTechnology": return "Công nghệ Ford";
               case "LdpServices": return "Dịch vụ của chúng tôi";
+              case "LdpUsedVehicles": return "Xe đã qua sử dụng (Slider)";
               case "LdpFaq": return "Câu hỏi thường gặp (FAQs)";
               case "Promotions": return "Khuyến mãi";
               case "ThreeSixtyViewer": return "Xoay 360°";
