@@ -63,7 +63,7 @@ function LdpInnerContent({ salesConsultant, layoutBlocks, promotions, vehicle, a
   // Backwards compatibility dynamic injection for existing LDP pages
   // Chuẩn hóa và map các block legacy (nếu có)
   let resolvedBlocks = [...layoutBlocks]
-    .filter((b: any) => b && b.type !== "ThreeSixtyViewer")
+    .filter((b: any) => b && b.type !== "ThreeSixtyViewer" && b.type !== "LdpVehiclesGrid")
     .map((b: any) => {
       if (b.type === "HeroBanner") return { ...b, type: "LdpHeroBanner" };
       if (b.type === "AccordionFAQs") return { ...b, type: "LdpFaq" };
@@ -84,14 +84,6 @@ function LdpInnerContent({ salesConsultant, layoutBlocks, promotions, vehicle, a
         id: 'default-sales-consultant',
         type: 'LdpSalesConsultant',
         data: {}
-      },
-      {
-        id: 'default-ldp-vehicles-grid',
-        type: 'LdpVehiclesGrid',
-        data: {
-          title: "Dòng xe Cố vấn phụ trách",
-          subtitle: `Danh sách các mẫu xe chính hãng đang được tư vấn bởi ${salesConsultant?.name || "Cố vấn bán hàng"}.`
-        }
       },
       {
         id: 'default-ldp-promotions',
