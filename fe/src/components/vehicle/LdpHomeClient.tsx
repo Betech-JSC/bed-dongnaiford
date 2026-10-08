@@ -1673,7 +1673,8 @@ function LdpHomeInner({
       </section>
 
       {/* 12. FLOATING SALES CONSULTANT WIDGET */}
-      <div className="fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom,0px))] md:bottom-6 right-4 md:right-6 z-[99] flex flex-col items-end gap-2.5">
+      {/* Đã hạ vị trí bottom về mép dưới sau khi bỏ sticky bottom bar */}
+      <div className="fixed bottom-[calc(1.25rem+env(safe-area-inset-bottom,0px))] md:bottom-6 right-4 md:right-6 z-[99] flex flex-col items-end gap-2.5">
         {finalZaloUrl && (
           <a
             href={finalZaloUrl}
@@ -1699,42 +1700,6 @@ function LdpHomeInner({
             <span className="text-xs md:text-sm font-bold tracking-wide pr-1">Hotline: {salesConsultant.phone}</span>
           </a>
         )}
-      </div>
-
-      {/* 13. STICKY MOBILE BOTTOM BAR */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-[98] bg-white border-t border-gray-200 px-4 py-3 flex items-center justify-between shadow-[0_-8px_30px_rgb(0,0,0,0.12)]">
-        <div className="flex items-center gap-3">
-          {salesConsultant?.avatar && (
-            <div className="relative w-10 h-10 rounded-full overflow-hidden border border-gray-200 shrink-0">
-              <img
-                src={resolveImageUrl(salesConsultant.avatar)}
-                alt={salesConsultant.name}
-                className="object-cover w-full h-full"
-              />
-            </div>
-          )}
-          <div className="flex flex-col">
-            <span className="text-xs font-bold text-gray-900 leading-none">{salesConsultant?.name}</span>
-            <span className="text-[10px] text-gray-500 mt-1 leading-none">{salesConsultant?.job_title || "Cố vấn bán hàng"}</span>
-          </div>
-        </div>
-        <div className="flex gap-2">
-          {salesConsultant?.phone && (
-            <a
-              href={`tel:${salesConsultant.phone}`}
-              className="bg-green-600 text-white px-3.5 py-2.5 rounded-lg font-bold text-xs flex items-center gap-1.5 active:scale-95 transition-transform"
-            >
-              <Phone className="w-3.5 h-3.5" /> Gọi điện
-            </a>
-          )}
-          <button
-            type="button"
-            onClick={() => openQuoteDrawer()}
-            className="bg-[#0562D2] hover:bg-[#0052b4] text-white px-3.5 py-2.5 rounded-lg font-bold text-xs active:scale-95 transition-transform border-0"
-          >
-            Báo giá ngay
-          </button>
-        </div>
       </div>
 
       {/* GLASSMORPHIC LIGHTBOX OVERLAY */}

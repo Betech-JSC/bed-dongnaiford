@@ -60,6 +60,10 @@ export const resolveImageUrl = (img: any): string => {
     path = img.url || img.path || "";
   }
   if (!path) return "";
+  // Tự động chuẩn hóa domain staging cũ (đã mất DNS) sang domain live chính thức
+  if (path.includes("cms.dnf.betech-digital.com")) {
+    path = path.replace("cms.dnf.betech-digital.com", "cms.dongnaiford.com.vn");
+  }
   if (path.startsWith("http://") || path.startsWith("https://") || path.startsWith("/") || path.startsWith("//")) {
     return encodeURI(path);
   }
@@ -67,7 +71,7 @@ export const resolveImageUrl = (img: any): string => {
     return encodeURI(`https://${path}`);
   }
   const cleanPath = path.startsWith("uploads/") ? path.replace("uploads/", "") : path;
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://cms.dongnaiford.com.vn/api";
   const baseDomain = apiUrl.replace(/\/api$/, "");
   return encodeURI(`${baseDomain}/static/${cleanPath}`);
 };

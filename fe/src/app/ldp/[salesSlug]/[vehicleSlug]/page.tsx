@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { ldpAPI } from "@/lib/api";
+import { resolveImageUrl as resolveFileUrl } from "@/lib/site-assets";
 import LdpDetailClient from "@/components/vehicle/LdpDetailClient";
 
 export const dynamic = "force-dynamic";
@@ -10,35 +11,6 @@ type Props = {
     salesSlug: string;
     vehicleSlug: string;
   }>;
-};
-
-const resolveFileUrl = (file: any): string => {
-  if (!file) return "";
-  if (typeof file === "string") {
-    if (file.startsWith("http://") || file.startsWith("https://") || file.startsWith("/")) {
-      return encodeURI(file);
-    }
-    const cleanPath = file.startsWith("uploads/") ? file.replace("uploads/", "") : file;
-    const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
-    let apiHost = "http://localhost:8000";
-    try {
-      apiHost = new URL(apiBase).origin;
-    } catch (e) { }
-    return encodeURI(`${apiHost}/static/${cleanPath}`);
-  }
-  if (typeof file === "object") {
-    if (file.url) return encodeURI(file.url);
-    if (file.path) {
-      const cleanPath = file.path.startsWith("uploads/") ? file.path.replace("uploads/", "") : file.path;
-      const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
-      let apiHost = "http://localhost:8080";
-      try {
-        apiHost = new URL(apiBase).origin;
-      } catch (e) { }
-      return encodeURI(`${apiHost}/static/${cleanPath}`);
-    }
-  }
-  return "";
 };
 
 const safeArray = (arr: any) => {
