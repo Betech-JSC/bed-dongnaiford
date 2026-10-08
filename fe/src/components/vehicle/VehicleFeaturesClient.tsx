@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { useVehicle, VehicleTabBar } from "./VehicleLayoutClient";
 import BookingBanner from "@/components/services/BookingBanner";
 import { Calendar, Calculator, ChevronLeft, ChevronRight } from "lucide-react";
+import { resolveImageUrl as resolveFileUrl } from "@/lib/site-assets";
 
 interface FeatureItem {
   title: string;
@@ -11,35 +12,6 @@ interface FeatureItem {
   image: string;
   category: string;
 }
-
-const resolveFileUrl = (file: any): string => {
-  if (!file) return "";
-  if (typeof file === "string") {
-    if (file.startsWith("http://") || file.startsWith("https://") || file.startsWith("/")) {
-      return file;
-    }
-    const cleanPath = file.startsWith("uploads/") ? file.replace("uploads/", "") : file;
-    const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
-    let apiHost = "http://localhost:8000";
-    try {
-      apiHost = new URL(apiBase).origin;
-    } catch (e) { }
-    return `${apiHost}/static/${cleanPath}`;
-  }
-  if (typeof file === "object") {
-    if (file.url) return file.url;
-    if (file.path) {
-      const cleanPath = file.path.startsWith("uploads/") ? file.path.replace("uploads/", "") : file.path;
-      const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
-      let apiHost = "http://localhost:8080";
-      try {
-        apiHost = new URL(apiBase).origin;
-      } catch (e) { }
-      return `${apiHost}/static/${cleanPath}`;
-    }
-  }
-  return "";
-};
 
 interface FeatureSectionSliderProps {
   sec: {

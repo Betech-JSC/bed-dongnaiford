@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useVehicle, VehicleTabBar } from "./VehicleLayoutClient";
 import { Search, ChevronRight, ChevronLeft, Plus, Minus, Loader2 } from "lucide-react";
 import { accessoriesAPI } from "@/lib/api";
+import { resolveImageUrl as resolveFileUrl } from "@/lib/site-assets";
 
 const getCategorySlugUnified = (slugOrId: string | number): string => {
   const str = String(slugOrId).toLowerCase();
@@ -28,25 +29,6 @@ const getCategoryFallbackImage = (slug: string): string => {
 const mapAPIAccessoryToItem = (apiAcc: any): any => {
   const categoryIdOrSlug = apiAcc.categories?.[0]?.slug || apiAcc.categories?.[0]?.id || "";
   const categoryKey = getCategorySlugUnified(categoryIdOrSlug) || "exterior";
-
-  // helper function to clean path
-  const resolveFileUrl = (file: any): string => {
-    if (!file) return "";
-    if (typeof file === "string") {
-      if (file.startsWith("http://") || file.startsWith("https://") || file.startsWith("/")) {
-        return file;
-      }
-      const cleanPath = file.startsWith("uploads/") ? file.replace("uploads/", "") : file;
-      const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
-      let apiHost = "http://localhost:8000";
-      try {
-        apiHost = new URL(apiBase).origin;
-      } catch (e) { }
-      return `${apiHost}/static/${cleanPath}`;
-    }
-    if (typeof file === "object" && file.url) return file.url;
-    return "";
-  };
 
   return {
     id: apiAcc.slug || String(apiAcc.id),
@@ -137,19 +119,11 @@ export default function VehicleAccessoriesClient() {
         try {
           const catRes = await accessoriesAPI.getCategories();
           if (catRes && catRes.success && Array.isArray(catRes.data)) {
-            const mappedCats = catRes.data.map((cat: any) => {
-              const resolveFileUrl = (url: string) => {
-                if (!url) return "";
-                if (url.startsWith("http") || url.startsWith("/")) return url;
-                const apiHost = "http://localhost:8080";
-                return `${apiHost}/static/${url}`;
-              };
-              return {
-                id: getCategorySlugUnified(cat.slug || cat.id),
-                name: cat.title,
-                image: resolveFileUrl(cat.image_url || getCategoryFallbackImage(cat.slug || ""))
-              };
-            });
+            const mappedCats = catRes.data.map((cat: any) => ({
+              id: getCategorySlugUnified(cat.slug || cat.id),
+              name: cat.title,
+              image: resolveFileUrl(cat.image_url || getCategoryFallbackImage(cat.slug || ""))
+            }));
             setCategories(mappedCats);
           }
         } catch (catErr) {

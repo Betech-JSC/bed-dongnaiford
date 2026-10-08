@@ -1,5 +1,6 @@
 import { ldpAPI } from "@/lib/api";
 import { headers } from "next/headers";
+import { resolveImageUrl as resolveFileUrl } from "@/lib/site-assets";
 
 type LayoutProps = {
   children: React.ReactNode;
@@ -26,36 +27,6 @@ function getCanonicalUrl(host: string, salesSlug: string, vehicleSlug: string, s
   // Đối với web hãng chính, URL hiển thị là dongnaiford.com.vn/ldp/sales-slug/vehicle-slug
   return `https://dongnaiford.com.vn/ldp/${salesSlug}/${vehicleSlug}`;
 }
-
-const resolveFileUrl = (file: any): string => {
-  if (!file) return "";
-  if (typeof file === "string") {
-    if (file.startsWith("http://") || file.startsWith("https://") || file.startsWith("/")) {
-      return encodeURI(file);
-    }
-    const cleanPath = file.startsWith("uploads/") ? file.replace("uploads/", "") : file;
-    const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
-    let apiHost = "http://localhost:8000";
-    try {
-      apiHost = new URL(apiBase).origin;
-    } catch (e) { }
-    return encodeURI(`${apiHost}/static/${cleanPath}`);
-  }
-  if (typeof file === "object") {
-    if (file.url && typeof file.url === "string") return encodeURI(file.url);
-    if (file.static_url && typeof file.static_url === "string") return encodeURI(file.static_url);
-    if (file.path && typeof file.path === "string") {
-      const cleanPath = file.path.startsWith("uploads/") ? file.path.replace("uploads/", "") : file.path;
-      const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
-      let apiHost = "http://localhost:8000";
-      try {
-        apiHost = new URL(apiBase).origin;
-      } catch (e) { }
-      return encodeURI(`${apiHost}/static/${cleanPath}`);
-    }
-  }
-  return "";
-};
 
 export async function generateMetadata({ params }: { params: Promise<{ salesSlug: string; vehicleSlug: string }> }) {
   try {

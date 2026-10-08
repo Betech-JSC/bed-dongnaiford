@@ -42,7 +42,10 @@ class CleanLegacyMediaUrls extends Command
 
         $tables = [
             'vehicles' => ['layout_blocks', 'image', 'image_thumbnail', 'image_featured', 'images', 'colors'],
+            'vehicle_translations' => ['seo_image'],
             'landing_pages' => ['layout_blocks', 'banner_image'],
+            'landing_page_translations' => ['seo_image'],
+            'sales_consultants' => ['avatar', 'cover_image', 'gallery'],
             'banners' => ['image', 'image_mobile'],
             'configs' => ['value'],
         ];
