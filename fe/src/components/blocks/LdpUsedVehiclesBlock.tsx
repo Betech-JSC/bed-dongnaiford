@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { usedVehiclesAPI, contactsAPI } from "@/lib/api";
 import { resolveImageUrl } from "@/lib/site-assets";
+import { formatPersonName } from "@/lib/formatters";
 
 interface UsedVehicleItem {
   id: number | string;
@@ -465,7 +466,7 @@ export default function LdpUsedVehiclesBlock({
                 Đăng Ký Tư Vấn Xe Đã Qua Sử Dụng
               </h3>
               <p className="text-xs sm:text-sm text-gray-300 mt-1">
-                {salesConsultant?.name ? `Chuyên viên kinh doanh ${salesConsultant.name}` : "Đội ngũ chuyên viên kinh doanh"} sẽ liên hệ gửi báo giá ưu đãi và hỗ trợ Quý khách trong thời gian sớm nhất.
+                {salesConsultant?.name ? `chuyên viên kinh doanh ${formatPersonName(salesConsultant.name)}` : "đội ngũ chuyên viên kinh doanh"} sẽ liên hệ gửi báo giá ưu đãi và hỗ trợ Quý khách trong thời gian sớm nhất.
               </p>
             </div>
 
@@ -511,7 +512,7 @@ export default function LdpUsedVehiclesBlock({
                     Gửi Yêu Cầu Tư Vấn Thành Công!
                   </h4>
                   <p className="text-xs sm:text-sm text-gray-600 max-w-sm mx-auto leading-relaxed">
-                    Cảm ơn Quý khách <strong>{consultName}</strong>. Yêu cầu đã được chuyển trực tiếp tới {salesConsultant?.name ? `Chuyên viên kinh doanh ${salesConsultant.name}` : "Chuyên viên kinh doanh"}. Chúng tôi sẽ liên hệ lại qua số <strong>{consultPhone}</strong> trong ít phút!
+                    Cảm ơn Quý khách <strong>{consultName}</strong>. Yêu cầu đã được chuyển trực tiếp tới {salesConsultant?.name ? `chuyên viên kinh doanh ${formatPersonName(salesConsultant.name)}` : "chuyên viên kinh doanh"}. Chúng tôi sẽ liên hệ lại qua số <strong>{consultPhone}</strong> trong ít phút!
                   </p>
                 </div>
               ) : (

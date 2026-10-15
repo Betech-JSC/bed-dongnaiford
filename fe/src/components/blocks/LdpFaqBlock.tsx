@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ChevronDown, ChevronUp, HelpCircle } from "lucide-react";
+import { formatPersonName } from "@/lib/formatters";
 
 interface LdpFaqBlockProps {
   data?: any;
@@ -72,7 +73,7 @@ export default function LdpFaqBlock({
             Các câu hỏi <span className="text-[#0562D2]">thường gặp</span>
           </h2>
           <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
-            {data?.subtitle || `Những thông tin hữu ích giúp bạn an tâm lựa chọn chiếc xe Ford ưng ý nhất cùng ${salesConsultant?.name ? `Chuyên viên kinh doanh ${salesConsultant.name}` : "Chuyên viên kinh doanh"}.`}
+            {data?.subtitle || `Những thông tin hữu ích giúp bạn an tâm lựa chọn chiếc xe Ford ưng ý nhất cùng ${salesConsultant?.name ? `chuyên viên kinh doanh ${formatPersonName(salesConsultant.name)}` : "chuyên viên kinh doanh"}.`}
           </p>
         </div>
 

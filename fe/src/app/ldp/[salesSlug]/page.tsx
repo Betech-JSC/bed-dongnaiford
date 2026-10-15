@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ldpAPI, bannersAPI, vehiclesAPI, servicesAPI, customerHandoversAPI, postsAPI } from "@/lib/api";
 import { resolveImageUrl as resolveFileUrl } from "@/lib/site-assets";
+import { formatPersonName } from "@/lib/formatters";
 import LdpHomeClient from "@/components/vehicle/LdpHomeClient";
 
 export const dynamic = "force-dynamic";
@@ -147,10 +148,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
     if (!ldp) return {};
 
-    const consultantName = ldp.sales_consultant?.name || "Chuyên Viên Kinh Doanh";
+    const rawName = ldp.sales_consultant?.name;
+    const consultantName = rawName ? formatPersonName(rawName) : "Chuyên Viên Kinh Doanh";
     const title = ldp.seo?.meta_title || `${consultantName} - Chuyên Viên Kinh Doanh | Đồng Nai Ford`;
-    const description = ldp.seo?.meta_description || `Landing Page giới thiệu các dòng xe Ford và ưu đãi đặc quyền từ Chuyên viên kinh doanh ${consultantName} tại Đồng Nai Ford.`;
-    const keywords = ldp.seo?.meta_keywords || `Đồng Nai Ford, Chuyên viên kinh doanh ${consultantName}, bảng giá xe Ford`;
+    const description = ldp.seo?.meta_description || `Landing Page giới thiệu các dòng xe Ford và ưu đãi đặc quyền từ chuyên viên kinh doanh ${consultantName} tại Đồng Nai Ford.`;
+    const keywords = ldp.seo?.meta_keywords || `Đồng Nai Ford, chuyên viên kinh doanh ${consultantName}, bảng giá xe Ford`;
 
     const robotsStr = ldp.seo?.meta_robots || "index, follow";
     const noIndex = robotsStr.includes("noindex");

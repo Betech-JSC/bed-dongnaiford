@@ -1089,7 +1089,7 @@ export default {
                     type: 'LdpPromotions',
                     data: {
                         title: 'Chương Trình Khuyến Mãi Đặc Biệt',
-                        description: 'Nhận ưu đãi độc quyền từ Chuyên viên kinh doanh khi đăng ký mua xe trong tháng này.'
+                        description: 'Nhận ưu đãi độc quyền từ chuyên viên kinh doanh khi đăng ký mua xe trong tháng này.'
                     }
                 });
             }

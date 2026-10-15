@@ -176,7 +176,11 @@ class LandingPageApiController extends Controller
         if (!empty($ldp?->sales_email)) {
             $consultantDetail['email'] = $ldp->sales_email;
         }
-        $consultantName = $consultantDetail['name'] ?? $consultant->name;
+        $rawConsultantName = $consultantDetail['name'] ?? $consultant->name;
+        $consultantName = $rawConsultantName ? mb_convert_case(trim($rawConsultantName), MB_CASE_TITLE, "UTF-8") : null;
+        if ($consultantName) {
+            $consultantDetail['name'] = $consultantName;
+        }
         $seoTitle = $ldp?->seo_meta_title ?: ("Chuyên viên kinh doanh " . $consultantName . " | Đồng Nai Ford");
         $seoDesc = $ldp?->seo_meta_description ?: ("Chuyên viên kinh doanh " . $consultantName . " tại Đồng Nai Ford. Tư vấn báo giá lăn bánh, hỗ trợ thủ tục mua xe Ford trả góp, lái thử tận nhà.");
 
@@ -657,8 +661,8 @@ class LandingPageApiController extends Controller
                     'id' => 'consultant-vehicles-grid',
                     'type' => 'LdpVehiclesGrid',
                     'data' => [
-                        'title' => 'Dòng xe Chuyên viên kinh doanh phụ trách',
-                        'subtitle' => 'Danh sách các mẫu xe chính hãng đang được tư vấn bởi ' . ($consultant->name ?: 'Chuyên viên kinh doanh') . '.'
+                        'title' => 'Dòng xe chuyên viên kinh doanh phụ trách',
+                        'subtitle' => 'Danh sách các mẫu xe chính hãng đang được tư vấn bởi ' . ($consultant->name ? mb_convert_case(trim($consultant->name), MB_CASE_TITLE, "UTF-8") : 'chuyên viên kinh doanh') . '.'
                     ]
                 ],
                 [
@@ -666,7 +670,7 @@ class LandingPageApiController extends Controller
                     'type' => 'LdpPromotions',
                     'data' => [
                         'title' => 'Chương Trình Khuyến Mãi Đặc Biệt',
-                        'description' => 'Nhận ưu đãi độc quyền từ Chuyên viên kinh doanh khi đăng ký mua xe trong tháng này.'
+                        'description' => 'Nhận ưu đãi độc quyền từ chuyên viên kinh doanh khi đăng ký mua xe trong tháng này.'
                     ]
                 ],
                 [

@@ -167,10 +167,11 @@ class SalesConsultant extends BaseModel
     public function toLocalizedSummary(?string $locale = null, bool $fallback = true): array
     {
         $translation = $this->localizedTranslation($locale, $fallback);
+        $rawName = $translation?->name ?? $this->name;
 
         return [
             'id'         => $this->id,
-            'name'       => $translation?->name,
+            'name'       => $rawName ? mb_convert_case(trim($rawName), MB_CASE_TITLE, "UTF-8") : null,
             'slug'       => $translation?->slug,
             'job_title'  => $translation?->job_title,
             'department' => $this->department,
@@ -182,10 +183,11 @@ class SalesConsultant extends BaseModel
     public function toLocalizedDetail(?string $locale = null, bool $fallback = true): array
     {
         $translation = $this->localizedTranslation($locale, $fallback);
+        $rawName = $translation?->name ?? $this->name;
 
         return [
             'id'         => $this->id,
-            'name'       => $translation?->name,
+            'name'       => $rawName ? mb_convert_case(trim($rawName), MB_CASE_TITLE, "UTF-8") : null,
             'slug'       => $translation?->slug,
             'job_title'  => $translation?->job_title,
             'avatar'     => $this->avatar,

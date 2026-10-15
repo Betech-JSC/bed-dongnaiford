@@ -18,6 +18,7 @@ const formatUploadError = (err: any): string => {
 };
 
 import { resolveImageUrl, hasImageField } from "@/lib/site-assets";
+import { formatPersonName } from "@/lib/formatters";
 import LdpVehiclesGridBlock from "./LdpVehiclesGridBlock";
 import LdpHeroBannerBlock from "./LdpHeroBannerBlock";
 import LdpTechnologyBlock from "./LdpTechnologyBlock";
@@ -1267,7 +1268,7 @@ function LdpSalesConsultantBlock({ blockIndex, data, salesConsultant, openQuoteD
             <div className="relative w-28 h-28 rounded-full overflow-hidden border-4 border-white/10 shadow-2xl">
               <img
                 src={resolveImageUrl(salesConsultant.avatar)}
-                alt={salesConsultant.name}
+                alt={formatPersonName(salesConsultant.name)}
                 className="object-cover w-full h-full"
               />
             </div>
@@ -1276,7 +1277,7 @@ function LdpSalesConsultantBlock({ blockIndex, data, salesConsultant, openQuoteD
             <div className="inline-flex items-center gap-1.5 bg-[#0562d2]/15 text-[#3b82f6] px-3 py-1 rounded-full text-xs font-semibold mb-2">
               <Sparkles className="w-3.5 h-3.5" /> Chuyên viên kinh doanh chính hãng
             </div>
-            <h2 className="text-2xl font-bold tracking-tight text-white">{salesConsultant.name}</h2>
+            <h2 className="text-2xl font-bold tracking-tight text-white">{formatPersonName(salesConsultant.name)}</h2>
             <div className="flex flex-wrap items-center gap-2 mt-1 text-blue-200 text-sm">
               <span>{salesConsultant.job_title || "Chuyên viên kinh doanh Đồng Nai Ford"}</span>
               {salesConsultant.email && (
@@ -1326,8 +1327,8 @@ function LdpSalesConsultantBlock({ blockIndex, data, salesConsultant, openQuoteD
    ========================================================================== */
 function LdpPromotionsBlock({ blockIndex, data, promotions, salesConsultant, openQuoteDrawer, isEditMode, onChangeData, anchorId }: any) {
   const title = data.title || "Chương Trình Khuyến Mãi Đặc Biệt";
-  // Tự động đổi chuỗi 'từ Cố vấn' đã lưu sẵn trong DB cũ sang 'từ Chuyên viên kinh doanh'
-  const desc = (data.description || "Nhận ưu đãi độc quyền từ Chuyên viên kinh doanh khi đăng ký mua xe trong tháng này.").replace(/từ Cố vấn/gi, "từ Chuyên viên kinh doanh");
+  // Tự động đổi chuỗi 'từ Cố vấn'/'từ Chuyên viên kinh doanh' đã lưu trong DB sang 'từ chuyên viên kinh doanh'
+  const desc = (data.description || "Nhận ưu đãi độc quyền từ chuyên viên kinh doanh khi đăng ký mua xe trong tháng này.").replace(/từ (?:Cố vấn|Chuyên viên kinh doanh|chuyên viên kinh doanh)/gi, "từ chuyên viên kinh doanh");
 
   const hasPromotions = promotions && (
     (promotions.global && promotions.global.length > 0) ||
@@ -1349,7 +1350,7 @@ function LdpPromotionsBlock({ blockIndex, data, promotions, salesConsultant, ope
         <div className="text-center max-w-2xl mx-auto mb-12">
           <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">{title}</h2>
           <p className="text-slate-500 text-sm mt-3">
-            {salesConsultant ? desc.replace("từ Chuyên viên kinh doanh", `từ Chuyên viên kinh doanh ${salesConsultant.name}`) : desc}
+            {salesConsultant ? desc.replace(/từ chuyên viên kinh doanh/gi, `từ chuyên viên kinh doanh ${formatPersonName(salesConsultant.name)}`) : desc}
           </p>
         </div>
 
@@ -2619,7 +2620,7 @@ function InstallmentCalculatorBlock({ data, vehicle, openQuoteDrawer, anchorId }
             </div>
 
             <div className="text-[11px] text-slate-500 italic bg-white p-3 rounded-lg border border-slate-200">
-              * Lãi suất ước tính: {interestRate}%/năm. Kết quả mang tính chất tham khảo, vui lòng liên hệ Chuyên viên kinh doanh để có bảng tính chi tiết lăn bánh kèm ưu đãi thuế phí.
+              * Lãi suất ước tính: {interestRate}%/năm. Kết quả mang tính chất tham khảo, vui lòng liên hệ chuyên viên kinh doanh để có bảng tính chi tiết lăn bánh kèm ưu đãi thuế phí.
             </div>
           </div>
 
@@ -2769,7 +2770,7 @@ function DualVehicleComparisonBlock({ data, vehicle, openQuoteDrawer, anchorId }
                 <span className="font-bold text-white">{vehicle?.base_price ? `${parseFloat(vehicle.base_price).toLocaleString("vi-VN")} VNĐ` : "Liên hệ"}</span>
               </div>
               <div className="py-2 text-slate-300 italic bg-slate-900/60 p-3 rounded-lg border border-slate-700">
-                📌 <strong>Ghi chú từ Chuyên viên kinh doanh:</strong> {data.consultant_note_1 || "Lựa chọn tuyệt vời cho nhu cầu di chuyển hàng ngày."}
+                📌 <strong>Ghi chú từ chuyên viên kinh doanh:</strong> {data.consultant_note_1 || "Lựa chọn tuyệt vời cho nhu cầu di chuyển hàng ngày."}
               </div>
             </div>
             <button
@@ -2790,7 +2791,7 @@ function DualVehicleComparisonBlock({ data, vehicle, openQuoteDrawer, anchorId }
               <span className="text-xs bg-blue-400/10 text-blue-300 px-2.5 py-1 rounded font-semibold">Xe lựa chọn thêm</span>
             </div>
             <div className="py-2 text-xs text-slate-300 italic bg-slate-900/60 p-3 rounded-lg border border-slate-700">
-              📌 <strong>Ghi chú từ Chuyên viên kinh doanh:</strong> {data.consultant_note_2 || "Động cơ mạnh mẽ, không gian cực kỳ rộng rãi cho hành trình xa."}
+              📌 <strong>Ghi chú từ chuyên viên kinh doanh:</strong> {data.consultant_note_2 || "Động cơ mạnh mẽ, không gian cực kỳ rộng rãi cho hành trình xa."}
             </div>
             <button
               type="button"

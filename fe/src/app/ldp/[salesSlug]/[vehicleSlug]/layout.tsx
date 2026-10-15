@@ -1,6 +1,7 @@
 import { ldpAPI } from "@/lib/api";
 import { headers } from "next/headers";
 import { resolveImageUrl as resolveFileUrl } from "@/lib/site-assets";
+import { formatPersonName } from "@/lib/formatters";
 
 type LayoutProps = {
   children: React.ReactNode;
@@ -40,8 +41,9 @@ export async function generateMetadata({ params }: { params: Promise<{ salesSlug
     const host = headersList.get("host") || "dongnaiford.com.vn";
     const canonicalUrl = getCanonicalUrl(host, salesSlug, vehicleSlug, ldp.seo?.canonical);
 
-    const title = ldp.seo?.meta_title || `${ldp.title} - Chuyên viên kinh doanh ${ldp.sales_consultant?.name}`;
-    const description = ldp.seo?.meta_description || `Landing Page giới thiệu xe Ford và ưu đãi đặc quyền từ Chuyên viên kinh doanh ${ldp.sales_consultant?.name} tại Đồng Nai Ford.`;
+    const consultantName = formatPersonName(ldp.sales_consultant?.name);
+    const title = ldp.seo?.meta_title || `${ldp.title} - Chuyên viên kinh doanh ${consultantName}`;
+    const description = ldp.seo?.meta_description || `Landing Page giới thiệu xe Ford và ưu đãi đặc quyền từ chuyên viên kinh doanh ${consultantName} tại Đồng Nai Ford.`;
     const keywords = ldp.seo?.meta_keywords || "";
 
     const robotsStr = ldp.seo?.meta_robots || "index, follow";
@@ -90,8 +92,9 @@ export default async function LdpLayout({
   const host = headersList.get("host") || "dongnaiford.com.vn";
   const canonicalUrl = getCanonicalUrl(host, salesSlug, vehicleSlug, ldp.seo?.canonical);
   
-  const title = ldp.seo?.meta_title || `${ldp.title} - Chuyên viên kinh doanh ${ldp.sales_consultant?.name}`;
-  const description = ldp.seo?.meta_description || `Landing Page giới thiệu xe Ford và ưu đãi đặc quyền từ Chuyên viên kinh doanh ${ldp.sales_consultant?.name} tại Đồng Nai Ford.`;
+  const consultantName = formatPersonName(ldp.sales_consultant?.name);
+  const title = ldp.seo?.meta_title || `${ldp.title} - Chuyên viên kinh doanh ${consultantName}`;
+  const description = ldp.seo?.meta_description || `Landing Page giới thiệu xe Ford và ưu đãi đặc quyền từ chuyên viên kinh doanh ${consultantName} tại Đồng Nai Ford.`;
 
   const hostUrl = `https://${host.split(":")[0]}`;
 
@@ -127,7 +130,7 @@ export default async function LdpLayout({
       ldp.sales_consultant ? {
         "@type": "Person",
         "@id": `${canonicalUrl}/#sales-consultant`,
-        "name": ldp.sales_consultant.name,
+        "name": formatPersonName(ldp.sales_consultant.name),
         "jobTitle": "Chuyên viên kinh doanh",
         "telephone": ldp.sales_consultant.phone,
         "image": ldp.sales_consultant.avatar_url,
