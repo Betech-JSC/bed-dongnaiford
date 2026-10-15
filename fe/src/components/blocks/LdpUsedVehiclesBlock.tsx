@@ -465,7 +465,7 @@ export default function LdpUsedVehiclesBlock({
                 Đăng Ký Tư Vấn Xe Đã Qua Sử Dụng
               </h3>
               <p className="text-xs sm:text-sm text-gray-300 mt-1">
-                {salesConsultant?.name ? `Cố vấn ${salesConsultant.name}` : "Đội ngũ chuyên viên"} sẽ liên hệ gửi báo giá ưu đãi và hỗ trợ Quý khách trong thời gian sớm nhất.
+                {salesConsultant?.name ? `Chuyên viên kinh doanh ${salesConsultant.name}` : "Đội ngũ chuyên viên kinh doanh"} sẽ liên hệ gửi báo giá ưu đãi và hỗ trợ Quý khách trong thời gian sớm nhất.
               </p>
             </div>
 
@@ -511,7 +511,7 @@ export default function LdpUsedVehiclesBlock({
                     Gửi Yêu Cầu Tư Vấn Thành Công!
                   </h4>
                   <p className="text-xs sm:text-sm text-gray-600 max-w-sm mx-auto leading-relaxed">
-                    Cảm ơn Quý khách <strong>{consultName}</strong>. Yêu cầu đã được chuyển trực tiếp tới {salesConsultant?.name ? `Cố vấn ${salesConsultant.name}` : "Cố vấn bán hàng"}. Chúng tôi sẽ liên hệ lại qua số <strong>{consultPhone}</strong> trong ít phút!
+                    Cảm ơn Quý khách <strong>{consultName}</strong>. Yêu cầu đã được chuyển trực tiếp tới {salesConsultant?.name ? `Chuyên viên kinh doanh ${salesConsultant.name}` : "Chuyên viên kinh doanh"}. Chúng tôi sẽ liên hệ lại qua số <strong>{consultPhone}</strong> trong ít phút!
                   </p>
                 </div>
               ) : (

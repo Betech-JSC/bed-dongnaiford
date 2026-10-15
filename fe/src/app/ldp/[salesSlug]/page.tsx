@@ -147,10 +147,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
     if (!ldp) return {};
 
-    const consultantName = ldp.sales_consultant?.name || "Cố Vấn Bán Hàng";
-    const title = ldp.seo?.meta_title || `${consultantName} - Cố Vấn Bán Hàng | Đồng Nai Ford`;
-    const description = ldp.seo?.meta_description || `Landing Page giới thiệu các dòng xe Ford và ưu đãi đặc quyền từ cố vấn ${consultantName} tại Đồng Nai Ford.`;
-    const keywords = ldp.seo?.meta_keywords || `Đồng Nai Ford, Cố vấn bán hàng ${consultantName}, bảng giá xe Ford`;
+    const consultantName = ldp.sales_consultant?.name || "Chuyên Viên Kinh Doanh";
+    const title = ldp.seo?.meta_title || `${consultantName} - Chuyên Viên Kinh Doanh | Đồng Nai Ford`;
+    const description = ldp.seo?.meta_description || `Landing Page giới thiệu các dòng xe Ford và ưu đãi đặc quyền từ Chuyên viên kinh doanh ${consultantName} tại Đồng Nai Ford.`;
+    const keywords = ldp.seo?.meta_keywords || `Đồng Nai Ford, Chuyên viên kinh doanh ${consultantName}, bảng giá xe Ford`;
 
     const robotsStr = ldp.seo?.meta_robots || "index, follow";
     const noIndex = robotsStr.includes("noindex");

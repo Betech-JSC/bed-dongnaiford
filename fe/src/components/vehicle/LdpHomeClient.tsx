@@ -533,7 +533,7 @@ function LdpHomeInner({
           <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div className="flex items-center gap-2 text-xs font-semibold text-blue-300 shrink-0">
               <Car className="w-4 h-4 text-[#0562D2]" />
-              <span>Dòng xe Cố vấn {salesConsultant?.name} phụ trách ({allVehicles.length}):</span>
+              <span>Dòng xe Chuyên viên kinh doanh {salesConsultant?.name} phụ trách ({allVehicles.length}):</span>
             </div>
             <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0 scrollbar-none">
               {allVehicles.map((v: any) => (
@@ -589,7 +589,7 @@ function LdpHomeInner({
             {salesConsultant?.name && (
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-white text-xs font-semibold mb-4 border border-white/30">
                 <Sparkles className="w-3.5 h-3.5 text-yellow-300" />
-                <span>Trang giới thiệu chính thức: Cố vấn {salesConsultant.name}</span>
+                <span>Trang giới thiệu chính thức: Chuyên viên kinh doanh {salesConsultant.name}</span>
               </div>
             )}
             <h1 className="text-2xl sm:text-4xl lg:text-[44px] font-bold tracking-tight leading-[1.2] text-white uppercase">
@@ -1590,7 +1590,7 @@ function LdpHomeInner({
                   Tư vấn miễn phí
                 </h2>
                 <p className="text-[16px] text-gray-300 leading-[1.5]">
-                  Để lại thông tin — {salesConsultant?.name ? `Cố vấn ${salesConsultant.name} & chúng tôi` : "chúng tôi"} sẽ liên hệ sớm nhất
+                  Để lại thông tin — {salesConsultant?.name ? `Chuyên viên kinh doanh ${salesConsultant.name} & chúng tôi` : "chúng tôi"} sẽ liên hệ sớm nhất
                 </p>
               </div>
 
@@ -1618,7 +1618,7 @@ function LdpHomeInner({
                     <div className="text-sm text-white/90 leading-[1.4] space-y-0.5">
                       <p>
                         {salesConsultant?.phone
-                          ? `Cố vấn: ${salesConsultant.phone} - KD: 0918 90 90 60`
+                          ? `Chuyên viên kinh doanh: ${salesConsultant.phone} - KD: 0918 90 90 60`
                           : "Dv: 1800 55 68 58 - KD: 0918 90 90 60"}
                       </p>
                       <p>(0251) 3857 130 – (0251) 3857 131</p>

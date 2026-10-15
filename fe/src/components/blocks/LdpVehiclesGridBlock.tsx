@@ -178,7 +178,8 @@ export default function LdpVehiclesGridBlock({
   const isDefaultOrOldTitle =
     !data?.title ||
     data?.title === "CÁC DÒNG XE FORD ĐANG PHÂN PHỐI" ||
-    data?.title === "Dòng xe Cố vấn phụ trách";
+    data?.title === "Dòng xe Cố vấn phụ trách" ||
+    data?.title === "Dòng xe Chuyên viên kinh doanh phụ trách";
   const title = isDefaultOrOldTitle ? "Dòng xe Ford Đồng Nai" : data.title;
 
   const isDefaultOrOldSubtitle =

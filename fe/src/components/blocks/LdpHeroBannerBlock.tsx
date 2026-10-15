@@ -34,7 +34,7 @@ const DEFAULT_SLIDES: BannerSlide[] = [
     buttonText: "Đăng ký lái thử",
   },
   {
-    title: "ƯU ĐÃI ĐẶC QUYỀN TỪ CỐ VẤN BÁN HÀNG",
+    title: "ƯU ĐÃI ĐẶC QUYỀN TỪ CHUYÊN VIÊN KINH DOANH",
     subtitle: "Hỗ trợ trả góp lãi suất ưu đãi, thủ tục nhanh chóng, giao xe tận nơi",
     image: "/assets/blis-everest.webp",
     imageMobile: "/assets/blis-everest.webp",
@@ -194,7 +194,7 @@ export default function LdpHeroBannerBlock({
       <div className="max-w-[1440px] mx-auto w-full px-6 xl:px-[144px] flex flex-col items-center justify-end text-center relative z-10 mt-auto pt-20 pb-8 md:pb-[24px]">
         {salesConsultant?.name && (
           <div className="mb-3 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-white text-xs font-semibold tracking-wide uppercase">
-            <span>Showroom Cố Vấn: {salesConsultant.name}</span>
+            <span>Showroom Chuyên Viên Kinh Doanh: {salesConsultant.name}</span>
           </div>
         )}
 

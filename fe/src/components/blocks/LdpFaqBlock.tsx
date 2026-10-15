@@ -21,8 +21,8 @@ const DEFAULT_FAQS: FaqItem[] = [
     a: "Đồng Nai Ford tự hào là đại lý ủy quyền chính thức lớn nhất của Ford Việt Nam tại khu vực miền Nam, sở hữu cơ sở vật chất 5S hiện đại, đội ngũ kỹ thuật viên đạt chuẩn quốc tế và kho xe luôn sẵn sàng giao ngay."
   },
   {
-    q: "Cố vấn bán hàng có thể hỗ trợ tôi những gì trong quá trình mua xe?",
-    a: "Cố vấn bán hàng sẽ đồng hành 1:1 cùng bạn từ việc tư vấn chọn phiên bản xe phù hợp nhu cầu, mang xe đến tận nhà lái thử miễn phí, tính toán phương án trả góp tối ưu, hỗ trợ đăng ký biển số và bàn giao xe tận nơi chu đáo."
+    q: "Chuyên viên kinh doanh có thể hỗ trợ tôi những gì trong quá trình mua xe?",
+    a: "Chuyên viên kinh doanh sẽ đồng hành 1:1 cùng bạn từ việc tư vấn chọn phiên bản xe phù hợp nhu cầu, mang xe đến tận nhà lái thử miễn phí, tính toán phương án trả góp tối ưu, hỗ trợ đăng ký biển số và bàn giao xe tận nơi chu đáo."
   },
   {
     q: "Chính sách hỗ trợ mua xe Ford trả góp như thế nào?",
@@ -34,7 +34,7 @@ const DEFAULT_FAQS: FaqItem[] = [
   },
   {
     q: "Tôi có được đăng ký lái thử xe Ford tận nhà không?",
-    a: "Hoàn toàn miễn phí! Bạn chỉ cần nhấn nút 'Đăng ký lái thử' hoặc liên hệ trực tiếp Hotline/Zalo của Cố vấn, chúng tôi sẽ chuẩn bị dòng xe bạn mong muốn và mang đến tận nhà hoặc cơ quan để bạn trải nghiệm thực tế."
+    a: "Hoàn toàn miễn phí! Bạn chỉ cần nhấn nút 'Đăng ký lái thử' hoặc liên hệ trực tiếp Hotline/Zalo của Chuyên viên kinh doanh, chúng tôi sẽ chuẩn bị dòng xe bạn mong muốn và mang đến tận nhà hoặc cơ quan để bạn trải nghiệm thực tế."
   },
   {
     q: "Chương trình ưu đãi và khuyến mãi trong tháng này gồm những gì?",
@@ -72,7 +72,7 @@ export default function LdpFaqBlock({
             Các câu hỏi <span className="text-[#0562D2]">thường gặp</span>
           </h2>
           <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
-            {data?.subtitle || `Những thông tin hữu ích giúp bạn an tâm lựa chọn chiếc xe Ford ưng ý nhất cùng ${salesConsultant?.name || "Cố vấn bán hàng"}.`}
+            {data?.subtitle || `Những thông tin hữu ích giúp bạn an tâm lựa chọn chiếc xe Ford ưng ý nhất cùng ${salesConsultant?.name ? `Chuyên viên kinh doanh ${salesConsultant.name}` : "Chuyên viên kinh doanh"}.`}
           </p>
         </div>
 

@@ -40,8 +40,8 @@ export async function generateMetadata({ params }: { params: Promise<{ salesSlug
     const host = headersList.get("host") || "dongnaiford.com.vn";
     const canonicalUrl = getCanonicalUrl(host, salesSlug, vehicleSlug, ldp.seo?.canonical);
 
-    const title = ldp.seo?.meta_title || `${ldp.title} - Cố vấn ${ldp.sales_consultant?.name}`;
-    const description = ldp.seo?.meta_description || `Landing Page giới thiệu xe Ford và ưu đãi đặc quyền từ cố vấn ${ldp.sales_consultant?.name} tại Đồng Nai Ford.`;
+    const title = ldp.seo?.meta_title || `${ldp.title} - Chuyên viên kinh doanh ${ldp.sales_consultant?.name}`;
+    const description = ldp.seo?.meta_description || `Landing Page giới thiệu xe Ford và ưu đãi đặc quyền từ Chuyên viên kinh doanh ${ldp.sales_consultant?.name} tại Đồng Nai Ford.`;
     const keywords = ldp.seo?.meta_keywords || "";
 
     const robotsStr = ldp.seo?.meta_robots || "index, follow";
@@ -90,8 +90,8 @@ export default async function LdpLayout({
   const host = headersList.get("host") || "dongnaiford.com.vn";
   const canonicalUrl = getCanonicalUrl(host, salesSlug, vehicleSlug, ldp.seo?.canonical);
   
-  const title = ldp.seo?.meta_title || `${ldp.title} - Cố vấn ${ldp.sales_consultant?.name}`;
-  const description = ldp.seo?.meta_description || `Landing Page giới thiệu xe Ford và ưu đãi đặc quyền từ cố vấn ${ldp.sales_consultant?.name} tại Đồng Nai Ford.`;
+  const title = ldp.seo?.meta_title || `${ldp.title} - Chuyên viên kinh doanh ${ldp.sales_consultant?.name}`;
+  const description = ldp.seo?.meta_description || `Landing Page giới thiệu xe Ford và ưu đãi đặc quyền từ Chuyên viên kinh doanh ${ldp.sales_consultant?.name} tại Đồng Nai Ford.`;
 
   const hostUrl = `https://${host.split(":")[0]}`;
 
@@ -128,7 +128,7 @@ export default async function LdpLayout({
         "@type": "Person",
         "@id": `${canonicalUrl}/#sales-consultant`,
         "name": ldp.sales_consultant.name,
-        "jobTitle": "Cố vấn bán hàng",
+        "jobTitle": "Chuyên viên kinh doanh",
         "telephone": ldp.sales_consultant.phone,
         "image": ldp.sales_consultant.avatar_url,
         "worksFor": {
