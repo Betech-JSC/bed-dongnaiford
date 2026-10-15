@@ -534,7 +534,7 @@ function LdpHomeInner({
           <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div className="flex items-center gap-2 text-xs font-semibold text-blue-300 shrink-0">
               <Car className="w-4 h-4 text-[#0562D2]" />
-              <span>Dòng xe chuyên viên kinh doanh {formatPersonName(salesConsultant?.name)} phụ trách ({allVehicles.length}):</span>
+              <span>Dòng xe Chuyên viên kinh doanh {formatPersonName(salesConsultant?.name)} phụ trách ({allVehicles.length}):</span>
             </div>
             <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0 scrollbar-none">
               {allVehicles.map((v: any) => (
