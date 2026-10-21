@@ -18,8 +18,6 @@ import {
   X,
   Plus,
   Minus,
-  MapPin,
-  Mail,
   Car,
   Clock,
   Sparkles,
@@ -1569,109 +1567,7 @@ function LdpHomeInner({
         </div>
       </section>
 
-      {/* 11. CONSULTATION RICH TEXT SECTION (FIGMA SECTION 10) */}
-      <section id="consultation" className="relative py-20 px-0 w-full overflow-hidden bg-[#12161f] text-white scroll-mt-12">
-        {/* Background Image with Dark Overlay */}
-        <div className="absolute inset-0 z-0">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            alt="Ford Showroom background"
-            className="w-full h-full object-cover opacity-50"
-            src="/images-dynamic/image-hero-1.jpg"
-          />
-          <div className="absolute inset-0 bg-black/55" />
-        </div>
 
-        <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full relative z-10">
-          <div className="max-w-[1152px] mx-auto flex flex-col lg:flex-row gap-16 items-center justify-center">
-            {/* Left Column: Title & Info */}
-            <div className="w-full lg:w-[480px] flex flex-col gap-8 items-start justify-center text-white relative z-10">
-              <div className="flex flex-col gap-1 items-start text-white w-full">
-                <h2 className="text-3xl lg:text-[36px] font-semibold leading-[1.32] tracking-tight uppercase">
-                  Tư vấn miễn phí
-                </h2>
-                <p className="text-[16px] text-gray-300 leading-[1.5]">
-                  Để lại thông tin — {salesConsultant?.name ? `chuyên viên kinh doanh ${formatPersonName(salesConsultant.name)} & chúng tôi` : "chúng tôi"} sẽ liên hệ sớm nhất
-                </p>
-              </div>
-
-              <div className="flex flex-col gap-6 items-start w-full">
-                {/* Showroom Address */}
-                <div className="flex gap-3 items-start w-full">
-                  <span className="w-6 h-6 flex items-center justify-center text-white flex-shrink-0 mt-0.5">
-                    <MapPin className="w-5 h-5" />
-                  </span>
-                  <div className="flex flex-col gap-1 items-start text-white">
-                    <span className="text-base font-semibold leading-[1.5]">Showroom</span>
-                    <span className="text-sm text-white/90 leading-[1.4]">
-                      Số B04, Khu thương mại Amata, Khu phố 29, Phường Long Bình, Thành Phố Đồng Nai
-                    </span>
-                  </div>
-                </div>
-
-                {/* Hotline */}
-                <div className="flex gap-3 items-start w-full">
-                  <span className="w-6 h-6 flex items-center justify-center text-white flex-shrink-0 mt-0.5">
-                    <Phone className="w-5 h-5" />
-                  </span>
-                  <div className="flex flex-col gap-1 items-start text-white">
-                    <span className="text-base font-semibold leading-[1.5]">Hotline</span>
-                    <div className="text-sm text-white/90 leading-[1.4] space-y-0.5">
-                      <p>
-                        {salesConsultant?.phone
-                          ? `Chuyên viên kinh doanh: ${salesConsultant.phone} - KD: 0918 90 90 60`
-                          : "Dv: 1800 55 68 58 - KD: 0918 90 90 60"}
-                      </p>
-                      <p>(0251) 3857 130 – (0251) 3857 131</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Email */}
-                <div className="flex gap-3 items-start w-full">
-                  <span className="w-6 h-6 flex items-center justify-center text-white flex-shrink-0 mt-0.5">
-                    <Mail className="w-5 h-5" />
-                  </span>
-                  <div className="flex flex-col gap-1 items-start text-white">
-                    <span className="text-base font-semibold leading-[1.5]">Email</span>
-                    <span className="text-sm text-white/90 leading-[1.4]">
-                      {salesConsultant?.email || "marketing@dongnaiford.com.vn"}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex gap-6 items-start">
-                <button
-                  type="button"
-                  onClick={() => openQuoteDrawer()}
-                  className="bg-white border border-[#d6d6d6] text-[#424242] px-6 py-2.5 rounded-full text-base font-semibold tracking-[0.16px] shadow-sm hover:bg-gray-50 transition-colors cursor-pointer"
-                >
-                  Gửi yêu cầu tư vấn
-                </button>
-                <a
-                  href={`tel:${salesConsultant?.phone || "0918909060"}`}
-                  className="bg-[#0562d2] border border-[#0562d2] text-white px-6 py-2.5 rounded-full text-base font-semibold tracking-[0.16px] hover:bg-[#0451b0] transition-colors cursor-pointer inline-flex items-center justify-center"
-                >
-                  Liên hệ ngay
-                </a>
-              </div>
-            </div>
-
-            {/* Right Column: Google Maps Image */}
-            <div className="w-full lg:flex-1 h-[350px] lg:h-[427px] relative rounded-xl overflow-hidden border border-white/10 relative z-10">
-              <iframe
-                title="Bản đồ Đồng Nai Ford"
-                src={siteAssets.googleMapsEmbed}
-                className="absolute inset-0 w-full h-full border-0 rounded-xl"
-                loading="lazy"
-                referrerPolicy="strict-origin-when-cross-origin"
-                allowFullScreen
-              />
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* 12. FLOATING SALES CONSULTANT WIDGET */}
       {/* Đã hạ vị trí bottom về mép dưới sau khi bỏ sticky bottom bar */}
