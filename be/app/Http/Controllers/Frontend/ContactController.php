@@ -91,12 +91,69 @@ class ContactController extends Controller
                 }
             }
 
+            // Truy vấn thông tin Cố vấn bán hàng (Sale) & Landing Page TRƯỚC khi lưu Contact
+            $landingPageId = $data['landing_page_id'] ?? $requestData['landing_page_id'] ?? null;
+            $salesConsultantId = $requestData['sales_consultant_id'] ?? $data['sales_consultant_id'] ?? null;
+            $resolvedLandingPage = null;
+            $resolvedConsultant = null;
+
+            if (!empty($landingPageId)) {
+                try {
+                    $resolvedLandingPage = LandingPage::with('salesConsultant')->find($landingPageId);
+                    if ($resolvedLandingPage && empty($salesConsultantId) && $resolvedLandingPage->sales_consultant_id) {
+                        $salesConsultantId = $resolvedLandingPage->sales_consultant_id;
+                    }
+                } catch (\Throwable $e) {}
+            }
+
+            if (!empty($salesConsultantId)) {
+                try {
+                    $resolvedConsultant = $resolvedLandingPage?->salesConsultant ?: SalesConsultant::find($salesConsultantId);
+                } catch (\Throwable $e) {}
+            }
+
+            $consultantName = '';
+            $consultantPhone = '';
+            $consultantSlug = '';
+            $consultantEmail = '';
+
+            if ($resolvedConsultant) {
+                $requestData['sales_consultant_id'] = $resolvedConsultant->id;
+                $consultantName = $resolvedConsultant->translate('vi')?->name ?: ($resolvedConsultant->name ?? '');
+                $consultantPhone = $resolvedConsultant->phone ?? '';
+                $consultantSlug = $resolvedConsultant->translate('vi')?->slug ?: ($resolvedConsultant->slug ?? '');
+                $consultantEmail = $resolvedConsultant->email ?: ($resolvedLandingPage?->sales_email ?? '');
+
+                $data['Cố vấn phụ trách'] = "{$consultantName} (SĐT: {$consultantPhone})";
+                $data['Mã Cố vấn (Sale ID)'] = "#{$resolvedConsultant->id} ({$consultantSlug})";
+                $data['SĐT Cố vấn nhận liên hệ'] = $consultantPhone;
+                if (!empty($consultantEmail)) {
+                    $data['Email Cố vấn'] = $consultantEmail;
+                }
+            }
+
+            if ($rawType === 'LDP_CLICK_CALL') {
+                $targetPhone = $consultantPhone ?: ($data['target_phone'] ?? '');
+                $data['Loại chuyển đổi LDP'] = '📞 Khách bấm nút Gọi điện trực tiếp cho Sale';
+                $data['Name'] = 'Khách bấm Gọi điện trên LDP';
+                $data['Họ và tên'] = 'Khách bấm Gọi điện trên LDP';
+                $data['Phone'] = "Gọi tới Sale: {$targetPhone}";
+                $data['Số điện thoại'] = "Gọi tới Sale: {$targetPhone}";
+            } elseif ($rawType === 'LDP_CLICK_ZALO') {
+                $targetPhone = $consultantPhone ?: ($data['target_phone'] ?? '');
+                $data['Loại chuyển đổi LDP'] = '💬 Khách bấm nút Chat Zalo trực tiếp với Sale';
+                $data['Name'] = 'Khách bấm Chat Zalo trên LDP';
+                $data['Họ và tên'] = 'Khách bấm Chat Zalo trên LDP';
+                $data['Phone'] = "Chat Zalo Sale: {$targetPhone}";
+                $data['Số điện thoại'] = "Chat Zalo Sale: {$targetPhone}";
+            }
+
             $requestData['data'] = $data;
             $requestData['sent_at'] = now();
             $rules = config('contact.types.' . $rawType . '.rules');
 
-            if (!is_array($rules)) {
-                // Fallback linh hoạt cho các loại form tùy biến trên website
+            if (!is_array($rules) || in_array($rawType, ['LDP_CLICK_CALL', 'LDP_CLICK_ZALO'], true)) {
+                // Fallback linh hoạt cho các loại form tùy biến & sự kiện click trên LDP
                 $rules = [
                     'Phone' => 'nullable',
                     'Name' => 'nullable',
@@ -129,7 +186,7 @@ class ContactController extends Controller
 
             $createdContact = $this->model::create($requestData);
 
-            // Tự động tạo Thông báo hệ thống cho Admin CMS khi có khách hàng gửi Form
+            // Tự động tạo Thông báo hệ thống cho Admin CMS khi có khách hàng gửi Form / Bấm nút trên LDP
             try {
                 $contactName = $requestData['data']['Họ và tên'] ?? $requestData['data']['Name'] ?? 'Khách hàng';
                 $contactPhone = $requestData['data']['Số điện thoại'] ?? $requestData['data']['Phone'] ?? '';
@@ -138,11 +195,25 @@ class ContactController extends Controller
                     $typeTitle = 'Lịch hẹn dịch vụ mới';
                 } elseif (($requestData['type'] ?? '') === 'APPLY_FORM') {
                     $typeTitle = 'Hồ sơ ứng tuyển mới';
+                } elseif (($requestData['type'] ?? '') === 'LDP_CLICK_CALL') {
+                    $typeTitle = '📞 Khách bấm Gọi điện trên LDP';
+                } elseif (($requestData['type'] ?? '') === 'LDP_CLICK_ZALO') {
+                    $typeTitle = '💬 Khách bấm Chat Zalo trên LDP';
+                }
+
+                if (($requestData['type'] ?? '') === 'LDP_CLICK_CALL') {
+                    $notifContent = "Khách vừa bấm Gọi điện trên LDP" . ($consultantName ? " của Sale {$consultantName}" : "") . ($consultantPhone ? " ({$consultantPhone})" : "") . ".";
+                } elseif (($requestData['type'] ?? '') === 'LDP_CLICK_ZALO') {
+                    $notifContent = "Khách vừa bấm Chat Zalo trên LDP" . ($consultantName ? " của Sale {$consultantName}" : "") . ($consultantPhone ? " ({$consultantPhone})" : "") . ".";
+                } elseif (!empty($consultantName)) {
+                    $notifContent = "Khách {$contactName}" . ($contactPhone ? " ({$contactPhone})" : "") . " vừa gửi yêu cầu trên LDP của Sale {$consultantName}.";
+                } else {
+                    $notifContent = "Khách hàng {$contactName}" . ($contactPhone ? " ({$contactPhone})" : "") . " vừa gửi yêu cầu qua Website.";
                 }
 
                 \App\Models\AdminNotification::create([
                     'title' => $typeTitle,
-                    'content' => "Khách hàng {$contactName}" . ($contactPhone ? " ({$contactPhone})" : "") . " vừa gửi yêu cầu qua Website.",
+                    'content' => $notifContent,
                     'type' => 'info',
                     'link' => '/admin/contacts',
                     'icon' => 'pi-bell',
@@ -203,7 +274,15 @@ class ContactController extends Controller
                 $formType = 'general';
                 $cleanMessage = $rawMessage;
 
-                if (str_contains($rawMessage, '[Đăng ký tư vấn từ popup trang chủ]')) {
+                if ($type === 'LDP_CLICK_CALL') {
+                    $formSource = '📞 Khách bấm nút Gọi điện trên LDP' . ($consultantName ? " (Sale: {$consultantName})" : '');
+                    $formTitle = '📞 CHUYỂN ĐỔI LDP: KHÁCH BẤM GỌI ĐIỆN';
+                    $formType = 'ldp_click_call';
+                } elseif ($type === 'LDP_CLICK_ZALO') {
+                    $formSource = '💬 Khách bấm nút Chat Zalo trên LDP' . ($consultantName ? " (Sale: {$consultantName})" : '');
+                    $formTitle = '💬 CHUYỂN ĐỔI LDP: KHÁCH BẤM CHAT ZALO';
+                    $formType = 'ldp_click_zalo';
+                } elseif (str_contains($rawMessage, '[Đăng ký tư vấn từ popup trang chủ]')) {
                     $formSource = '🎯 Popup Đăng Ký Tư Vấn (Trang Chủ)';
                     $formTitle = '🚘 ĐĂNG KÝ TƯ VẤN FORD';
                     $formType = 'quote';
@@ -226,9 +305,13 @@ class ContactController extends Controller
                     $formTitle = '🚗 YÊU CẦU BÁO GIÁ XE MỚI';
                     $formType = 'new_car_quote';
                 } elseif ($type === 'TEST_DRIVE' || str_contains(mb_strtolower($rawMessage), 'lái thử')) {
-                    $formSource = '🚘 Form Đăng Ký Lái Thử';
+                    $formSource = '🚘 Form Đăng Ký Lái Thử' . ($consultantName ? " (LDP Sale: {$consultantName})" : '');
                     $formTitle = '🚘 ĐĂNG KÝ LÁI THỬ XE';
                     $formType = 'test_drive';
+                } elseif ($type === 'ADVISE_FORM') {
+                    $formSource = '🚗 Form Báo Giá & Tư Vấn' . ($consultantName ? " (LDP Sale: {$consultantName})" : '');
+                    $formTitle = '🚗 YÊU CẦU BÁO GIÁ & TƯ VẤN';
+                    $formType = 'quote';
                 } elseif ($type === 'APPLY_FORM') {
                     $formSource = '💼 Form Ứng Tuyển Tuyển Dụng';
                     $formTitle = '💼 HỒ SƠ ỨNG TUYỂN MỚI';
@@ -292,6 +375,15 @@ class ContactController extends Controller
                     ?? $contactData['Địa điểm'] 
                     ?? null;
 
+                $buttonPosition = $contactData['Vị trí nút bấm']
+                    ?? $contactData['button_position']
+                    ?? null;
+
+                $pageUrl = $contactData['Trang LDP']
+                    ?? $contactData['page_url']
+                    ?? $request->headers->get('referer')
+                    ?? null;
+
                 $leadData = [
                     'source' => $formSource,
                     'title' => $formTitle,
@@ -308,6 +400,11 @@ class ContactController extends Controller
                     'mileage' => $contactData['Số KM hiện tại'] ?? null,
                     'appointment' => $appointment,
                     'location' => $location,
+                    'consultant_name' => $consultantName ?: null,
+                    'consultant_phone' => $consultantPhone ?: null,
+                    'consultant_slug' => $consultantSlug ?: null,
+                    'button_position' => $buttonPosition,
+                    'page_url' => $pageUrl,
                     'score' => 'HOT',
                 ];
 
@@ -316,11 +413,12 @@ class ContactController extends Controller
                 \Illuminate\Support\Facades\Log::error('Telegram form notification error: ' . $e->getMessage());
             }
 
-            // Tự động gửi Email thông báo Lead mới (ưu tiên Cố vấn / Landing Page đã setup)
-            try {
-                $contactData = $requestData['data'] ?? [];
-                $landingPageId = $contactData['landing_page_id'] ?? $requestData['landing_page_id'] ?? null;
-                $salesConsultantId = $requestData['sales_consultant_id'] ?? $contactData['sales_consultant_id'] ?? null;
+            // Tự động gửi Email thông báo Lead mới (ưu tiên Cố vấn / Landing Page đã setup, bỏ qua nếu chỉ là sự kiện click nút gọi/Zalo)
+            if (!in_array($rawType, ['LDP_CLICK_CALL', 'LDP_CLICK_ZALO'], true)) {
+                try {
+                    $contactData = $requestData['data'] ?? [];
+                    $landingPageId = $contactData['landing_page_id'] ?? $requestData['landing_page_id'] ?? null;
+                    $salesConsultantId = $requestData['sales_consultant_id'] ?? $contactData['sales_consultant_id'] ?? null;
 
                 $targetEmails = [];
 
@@ -445,8 +543,9 @@ class ContactController extends Controller
                         }
                     }
                 }
-            } catch (\Throwable $e) {
-                \Illuminate\Support\Facades\Log::error('Contact notification email general error: ' . $e->getMessage());
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::error('Contact notification email general error: ' . $e->getMessage());
+                }
             }
 
             if ($request->wantsJson() || $request->ajax()) {

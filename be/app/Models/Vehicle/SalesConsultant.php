@@ -36,8 +36,13 @@ class SalesConsultant extends BaseModel
         'email',
         'phone',
         'custom_domain',
+        'tracking_config',
         'status',
         'sort_order',
+    ];
+
+    protected $casts = [
+        'tracking_config' => 'array',
     ];
 
     public $translatedAttributes = [
@@ -51,10 +56,11 @@ class SalesConsultant extends BaseModel
     public function rules(): array
     {
         return [
-            'vi.name'    => 'required|string|max:255',
-            'avatar'     => 'nullable|array',
-            'cover_image'=> 'nullable|array',
-            'gallery'    => 'nullable|array',
+            'vi.name'         => 'required|string|max:255',
+            'avatar'          => 'nullable|array',
+            'cover_image'     => 'nullable|array',
+            'gallery'         => 'nullable|array',
+            'tracking_config' => 'nullable|array',
         ];
     }
 
@@ -186,24 +192,25 @@ class SalesConsultant extends BaseModel
         $rawName = $translation?->name ?? $this->name;
 
         return [
-            'id'         => $this->id,
-            'name'       => $rawName ? mb_convert_case(trim($rawName), MB_CASE_TITLE, "UTF-8") : null,
-            'slug'       => $translation?->slug,
-            'job_title'  => $translation?->job_title,
-            'avatar'     => $this->avatar,
-            'avatar_url' => $this->avatar_url,
-            'short_bio'  => $translation?->short_bio,
-            'bio'        => $translation?->bio,
-            'phone'      => $this->phone,
-            'zalo_url'   => $this->zalo_url,
-            'gallery'    => collect($this->gallery ?? [])->map(fn($g) => [
+            'id'              => $this->id,
+            'name'            => $rawName ? mb_convert_case(trim($rawName), MB_CASE_TITLE, "UTF-8") : null,
+            'slug'            => $translation?->slug,
+            'job_title'       => $translation?->job_title,
+            'avatar'          => $this->avatar,
+            'avatar_url'      => $this->avatar_url,
+            'short_bio'       => $translation?->short_bio,
+            'bio'             => $translation?->bio,
+            'phone'           => $this->phone,
+            'zalo_url'        => $this->zalo_url,
+            'gallery'         => collect($this->gallery ?? [])->map(fn($g) => [
                 'image_url' => isset($g['image']['path'])
                     ? static_url($g['image']['path'])
                     : (isset($g['path']) ? static_url($g['path']) : ($g['image_url'] ?? null)),
                 'caption'   => $g['caption'] ?? null,
             ])->values()->all(),
-            'email'          => $this->email,
-            'custom_domain'  => $this->custom_domain,
+            'email'           => $this->email,
+            'custom_domain'   => $this->custom_domain,
+            'tracking_config' => $this->tracking_config ?? null,
         ];
     }
 }

@@ -251,6 +251,168 @@
                     </div>
                 </div>
 
+                <!-- Card Mã Theo Dõi Quảng Cáo & Chuyển Đổi (Đồng bộ theo Cố vấn) -->
+                <div class="card mt-4">
+                    <div class="card-header font-bold text-gray-900 border-b pb-2 flex items-center justify-between">
+                        <span>🎯 Mã Theo Dõi Quảng Cáo &amp; Chuyển Đổi (Đồng bộ theo Cố vấn)</span>
+                        <span v-if="selectedConsultantName" class="text-xs bg-emerald-50 text-emerald-700 font-bold px-2.5 py-0.5 rounded border border-emerald-200">
+                            Cố vấn: {{ selectedConsultantName }}
+                        </span>
+                    </div>
+                    <div class="card-body space-y-5 mt-3">
+                        <div v-if="!form.sales_consultant_id" class="text-xs text-amber-800 bg-amber-50 p-3.5 rounded-lg border border-amber-200">
+                            ⚠️ Vui lòng chọn <strong>Cố vấn phụ trách (Sales)</strong> ở cột bên phải trước để cấu hình mã theo dõi quảng cáo cho Cố vấn đó.
+                        </div>
+                        <template v-else>
+                            <!-- Hộp hướng dẫn tổng quan -->
+                            <div class="bg-blue-50 border-l-4 border-blue-500 p-3.5 rounded-r-lg text-xs text-blue-900 space-y-1.5 leading-relaxed">
+                                <div class="font-bold text-blue-950">💡 Chỉ cần nhập 1 lần — Tự động áp dụng cho toàn bộ các trang LDP của {{ selectedConsultantName || 'Sale' }}:</div>
+                                <p>
+                                    Khi bạn lưu trang này, bộ mã bên dưới sẽ được <strong>lưu trực tiếp vào hồ sơ Cố vấn ({{ selectedConsultantName }})</strong> và tự động kích hoạt trên <strong>Trang Showroom Tổng (<code>/ldp/[ten-sale]</code>)</strong> lẫn <strong>tất cả các dòng xe</strong> mà Cố vấn phụ trách.
+                                </p>
+                                <ul class="list-disc pl-5 space-y-0.5 font-medium">
+                                    <li><strong>Chuyển đổi 1 — Khách gửi Form Báo giá / Lái thử:</strong> Tự động bắn Google Ads Form Label, FB Pixel <code>Lead</code>, TikTok <code>SubmitForm</code>, GTM <code>ldp_form_submit</code>.</li>
+                                    <li><strong>Chuyển đổi 2 — Khách bấm nút Gọi điện (<code>tel:</code>):</strong> Tự động bắn Google Ads Call Label, FB Pixel <code>Contact</code>, TikTok <code>Contact</code>, GTM <code>ldp_click_call</code> + Báo về Quản lý Liên hệ &amp; Telegram kèm tên Sale.</li>
+                                    <li><strong>Chuyển đổi 3 — Khách bấm nút Chat Zalo (<code>zalo.me</code>):</strong> Tự động bắn Google Ads Zalo Label, FB Pixel <code>Contact</code>, TikTok <code>Contact</code>, GTM <code>ldp_click_zalo</code> + Báo về Quản lý Liên hệ &amp; Telegram kèm tên Sale.</li>
+                                </ul>
+                            </div>
+
+                            <!-- 1. Google Ads & Conversion Labels -->
+                            <div class="border border-gray-200 rounded-lg p-4 bg-gray-50/60 space-y-3">
+                                <div class="flex items-center justify-between border-b border-gray-200 pb-2">
+                                    <h4 class="text-sm font-bold text-gray-900">1. Google Ads Tag &amp; 3 Nhãn Chuyển Đổi (Conversion Label)</h4>
+                                    <span class="text-[11px] text-gray-500 font-mono">Google Ads (gtag.js)</span>
+                                </div>
+                                <p class="text-xs text-gray-600 leading-relaxed">
+                                    Lấy mã tại <strong>Google Ads → Mục tiêu → Lượt chuyển đổi → Tóm tắt → Bấm vào hành động chuyển đổi → Thiết lập thẻ → Tự cài đặt thẻ</strong>. Ví dụ mã <code>AW-16543210987/AbCdEfGhIjKlMnOpQrSt</code> thì <code>AW-16543210987</code> là Tag ID, phần sau dấu <code>/</code> là Conversion Label.
+                                </p>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <Field
+                                        v-model="form.tracking_config.google_ads_id"
+                                        :field="{
+                                            type: 'text',
+                                            name: 'ldp_tracking_google_ads_id',
+                                            label: 'Mã Google Ads Tag ID (AW-XXXXXXXXX)',
+                                            placeholder: 'vd: AW-16543210987',
+                                            help: 'Mã ID tài khoản Google Ads của Sale (bắt đầu bằng AW-).',
+                                        }"
+                                    />
+                                    <Field
+                                        v-model="form.tracking_config.google_ads_form_label"
+                                        :field="{
+                                            type: 'text',
+                                            name: 'ldp_tracking_google_ads_form_label',
+                                            label: 'Conversion Label — Khách Điền Form Báo Giá / Lái Thử',
+                                            placeholder: 'vd: AbCdEfGhIjKlMnOpQrSt',
+                                            help: 'Nhãn chuyển đổi kích hoạt khi khách bấm gửi Form thành công.',
+                                        }"
+                                    />
+                                    <Field
+                                        v-model="form.tracking_config.google_ads_call_label"
+                                        :field="{
+                                            type: 'text',
+                                            name: 'ldp_tracking_google_ads_call_label',
+                                            label: 'Conversion Label — Khách Bấm Nút Gọi Điện (tel:)',
+                                            placeholder: 'vd: XyZaBcDeFgHiJkLmNoPq',
+                                            help: 'Nhãn chuyển đổi kích hoạt ngay khi khách bấm nút Gọi điện cho Sale.',
+                                        }"
+                                    />
+                                    <Field
+                                        v-model="form.tracking_config.google_ads_zalo_label"
+                                        :field="{
+                                            type: 'text',
+                                            name: 'ldp_tracking_google_ads_zalo_label',
+                                            label: 'Conversion Label — Khách Bấm Nút Chat Zalo',
+                                            placeholder: 'vd: QwErTyUiOpAsDfGhJkLz',
+                                            help: 'Nhãn chuyển đổi kích hoạt ngay khi khách bấm nút Chat Zalo với Sale.',
+                                        }"
+                                    />
+                                </div>
+                            </div>
+
+                            <!-- 2. GTM, Facebook Pixel, TikTok Pixel -->
+                            <div class="border border-gray-200 rounded-lg p-4 bg-gray-50/60 space-y-3">
+                                <div class="flex items-center justify-between border-b border-gray-200 pb-2">
+                                    <h4 class="text-sm font-bold text-gray-900">2. Google Tag Manager (GTM), Facebook Pixel &amp; TikTok Pixel</h4>
+                                    <span class="text-[11px] text-gray-500 font-mono">GTM / Meta / TikTok</span>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <Field
+                                        v-model="form.tracking_config.gtm_id"
+                                        :field="{
+                                            type: 'text',
+                                            name: 'ldp_tracking_gtm_id',
+                                            label: 'Mã Google Tag Manager (GTM)',
+                                            placeholder: 'vd: GTM-XXXXXXX',
+                                            help: 'Tự động đẩy sự kiện ldp_form_submit, ldp_click_call, ldp_click_zalo vào dataLayer.',
+                                        }"
+                                    />
+                                    <Field
+                                        v-model="form.tracking_config.facebook_pixel_id"
+                                        :field="{
+                                            type: 'text',
+                                            name: 'ldp_tracking_facebook_pixel_id',
+                                            label: 'Mã Facebook Pixel ID',
+                                            placeholder: 'vd: 123456789012345',
+                                            help: 'Chỉ điền dãy số Pixel ID của Meta Ads. Tự động đo PageView, Lead, Contact.',
+                                        }"
+                                    />
+                                    <Field
+                                        v-model="form.tracking_config.tiktok_pixel_id"
+                                        :field="{
+                                            type: 'text',
+                                            name: 'ldp_tracking_tiktok_pixel_id',
+                                            label: 'Mã TikTok Pixel ID',
+                                            placeholder: 'vd: C1234567890ABCDEFG',
+                                            help: 'Chỉ điền mã Pixel ID của TikTok Ads. Tự động đo PageView, SubmitForm, Contact.',
+                                        }"
+                                    />
+                                </div>
+                            </div>
+
+                            <!-- 3. Custom Scripts -->
+                            <div class="border border-gray-200 rounded-lg p-4 bg-gray-50/60 space-y-3">
+                                <div class="flex items-center justify-between border-b border-gray-200 pb-2">
+                                    <h4 class="text-sm font-bold text-gray-900">3. Mã Script Tuỳ Chỉnh Nâng Cao (Tuỳ chọn)</h4>
+                                    <span class="text-[11px] text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200 font-semibold">Chỉ dùng khi cần nhúng thêm mã khác</span>
+                                </div>
+                                <Field
+                                    v-model="form.tracking_config.inject_head"
+                                    :field="{
+                                        type: 'textarea',
+                                        name: 'ldp_tracking_inject_head',
+                                        label: 'Mã script tuỳ chỉnh trong <head>',
+                                        placeholder: '<!-- Dán mã <script>...</script> tuỳ chỉnh nếu có -->',
+                                        rows: 2,
+                                    }"
+                                />
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <Field
+                                        v-model="form.tracking_config.inject_body_start"
+                                        :field="{
+                                            type: 'textarea',
+                                            name: 'ldp_tracking_inject_body_start',
+                                            label: 'Mã script ngay sau <body>',
+                                            placeholder: '<!-- Dán mã đầu <body> nếu có -->',
+                                            rows: 2,
+                                        }"
+                                    />
+                                    <Field
+                                        v-model="form.tracking_config.inject_body_end"
+                                        :field="{
+                                            type: 'textarea',
+                                            name: 'ldp_tracking_inject_body_end',
+                                            label: 'Mã script trước </body>',
+                                            placeholder: '<!-- Dán mã cuối </body> nếu có -->',
+                                            rows: 2,
+                                        }"
+                                    />
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
                 <!-- Cấu hình SEO -->
                 <div class="card mt-4">
                     <div class="card-header font-bold text-gray-900 border-b pb-2">🔍 Tối ưu hóa tìm kiếm (SEO)</div>
@@ -666,18 +828,52 @@
                             </div>
 
                             <!-- TAB 4: Chạy Ads -->
-                            <div v-show="activeHelpTab === 4" class="space-y-3">
+                            <div v-show="activeHelpTab === 4" class="space-y-4">
                                 <div class="bg-emerald-50 border-l-4 border-emerald-500 p-3 rounded text-xs text-emerald-800 font-semibold mb-2">
-                                    Trang LDP của Sale đã được tối ưu hóa: Ẩn hoàn toàn Header/Footer chung của hãng, chỉ hiển thị thông tin và hotline của riêng bạn để tối đa tỉ lệ khách điền form!
+                                    Trang LDP của Sale đã được tối ưu hóa: Ẩn hoàn toàn Header/Footer chung của hãng, chỉ hiển thị thông tin và hotline của riêng bạn để tối đa tỉ lệ khách điền form, gọi điện và chat Zalo!
                                 </div>
-                                <h4 class="font-bold text-gray-900">Cách lấy link LDP từng dòng xe để chạy quảng cáo:</h4>
-                                <ol class="list-decimal pl-5 space-y-2">
-                                    <li>Sau khi bấm <span class="font-semibold">💾 Lưu trang</span> và <span class="font-semibold">Đóng</span>.</li>
-                                    <li>Ở góc dưới bên phải trang thông tin chung, mục <span class="font-semibold">👁️ Xem trước Landing Page các dòng xe</span> sẽ hiển thị danh sách tất cả dòng xe bạn đã chọn.</li>
-                                    <li>Bấm nút <span class="font-semibold">📋 COPY</span> bên cạnh dòng xe tương ứng để copy link xe đó, hoặc bấm <span class="font-semibold">🔗 XEM</span> để mở trực tiếp trên trình duyệt.</li>
-                                    <li>Dán đường dẫn đã copy vào bài chạy Facebook Ads, Google Ads hoặc gửi trực tiếp cho khách hàng qua Zalo/Messenger!</li>
-                                    <li>Link chuẩn sẽ có dạng: <code>https://dongnaiford.com.vn/ldp/ten-cua-ban/ten-dong-xe</code></li>
-                                </ol>
+
+                                <div class="space-y-2">
+                                    <h4 class="font-bold text-gray-900">1. Cách lấy link LDP (Showroom tổng &amp; từng dòng xe) để chạy quảng cáo:</h4>
+                                    <ol class="list-decimal pl-5 space-y-1.5 text-xs">
+                                        <li>Sau khi bấm <span class="font-semibold">💾 Lưu trang</span>, xem tại mục <span class="font-semibold">Đường Dẫn LDP Thực Tế Trên Website</span>.</li>
+                                        <li><span class="font-semibold text-blue-700">Link Showroom Tổng của bạn:</span> <code>https://dongnaiford.com.vn/ldp/ten-cua-ban</code> (Hiển thị đầy đủ các dòng xe bạn phụ trách).</li>
+                                        <li><span class="font-semibold text-blue-700">Link từng dòng xe:</span> <code>https://dongnaiford.com.vn/ldp/ten-cua-ban/ten-dong-xe</code> (Bấm nút <strong>Copy</strong> bên cạnh dòng xe tương ứng để gắn vào bài quảng cáo).</li>
+                                    </ol>
+                                </div>
+
+                                <div class="space-y-2 border-t border-gray-200 pt-3">
+                                    <h4 class="font-bold text-gray-900">2. Hướng dẫn cài đặt Mã Theo Dõi Quảng Cáo &amp; 3 Chuyển Đổi Tự Động (TKQC của Sale):</h4>
+                                    <p class="text-xs text-gray-600">
+                                        Tại mục <span class="font-semibold text-blue-800">🎯 Mã Theo Dõi Quảng Cáo &amp; Chuyển Đổi</span> (trong trang LDP hoặc trong Hồ sơ Cố vấn), bạn chỉ cần điền mã 1 lần — hệ thống sẽ tự động đồng bộ cho cả trang Showroom tổng và tất cả các dòng xe của bạn:
+                                    </p>
+                                    <ul class="list-disc pl-5 space-y-2 text-xs">
+                                        <li>
+                                            <span class="font-bold text-gray-900">Google Ads (gtag.js):</span>
+                                            <ul class="list-circle pl-4 mt-1 space-y-1 text-gray-700">
+                                                <li>Điền <strong>Mã Google Ads Tag ID</strong> (dạng <code>AW-123456789</code>).</li>
+                                                <li>Điền <strong>3 Nhãn chuyển đổi (Conversion Label)</strong> riêng biệt tương ứng với 3 hành động trên LDP:
+                                                    <br/>• <strong>Label Điền Form:</strong> Kích hoạt khi khách gửi Form Báo giá hoặc Đăng ký Lái thử thành công.
+                                                    <br/>• <strong>Label Gọi Điện (<code>tel:</code>):</strong> Kích hoạt ngay khi khách bấm vào nút Gọi Hotline của bạn.
+                                                    <br/>• <strong>Label Chat Zalo (<code>zalo.me</code>):</strong> Kích hoạt ngay khi khách bấm vào nút Chat Zalo của bạn.
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li>
+                                            <span class="font-bold text-gray-900">Google Tag Manager (GTM):</span> Điền mã <code>GTM-XXXXXXX</code>. Hệ thống tự động đẩy 3 sự kiện vào <code>dataLayer</code>: <code>ldp_form_submit</code>, <code>ldp_click_call</code>, và <code>ldp_click_zalo</code> kèm tên Sale &amp; dòng xe.
+                                        </li>
+                                        <li>
+                                            <span class="font-bold text-gray-900">Facebook Pixel (Meta Ads):</span> Điền dãy số Pixel ID (vd: <code>123456789012345</code>). Tự động đo <code>PageView</code>, <code>Lead</code> (khi gửi Form) và <code>Contact</code> (khi bấm Gọi điện / Zalo).
+                                        </li>
+                                        <li>
+                                            <span class="font-bold text-gray-900">TikTok Pixel:</span> Điền mã Pixel ID (vd: <code>C1234567890ABCDEFG</code>). Tự động đo <code>PageView</code>, <code>SubmitForm</code> (khi gửi Form) và <code>Contact</code> (khi bấm Gọi điện / Zalo).
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <div class="bg-amber-50 border border-amber-200 p-3 rounded-lg text-xs text-amber-900">
+                                    🔔 <strong>Đặc biệt:</strong> Mọi lượt khách <strong>Điền Form, Bấm Gọi Điện hoặc Bấm Chat Zalo</strong> trên LDP của bạn đều được hệ thống tự động ghi chú rõ <strong>Tên Sale + SĐT Sale + Vị trí nút bấm</strong> trong mục <strong>Quản lý Liên hệ</strong> và bắn thông báo tức thì về <strong>Telegram</strong>!
+                                </div>
                             </div>
                         </div>
 
@@ -807,17 +1003,21 @@ export default {
         'formData.sales_consultant_id': {
             handler(newVal) {
                 if (!newVal) return;
-                // Tự động gợi ý email của Cố vấn nếu ô sales_email đang để trống
-                if (!this.formData.sales_email) {
-                    const consultant = (this.salesConsultants || []).find(c => String(c.id) === String(newVal));
-                    if (consultant && consultant.email) {
+                const consultant = (this.salesConsultants || []).find(c => String(c.id) === String(newVal));
+                if (consultant) {
+                    if (!this.formData.sales_email && consultant.email) {
                         this.formData.sales_email = consultant.email;
                     }
+                    this.formData.tracking_config = this._normalizeTrackingConfig(consultant.tracking_config);
                 }
             }
         }
     },
     computed: {
+        selectedConsultantName() {
+            const c = (this.salesConsultants || []).find(sc => String(sc.id) === String(this.formData?.sales_consultant_id));
+            return c ? c.name : '';
+        },
         hasVehicleSelected() {
             if (Array.isArray(this.formData.vehicle_ids) && this.formData.vehicle_ids.length > 0) {
                 return true;
@@ -879,14 +1079,32 @@ export default {
         }
     },
     methods: {
+        _normalizeTrackingConfig(raw) {
+            let cfg = raw || {};
+            if (typeof cfg === 'string') {
+                try { cfg = JSON.parse(cfg); } catch (e) { cfg = {}; }
+            }
+            return {
+                google_ads_id: cfg?.google_ads_id ?? '',
+                google_ads_form_label: cfg?.google_ads_form_label ?? '',
+                google_ads_call_label: cfg?.google_ads_call_label ?? '',
+                google_ads_zalo_label: cfg?.google_ads_zalo_label ?? '',
+                gtm_id: cfg?.gtm_id ?? '',
+                facebook_pixel_id: cfg?.facebook_pixel_id ?? '',
+                tiktok_pixel_id: cfg?.tiktok_pixel_id ?? '',
+                inject_head: cfg?.inject_head ?? '',
+                inject_body_start: cfg?.inject_body_start ?? '',
+                inject_body_end: cfg?.inject_body_end ?? '',
+            };
+        },
         onSalesConsultantChange(form, consultantId) {
             if (!consultantId || !form) return;
-            // Tự động điền email của Cố vấn nếu form chưa có sales_email
-            if (!form.sales_email) {
-                const c = (this.salesConsultants || []).find(sc => String(sc.id) === String(consultantId));
-                if (c && c.email) {
+            const c = (this.salesConsultants || []).find(sc => String(sc.id) === String(consultantId));
+            if (c) {
+                if (!form.sales_email && c.email) {
                     form.sales_email = c.email;
                 }
+                form.tracking_config = this._normalizeTrackingConfig(c.tracking_config);
             }
         },
         getFirstVehicleId() {
@@ -929,13 +1147,20 @@ export default {
             }
 
             const cleanItem = JSON.parse(JSON.stringify(item || {}));
+            const allConsultants = this.salesConsultants || this.data?.sales_consultants || [];
+            const matchedConsultant = cleanItem.sales_consultant_id
+                ? allConsultants.find(sc => String(sc.id) === String(cleanItem.sales_consultant_id))
+                : null;
+
             let initialSalesEmail = cleanItem.sales_email || '';
-            if (!initialSalesEmail && cleanItem.sales_consultant_id && this.salesConsultants) {
-                const c = this.salesConsultants.find(sc => String(sc.id) === String(cleanItem.sales_consultant_id));
-                if (c && c.email) {
-                    initialSalesEmail = c.email;
-                }
+            if (!initialSalesEmail && matchedConsultant && matchedConsultant.email) {
+                initialSalesEmail = matchedConsultant.email;
             }
+
+            const rawTracking = cleanItem.tracking_config
+                || cleanItem.sales_consultant?.tracking_config
+                || matchedConsultant?.tracking_config
+                || {};
 
             const data = {
                 status: 'ACTIVE',
@@ -945,6 +1170,7 @@ export default {
                 ...cleanItem,
                 sales_email: initialSalesEmail,
                 vehicle_ids: vehicleIds,
+                tracking_config: this._normalizeTrackingConfig(rawTracking),
                 promotions: cleanItem.promotions || {
                     global_promotion_ids: [],
                     custom_promotions: []

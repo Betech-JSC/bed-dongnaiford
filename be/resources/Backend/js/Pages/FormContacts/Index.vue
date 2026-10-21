@@ -7,6 +7,13 @@
                 field: 'Nguồn / Loại Form',
                 transform: (data) => {
                     const c = data.data_contact || {};
+                    const isLdp = Boolean(data.sales_consultant_id || data.sales_consultant || c['Cố vấn phụ trách'] || c['landing_page_id'] || c['Trang LDP']);
+                    if (data.type === 'LDP_CLICK_CALL') {
+                        return '📞 Click Gọi Điện LDP';
+                    }
+                    if (data.type === 'LDP_CLICK_ZALO') {
+                        return '💬 Click Chat Zalo LDP';
+                    }
                     const msg = c['Message'] || c['Nội dung'] || c['Nội dung cần hỗ trợ'] || '';
                     if (msg.includes('[Đăng ký tư vấn từ popup trang chủ]')) {
                         return '🎯 Popup tư vấn trang chủ';
@@ -16,22 +23,38 @@
                     }
                     if (data.type === 'NEW_CAR_QUOTE_FORM') {
                         const car = c['Dòng xe quan tâm'] || c['Xe quan tâm'] || c['Loại xe'] || 'Tất cả các dòng';
-                        return `💰 Báo giá xe mới (${car})`;
+                        return isLdp ? `🚗 Báo giá LDP (${car})` : `💰 Báo giá xe mới (${car})`;
                     }
                     if (data.type === 'REPAIR_QUOTE_FORM') {
                         const car = c['Loại xe'] || c['Dòng xe'] || '';
                         return `🔧 Báo giá sửa chữa ${car ? `(${car})` : ''}`;
                     }
                     if (data.type === 'ADVISE_FORM') {
-                        return '🚗 Tư vấn sản phẩm';
+                        return isLdp ? '🚗 Báo giá LDP' : '🚗 Tư vấn sản phẩm';
                     }
                     if (data.type === 'TEST_DRIVE') {
-                        return '🚘 Đăng ký lái thử';
+                        return isLdp ? '🚘 Lái thử LDP' : '🚘 Đăng ký lái thử';
                     }
                     if (data.type === 'APPLY_FORM') {
                         return '💼 Tuyển dụng';
                     }
-                    return '🌐 Form liên hệ website';
+                    return isLdp ? '🚗 Báo giá LDP' : '🌐 Form liên hệ website';
+                }
+            },
+            {
+                field: 'Cố vấn phụ trách (Sale)',
+                transform: (data) => {
+                    const c = data.data_contact || {};
+                    if (c['Cố vấn phụ trách']) {
+                        return `👨‍💼 ${c['Cố vấn phụ trách']}`;
+                    }
+                    const sc = data.sales_consultant;
+                    if (sc) {
+                        const scName = sc.name || (sc.translations && sc.translations[0]?.name) || `Sale #${sc.id}`;
+                        const scPhone = sc.phone ? ` (SĐT: ${sc.phone})` : '';
+                        return `👨‍💼 ${scName}${scPhone}`;
+                    }
+                    return '🏢 Đại lý chung';
                 }
             },
             {
@@ -56,6 +79,11 @@
                 field: 'Nội dung yêu cầu / Lời nhắn',
                 transform: (data) => {
                     const c = data.data_contact || {};
+                    if (data.type === 'LDP_CLICK_CALL' || data.type === 'LDP_CLICK_ZALO') {
+                        const car = c['Dòng xe đang xem'] || c['Dòng xe quan tâm'] || c['Dòng xe'] || (c.Product && c.Product.title) || 'Tất cả dòng xe';
+                        const pos = c['Vị trí nút bấm'] || c['button_position'] || 'Nút liên hệ trên LDP';
+                        return `Xe: ${car} | Nút bấm: ${pos}`;
+                    }
                     let raw = c['Ghi chú yêu cầu thêm'] || c['Nội dung yêu cầu'] || c['Nội dung cần hỗ trợ'] || c['Message'] || c['Nội dung'] || '--';
                     if (typeof raw === 'string') {
                         return raw.replace('[Đăng ký tư vấn từ popup trang chủ] - Nội dung quan tâm: ', '').replace('[Đăng ký tư vấn từ popup trang chủ]', '');

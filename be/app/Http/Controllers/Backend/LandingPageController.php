@@ -35,8 +35,10 @@ class LandingPageController extends Controller
                 'label' => $c->name,
                 'name' => $c->name,
                 'email' => $c->email,
+                'phone' => $c->phone,
                 'slug' => $c->slug,
                 'custom_domain' => $c->custom_domain,
+                'tracking_config' => $c->tracking_config ?? [],
             ]);
 
         $data['vehicles'] = Vehicle::where('status', Vehicle::STATUS_ACTIVE)
@@ -70,5 +72,36 @@ class LandingPageController extends Controller
             ]);
 
         return $data;
+    }
+
+    private function afterStore($request, $resource = null)
+    {
+        $consultantId = $resource?->sales_consultant_id ?? (is_object($request) && method_exists($request, 'input') ? $request->input('sales_consultant_id') : null);
+        $trackingConfig = is_object($request) && method_exists($request, 'input') ? $request->input('tracking_config') : null;
+
+        if (!empty($consultantId) && is_array($trackingConfig)) {
+            $consultant = SalesConsultant::find($consultantId);
+            if ($consultant) {
+                $consultant->tracking_config = [
+                    'google_ads_id'         => trim((string) ($trackingConfig['google_ads_id'] ?? '')),
+                    'google_ads_form_label' => trim((string) ($trackingConfig['google_ads_form_label'] ?? '')),
+                    'google_ads_call_label' => trim((string) ($trackingConfig['google_ads_call_label'] ?? '')),
+                    'google_ads_zalo_label' => trim((string) ($trackingConfig['google_ads_zalo_label'] ?? '')),
+                    'gtm_id'                => trim((string) ($trackingConfig['gtm_id'] ?? '')),
+                    'facebook_pixel_id'     => trim((string) ($trackingConfig['facebook_pixel_id'] ?? '')),
+                    'tiktok_pixel_id'       => trim((string) ($trackingConfig['tiktok_pixel_id'] ?? '')),
+                    'inject_head'           => (string) ($trackingConfig['inject_head'] ?? ''),
+                    'inject_body_start'     => (string) ($trackingConfig['inject_body_start'] ?? ''),
+                    'inject_body_end'       => (string) ($trackingConfig['inject_body_end'] ?? ''),
+                ];
+                $consultant->save();
+            }
+        }
+
+        if (function_exists('revalidate_frontend')) {
+            revalidate_frontend();
+        }
+
+        return $resource;
     }
 }

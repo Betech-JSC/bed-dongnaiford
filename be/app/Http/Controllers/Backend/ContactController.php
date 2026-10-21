@@ -11,6 +11,11 @@ class ContactController extends Controller
     use HasCrudActions;
     public $model = Contact::class;
 
+    public $with = [
+        'index' => ['salesConsultant'],
+        'form' => ['salesConsultant'],
+    ];
+
     private function getTable()
     {
         return 'FormContacts';
@@ -18,7 +23,15 @@ class ContactController extends Controller
 
     private function beforeIndex($query)
     {
-        return $query->whereIn('type', ['CONTACT_FORM', 'ADVISE_FORM', 'NEW_CAR_QUOTE_FORM', 'TEST_DRIVE', 'APPLY_FORM'])
+        return $query->whereIn('type', [
+                'CONTACT_FORM',
+                'ADVISE_FORM',
+                'NEW_CAR_QUOTE_FORM',
+                'TEST_DRIVE',
+                'APPLY_FORM',
+                'LDP_CLICK_CALL',
+                'LDP_CLICK_ZALO',
+            ])
             ->orWhereNull('type')
             ->orderBy('id', 'DESC');
     }

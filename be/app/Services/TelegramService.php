@@ -82,6 +82,8 @@ class TelegramService
         
         if (empty($title)) {
             $title = match ($type) {
+                'ldp_click_call' => '📞 CHUYỂN ĐỔI LDP: KHÁCH BẤM GỌI ĐIỆN',
+                'ldp_click_zalo' => '💬 CHUYỂN ĐỔI LDP: KHÁCH BẤM CHAT ZALO',
                 'test_drive' => '🚘 ĐĂNG KÝ LÁI THỬ XE',
                 'quote', 'new_car_quote' => '💰 YÊU CẦU BÁO GIÁ XE MỚI',
                 'repair_quote' => '🔧 BÁO GIÁ SỬA CHỮA & BẢO DƯỠNG',
@@ -107,64 +109,99 @@ class TelegramService
         $location = $this->escapeMarkdown($leadData['location'] ?? null);
         $city = $this->escapeMarkdown($leadData['city'] ?? null);
         $paymentMethod = $this->escapeMarkdown($leadData['payment_method'] ?? null);
+        $consultantName = $this->escapeMarkdown($leadData['consultant_name'] ?? null);
+        $consultantPhone = str_replace(['`', '\\'], '', (string) ($leadData['consultant_phone'] ?? ''));
+        $buttonPosition = $this->escapeMarkdown($leadData['button_position'] ?? null);
+        $pageUrl = str_replace(['`', '\\'], '', (string) ($leadData['page_url'] ?? ''));
         $safeSessionId = str_replace(['`', '\\'], '', (string) $sessionId);
 
-        // Xây dựng nội dung tin nhắn Telegram
-        $message = "🔔 *{$title}*\n\n";
-        $message .= "📝 *Nguồn tiếp nhận:* {$source}\n";
-        $message .= "👤 *Khách hàng:* {$name}\n";
-        $message .= "📞 *Số điện thoại:* `{$phone}`\n";
+        // Xử lý mẫu tin nhắn riêng biệt cho sự kiện khách bấm Gọi điện / Chat Zalo trên LDP
+        if ($type === 'ldp_click_call' || $type === 'ldp_click_zalo') {
+            $headerTitle = $type === 'ldp_click_call'
+                ? '📞 CHUYỂN ĐỔI LDP: KHÁCH BẤM GỌI ĐIỆN'
+                : '💬 CHUYỂN ĐỔI LDP: KHÁCH BẤM CHAT ZALO';
 
-        if (!empty($email)) {
-            $message .= "📧 *Email:* {$email}\n";
+            $message = "🔔 *{$headerTitle}*\n\n";
+            $message .= "👨‍💼 *Cố vấn nhận liên hệ (Sale):* " . ($consultantName ?: 'Chưa xác định') . "\n";
+            if (!empty($consultantPhone)) {
+                $message .= "📱 *SĐT/Zalo của Sale:* `{$consultantPhone}`\n";
+            }
+            if (!empty($vehicle)) {
+                $message .= "🚗 *Dòng xe đang xem:* {$vehicle}\n";
+            }
+            if (!empty($buttonPosition)) {
+                $message .= "👆 *Vị trí nút khách bấm:* {$buttonPosition}\n";
+            }
+            if (!empty($pageUrl)) {
+                $message .= "🔗 *Trang LDP:* `{$pageUrl}`\n";
+            }
+            $message .= "\n🆔 *Mã phiên (ID):* `{$safeSessionId}`\n";
+            $message .= "⏰ *Thời gian:* " . $this->formatTime() . "\n";
+        } else {
+            // Xây dựng nội dung tin nhắn Telegram cho Form đăng ký
+            $message = "🔔 *{$title}*\n\n";
+            $message .= "📝 *Nguồn tiếp nhận:* {$source}\n";
+            if (!empty($consultantName)) {
+                $message .= "👨‍💼 *Cố vấn phụ trách (LDP):* {$consultantName}" . (!empty($consultantPhone) ? " (`{$consultantPhone}`)" : "") . "\n";
+            }
+            $message .= "👤 *Khách hàng:* {$name}\n";
+            $message .= "📞 *Số điện thoại:* `{$phone}`\n";
+
+            if (!empty($email)) {
+                $message .= "📧 *Email:* {$email}\n";
+            }
+
+            if (!empty($vehicle)) {
+                $message .= "🚗 *Dòng xe quan tâm:* {$vehicle}\n";
+            }
+
+            if (!empty($licensePlate)) {
+                $message .= "🔢 *Biển số xe:* `{$licensePlate}`\n";
+            }
+
+            if (!empty($appointment)) {
+                $message .= "📅 *Thời gian hẹn:* {$appointment}\n";
+            }
+
+            if (!empty($location)) {
+                $message .= "📍 *Địa điểm làm dịch vụ:* {$location}\n";
+            }
+
+            if (!empty($leadData['payment_method'])) {
+                $message .= "💳 *Hình thức mua:* {$leadData['payment_method']}\n";
+            }
+
+            if (!empty($city)) {
+                $message .= "🏙️ *Tỉnh/Thành nhận xe:* {$city}\n";
+            }
+
+            if (!empty($service)) {
+                $message .= "🛠️ *Dịch vụ / Gói:* {$service}\n";
+            }
+
+            if (!empty($mileage)) {
+                $message .= "📈 *Số KM hiện tại:* {$mileage} km\n";
+            }
+
+            if (!empty($pageUrl)) {
+                $message .= "🔗 *Trang LDP:* `{$pageUrl}`\n";
+            }
+
+            if (!empty($messageText) && trim($messageText) !== '') {
+                $cleanMsg = str_replace(['`', '*', '_'], '', trim($messageText));
+                $msgLabel = match($type) {
+                    'service_booking' => 'Nội dung yêu cầu dịch vụ',
+                    'repair_quote' => 'Mô tả tình trạng xe / Ghi chú',
+                    'quote', 'new_car_quote' => 'Ghi chú yêu cầu thêm',
+                    default => 'Nội dung yêu cầu / Lời nhắn',
+                };
+                $message .= "\n💬 *{$msgLabel}:*\n_{$cleanMsg}_\n";
+            }
+
+            $message .= "\n🆔 *Mã phiên (ID):* `{$safeSessionId}`\n";
+            $message .= "⏰ " . $this->formatTime() . "\n\n";
+            $message .= "💡 _Vui lòng kiểm tra và xử lý liên hệ ngay để hỗ trợ khách hàng!_";
         }
-
-        if (!empty($vehicle)) {
-            $message .= "🚗 *Dòng xe quan tâm:* {$vehicle}\n";
-        }
-
-        if (!empty($licensePlate)) {
-            $message .= "🔢 *Biển số xe:* `{$licensePlate}`\n";
-        }
-
-        if (!empty($appointment)) {
-            $message .= "📅 *Thời gian hẹn:* {$appointment}\n";
-        }
-
-        if (!empty($location)) {
-            $message .= "📍 *Địa điểm làm dịch vụ:* {$location}\n";
-        }
-
-        if (!empty($leadData['payment_method'])) {
-            $message .= "💳 *Hình thức mua:* {$leadData['payment_method']}\n";
-        }
-
-        if (!empty($city)) {
-            $message .= "🏙️ *Tỉnh/Thành nhận xe:* {$city}\n";
-        }
-
-        if (!empty($service)) {
-            $message .= "🛠️ *Dịch vụ / Gói:* {$service}\n";
-        }
-
-        if (!empty($mileage)) {
-            $message .= "📈 *Số KM hiện tại:* {$mileage} km\n";
-        }
-
-        if (!empty($messageText) && trim($messageText) !== '') {
-            $cleanMsg = str_replace(['`', '*', '_'], '', trim($messageText));
-            $msgLabel = match($type) {
-                'service_booking' => 'Nội dung yêu cầu dịch vụ',
-                'repair_quote' => 'Mô tả tình trạng xe / Ghi chú',
-                'quote', 'new_car_quote' => 'Ghi chú yêu cầu thêm',
-                default => 'Nội dung yêu cầu / Lời nhắn',
-            };
-            $message .= "\n💬 *{$msgLabel}:*\n_{$cleanMsg}_\n";
-        }
-
-        $message .= "\n🆔 *Mã phiên (ID):* `{$safeSessionId}`\n";
-        $message .= "⏰ " . $this->formatTime() . "\n\n";
-        $message .= "💡 _Vui lòng kiểm tra và xử lý liên hệ ngay để hỗ trợ khách hàng!_";
 
         try {
             $response = Http::timeout(10)->post(

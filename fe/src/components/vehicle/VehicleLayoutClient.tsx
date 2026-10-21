@@ -1,10 +1,11 @@
 "use client";
 
 import { useParams, usePathname, useSearchParams } from "next/navigation";
-import { useState, useEffect, useMemo, createContext, useContext } from "react";
+import { useState, useEffect, useMemo, createContext, useContext, isValidElement } from "react";
 import Link from "next/link";
 import { contactsAPI, regionsAPI, registrationFeesAPI } from "@/lib/api";
 import { calculateRollingCost } from "@/lib/rolling-cost";
+import LdpTrackingManager, { fireLdpFormConversion } from "./LdpTrackingManager";
 import {
   X,
   Check,
@@ -88,6 +89,7 @@ export default function VehicleLayoutClient({
   children,
   initialVehicle,
   allVehicles,
+  salesConsultant,
   salesConsultantId,
   salesEmail,
   landingPageId
@@ -95,12 +97,30 @@ export default function VehicleLayoutClient({
   children: React.ReactNode;
   initialVehicle: any;
   allVehicles: any[];
+  salesConsultant?: any;
   salesConsultantId?: number;
   salesEmail?: string;
   landingPageId?: number;
 }) {
   const searchParams = useSearchParams();
+  const routeParams = useParams() as { salesSlug?: string; vehicleSlug?: string } | null;
   const isPreview = searchParams ? (searchParams.get("preview") === "true" || searchParams.get("preview") === "1") : false;
+
+  const resolvedSalesConsultant = useMemo(() => {
+    if (salesConsultant) return salesConsultant;
+    if (isValidElement(children) && children.props && typeof children.props === "object") {
+      return (children.props as any).salesConsultant || null;
+    }
+    return null;
+  }, [salesConsultant, children]);
+
+  const isLdpVehicleDetailPage = Boolean(routeParams?.vehicleSlug);
+  const ldpVehicleName = isLdpVehicleDetailPage
+    ? (initialVehicle?.name || initialVehicle?.title || undefined)
+    : undefined;
+  const ldpVehicleSlug = isLdpVehicleDetailPage
+    ? (initialVehicle?.slug || String(routeParams?.vehicleSlug || ""))
+    : undefined;
 
   const [activeVersionIndex, setActiveVersionIndex] = useState(0);
   const [compareIds, setCompareIds] = useState<string[]>([]);
@@ -316,32 +336,40 @@ export default function VehicleLayoutClient({
         note = formData.note || `Yêu cầu đăng ký lái thử xe ${productTitle} tại ${formData.province}`;
       }
 
+      const payloadData: Record<string, any> = {
+        landing_page_id: landingPageId,
+        sales_email: salesEmail || resolvedSalesConsultant?.email,
+        Name: formData.fullName,
+        Phone: formData.phone,
+        Email: formData.email || undefined,
+        Province: formData.province,
+        "Tỉnh / Thành phố": formData.province,
+        "Khu vực sinh sống": formData.province,
+        Product: {
+          id: productId,
+          slug: productSlug,
+          title: productTitle,
+          type: "vehicle",
+        },
+        "Dòng xe quan tâm": productTitle,
+        "Dòng xe lái thử": productTitle,
+        "Loại yêu cầu": isTestDrive ? "Đăng ký lái thử xe" : "Báo giá lăn bánh xe",
+        "Nội dung cần hỗ trợ": note,
+        "Ghi chú yêu cầu thêm": formData.note || undefined,
+        source: isTestDrive ? "🚘 Form Đăng Ký Lái Thử Xe" : "💰 Form Báo Giá Lăn Bánh Xe",
+      };
+
+      if (resolvedSalesConsultant) {
+        payloadData["Cố vấn phụ trách"] = `${resolvedSalesConsultant.name} (${resolvedSalesConsultant.phone || ""})`;
+        payloadData["SĐT Cố vấn nhận liên hệ"] = resolvedSalesConsultant.phone || "";
+        payloadData["Đường dẫn trang (URL)"] = typeof window !== "undefined" ? window.location.href : "";
+      }
+
       const response = await contactsAPI.submit({
         contact: {
           type: isTestDrive ? "TEST_DRIVE" : "ADVISE_FORM",
-          sales_consultant_id: salesConsultantId,
-          data: {
-            landing_page_id: landingPageId,
-            sales_email: salesEmail,
-            Name: formData.fullName,
-            Phone: formData.phone,
-            Email: formData.email || undefined,
-            Province: formData.province,
-            "Tỉnh / Thành phố": formData.province,
-            "Khu vực sinh sống": formData.province,
-            Product: {
-              id: productId,
-              slug: productSlug,
-              title: productTitle,
-              type: "vehicle",
-            },
-            "Dòng xe quan tâm": productTitle,
-            "Dòng xe lái thử": productTitle,
-            "Loại yêu cầu": isTestDrive ? "Đăng ký lái thử xe" : "Báo giá lăn bánh xe",
-            "Nội dung cần hỗ trợ": note,
-            "Ghi chú yêu cầu thêm": formData.note || undefined,
-            source: isTestDrive ? "🚘 Form Đăng Ký Lái Thử Xe" : "💰 Form Báo Giá Lăn Bánh Xe",
-          }
+          sales_consultant_id: salesConsultantId ?? resolvedSalesConsultant?.id,
+          data: payloadData,
         }
       });
 
@@ -349,6 +377,14 @@ export default function VehicleLayoutClient({
         setErrorMessage(response.message || "Gửi yêu cầu thất bại. Vui lòng thử lại!");
       } else {
         setIsSubmitted(true);
+        if (resolvedSalesConsultant) {
+          fireLdpFormConversion({
+            salesConsultant: resolvedSalesConsultant,
+            isTestDrive,
+            targetVehicleName: productTitle,
+            customerPhone: formData.phone,
+          });
+        }
         setTimeout(() => {
           setIsSubmitted(false);
           setShowQuoteModal(false);
@@ -397,6 +433,15 @@ export default function VehicleLayoutClient({
 
   return (
     <VehicleContext.Provider value={providerValue}>
+      {resolvedSalesConsultant && (
+        <LdpTrackingManager
+          salesConsultant={resolvedSalesConsultant}
+          vehicleName={ldpVehicleName}
+          vehicleSlug={ldpVehicleSlug}
+          landingPageId={landingPageId}
+          salesEmail={salesEmail || resolvedSalesConsultant?.email}
+        />
+      )}
       <div className="bg-light text-dark flex-1 flex flex-col w-full">
         {isPreview && (
           <div className="bg-amber-500 text-slate-950 font-bold px-4 py-2.5 text-center text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md sticky top-0 z-50 animate-pulse">

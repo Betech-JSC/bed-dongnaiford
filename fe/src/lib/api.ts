@@ -260,17 +260,69 @@ export const registrationFeesAPI = {
 /**
  * Contacts API
  */
+export type ContactType =
+  | 'CONTACT_FORM'
+  | 'ADVISE_FORM'
+  | 'APPLY_FORM'
+  | 'TEST_DRIVE'
+  | 'TEST_DRIVE_SURVEY'
+  | 'SERVICE_SURVEY'
+  | 'SERVICE_BOOKING'
+  | 'REPAIR_QUOTE_FORM'
+  | 'NEW_CAR_QUOTE_FORM'
+  | 'LDP_CLICK_CALL'
+  | 'LDP_CLICK_ZALO';
+
+export interface ContactSubmissionItem {
+  type: ContactType;
+  sales_consultant_id?: number;
+  landing_page_id?: number | null;
+  sales_email?: string | null;
+  data: Record<string, any>;
+}
+
+export type ContactSubmitPayload =
+  | { contact: ContactSubmissionItem }
+  | ContactSubmissionItem;
+
 export const contactsAPI = {
-  submit: (payload: {
-    contact: {
-      type: 'CONTACT_FORM' | 'ADVISE_FORM' | 'APPLY_FORM' | 'TEST_DRIVE' | 'TEST_DRIVE_SURVEY' | 'SERVICE_SURVEY' | 'SERVICE_BOOKING' | 'REPAIR_QUOTE_FORM' | 'NEW_CAR_QUOTE_FORM';
-      sales_consultant_id?: number;
-      data: Record<string, any>;
+  submit: (
+    payload: ContactSubmitPayload,
+    options?: { keepalive?: boolean }
+  ) => {
+    const rawContact: ContactSubmissionItem =
+      'contact' in payload && payload.contact
+        ? payload.contact
+        : (payload as ContactSubmissionItem);
+
+    const mergedData: Record<string, any> = {
+      ...(rawContact.landing_page_id !== undefined
+        ? { landing_page_id: rawContact.landing_page_id }
+        : {}),
+      ...(rawContact.sales_email !== undefined
+        ? { sales_email: rawContact.sales_email }
+        : {}),
+      ...(rawContact.data || {}),
     };
-  }) => fetchAPI<{ success: boolean; data: any; message?: string }>('/contacts', {
-    method: 'POST',
-    body: JSON.stringify(payload),
-  }),
+
+    const normalizedContact: ContactSubmissionItem = {
+      ...rawContact,
+      data: mergedData,
+    };
+
+    const isClickTracking =
+      normalizedContact.type === 'LDP_CLICK_CALL' ||
+      normalizedContact.type === 'LDP_CLICK_ZALO';
+
+    return fetchAPI<{ success: boolean; data: any; message?: string }>('/contacts', {
+      method: 'POST',
+      keepalive: options?.keepalive ?? isClickTracking,
+      body: JSON.stringify({
+        ...normalizedContact,
+        contact: normalizedContact,
+      }),
+    });
+  },
 };
 
 /**

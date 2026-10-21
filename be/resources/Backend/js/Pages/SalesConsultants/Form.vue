@@ -105,6 +105,170 @@
                     >+ Thêm ảnh gallery</button>
                 </div>
             </div>
+
+            <!-- ===== CẤU HÌNH MÃ THEO DÕI QUẢNG CÁO & CHUYỂN ĐỔI (TKQC CỦA SALE) ===== -->
+            <div class="card mt-4">
+                <div class="card-header font-bold text-gray-900 border-b pb-2 flex items-center justify-between">
+                    <span>🎯 Cấu hình Mã Theo Dõi Quảng Cáo &amp; Chuyển Đổi (TKQC của Sale)</span>
+                    <span class="text-xs bg-emerald-50 text-emerald-700 font-semibold px-2.5 py-0.5 rounded border border-emerald-200">
+                        Đồng bộ toàn bộ LDP của Cố vấn
+                    </span>
+                </div>
+                <div class="card-body space-y-5 mt-3">
+                    <!-- Hộp hướng dẫn tổng quan -->
+                    <div class="bg-blue-50 border-l-4 border-blue-500 p-3.5 rounded-r-lg text-xs text-blue-900 space-y-1.5 leading-relaxed">
+                        <div class="font-bold text-blue-950">💡 Cơ chế hoạt động tự động trên toàn bộ Landing Page của Sale:</div>
+                        <p>
+                            Bộ mã cài đặt tại đây sẽ <strong>tự động gắn trên cả Trang Showroom Tổng (<code>/ldp/[ten-sale]</code>) và tất cả Trang Chi Tiết Dòng Xe (<code>/ldp/[ten-sale]/[dong-xe]</code>)</strong> của cố vấn này mà không ảnh hưởng đến mã quảng cáo chung của Đại lý.
+                        </p>
+                        <p>
+                            Hệ thống tự động đo lường và gửi <strong>3 sự kiện chuyển đổi (Conversion)</strong> về Tài khoản Quảng cáo (Google Ads, GTM, Facebook Pixel, TikTok Pixel) và lưu vào mục <strong>Quản lý Liên hệ + Thông báo Telegram</strong>:
+                        </p>
+                        <ul class="list-disc pl-5 space-y-0.5 font-medium">
+                            <li><strong>1. Khách gửi Form Báo giá / Đăng ký Lái thử</strong> (Sự kiện chuẩn: <code>Lead</code> / <code>SubmitForm</code> / <code>ldp_form_submit</code>).</li>
+                            <li><strong>2. Khách bấm nút Gọi điện thoại trực tiếp (<code>tel:</code>)</strong> ở bất kỳ vị trí nào trên trang LDP (Sự kiện: <code>Contact</code> / <code>ClickToCall</code> / <code>ldp_click_call</code>).</li>
+                            <li><strong>3. Khách bấm nút Chat Zalo trực tiếp (<code>zalo.me</code>)</strong> ở bất kỳ vị trí nào trên trang LDP (Sự kiện: <code>Contact</code> / <code>ClickZalo</code> / <code>ldp_click_zalo</code>).</li>
+                        </ul>
+                    </div>
+
+                    <!-- 1. Google Ads & Conversion Labels -->
+                    <div class="border border-gray-200 rounded-lg p-4 bg-gray-50/60 space-y-3">
+                        <div class="flex items-center justify-between border-b border-gray-200 pb-2">
+                            <h4 class="text-sm font-bold text-gray-900">1. Google Ads Tag &amp; Nhãn Chuyển Đổi (Conversion Label)</h4>
+                            <span class="text-[11px] text-gray-500 font-mono">gtag.js</span>
+                        </div>
+                        <p class="text-xs text-gray-600 leading-relaxed">
+                            Trong Google Ads → <strong>Mục tiêu (Goals) → Lượt chuyển đổi (Conversions) → Tóm tắt</strong>: Bấm vào từng hành động chuyển đổi → chọn <strong>Thiết lập thẻ (Tag setup) → Tự cài đặt thẻ</strong> để lấy <strong>ID chuyển đổi (AW-XXXXXXXXX)</strong> và <strong>Nhãn chuyển đổi (Conversion Label)</strong>.
+                        </p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <Field
+                                v-model="form.tracking_config.google_ads_id"
+                                :field="{
+                                    type: 'text',
+                                    name: 'tracking_google_ads_id',
+                                    label: 'Mã Google Ads Tag ID (AW-XXXXXXXXX)',
+                                    placeholder: 'vd: AW-16543210987',
+                                    help: 'Bắt buộc bắt đầu bằng AW- (hoặc G-). Nếu điền nhãn bên dưới, hãy điền đầy đủ mã AW- này.',
+                                }"
+                            />
+                            <Field
+                                v-model="form.tracking_config.google_ads_form_label"
+                                :field="{
+                                    type: 'text',
+                                    name: 'tracking_google_ads_form_label',
+                                    label: 'Conversion Label — Khi Khách Gửi Form Báo Giá / Lái Thử',
+                                    placeholder: 'vd: AbCdEfGhIjKlMnOpQrSt',
+                                    help: 'Chỉ điền phần chuỗi Label phía sau dấu / (Hệ thống sẽ tự ghép thành AW-XXXX/Label).',
+                                }"
+                            />
+                            <Field
+                                v-model="form.tracking_config.google_ads_call_label"
+                                :field="{
+                                    type: 'text',
+                                    name: 'tracking_google_ads_call_label',
+                                    label: 'Conversion Label — Khi Khách Bấm Nút Gọi Điện (tel:)',
+                                    placeholder: 'vd: XyZaBcDeFgHiJkLmNoPq',
+                                    help: 'Tự động kích hoạt khi khách bấm vào bất kỳ nút Hotline / Gọi ngay trên LDP của Sale.',
+                                }"
+                            />
+                            <Field
+                                v-model="form.tracking_config.google_ads_zalo_label"
+                                :field="{
+                                    type: 'text',
+                                    name: 'tracking_google_ads_zalo_label',
+                                    label: 'Conversion Label — Khi Khách Bấm Nút Chat Zalo',
+                                    placeholder: 'vd: QwErTyUiOpAsDfGhJkLz',
+                                    help: 'Tự động kích hoạt khi khách bấm vào bất kỳ nút Chat Zalo trên LDP của Sale.',
+                                }"
+                            />
+                        </div>
+                    </div>
+
+                    <!-- 2. Google Tag Manager, Facebook Pixel, TikTok Pixel -->
+                    <div class="border border-gray-200 rounded-lg p-4 bg-gray-50/60 space-y-3">
+                        <div class="flex items-center justify-between border-b border-gray-200 pb-2">
+                            <h4 class="text-sm font-bold text-gray-900">2. Google Tag Manager (GTM), Facebook Pixel &amp; TikTok Pixel</h4>
+                            <span class="text-[11px] text-gray-500 font-mono">Multi-Platform Pixels</span>
+                        </div>
+                        <p class="text-xs text-gray-600 leading-relaxed">
+                            Chỉ cần điền đúng <strong>Mã ID</strong>, hệ thống sẽ tự động cài đặt mã chuẩn của từng nền tảng và tự động bắn sự kiện khi khách Điền Form, Bấm Gọi điện hoặc Bấm Zalo.
+                        </p>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <Field
+                                v-model="form.tracking_config.gtm_id"
+                                :field="{
+                                    type: 'text',
+                                    name: 'tracking_gtm_id',
+                                    label: 'Mã Google Tag Manager (GTM)',
+                                    placeholder: 'vd: GTM-XXXXXXX',
+                                    help: 'Tự động đẩy dataLayer events: ldp_form_submit, ldp_click_call, ldp_click_zalo.',
+                                }"
+                            />
+                            <Field
+                                v-model="form.tracking_config.facebook_pixel_id"
+                                :field="{
+                                    type: 'text',
+                                    name: 'tracking_facebook_pixel_id',
+                                    label: 'Mã Facebook Pixel ID (Meta Ads)',
+                                    placeholder: 'vd: 123456789012345',
+                                    help: 'Chỉ nhập dãy số ID Pixel. Tự động bắn PageView, Lead (Form) và Contact (Gọi/Zalo).',
+                                }"
+                            />
+                            <Field
+                                v-model="form.tracking_config.tiktok_pixel_id"
+                                :field="{
+                                    type: 'text',
+                                    name: 'tracking_tiktok_pixel_id',
+                                    label: 'Mã TikTok Pixel ID (TikTok Ads)',
+                                    placeholder: 'vd: C1234567890ABCDEFG',
+                                    help: 'Chỉ nhập mã ID Pixel TikTok. Tự động bắn PageView, SubmitForm và Contact.',
+                                }"
+                            />
+                        </div>
+                    </div>
+
+                    <!-- 3. Custom Scripts nâng cao -->
+                    <div class="border border-gray-200 rounded-lg p-4 bg-gray-50/60 space-y-3">
+                        <div class="flex items-center justify-between border-b border-gray-200 pb-2">
+                            <h4 class="text-sm font-bold text-gray-900">3. Mã Script Tuỳ Chỉnh Nâng Cao (Tuỳ chọn)</h4>
+                            <span class="text-[11px] text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200 font-semibold">Chỉ dùng khi cần thêm mã ngoài các ô trên</span>
+                        </div>
+                        <p class="text-xs text-gray-600 leading-relaxed">
+                            Nếu bạn đã điền ID ở mục 1 &amp; 2 bên trên thì <strong>không cần dán lại</strong> mã script vào đây. Chỉ dùng phần này nếu cần nhúng thêm mã theo dõi bên thứ 3 khác (Zalo Ads Pixel, Microsoft Clarity, Hotjar...).
+                        </p>
+                        <Field
+                            v-model="form.tracking_config.inject_head"
+                            :field="{
+                                type: 'textarea',
+                                name: 'tracking_inject_head',
+                                label: 'Mã nhúng trong thẻ <head> (Inject Head)',
+                                placeholder: '<!-- Dán đoạn mã <script>...</script> cần chèn vào <head> của trang LDP -->',
+                                rows: 3,
+                            }"
+                        />
+                        <Field
+                            v-model="form.tracking_config.inject_body_start"
+                            :field="{
+                                type: 'textarea',
+                                name: 'tracking_inject_body_start',
+                                label: 'Mã nhúng ngay sau thẻ mở <body> (Inject Body Start)',
+                                placeholder: '<!-- Dán đoạn mã <noscript>...</noscript> cần chèn ngay đầu <body> -->',
+                                rows: 2,
+                            }"
+                        />
+                        <Field
+                            v-model="form.tracking_config.inject_body_end"
+                            :field="{
+                                type: 'textarea',
+                                name: 'tracking_inject_body_end',
+                                label: 'Mã nhúng trước khi đóng thẻ </body> (Inject Body End)',
+                                placeholder: '<!-- Dán đoạn mã script cần chèn ở cuối trang LDP -->',
+                                rows: 2,
+                            }"
+                        />
+                    </div>
+                </div>
+            </div>
         </template>
 
         <template #aside="{ form }">
@@ -267,6 +431,22 @@ export default {
 
     methods: {
         initFormData(item) {
+            let rawTracking = item?.tracking_config || {}
+            if (typeof rawTracking === 'string') {
+                try { rawTracking = JSON.parse(rawTracking) } catch (e) { rawTracking = {} }
+            }
+            const trackingConfig = {
+                google_ads_id: rawTracking?.google_ads_id ?? '',
+                google_ads_form_label: rawTracking?.google_ads_form_label ?? '',
+                google_ads_call_label: rawTracking?.google_ads_call_label ?? '',
+                google_ads_zalo_label: rawTracking?.google_ads_zalo_label ?? '',
+                gtm_id: rawTracking?.gtm_id ?? '',
+                facebook_pixel_id: rawTracking?.facebook_pixel_id ?? '',
+                tiktok_pixel_id: rawTracking?.tiktok_pixel_id ?? '',
+                inject_head: rawTracking?.inject_head ?? '',
+                inject_body_start: rawTracking?.inject_body_start ?? '',
+                inject_body_end: rawTracking?.inject_body_end ?? '',
+            }
             const data = {
                 status: 'ACTIVE',
                 sort_order: 0,
@@ -279,6 +459,7 @@ export default {
                 custom_domain: '',
                 cover_image: null,
                 ...item,
+                tracking_config: trackingConfig,
             }
             const locales = ['vi', 'en']
             locales.forEach(loc => {

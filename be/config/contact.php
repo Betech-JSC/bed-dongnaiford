@@ -126,6 +126,38 @@ return [
             ],
             'route' => 'service-bookings',
         ],
+        'LDP_CLICK_CALL' => [
+            'title' => '📞 Click Gọi Điện LDP',
+            'columns' => [
+                'Cố vấn phụ trách',
+                'Phone',
+            ],
+            'all_columns' => [
+                'Cố vấn phụ trách',
+                'Phone',
+            ],
+            'rules' => [
+                'Phone' => 'nullable',
+                'Name' => 'nullable',
+            ],
+            'route' => 'contacts',
+        ],
+        'LDP_CLICK_ZALO' => [
+            'title' => '💬 Click Chat Zalo LDP',
+            'columns' => [
+                'Cố vấn phụ trách',
+                'Phone',
+            ],
+            'all_columns' => [
+                'Cố vấn phụ trách',
+                'Phone',
+            ],
+            'rules' => [
+                'Phone' => 'nullable',
+                'Name' => 'nullable',
+            ],
+            'route' => 'contacts',
+        ],
     ],
     'message' => [
         'new_contact' => 'Bạn nhận được liên hệ mới',

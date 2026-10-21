@@ -1,6 +1,26 @@
 <template layout>
     <Form v-model="formData">
         <template #default="{ form }">
+            <div v-if="form.sales_consultant || (form.data_contact && form.data_contact['Cố vấn phụ trách'])" class="card mb-4 border border-blue-200 bg-blue-50/60">
+                <div class="card-body py-3.5 px-4 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+                    <div class="space-y-1">
+                        <div class="text-xs font-bold uppercase tracking-wider text-blue-800">
+                            🎯 Nguồn Chuyển Đổi Từ Landing Page Của Sale
+                        </div>
+                        <div class="text-sm font-bold text-gray-900">
+                            👨‍💼 Cố vấn phụ trách: {{ (form.data_contact && form.data_contact['Cố vấn phụ trách']) || (form.sales_consultant && `${form.sales_consultant.name || ''} (${form.sales_consultant.phone || ''})`) }}
+                        </div>
+                        <div v-if="form.data_contact && form.data_contact['Loại chuyển đổi LDP']" class="text-xs font-semibold text-emerald-700">
+                            {{ form.data_contact['Loại chuyển đổi LDP'] }}
+                        </div>
+                    </div>
+                    <div v-if="form.data_contact && form.data_contact['Trang LDP']" class="text-xs">
+                        <a :href="form.data_contact['Trang LDP']" target="_blank" class="font-bold text-blue-700 hover:underline">
+                            🔗 Mở trang LDP khách đã xem ↗
+                        </a>
+                    </div>
+                </div>
+            </div>
             <div class="card">
                 <div class="card-header">{{ tt('models.setting.general_information') }}</div>
                 <div class="card-body">

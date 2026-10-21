@@ -19,6 +19,7 @@ import {
 import { usedVehiclesAPI, contactsAPI } from "@/lib/api";
 import { resolveImageUrl } from "@/lib/site-assets";
 import { formatPersonName } from "@/lib/formatters";
+import { fireLdpFormConversion } from "@/components/vehicle/LdpTrackingManager";
 
 interface UsedVehicleItem {
   id: number | string;
@@ -153,7 +154,7 @@ export default function LdpUsedVehiclesBlock({
     }
   };
 
-  const formatPrice = (price: number | string) => {
+  const formatPrice = (price?: number | string) => {
     const num = typeof price === "string" ? parseFloat(price) : price;
     if (!num || isNaN(num) || num === 0) return "Liên hệ";
     if (num >= 1000000000) {
@@ -197,29 +198,37 @@ export default function LdpUsedVehiclesBlock({
       const targetLdpId = landingPageId ? Number(landingPageId) : undefined;
       const carTitle = car?.title || "Xe Ford đã qua sử dụng";
 
+      const payloadData: Record<string, unknown> = {
+        landing_page_id: targetLdpId,
+        sales_email: targetSalesEmail,
+        Name: consultName.trim(),
+        Phone: cleanPhone,
+        "Họ và tên": consultName.trim(),
+        "Số điện thoại": cleanPhone,
+        "Tỉnh / Thành phố": "Đồng Nai",
+        Product: {
+          id: String(car?.id || "used-vehicle"),
+          slug: car?.slug || String(car?.id || "used-vehicle"),
+          title: carTitle,
+          type: "used_vehicle",
+        },
+        "Dòng xe quan tâm": `${carTitle} (Đời ${car?.year || ""}, ODO: ${car?.odo || ""} km, Giá: ${formatPrice(car?.price || 0)})`,
+        "Loại yêu cầu": "Tư vấn xe đã qua sử dụng (Chính hãng Ford Assured)",
+        "Nội dung cần hỗ trợ": consultNote.trim() || `Yêu cầu tư vấn xe đã qua sử dụng: ${carTitle}`,
+        source: "🚘 LDP - Khối Xe Cũ Đã Qua Sử Dụng (Slider)",
+      };
+
+      if (salesConsultant) {
+        payloadData["Cố vấn phụ trách"] = `${salesConsultant.name || ""} (${salesConsultant.phone || ""})`;
+        payloadData["SĐT Cố vấn nhận liên hệ"] = salesConsultant.phone || "";
+        payloadData["Đường dẫn trang (URL)"] = typeof window !== "undefined" ? window.location.href : "";
+      }
+
       const response = await contactsAPI.submit({
         contact: {
           type: "ADVISE_FORM",
           sales_consultant_id: targetSalesId,
-          data: {
-            landing_page_id: targetLdpId,
-            sales_email: targetSalesEmail,
-            Name: consultName.trim(),
-            Phone: cleanPhone,
-            "Họ và tên": consultName.trim(),
-            "Số điện thoại": cleanPhone,
-            "Tỉnh / Thành phố": "Đồng Nai",
-            Product: {
-              id: String(car?.id || "used-vehicle"),
-              slug: car?.slug || String(car?.id || "used-vehicle"),
-              title: carTitle,
-              type: "used_vehicle",
-            },
-            "Dòng xe quan tâm": `${carTitle} (Đời ${car?.year || ""}, ODO: ${car?.odo || ""} km, Giá: ${formatPrice(car?.price || 0)})`,
-            "Loại yêu cầu": "Tư vấn xe đã qua sử dụng (Chính hãng Ford Assured)",
-            "Nội dung cần hỗ trợ": consultNote.trim() || `Yêu cầu tư vấn xe đã qua sử dụng: ${carTitle}`,
-            source: "🚘 LDP - Khối Xe Cũ Đã Qua Sử Dụng (Slider)",
-          }
+          data: payloadData,
         }
       });
 
@@ -227,6 +236,14 @@ export default function LdpUsedVehiclesBlock({
         setSubmitError(typeof response.message === "string" ? response.message : "Gửi yêu cầu không thành công. Vui lòng thử lại!");
       } else {
         setIsSubmitted(true);
+        if (salesConsultant) {
+          fireLdpFormConversion({
+            salesConsultant,
+            isTestDrive: false,
+            targetVehicleName: carTitle,
+            customerPhone: cleanPhone,
+          });
+        }
         setTimeout(() => {
           setIsSubmitted(false);
           setShowConsultModal(false);
