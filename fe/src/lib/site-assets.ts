@@ -57,23 +57,34 @@ export const resolveImageUrl = (img: any): string => {
   if (typeof img === "string") {
     path = img;
   } else if (typeof img === "object") {
-    path = img.url || img.path || "";
+    path = img.url || img.static_url || img.image_url || img.path || "";
   }
   if (!path) return "";
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://cms.dongnaiford.com.vn/api";
+  const baseDomain = apiUrl.replace(/\/api\/?$/, "");
   // Tự động chuẩn hóa domain staging cũ (đã mất DNS) sang domain live chính thức
   if (path.includes("cms.dnf.betech-digital.com")) {
     path = path.replace("cms.dnf.betech-digital.com", "cms.dongnaiford.com.vn");
   }
+  // Tự động đồng bộ cổng localhost nếu dữ liệu lưu cổng cũ (vd: localhost:8080 -> localhost:8000)
+  if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?\//i.test(path) && /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(baseDomain)) {
+    path = path.replace(/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?/i, baseDomain);
+  }
+  const safeEncode = (u: string) => {
+    try {
+      return encodeURI(decodeURI(u));
+    } catch {
+      return encodeURI(u);
+    }
+  };
   if (path.startsWith("http://") || path.startsWith("https://") || path.startsWith("/") || path.startsWith("//")) {
-    return encodeURI(path);
+    return safeEncode(path);
   }
   if (/^([a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}|localhost)(:[0-9]+)?\//.test(path)) {
-    return encodeURI(`https://${path}`);
+    return safeEncode(`https://${path}`);
   }
   const cleanPath = path.startsWith("uploads/") ? path.replace("uploads/", "") : path;
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://cms.dongnaiford.com.vn/api";
-  const baseDomain = apiUrl.replace(/\/api$/, "");
-  return encodeURI(`${baseDomain}/static/${cleanPath}`);
+  return safeEncode(`${baseDomain}/static/${cleanPath}`);
 };
 
 export const hasImageField = (img: any): boolean => {
@@ -82,7 +93,7 @@ export const hasImageField = (img: any): boolean => {
   if (typeof img === "string") {
     path = img;
   } else if (typeof img === "object") {
-    path = img.url || img.path || "";
+    path = img.url || img.static_url || img.image_url || img.path || "";
   }
   return typeof path === "string" && path.trim() !== "";
 };

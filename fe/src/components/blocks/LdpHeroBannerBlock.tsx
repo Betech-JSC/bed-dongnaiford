@@ -2,9 +2,10 @@
 
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
 import { bannersAPI } from "@/lib/api";
-import { siteAssets } from "@/lib/site-assets";
+import { siteAssets, resolveImageUrl } from "@/lib/site-assets";
+import { formatPersonName } from "@/lib/formatters";
 
 interface LdpHeroBannerBlockProps {
   data?: any;
@@ -57,11 +58,30 @@ export default function LdpHeroBannerBlock({
   anchorId = "hero-banner",
   isEditMode = false,
 }: LdpHeroBannerBlockProps) {
+  const consultantCoverUrl = resolveImageUrl(salesConsultant?.cover_image_url || salesConsultant?.cover_image);
+  const consultantAvatarUrl = resolveImageUrl(salesConsultant?.avatar_url || salesConsultant?.avatar);
+  const consultantName = salesConsultant?.name ? formatPersonName(salesConsultant.name) : "";
+
+  const prependCoverSlide = (list: BannerSlide[]): BannerSlide[] => {
+    if (!consultantCoverUrl) return list;
+    return [
+      {
+        id: "consultant-cover-slide",
+        title: consultantName ? `CHUYÊN VIÊN KINH DOANH ${consultantName.toUpperCase()}` : (list[0]?.title || "ĐỒNG NAI FORD"),
+        subtitle: salesConsultant?.short_bio || "Tư vấn tận tâm — Báo giá lăn bánh ưu đãi nhất — Giao xe tận nhà",
+        image: consultantCoverUrl,
+        imageMobile: consultantCoverUrl,
+        buttonText: "Đăng ký lái thử",
+      },
+      ...list,
+    ];
+  };
+
   const [slides, setSlides] = useState<BannerSlide[]>(() => {
     if (data?.banners && Array.isArray(data.banners) && data.banners.length > 0) {
-      return data.banners;
+      return prependCoverSlide(data.banners);
     }
-    return DEFAULT_SLIDES;
+    return prependCoverSlide(DEFAULT_SLIDES);
   });
   const [activeIndex, setActiveIndex] = useState<number>(0);
   const touchStartX = useRef<number>(0);
@@ -91,14 +111,14 @@ export default function LdpHeroBannerBlock({
             }));
 
           if (formatted.length > 0) {
-            setSlides(formatted);
+            setSlides(prependCoverSlide(formatted));
           }
         }
       })
       .catch(() => {
         // Giữ fallback mặc định nếu API lỗi
       });
-  }, [data]);
+  }, [data, consultantCoverUrl]);
 
   // Tự động chuyển slide sau mỗi 6s
   useEffect(() => {
@@ -193,8 +213,25 @@ export default function LdpHeroBannerBlock({
       {/* Main Content Area */}
       <div className="max-w-[1440px] mx-auto w-full px-6 xl:px-[144px] flex flex-col items-center justify-end text-center relative z-10 mt-auto pt-20 pb-8 md:pb-[24px]">
         {salesConsultant?.name && (
-          <div className="mb-3 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-white text-xs font-semibold tracking-wide uppercase">
-            <span>Showroom Chuyên Viên Kinh Doanh: {salesConsultant.name}</span>
+          <div className="mb-4 inline-flex items-center gap-3 px-4 py-2 rounded-full bg-black/45 backdrop-blur-md border border-white/30 text-white text-xs sm:text-sm font-semibold shadow-xl">
+            {consultantAvatarUrl ? (
+              <img
+                src={consultantAvatarUrl}
+                alt={consultantName}
+                className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border-2 border-white shadow-md shrink-0"
+              />
+            ) : (
+              <Sparkles className="w-4 h-4 text-yellow-300 shrink-0" />
+            )}
+            <div className="text-left leading-tight">
+              <span className="block text-[11px] text-blue-200 uppercase tracking-wider">
+                {salesConsultant.job_title || "Chuyên viên kinh doanh Đồng Nai Ford"}
+              </span>
+              <span className="block font-bold text-white text-sm sm:text-base">
+                {consultantName}
+                {salesConsultant.phone ? ` • ${salesConsultant.phone}` : ""}
+              </span>
+            </div>
           </div>
         )}
 

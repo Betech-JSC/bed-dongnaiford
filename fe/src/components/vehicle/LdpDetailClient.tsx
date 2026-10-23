@@ -1,12 +1,14 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useVehicle } from "./VehicleLayoutClient";
 import VehicleLayoutClient from "./VehicleLayoutClient";
 import Blocks, { resolveImageUrl } from "@/components/blocks/Blocks";
-import { Phone, Car } from "lucide-react";
+import { Phone, Car, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { formatPersonName } from "@/lib/formatters";
+import { handleImageError } from "@/lib/site-assets";
 
 const ZaloIcon = ({ className = "w-6 h-6" }: { className?: string }) => (
   <svg viewBox="0 0 100 100" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -34,6 +36,18 @@ const resolveZaloUrl = (zaloUrl?: string, phone?: string): string => {
 function LdpInnerContent({ salesConsultant, landingPageId, salesEmail, layoutBlocks, promotions, vehicle, allVehicles }: any) {
   const { openQuoteDrawer, openDriveDrawer } = useVehicle();
   const finalZaloUrl = resolveZaloUrl(salesConsultant?.zalo_url, salesConsultant?.phone);
+  const consultantAvatarUrl = resolveImageUrl(salesConsultant?.avatar_url || salesConsultant?.avatar);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+
+  const customerHandovers = Array.isArray(salesConsultant?.gallery)
+    ? salesConsultant.gallery
+        .map((g: any, idx: number) => ({
+          id: g.id || `consultant-handover-${idx}`,
+          image_url: resolveImageUrl(g.image_url || g.image || g.path),
+          title: g.caption || g.title || (salesConsultant?.name ? `Lễ bàn giao xe - CVKD ${formatPersonName(salesConsultant.name)}` : "Lễ bàn giao xe Đồng Nai Ford"),
+        }))
+        .filter((g: any) => Boolean(g.image_url))
+    : [];
 
   // Cuộn mượt xuống phần giới thiệu xe, tự động đo và bù trừ chiều cao thanh tab cố định
   const scrollToVehicleIntro = () => {
@@ -221,6 +235,101 @@ function LdpInnerContent({ salesConsultant, landingPageId, salesEmail, layoutBlo
         salesEmail={salesEmail}
       />
 
+      {/* KHO HÌNH ẢNH GIAO XE CỦA CHÍNH CHỦ */}
+      {customerHandovers.length > 0 && (
+        <section id="customer-handovers" className="w-full bg-white py-[72px] overflow-x-clip relative select-none border-t border-gray-100">
+          <style dangerouslySetInnerHTML={{
+            __html: `
+            #customer-handovers {
+              --card-width-handover: 360px;
+              --card-gap-handover: 24px;
+            }
+            @media (max-width: 640px) {
+              #customer-handovers {
+                --card-width-handover: 280px;
+                --card-gap-handover: 16px;
+              }
+            }
+          ` }} />
+          <div className="w-full">
+            <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] mb-8">
+              <div className="space-y-2 max-w-4xl">
+                <span className="text-xs font-semibold text-[#0562d2] uppercase tracking-wider block mb-2">
+                  Kho hình ảnh giao xe thực tế — {salesConsultant?.name ? `CVKD ${formatPersonName(salesConsultant.name)}` : "Tri ân khách hàng"}
+                </span>
+                <h2 className="text-2xl md:text-3xl lg:text-[32px] font-bold text-[#1a1a1a] tracking-tight leading-tight uppercase">
+                  CHÚC MỪNG & CẢM ƠN QUÝ KHÁCH HÀNG ĐÃ LỰA CHỌN ĐỒNG NAI FORD
+                </h2>
+              </div>
+            </div>
+
+            {customerHandovers.length <= 3 ? (
+              <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px]">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {customerHandovers.map((item: any, idx: number) => (
+                    <div
+                      key={`${item.id}-${idx}`}
+                      onClick={() => setLightboxIndex(idx)}
+                      className="relative overflow-hidden rounded-xl aspect-[4/3] group cursor-pointer bg-gray-100 transition-all duration-300 block shadow-sm hover:shadow-md border border-gray-100"
+                    >
+                      <Image
+                        src={item.image_url}
+                        alt={item.title || "Tri ân khách hàng"}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 360px"
+                        className="object-cover group-hover:scale-103 transition-transform duration-500"
+                        onError={handleImageError}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+                        <h3 className="text-white text-base font-semibold leading-snug transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+                          {item.title}
+                        </h3>
+                        <p className="text-white/70 text-xs mt-1.5 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300 delay-75">
+                          Xem phóng to hình ảnh
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="relative w-full overflow-hidden py-4 select-none">
+                <div className="animate-marquee-continuous gap-[var(--card-gap-handover,24px)]">
+                  {[...customerHandovers, ...customerHandovers].map((item: any, idx: number) => {
+                    const originalIdx = idx % customerHandovers.length;
+                    return (
+                      <div
+                        key={`${item.id}-${idx}`}
+                        onClick={() => setLightboxIndex(originalIdx)}
+                        className="relative overflow-hidden rounded-xl aspect-[4/3] group cursor-pointer bg-gray-100 flex-shrink-0 transition-all duration-300 block shadow-sm hover:shadow-md border border-gray-100"
+                        style={{ width: "var(--card-width-handover, 360px)" }}
+                      >
+                        <Image
+                          src={item.image_url}
+                          alt={item.title || "Tri ân khách hàng"}
+                          fill
+                          sizes="(max-width: 768px) 280px, 360px"
+                          className="object-cover group-hover:scale-103 transition-transform duration-500"
+                          onError={handleImageError}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+                          <h3 className="text-white text-base font-semibold leading-snug transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+                            {item.title}
+                          </h3>
+                          <p className="text-white/70 text-xs mt-1.5 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300 delay-75">
+                            Xem phóng to hình ảnh
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
       {/* FLOATING SALES CONSULTANT WIDGET */}
       {/* Đã hạ vị trí bottom về mép dưới sau khi bỏ sticky bottom bar */}
       <div className="fixed bottom-[calc(1.25rem+env(safe-area-inset-bottom,0px))] md:bottom-6 right-4 md:right-6 z-[99] flex flex-col items-end gap-2.5 font-sans">
@@ -230,12 +339,25 @@ function LdpInnerContent({ salesConsultant, landingPageId, salesEmail, layoutBlo
             href={finalZaloUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 px-3.5 py-2.5 md:px-4 md:py-2.5 bg-[#0068ff] hover:bg-[#0057d6] text-white rounded-full shadow-lg shadow-blue-500/30 hover:scale-105 active:scale-95 transition-all duration-200 border border-blue-400/30"
+            className="flex items-center gap-2.5 px-3.5 py-2 md:px-4 md:py-2 bg-[#0068ff] hover:bg-[#0057d6] text-white rounded-full shadow-lg shadow-blue-500/30 hover:scale-105 active:scale-95 transition-all duration-200 border border-blue-400/30"
             title="Liên hệ Zalo"
           >
-            <div className="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center">
-              <ZaloIcon className="w-full h-full" />
-            </div>
+            {consultantAvatarUrl ? (
+              <div className="relative w-8 h-8 flex-shrink-0">
+                <img
+                  src={consultantAvatarUrl}
+                  alt={formatPersonName(salesConsultant?.name)}
+                  className="w-8 h-8 rounded-full object-cover border-2 border-white shadow-sm"
+                />
+                <span className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-white flex items-center justify-center shadow-xs">
+                  <ZaloIcon className="w-3.5 h-3.5" />
+                </span>
+              </div>
+            ) : (
+              <div className="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center">
+                <ZaloIcon className="w-full h-full" />
+              </div>
+            )}
             <span className="text-xs md:text-sm font-bold tracking-wide pr-1">Liên hệ Zalo</span>
           </a>
         )}
@@ -252,6 +374,56 @@ function LdpInnerContent({ salesConsultant, landingPageId, salesEmail, layoutBlo
           </a>
         )}
       </div>
+
+      {/* LIGHTBOX PHÓNG TO ẢNH GIAO XE */}
+      {lightboxIndex !== null && customerHandovers.length > 0 && (
+        <div
+          className="fixed inset-0 bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-4 transition-all duration-300 select-none"
+          style={{ zIndex: 9999 }}
+        >
+          <button
+            onClick={() => setLightboxIndex(null)}
+            className="absolute top-6 right-6 z-50 p-3 rounded-full text-white/80 hover:text-white hover:bg-white/10 transition-all cursor-pointer bg-black/20 backdrop-blur-xs"
+            aria-label="Close lightbox"
+          >
+            <X className="w-6 h-6" />
+          </button>
+
+          <button
+            onClick={() => setLightboxIndex((prev) => (prev !== null ? (prev - 1 + customerHandovers.length) % customerHandovers.length : null))}
+            className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-50 p-4 rounded-full text-white/80 hover:text-white hover:bg-white/10 transition-all cursor-pointer bg-black/20 backdrop-blur-xs"
+            aria-label="Previous image"
+          >
+            <ChevronLeft className="w-8 h-8" />
+          </button>
+
+          <button
+            onClick={() => setLightboxIndex((prev) => (prev !== null ? (prev + 1) % customerHandovers.length : null))}
+            className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-50 p-4 rounded-full text-white/80 hover:text-white hover:bg-white/10 transition-all cursor-pointer bg-black/20 backdrop-blur-xs"
+            aria-label="Next image"
+          >
+            <ChevronRight className="w-8 h-8" />
+          </button>
+
+          <div className="relative w-full max-w-[1200px] h-full max-h-[80vh] flex flex-col items-center justify-center">
+            <div className="relative w-full h-full flex items-center justify-center">
+              <img
+                src={customerHandovers[lightboxIndex].image_url}
+                alt={customerHandovers[lightboxIndex].title || "Tri ân khách hàng"}
+                className="max-w-full max-h-full object-contain rounded-lg shadow-2xl border border-white/10"
+              />
+            </div>
+            <div className="mt-6 text-center max-w-2xl px-4">
+              <h3 className="text-white text-lg md:text-2xl font-bold tracking-wide drop-shadow-md">
+                {customerHandovers[lightboxIndex].title}
+              </h3>
+              <p className="text-white/60 text-sm mt-1 uppercase tracking-wider font-semibold">
+                ĐỒNG NAI FORD
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -264,6 +436,7 @@ export default function LdpDetailClient({ initialData }: { initialData: any }) {
     <VehicleLayoutClient
       initialVehicle={vehicle}
       allVehicles={allVehicles}
+      salesConsultant={sales_consultant}
       salesConsultantId={sales_consultant?.id}
       salesEmail={initialData.sales_email || sales_consultant?.email}
       landingPageId={initialData.id}

@@ -137,27 +137,45 @@ const techSlides = [
   }
 ];
 
-const formatBannersList = (items: any[]) => {
-  if (Array.isArray(items) && items.length > 0) {
-    return items.map((item: any) => ({
-      title: item.title || "",
-      subtitle: item.subtitle || "",
-      image: item.image_url || siteAssets.heroSlides[0],
-      imageMobile: item.image_mobile_url || item.image_url || siteAssets.heroSlides[0],
-      buttonText: item.button_text || "Đăng ký lái thử",
-      buttonLink: item.button_link || "#showroom"
-    }));
+const formatBannersList = (items: any[], salesConsultant?: any) => {
+  const coverUrl = resolveImageUrl(salesConsultant?.cover_image_url || salesConsultant?.cover_image);
+  const consultantName = salesConsultant?.name ? formatPersonName(salesConsultant.name) : "";
+
+  let baseList = Array.isArray(items) && items.length > 0
+    ? items.map((item: any) => ({
+        title: item.title || "",
+        subtitle: item.subtitle || "",
+        image: item.image_url || siteAssets.heroSlides[0],
+        imageMobile: item.image_mobile_url || item.image_url || siteAssets.heroSlides[0],
+        buttonText: item.button_text || "Đăng ký lái thử",
+        buttonLink: item.button_link || "#showroom"
+      }))
+    : [
+        {
+          title: "KHÁM PHÁ CÁC DÒNG XE FORD THẾ HỆ MỚI",
+          subtitle: "Đại lý ủy quyền 5S chính thức của Ford Việt Nam tại Đồng Nai",
+          image: siteAssets.heroSlides[0] || "/showroom_bg.jpg",
+          imageMobile: siteAssets.heroSlides[0] || "/showroom_bg.jpg",
+          buttonText: "Đăng ký lái thử",
+          buttonLink: "#showroom"
+        }
+      ];
+
+  if (coverUrl) {
+    baseList = [
+      {
+        title: consultantName ? `CHUYÊN VIÊN KINH DOANH ${consultantName.toUpperCase()}` : baseList[0].title,
+        subtitle: salesConsultant?.short_bio || "Tư vấn tận tâm — Giá lăn bánh ưu đãi nhất — Giao xe tận nhà tại Đồng Nai Ford",
+        image: coverUrl,
+        imageMobile: coverUrl,
+        buttonText: "Đăng ký lái thử",
+        buttonLink: "#showroom"
+      },
+      ...baseList
+    ];
   }
-  return [
-    {
-      title: "KHÁM PHÁ CÁC DÒNG XE FORD THẾ HỆ MỚI",
-      subtitle: "Đại lý ủy quyền 5S chính thức của Ford Việt Nam tại Đồng Nai",
-      image: siteAssets.heroSlides[0] || "/showroom_bg.jpg",
-      imageMobile: siteAssets.heroSlides[0] || "/showroom_bg.jpg",
-      buttonText: "Đăng ký lái thử",
-      buttonLink: "#showroom"
-    }
-  ];
+
+  return baseList;
 };
 
 const formatArticlesList = (items: any[]) => {
@@ -206,9 +224,10 @@ function LdpHomeInner({
   const { openQuoteDrawer, openDriveDrawer } = useVehicle();
   const finalZaloUrl = resolveZaloUrl(salesConsultant?.zalo_url, salesConsultant?.phone);
   const consultantSlug = salesConsultant?.slug || salesConsultant?.name?.toLowerCase().trim().replace(/\s+/g, "-") || "tu-van";
+  const consultantAvatarUrl = resolveImageUrl(salesConsultant?.avatar_url || salesConsultant?.avatar);
 
   // Banner State
-  const [heroSlides, setHeroSlides] = useState<any[]>(() => formatBannersList(initialBanners));
+  const [heroSlides, setHeroSlides] = useState<any[]>(() => formatBannersList(initialBanners, salesConsultant));
   const [activeHeroIndex, setActiveHeroIndex] = useState<number>(0);
 
   // Showroom & Filter State
@@ -294,10 +313,18 @@ function LdpHomeInner({
   const [activeServiceIndex, setActiveServiceIndex] = useState<number>(0);
   const [isServiceHovered, setIsServiceHovered] = useState<boolean>(false);
 
-  // News & Handovers State
+  // News & Handovers State (Chỉ hiển thị kho hình ảnh giao xe của riêng chính chủ)
   const [homeArticles, setHomeArticles] = useState<any[]>(() => formatArticlesList(initialArticles));
   const [activeNewsTab, setActiveNewsTab] = useState<number>(3); // 3: Khuyến Mãi
-  const [customerHandovers, setCustomerHandovers] = useState<any[]>(initialHandovers);
+  const customerHandovers = Array.isArray(salesConsultant?.gallery)
+    ? salesConsultant.gallery
+        .map((g: any, idx: number) => ({
+          id: g.id || `consultant-handover-${idx}`,
+          image_url: resolveImageUrl(g.image_url || g.image || g.path),
+          title: g.caption || g.title || (salesConsultant?.name ? `Lễ bàn giao xe - CVKD ${formatPersonName(salesConsultant.name)}` : "Lễ bàn giao xe Đồng Nai Ford"),
+        }))
+        .filter((g: any) => Boolean(g.image_url))
+    : [];
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const isInitialPostsMount = useRef(true);
 
@@ -392,11 +419,10 @@ function LdpHomeInner({
       vehiclesAPI.getCategories().catch(() => null),
       vehiclesAPI.getAll().catch(() => null),
       servicesAPI.getAll().catch(() => null),
-      customerHandoversAPI.getAll().catch(() => null),
       postsAPI.getAll({ categories: 3 }).catch(() => null),
-    ]).then(([bannersRes, catRes, vRes, sRes, hRes, pRes]) => {
+    ]).then(([bannersRes, catRes, vRes, sRes, pRes]) => {
       const bItems = (bannersRes as any)?.data || bannersRes;
-      if (Array.isArray(bItems) && bItems.length > 0) setHeroSlides(formatBannersList(bItems));
+      if (Array.isArray(bItems) && bItems.length > 0) setHeroSlides(formatBannersList(bItems, salesConsultant));
 
       const cItems = (catRes as any)?.data || catRes;
       if (Array.isArray(cItems) && cItems.length > 0) setCategories(cItems);
@@ -409,13 +435,10 @@ function LdpHomeInner({
       const sItems = (sRes as any)?.services || (sRes as any)?.data || sRes;
       if (Array.isArray(sItems) && sItems.length > 0) setServicesList(sItems);
 
-      const hItems = (hRes as any)?.data || hRes;
-      if (Array.isArray(hItems) && hItems.length > 0) setCustomerHandovers(hItems);
-
       const pItems = (pRes as any)?.posts?.data || (pRes as any)?.data || pRes;
       if (Array.isArray(pItems) && pItems.length > 0) setHomeArticles(formatArticlesList(pItems));
     });
-  }, [heroSlides.length, vehiclesList.length, servicesList.length]);
+  }, [heroSlides.length, vehiclesList.length, servicesList.length, salesConsultant]);
 
   // Auto-play Technology tab
   useEffect(() => {
@@ -586,9 +609,25 @@ function LdpHomeInner({
         <div className="max-w-[1440px] mx-auto w-full h-full px-6 xl:px-[144px] flex flex-col justify-end text-center relative z-10 pb-16 md:pb-20">
           <div className="max-w-3xl mx-auto flex flex-col items-center">
             {salesConsultant?.name && (
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-white text-xs font-semibold mb-4 border border-white/30">
-                <Sparkles className="w-3.5 h-3.5 text-yellow-300" />
-                <span>Trang giới thiệu chính thức: Chuyên viên kinh doanh {formatPersonName(salesConsultant.name)}</span>
+              <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-black/45 backdrop-blur-md text-white text-xs sm:text-sm font-semibold mb-4 border border-white/30 shadow-xl">
+                {consultantAvatarUrl ? (
+                  <img
+                    src={consultantAvatarUrl}
+                    alt={formatPersonName(salesConsultant.name)}
+                    className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border-2 border-white shadow-md shrink-0"
+                  />
+                ) : (
+                  <Sparkles className="w-4 h-4 text-yellow-300 shrink-0" />
+                )}
+                <div className="text-left leading-tight">
+                  <span className="block text-[11px] text-blue-200 uppercase tracking-wider">
+                    {salesConsultant.job_title || "Chuyên viên kinh doanh Đồng Nai Ford"}
+                  </span>
+                  <span className="block font-bold text-white text-sm sm:text-base">
+                    {formatPersonName(salesConsultant.name)}
+                    {salesConsultant.phone ? ` • ${salesConsultant.phone}` : ""}
+                  </span>
+                </div>
               </div>
             )}
             <h1 className="text-2xl sm:text-4xl lg:text-[44px] font-bold tracking-tight leading-[1.2] text-white uppercase">
@@ -1272,7 +1311,7 @@ function LdpHomeInner({
         </div>
       </section>
 
-      {/* 8. CUSTOMER HANDOVER (TRI ÂN KHÁCH HÀNG) — Continuous Infinite Scrolling Marquee */}
+      {/* 8. CUSTOMER HANDOVER (KHO HÌNH ẢNH GIAO XE CỦA CHÍNH CHỦ) */}
       {customerHandovers.length > 0 && (
         <section id="customer-handovers" className="w-full bg-white py-[72px] overflow-x-clip relative select-none border-b border-gray-100">
           <style dangerouslySetInnerHTML={{
@@ -1293,7 +1332,7 @@ function LdpHomeInner({
             <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] mb-8">
               <div className="space-y-2 max-w-4xl">
                 <span className="text-xs font-semibold text-[#0562d2] uppercase tracking-wider block mb-2">
-                  Tri ân khách hàng
+                  Kho hình ảnh giao xe thực tế — {salesConsultant?.name ? `CVKD ${formatPersonName(salesConsultant.name)}` : "Tri ân khách hàng"}
                 </span>
                 <h2 className="text-2xl md:text-3xl lg:text-[32px] font-bold text-[#1a1a1a] tracking-tight leading-tight uppercase">
                   CHÚC MỪNG & CẢM ƠN QUÝ KHÁCH HÀNG ĐÃ LỰA CHỌN ĐỒNG NAI FORD
@@ -1301,34 +1340,24 @@ function LdpHomeInner({
               </div>
             </div>
 
-            {/* Slider track container — continuous infinite marquee */}
-            <div className="relative w-full overflow-hidden py-4 select-none">
-              <div
-                className="animate-marquee-continuous gap-[var(--card-gap-handover,24px)]"
-              >
-                {[...customerHandovers, ...customerHandovers].map((item, idx) => {
-                  const originalIdx = idx % customerHandovers.length;
-                  return (
+            {/* Nếu từ 1-3 ảnh: hiển thị lưới căn giữa; từ 4 ảnh trở lên: chạy marquee liên tục */}
+            {customerHandovers.length <= 3 ? (
+              <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px]">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {customerHandovers.map((item: any, idx: number) => (
                     <div
                       key={`${item.id}-${idx}`}
-                      onClick={() => {
-                        setLightboxIndex(originalIdx);
-                      }}
-                      className="relative overflow-hidden rounded-xl aspect-[4/3] group cursor-pointer bg-gray-100 flex-shrink-0 transition-all duration-300 block shadow-sm hover:shadow-md border border-gray-100"
-                      style={{
-                        width: "var(--card-width-handover, 360px)",
-                      }}
+                      onClick={() => setLightboxIndex(idx)}
+                      className="relative overflow-hidden rounded-xl aspect-[4/3] group cursor-pointer bg-gray-100 transition-all duration-300 block shadow-sm hover:shadow-md border border-gray-100"
                     >
                       <Image
                         src={item.image_url}
                         alt={item.title || "Tri ân khách hàng"}
                         fill
-                        sizes="(max-width: 768px) 280px, 360px"
+                        sizes="(max-width: 768px) 100vw, 360px"
                         className="object-cover group-hover:scale-103 transition-transform duration-500"
                         onError={handleImageError}
                       />
-
-                      {/* Premium gradient overlay */}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
                         <h3 className="text-white text-base font-semibold leading-snug transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
                           {item.title}
@@ -1338,10 +1367,51 @@ function LdpHomeInner({
                         </p>
                       </div>
                     </div>
-                  );
-                })}
+                  ))}
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="relative w-full overflow-hidden py-4 select-none">
+                <div
+                  className="animate-marquee-continuous gap-[var(--card-gap-handover,24px)]"
+                >
+                  {[...customerHandovers, ...customerHandovers].map((item, idx) => {
+                    const originalIdx = idx % customerHandovers.length;
+                    return (
+                      <div
+                        key={`${item.id}-${idx}`}
+                        onClick={() => {
+                          setLightboxIndex(originalIdx);
+                        }}
+                        className="relative overflow-hidden rounded-xl aspect-[4/3] group cursor-pointer bg-gray-100 flex-shrink-0 transition-all duration-300 block shadow-sm hover:shadow-md border border-gray-100"
+                        style={{
+                          width: "var(--card-width-handover, 360px)",
+                        }}
+                      >
+                        <Image
+                          src={item.image_url}
+                          alt={item.title || "Tri ân khách hàng"}
+                          fill
+                          sizes="(max-width: 768px) 280px, 360px"
+                          className="object-cover group-hover:scale-103 transition-transform duration-500"
+                          onError={handleImageError}
+                        />
+
+                        {/* Premium gradient overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+                          <h3 className="text-white text-base font-semibold leading-snug transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+                            {item.title}
+                          </h3>
+                          <p className="text-white/70 text-xs mt-1.5 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300 delay-75">
+                            Xem phóng to hình ảnh
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
           </div>
         </section>
@@ -1577,12 +1647,25 @@ function LdpHomeInner({
             href={finalZaloUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 px-3.5 py-2.5 md:px-4 md:py-2.5 bg-[#0068ff] hover:bg-[#0057d6] text-white rounded-full shadow-lg hover:scale-105 active:scale-95 transition-all duration-200 border border-blue-400/30"
+            className="flex items-center gap-2.5 px-3.5 py-2 md:px-4 md:py-2 bg-[#0068ff] hover:bg-[#0057d6] text-white rounded-full shadow-lg hover:scale-105 active:scale-95 transition-all duration-200 border border-blue-400/30"
             title="Chat Zalo"
           >
-            <div className="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center">
-              <ZaloIcon className="w-full h-full" />
-            </div>
+            {consultantAvatarUrl ? (
+              <div className="relative w-8 h-8 flex-shrink-0">
+                <img
+                  src={consultantAvatarUrl}
+                  alt={formatPersonName(salesConsultant?.name)}
+                  className="w-8 h-8 rounded-full object-cover border-2 border-white shadow-sm"
+                />
+                <span className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-white flex items-center justify-center shadow-xs">
+                  <ZaloIcon className="w-3.5 h-3.5" />
+                </span>
+              </div>
+            ) : (
+              <div className="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center">
+                <ZaloIcon className="w-full h-full" />
+              </div>
+            )}
             <span className="text-xs md:text-sm font-bold tracking-wide pr-1">Liên hệ Zalo</span>
           </a>
         )}
@@ -1666,6 +1749,7 @@ export default function LdpHomeClient(props: LdpHomeClientProps) {
     <VehicleLayoutClient
       initialVehicle={leadVehicle || allVehicles[0]}
       allVehicles={allVehicles}
+      salesConsultant={salesConsultant}
       salesConsultantId={salesConsultant?.id}
       salesEmail={salesEmail || salesConsultant?.email}
       landingPageId={typeof landingPageId === "string" ? parseInt(landingPageId, 10) : landingPageId}

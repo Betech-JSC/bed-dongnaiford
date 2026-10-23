@@ -104,6 +104,7 @@ export default function Blocks({
                 blockIndex={startIndex + index}
                 data={block.data}
                 vehicle={vehicle}
+                salesConsultant={salesConsultant}
                 openQuoteDrawer={openQuoteDrawer}
                 openDriveModal={openDriveModal}
                 isEditMode={isEditMode}
@@ -488,13 +489,16 @@ export default function Blocks({
 /* ==========================================================================
    1. HERO BANNER BLOCK
    ========================================================================== */
-function HeroBannerBlock({ blockIndex, data, vehicle, openQuoteDrawer, openDriveModal, isEditMode, onChangeData, anchorId }: any) {
+function HeroBannerBlock({ blockIndex, data, vehicle, salesConsultant, openQuoteDrawer, openDriveModal, isEditMode, onChangeData, anchorId }: any) {
   const [isVideoReady, setIsVideoReady] = React.useState(false);
 
   const title = data.title || vehicle.name;
   const tagline = data.tagline || vehicle.tagline;
   const btnText = data.button_text || "Book Lái thử";
   const btnLink = data.button_link || "#drive";
+  const consultantCoverUrl = resolveImageUrl(salesConsultant?.cover_image_url || salesConsultant?.cover_image);
+  const consultantAvatarUrl = resolveImageUrl(salesConsultant?.avatar_url || salesConsultant?.avatar);
+  const bgImageUrl = (blockIndex === 0 && consultantCoverUrl) ? consultantCoverUrl : (resolveImageUrl(data.background_image) || consultantCoverUrl || resolveImageUrl(vehicle?.image_url || vehicle?.image));
   const youtubeId = getYoutubeId(data.background_video || vehicle.video_url);
   const hasVehicleVideo = vehicle.video && (
     (typeof vehicle.video === 'string' && vehicle.video.trim() !== '') ||
@@ -559,6 +563,12 @@ function HeroBannerBlock({ blockIndex, data, vehicle, openQuoteDrawer, openDrive
             playsInline
             className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none z-5"
           />
+        ) : bgImageUrl ? (
+          <img
+            src={bgImageUrl}
+            alt={title}
+            className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none z-5"
+          />
         ) : null}
         <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent h-[250px] z-10" />
 
@@ -580,6 +590,28 @@ function HeroBannerBlock({ blockIndex, data, vehicle, openQuoteDrawer, openDrive
 
       <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full relative z-20">
         <div className={`flex flex-col gap-[16px] sm:gap-[24px] py-[24px] w-full ${alignClass}`}>
+          {salesConsultant?.name && (
+            <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-black/45 backdrop-blur-md border border-white/30 text-white text-xs sm:text-sm font-semibold shadow-xl">
+              {consultantAvatarUrl ? (
+                <img
+                  src={consultantAvatarUrl}
+                  alt={formatPersonName(salesConsultant.name)}
+                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border-2 border-white shadow-md shrink-0"
+                />
+              ) : (
+                <Sparkles className="w-4 h-4 text-yellow-300 shrink-0" />
+              )}
+              <div className="text-left leading-tight">
+                <span className="block text-[11px] text-blue-200 uppercase tracking-wider">
+                  {salesConsultant.job_title || "Chuyên viên kinh doanh Đồng Nai Ford"}
+                </span>
+                <span className="block font-bold text-white text-sm sm:text-base">
+                  {formatPersonName(salesConsultant.name)}
+                  {salesConsultant.phone ? ` • ${salesConsultant.phone}` : ""}
+                </span>
+              </div>
+            </div>
+          )}
           <h1
             className={`font-['Ford_Antenna',sans-serif] font-semibold text-white tracking-[-0.96px] leading-[1.15] uppercase ${titleSizeClass}
               ${isEditMode ? 'outline-[1px] outline-dashed outline-[#008060]/70 hover:outline-[#008060] outline-offset-2 cursor-pointer transition-all' : ''}`}

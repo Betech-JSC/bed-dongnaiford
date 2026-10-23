@@ -114,6 +114,15 @@ export default function VehicleLayoutClient({
     return null;
   }, [salesConsultant, children]);
 
+  useEffect(() => {
+    if (typeof window !== "undefined" && resolvedSalesConsultant) {
+      (window as any).__ldpSalesConsultant = resolvedSalesConsultant;
+      window.dispatchEvent(
+        new CustomEvent("ldp-consultant-updated", { detail: resolvedSalesConsultant })
+      );
+    }
+  }, [resolvedSalesConsultant]);
+
   const isLdpVehicleDetailPage = Boolean(routeParams?.vehicleSlug);
   const ldpVehicleName = isLdpVehicleDetailPage
     ? (initialVehicle?.name || initialVehicle?.title || undefined)

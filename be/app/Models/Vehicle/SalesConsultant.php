@@ -108,14 +108,46 @@ class SalesConsultant extends BaseModel
         return $this->decodeJsonField($value) ?? [];
     }
 
+    private function resolveMediaUrl($file): ?string
+    {
+        if (empty($file)) return null;
+        $url = null;
+        if (is_array($file)) {
+            if (!empty($file['path']) && is_string($file['path'])) {
+                $path = str_starts_with($file['path'], 'uploads/')
+                    ? substr($file['path'], 8)
+                    : $file['path'];
+                $url = static_url($path);
+            } elseif (!empty($file['static_url']) && is_string($file['static_url'])) {
+                $url = $file['static_url'];
+            } elseif (!empty($file['url']) && is_string($file['url'])) {
+                $url = $file['url'];
+            }
+        } elseif (is_string($file)) {
+            if (str_starts_with($file, 'http://') || str_starts_with($file, 'https://') || str_starts_with($file, '/')) {
+                $url = $file;
+            } else {
+                $path = str_starts_with($file, 'uploads/') ? substr($file, 8) : $file;
+                $url = static_url($path);
+            }
+        }
+
+        if ($url && !app()->runningInConsole() && request()->getHost()) {
+            $activeOrigin = request()->getSchemeAndHttpHost();
+            $url = preg_replace('/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?/i', $activeOrigin, $url);
+        }
+
+        return $url;
+    }
+
     public function getAvatarUrlAttribute(): ?string
     {
-        return isset($this->avatar['path']) ? static_url($this->avatar['path']) : null;
+        return $this->resolveMediaUrl($this->avatar);
     }
 
     public function getCoverImageUrlAttribute(): ?string
     {
-        return isset($this->cover_image['path']) ? static_url($this->cover_image['path']) : null;
+        return $this->resolveMediaUrl($this->cover_image);
     }
 
     public function getZaloUrlAttribute($value): ?string
@@ -198,16 +230,16 @@ class SalesConsultant extends BaseModel
             'job_title'       => $translation?->job_title,
             'avatar'          => $this->avatar,
             'avatar_url'      => $this->avatar_url,
+            'cover_image'     => $this->cover_image,
+            'cover_image_url' => $this->cover_image_url,
             'short_bio'       => $translation?->short_bio,
             'bio'             => $translation?->bio,
             'phone'           => $this->phone,
             'zalo_url'        => $this->zalo_url,
             'gallery'         => collect($this->gallery ?? [])->map(fn($g) => [
-                'image_url' => isset($g['image']['path'])
-                    ? static_url($g['image']['path'])
-                    : (isset($g['path']) ? static_url($g['path']) : ($g['image_url'] ?? null)),
-                'caption'   => $g['caption'] ?? null,
-            ])->values()->all(),
+                'image_url' => $this->resolveMediaUrl($g['image'] ?? $g),
+                'caption'   => $g['caption'] ?? ($g['title'] ?? null),
+            ])->filter(fn($g) => !empty($g['image_url']))->values()->all(),
             'email'           => $this->email,
             'custom_domain'   => $this->custom_domain,
             'tracking_config' => $this->tracking_config ?? null,
