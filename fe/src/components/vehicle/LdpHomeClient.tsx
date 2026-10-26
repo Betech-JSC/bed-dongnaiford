@@ -608,28 +608,6 @@ function LdpHomeInner({
         {/* Hero Content Area */}
         <div className="max-w-[1440px] mx-auto w-full h-full px-6 xl:px-[144px] flex flex-col justify-end text-center relative z-10 pb-16 md:pb-20">
           <div className="max-w-3xl mx-auto flex flex-col items-center">
-            {salesConsultant?.name && (
-              <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-black/45 backdrop-blur-md text-white text-xs sm:text-sm font-semibold mb-4 border border-white/30 shadow-xl">
-                {consultantAvatarUrl ? (
-                  <img
-                    src={consultantAvatarUrl}
-                    alt={formatPersonName(salesConsultant.name)}
-                    className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border-2 border-white shadow-md shrink-0"
-                  />
-                ) : (
-                  <Sparkles className="w-4 h-4 text-yellow-300 shrink-0" />
-                )}
-                <div className="text-left leading-tight">
-                  <span className="block text-[11px] text-blue-200 uppercase tracking-wider">
-                    {salesConsultant.job_title || "Chuyên viên kinh doanh Đồng Nai Ford"}
-                  </span>
-                  <span className="block font-bold text-white text-sm sm:text-base">
-                    {formatPersonName(salesConsultant.name)}
-                    {salesConsultant.phone ? ` • ${salesConsultant.phone}` : ""}
-                  </span>
-                </div>
-              </div>
-            )}
             <h1 className="text-2xl sm:text-4xl lg:text-[44px] font-bold tracking-tight leading-[1.2] text-white uppercase">
               {heroSlides[activeHeroIndex]?.title || "ĐỒNG NAI FORD — ĐẠI LÝ 5S CHÍNH THỨC"}
             </h1>

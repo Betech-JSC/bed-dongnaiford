@@ -590,28 +590,6 @@ function HeroBannerBlock({ blockIndex, data, vehicle, salesConsultant, openQuote
 
       <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full relative z-20">
         <div className={`flex flex-col gap-[16px] sm:gap-[24px] py-[24px] w-full ${alignClass}`}>
-          {salesConsultant?.name && (
-            <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-black/45 backdrop-blur-md border border-white/30 text-white text-xs sm:text-sm font-semibold shadow-xl">
-              {consultantAvatarUrl ? (
-                <img
-                  src={consultantAvatarUrl}
-                  alt={formatPersonName(salesConsultant.name)}
-                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border-2 border-white shadow-md shrink-0"
-                />
-              ) : (
-                <Sparkles className="w-4 h-4 text-yellow-300 shrink-0" />
-              )}
-              <div className="text-left leading-tight">
-                <span className="block text-[11px] text-blue-200 uppercase tracking-wider">
-                  {salesConsultant.job_title || "Chuyên viên kinh doanh Đồng Nai Ford"}
-                </span>
-                <span className="block font-bold text-white text-sm sm:text-base">
-                  {formatPersonName(salesConsultant.name)}
-                  {salesConsultant.phone ? ` • ${salesConsultant.phone}` : ""}
-                </span>
-              </div>
-            </div>
-          )}
           <h1
             className={`font-['Ford_Antenna',sans-serif] font-semibold text-white tracking-[-0.96px] leading-[1.15] uppercase ${titleSizeClass}
               ${isEditMode ? 'outline-[1px] outline-dashed outline-[#008060]/70 hover:outline-[#008060] outline-offset-2 cursor-pointer transition-all' : ''}`}
