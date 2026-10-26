@@ -76,9 +76,15 @@
                     <div class="flex items-center gap-2">
                         <button
                             type="button"
-                            class="btn btn-outline-primary btn-sm !py-1 !px-2.5 text-xs"
-                            @click="addGalleryItem"
-                        >+ Thêm ảnh giao xe</button>
+                            class="btn btn-primary btn-sm !py-1 !px-2.5 text-xs flex items-center gap-1 shadow-sm"
+                            @click="openGalleryFileManager(form)"
+                        >📸 Chọn nhiều ảnh</button>
+                        <button
+                            type="button"
+                            class="btn btn-outline-secondary btn-sm !py-1 !px-2 text-xs"
+                            title="Thêm 1 ô trống thủ công"
+                            @click="addEmptyGalleryItem(form)"
+                        >+ 1 ô</button>
                         <button
                             v-if="form.gallery && form.gallery.length > 0"
                             type="button"
@@ -97,7 +103,7 @@
                         v-if="!form.gallery || form.gallery.length === 0"
                         class="text-center py-6 border border-dashed border-gray-300 rounded-lg bg-gray-50 text-gray-500 text-xs"
                     >
-                        Chưa có ảnh giao xe nào. Bấm nút <strong>"+ Thêm ảnh giao xe"</strong> ở góc phải phía trên để tải ảnh lên.
+                        Chưa có ảnh giao xe nào. Bấm nút <strong>"📸 Chọn nhiều ảnh"</strong> ở phía trên để tải lên hoặc chọn hàng loạt.
                     </div>
                     <div
                         v-else
@@ -140,6 +146,13 @@
                         </div>
                     </div>
                 </div>
+
+                <FileManager
+                    v-if="showGalleryFileManager"
+                    v-model:show="showGalleryFileManager"
+                    :multiple="true"
+                    @onSelect="onSelectGalleryImages($event, form)"
+                />
             </div>
 
             <!-- ===== CẤU HÌNH MÃ THEO DÕI QUẢNG CÁO & CHUYỂN ĐỔI (TKQC CỦA SALE) ===== -->
@@ -451,13 +464,17 @@
 </template>
 
 <script>
+import FileManager from "@/Components/FileManager.vue";
+
 export default {
+    components: { FileManager },
     props: ['item', 'schema'],
 
     data() {
         return {
             currentTab: this.getCurrentLocale?.() ?? 'vi',
             isGalleryCollapsed: false,
+            showGalleryFileManager: false,
             formData: this.initFormData(this.item),
         }
     },
@@ -517,14 +534,37 @@ export default {
             return data
         },
 
-        addGalleryItem() {
+        openGalleryFileManager() {
             this.isGalleryCollapsed = false
-            if (!this.formData.gallery) this.formData.gallery = []
-            this.formData.gallery.push({ image: null, caption: '' })
+            this.showGalleryFileManager = true
         },
 
-        removeGalleryItem(index) {
-            this.formData.gallery.splice(index, 1)
+        addEmptyGalleryItem(form) {
+            this.isGalleryCollapsed = false
+            const target = form?.gallery ?? this.formData.gallery
+            if (target) target.push({ image: null, caption: '' })
+        },
+
+        addGalleryItem() {
+            this.openGalleryFileManager()
+        },
+
+        onSelectGalleryImages(files, form) {
+            this.showGalleryFileManager = false
+            if (!files || (Array.isArray(files) && files.length === 0)) return
+            const list = Array.isArray(files) ? files : [files]
+            const target = form?.gallery ?? this.formData.gallery
+            if (!target) return
+            list.forEach(file => {
+                target.push({ image: file, caption: '' })
+            })
+        },
+
+        removeGalleryItem(index, form) {
+            const target = form?.gallery ?? this.formData.gallery
+            if (target && target.length > index) {
+                target.splice(index, 1)
+            }
         },
     },
 }
