@@ -77,8 +77,12 @@ class Admin extends Authenticatable
         static::saved(function ($model) {
             if (request()->route()?->getName() !== 'admin.admins.store') return;
 
-            $role = Role::find(request()->input('role_id'));
-            $model->syncRoles([$role]);
+            if ($roleId = request()->input('role_id')) {
+                $role = Role::find($roleId);
+                if ($role) {
+                    $model->syncRoles([$role]);
+                }
+            }
         });
     }
 

@@ -15,6 +15,8 @@ class Admin extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable;
     use HasRoles;
 
+    protected $guard_name = 'admin';
+
     public const STATUS_ACTIVE = 'ACTIVE';
     public const STATUS_INACTIVE = 'INACTIVE';
 
@@ -72,8 +74,12 @@ class Admin extends Authenticatable
         static::saved(function ($model) {
             if (request()->route()?->getName() !== 'admin.admins.store') return;
 
-            $role = Role::find(request()->input('role_id'));
-            $model->syncRoles([$role]);
+            if ($roleId = request()->input('role_id')) {
+                $role = Role::find($roleId);
+                if ($role) {
+                    $model->syncRoles([$role]);
+                }
+            }
         });
     }
 

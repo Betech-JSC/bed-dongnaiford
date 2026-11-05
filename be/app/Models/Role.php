@@ -11,6 +11,8 @@ class Role extends SpatieRole
 {
     use HasFactory;
 
+    protected $guard_name = 'admin';
+
     public $fillable = [
         'name',
         'guard_name'
