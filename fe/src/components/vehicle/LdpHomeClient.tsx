@@ -1505,7 +1505,7 @@ function LdpHomeInner({
         <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] w-full pb-20 pt-10">
           <div className="max-w-[1152px] mx-auto flex flex-col lg:flex-row gap-20 items-center justify-between">
             {/* Left Column: Bio */}
-            <div className="lg:w-[457px] flex flex-col items-start gap-12 text-white">
+            <div className="lg:w-[457px] flex flex-col items-start justify-center text-white">
               <div className="space-y-4">
                 <span className="text-xs font-semibold text-white uppercase tracking-wider block">OUR STORY</span>
                 <h2 className="text-[36px] font-semibold uppercase leading-tight tracking-tight text-white">
@@ -1515,15 +1515,6 @@ function LdpHomeInner({
                 <p className="text-[16px] text-white/80 leading-relaxed font-normal">
                   Công ty TNHH Dịch vụ – Thương mại TẤN PHÁT ĐẠT, được thành lập vào tháng 12 năm 2006 với tên giao dịch là ĐỒNG NAI FORD, nằm trên quốc lộ 1A nối liền hai miền Nam Bắc ngay ngã tư KCN Amata. Showroom được đầu tư xây dựng hiện đại đạt tiêu chuẩn Signature toàn cầu của Ford Motor, mang lại không gian mua sắm và chăm sóc dịch vụ đẳng cấp cho khách hàng.
                 </p>
-              </div>
-
-              <div>
-                <Link
-                  href="/gioi-thieu"
-                  className="border border-white hover:bg-white hover:text-[#00095b] text-white text-[16px] px-8 py-2.5 rounded-full transition-colors cursor-pointer font-semibold inline-block"
-                >
-                  Về chúng tôi
-                </Link>
               </div>
             </div>
 
