@@ -65,10 +65,10 @@ class AdminController extends Controller
     {
         $query->orderByRaw('CASE WHEN id = 1 THEN 0 ELSE 1 END ASC')->orderBy('id', 'ASC');
 
-        if (current_admin()->hasRole('Super Admin')) {
-            $query->whereHas('roles', function ($query) {
-                $query->whereNot('name', 'admin');
-            });
+        if (!current_admin()->hasRole('Super Admin')) {
+            $query->whereDoesntHave('roles', function ($query) {
+                $query->where('name', 'Super Admin');
+            })->where('id', '!=', 1);
         }
 
         return $query;

@@ -50,10 +50,10 @@ class AdminController extends Controller
     {
         $query->orderBy('id', 'DESC');
 
-        if (current_admin()->hasRole('Super Admin')) {
-            $query->whereHas('roles', function ($query) {
-                $query->whereNot('name', 'admin');
-            });
+        if (!current_admin()->hasRole('Super Admin')) {
+            $query->whereDoesntHave('roles', function ($query) {
+                $query->where('name', 'Super Admin');
+            })->where('id', '!=', 1);
         }
 
         return $query;
