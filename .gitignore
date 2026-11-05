@@ -83,14 +83,13 @@ fe/build/
 .env.backup
 
 *.env
-.env
 
 
 
 # IDEs
 
 .idea/
-.vscode/
+/.vscode
 
 
 *.suo
@@ -144,3 +143,4 @@ openspect/
 .agents/workflows/opsx-*
 .kiro/prompts/opsx-*
 .kiro/skills/openspec-*
+.env
