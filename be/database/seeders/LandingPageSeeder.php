@@ -53,8 +53,8 @@ class LandingPageSeeder extends Seeder
                         'id' => 'block_vehicles_grid_' . ($index + 1),
                         'type' => 'LdpVehiclesGrid',
                         'data' => [
-                            'title' => 'CÁC DÒNG XE FORD ĐANG PHÂN PHỐI',
-                            'subtitle' => 'Chọn dòng xe quý khách quan tâm để xem bảng giá, thông số và ưu đãi tốt nhất',
+                            'title' => 'Dòng xe Ford Đồng Nai',
+                            'subtitle' => 'Đa dạng lựa chọn từ SUV, bán tải đến xe thương mại — tất cả đều có sẵn tại showroom Đồng Nai.',
                         ]
                     ];
                     // Chèn vào vị trí Khối 3 (sau HeroBanner & Cố vấn)
