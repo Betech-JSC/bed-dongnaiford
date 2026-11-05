@@ -24,6 +24,9 @@ interface BannerSlide {
   imageMobile?: string;
   buttonText?: string;
   buttonLink?: string;
+  isConsultantSlide?: boolean;
+  roleTitle?: string;
+  consultantName?: string;
 }
 
 const DEFAULT_SLIDES: BannerSlide[] = [
@@ -64,10 +67,15 @@ export default function LdpHeroBannerBlock({
 
   const prependCoverSlide = (list: BannerSlide[]): BannerSlide[] => {
     if (!consultantCoverUrl) return list;
+    const roleTitle = (salesConsultant?.job_title || "CHUYÊN VIÊN KINH DOANH").toUpperCase();
+    const formattedName = consultantName ? consultantName.toUpperCase() : "";
     return [
       {
         id: "consultant-cover-slide",
-        title: consultantName ? `CHUYÊN VIÊN KINH DOANH ${consultantName.toUpperCase()}` : (list[0]?.title || "ĐỒNG NAI FORD"),
+        isConsultantSlide: true,
+        roleTitle,
+        consultantName: formattedName,
+        title: formattedName ? `${roleTitle} ${formattedName}` : (list[0]?.title || "ĐỒNG NAI FORD"),
         subtitle: salesConsultant?.short_bio || "Tư vấn tận tâm — Báo giá lăn bánh ưu đãi nhất — Giao xe tận nhà",
         image: consultantCoverUrl,
         imageMobile: consultantCoverUrl,
@@ -168,7 +176,7 @@ export default function LdpHeroBannerBlock({
   return (
     <section
       id={anchorId}
-      className="relative h-[85vh] min-h-[580px] md:h-[calc(100vh-112px)] md:min-h-[680px] flex flex-col justify-end bg-black text-white overflow-hidden select-none cursor-grab active:cursor-grabbing w-full"
+      className="relative h-[62vh] min-h-[460px] sm:h-[70vh] sm:min-h-[520px] md:h-[calc(100vh-112px)] md:min-h-[680px] flex flex-col justify-end bg-black text-white overflow-hidden select-none cursor-grab active:cursor-grabbing w-full"
       onMouseDown={(e) => handleDragStart(e.clientX)}
       onMouseUp={(e) => handleDragEnd(e.clientX)}
       onMouseLeave={() => { isDragging.current = false; }}
@@ -202,7 +210,9 @@ export default function LdpHeroBannerBlock({
               fill
               priority={idx === 0}
               sizes="100vw"
-              className="object-cover w-full h-full object-center transform transition-transform duration-10000"
+              className={`object-cover w-full h-full transform transition-transform duration-10000 ${
+                slide.isConsultantSlide ? "object-[15%_center]" : "object-center"
+              }`}
             />
           </div>
           {/* Dark gradient overlay */}
@@ -213,10 +223,21 @@ export default function LdpHeroBannerBlock({
       {/* Main Content Area */}
       <div className="max-w-[1440px] mx-auto w-full px-6 xl:px-[144px] flex flex-col items-center justify-end text-center relative z-10 mt-auto pt-20 pb-8 md:pb-[24px]">
         <div key={activeIndex} className="max-w-3xl flex flex-col items-center text-center animate-fade-in">
-          <h1 className="text-2xl sm:text-4xl lg:text-[46px] font-bold tracking-tight leading-[1.2] text-white uppercase">
-            {currentSlide.title}
-          </h1>
-          <p className="mt-2 text-sm sm:text-lg md:text-[22px] font-medium text-white/85 leading-[1.3] max-w-[90%] mx-auto">
+          {currentSlide.consultantName ? (
+            <h1 className="flex flex-col items-center tracking-tight leading-tight uppercase animate-fade-in">
+              <span className="text-xs sm:text-lg md:text-2xl font-semibold text-white/90 tracking-wider">
+                {currentSlide.roleTitle || "CHUYÊN VIÊN KINH DOANH"}
+              </span>
+              <span className="text-xl sm:text-3xl lg:text-[46px] font-black text-white mt-1">
+                {currentSlide.consultantName}
+              </span>
+            </h1>
+          ) : (
+            <h1 className="text-2xl sm:text-4xl lg:text-[46px] font-bold tracking-tight leading-[1.2] text-white uppercase">
+              {currentSlide.title}
+            </h1>
+          )}
+          <p className="mt-2 text-xs sm:text-lg md:text-[22px] font-medium text-white/85 leading-[1.3] max-w-[92%] mx-auto">
             {currentSlide.subtitle}
           </p>
 

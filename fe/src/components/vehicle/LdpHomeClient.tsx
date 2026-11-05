@@ -137,11 +137,23 @@ const techSlides = [
   }
 ];
 
-const formatBannersList = (items: any[], salesConsultant?: any) => {
+interface LdpBannerSlide {
+  title: string;
+  subtitle: string;
+  image: string;
+  imageMobile?: string;
+  buttonText?: string;
+  buttonLink?: string;
+  isConsultantSlide?: boolean;
+  roleTitle?: string;
+  consultantName?: string;
+}
+
+const formatBannersList = (items: any[], salesConsultant?: any): LdpBannerSlide[] => {
   const coverUrl = resolveImageUrl(salesConsultant?.cover_image_url || salesConsultant?.cover_image);
   const consultantName = salesConsultant?.name ? formatPersonName(salesConsultant.name) : "";
 
-  let baseList = Array.isArray(items) && items.length > 0
+  let baseList: LdpBannerSlide[] = Array.isArray(items) && items.length > 0
     ? items.map((item: any) => ({
         title: item.title || "",
         subtitle: item.subtitle || "",
@@ -162,9 +174,14 @@ const formatBannersList = (items: any[], salesConsultant?: any) => {
       ];
 
   if (coverUrl) {
+    const roleTitle = (salesConsultant?.job_title || "CHUYÊN VIÊN KINH DOANH").toUpperCase();
+    const formattedName = consultantName ? consultantName.toUpperCase() : "";
     baseList = [
       {
-        title: consultantName ? `CHUYÊN VIÊN KINH DOANH ${consultantName.toUpperCase()}` : baseList[0].title,
+        isConsultantSlide: true,
+        roleTitle,
+        consultantName: formattedName,
+        title: formattedName ? `${roleTitle} ${formattedName}` : baseList[0].title,
         subtitle: salesConsultant?.short_bio || "Tư vấn tận tâm — Giá lăn bánh ưu đãi nhất — Giao xe tận nhà tại Đồng Nai Ford",
         image: coverUrl,
         imageMobile: coverUrl,
@@ -573,7 +590,7 @@ function LdpHomeInner({
       )}
 
       {/* 1. HERO BANNER SECTION (SLIDER) */}
-      <section className="relative w-full h-[580px] md:h-[680px] overflow-hidden bg-black select-none">
+      <section className="relative w-full h-[62vh] min-h-[460px] sm:h-[70vh] sm:min-h-[520px] md:h-[680px] overflow-hidden bg-black select-none">
         {heroSlides.map((slide, idx) => (
           <div
             key={idx}
@@ -598,20 +615,33 @@ function LdpHomeInner({
                 fill
                 priority={idx === 0}
                 sizes="100vw"
-                className="object-cover w-full h-full object-top"
+                className={`object-cover w-full h-full ${
+                  slide.isConsultantSlide ? "object-[15%_center]" : "object-center"
+                }`}
               />
             </div>
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/20" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/20" />
           </div>
         ))}
 
         {/* Hero Content Area */}
-        <div className="max-w-[1440px] mx-auto w-full h-full px-6 xl:px-[144px] flex flex-col justify-end text-center relative z-10 pb-16 md:pb-20">
+        <div className="max-w-[1440px] mx-auto w-full h-full px-6 xl:px-[144px] flex flex-col justify-end text-center relative z-10 pb-10 sm:pb-14 md:pb-20">
           <div className="max-w-3xl mx-auto flex flex-col items-center">
-            <h1 className="text-2xl sm:text-4xl lg:text-[44px] font-bold tracking-tight leading-[1.2] text-white uppercase">
-              {heroSlides[activeHeroIndex]?.title || "ĐỒNG NAI FORD — ĐẠI LÝ 5S CHÍNH THỨC"}
-            </h1>
-            <p className="mt-3 text-sm sm:text-lg md:text-xl font-medium text-white/85 leading-snug max-w-[90%]">
+            {heroSlides[activeHeroIndex]?.consultantName ? (
+              <h1 className="flex flex-col items-center tracking-tight leading-tight uppercase animate-fade-in">
+                <span className="text-xs sm:text-lg md:text-2xl font-semibold text-white/90 tracking-wider">
+                  {heroSlides[activeHeroIndex].roleTitle || "CHUYÊN VIÊN KINH DOANH"}
+                </span>
+                <span className="text-xl sm:text-3xl lg:text-[44px] font-black text-white mt-1">
+                  {heroSlides[activeHeroIndex].consultantName}
+                </span>
+              </h1>
+            ) : (
+              <h1 className="text-2xl sm:text-4xl lg:text-[44px] font-bold tracking-tight leading-[1.2] text-white uppercase">
+                {heroSlides[activeHeroIndex]?.title || "ĐỒNG NAI FORD — ĐẠI LÝ 5S CHÍNH THỨC"}
+              </h1>
+            )}
+            <p className="mt-2 sm:mt-3 text-xs sm:text-base md:text-xl font-medium text-white/85 leading-snug max-w-[92%]">
               {heroSlides[activeHeroIndex]?.subtitle || "Trải nghiệm sức mạnh, công nghệ và sự an toàn vượt trội cùng Ford Việt Nam."}
             </p>
 

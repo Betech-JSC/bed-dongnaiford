@@ -23,7 +23,10 @@ class ContactController extends Controller
 
     private function beforeIndex($query)
     {
-        return $query->whereIn('type', [
+        $consultantId = current_admin()?->sales_consultant_id;
+
+        $query = $query->where(function ($q) {
+            $q->whereIn('type', [
                 'CONTACT_FORM',
                 'ADVISE_FORM',
                 'NEW_CAR_QUOTE_FORM',
@@ -31,8 +34,29 @@ class ContactController extends Controller
                 'APPLY_FORM',
                 'LDP_CLICK_CALL',
                 'LDP_CLICK_ZALO',
-            ])
-            ->orWhereNull('type')
-            ->orderBy('id', 'DESC');
+            ])->orWhereNull('type');
+        });
+
+        if ($consultantId) {
+            $query->where('sales_consultant_id', $consultantId);
+        }
+
+        return $query->orderBy('id', 'DESC');
     }
+
+    private function afterForm($item)
+    {
+        $consultantId = current_admin()?->sales_consultant_id;
+        if ($consultantId) {
+            $itemId = is_object($item) ? ($item->id ?? null) : ($item['id'] ?? null);
+            $itemConsultantId = is_object($item) ? ($item->sales_consultant_id ?? null) : ($item['sales_consultant_id'] ?? null);
+
+            if (!empty($itemId) && $itemConsultantId != $consultantId) {
+                abort(403, 'Bạn không có quyền xem thông tin liên hệ của Cố vấn khác.');
+            }
+        }
+        return $item;
+    }
+
+
 }
