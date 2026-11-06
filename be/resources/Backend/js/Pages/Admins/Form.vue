@@ -61,7 +61,7 @@
             </div>
         </div>
         <div class="card">
-            <div class="card-header">{{ tt('models.admins.set_password') }}</div>
+            <div class="card-header">{{ form.id ? tt('models.admins.set_password') : tt('models.admins.password') }}</div>
             <div class="card-body">
                 <div class="field-row">
                     <Field
@@ -69,7 +69,8 @@
                         :field="{
                             type: 'password',
                             name: 'password',
-                            label: tt('models.password') + (form.id ? '' : ' (*)')
+                            label: form.id ? tt('models.admins.password_new') : (tt('models.admins.password') + ' (*)'),
+                            help: form.id ? tt('models.admins.password_help') : null,
                         }"
                     />
                     <Field
@@ -77,6 +78,7 @@
                         :field="{
                             type: 'password',
                             name: 'password_confirmation',
+                            label: form.id ? tt('models.admins.password_new_confirmation') : (tt('models.admins.password_confirmation') + ' (*)'),
                         }"
                     />
                 </div>
@@ -86,15 +88,18 @@
 </template>
 <script>
 export default {
-    props: ["item", "schema", "sales_consultants"],
+    props: ["item", "schema", "data", "sales_consultants"],
     data() {
         return {
             formData: this.item,
         };
     },
     computed: {
+        allSalesConsultants() {
+            return this.data?.sales_consultants || this.sales_consultants || [];
+        },
         salesConsultantsList() {
-            return (this.sales_consultants || []).map(c => ({
+            return this.allSalesConsultants.map(c => ({
                 id: c.id,
                 label: `${c.name} (${c.email || c.phone || 'Chưa có email'})`,
             }));
@@ -103,7 +108,7 @@ export default {
     methods: {
         onConsultantChange(form, consultantId) {
             if (!consultantId) return;
-            const consultant = (this.sales_consultants || []).find(c => c.id === consultantId);
+            const consultant = this.allSalesConsultants.find(c => c.id === consultantId);
             if (consultant) {
                 if (!form.name || form.name === '') form.name = consultant.name;
                 if (!form.email || form.email === '') form.email = consultant.email;

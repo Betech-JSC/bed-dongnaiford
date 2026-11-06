@@ -6,6 +6,13 @@ return [
         'edit' => 'Chỉnh sửa',
     ],
     'admins' => [
+        'name' => 'Tên',
+        'email' => 'Địa chỉ email',
+        'password' => 'Mật khẩu',
+        'password_confirmation' => 'Xác nhận mật khẩu',
+        'password_new' => 'Mật khẩu mới',
+        'password_new_confirmation' => 'Xác nhận mật khẩu mới',
+        'password_help' => 'Để trống nếu không muốn thay đổi mật khẩu',
         'id' => 'ID',
         'phone' => 'Số điện thoại',
         'type' => 'Loại tài khoản',
