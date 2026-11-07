@@ -122,7 +122,11 @@ class ContactController extends Controller
                 $consultantName = $resolvedConsultant->translate('vi')?->name ?: ($resolvedConsultant->name ?? '');
                 $consultantPhone = $resolvedConsultant->phone ?? '';
                 $consultantSlug = $resolvedConsultant->translate('vi')?->slug ?: ($resolvedConsultant->slug ?? '');
-                $consultantEmail = $resolvedConsultant->email ?: ($resolvedLandingPage?->sales_email ?? '');
+                $ldpCandidateEmail = trim((string) ($resolvedLandingPage?->sales_email ?: ''));
+                $isStaleLdpEmail = $ldpCandidateEmail !== '' && SalesConsultant::where('id', '!=', $resolvedConsultant->id)->whereRaw('LOWER(email) = ?', [strtolower($ldpCandidateEmail)])->exists();
+                $consultantEmail = (!$isStaleLdpEmail && filter_var($ldpCandidateEmail, FILTER_VALIDATE_EMAIL))
+                    ? $ldpCandidateEmail
+                    : ($resolvedConsultant->email ?: (\App\Models\Admin::where('sales_consultant_id', $resolvedConsultant->id)->value('email') ?? ''));
 
                 $data['Cố vấn phụ trách'] = "{$consultantName} (SĐT: {$consultantPhone})";
                 $data['Mã Cố vấn (Sale ID)'] = "#{$resolvedConsultant->id} ({$consultantSlug})";
@@ -184,6 +188,7 @@ class ContactController extends Controller
                 }
             }
 
+            $request->attributes->set('skip_contact_auto_notification', true);
             $createdContact = $this->model::create($requestData);
 
             // Tự động tạo Thông báo hệ thống cho Admin CMS khi có khách hàng gửi Form / Bấm nút trên LDP
@@ -237,7 +242,9 @@ class ContactController extends Controller
                     ?? $contactData['Loại xe'] 
                     ?? $contactData['Dòng xe'] 
                     ?? $contactData['Dòng xe lái thử'] 
-                    ?? $contactData['Xe đã qua sử dụng'] 
+                    ?? $contactData['Xe đã qua sử dụng']
+                    ?? $contactData['Vehicle']
+                    ?? ((!empty($contactData['Product']['title']) && $contactData['Product']['title'] !== 'Đồng Nai Ford') ? $contactData['Product']['title'] : null)
                     ?? ($contactData['Product']['title'] ?? '') 
                     ?? ($contactData['Product']['slug'] ?? '') 
                     ?? $contactData['Vehicle'] 
@@ -345,7 +352,8 @@ class ContactController extends Controller
                 $paymentMethod = $contactData['Hình thức mua xe'] 
                     ?? $contactData['Hình thức mua'] 
                     ?? $contactData['Hình thức thanh toán'] 
-                    ?? $contactData['Phương thức thanh toán'] 
+                    ?? $contactData['Phương thức thanh toán']
+                    ?? $contactData['PaymentMethod']
                     ?? null;
 
                 // Tỉnh thành nhận xe / Nơi ở
@@ -456,6 +464,18 @@ class ContactController extends Controller
                         $consultant = SalesConsultant::find($salesConsultantId);
                         if ($consultant && !empty($consultant->email) && filter_var($consultant->email, FILTER_VALIDATE_EMAIL)) {
                             $targetEmails[] = trim($consultant->email);
+                        }
+                        $adminSaleEmail = \App\Models\Admin::where('sales_consultant_id', $salesConsultantId)->value('email');
+                        if (!empty($adminSaleEmail) && filter_var($adminSaleEmail, FILTER_VALIDATE_EMAIL)) {
+                            $targetEmails[] = trim($adminSaleEmail);
+                        }
+                        $siblingLdpEmail = LandingPage::where('sales_consultant_id', $salesConsultantId)->whereNotNull('sales_email')->where('sales_email', '!=', '')->value('sales_email');
+                        if (!empty($siblingLdpEmail) && filter_var($siblingLdpEmail, FILTER_VALIDATE_EMAIL)) {
+                            $targetEmails[] = trim($siblingLdpEmail);
+                        }
+                        if (!empty($targetEmails)) {
+                            $otherConsultantEmails = array_map('strtolower', SalesConsultant::where('id', '!=', $salesConsultantId)->whereNotNull('email')->pluck('email')->all());
+                            $targetEmails = array_values(array_filter($targetEmails, fn($em) => !in_array(strtolower(trim($em)), $otherConsultantEmails, true)));
                         }
                     } catch (\Throwable $e) {
                         \Illuminate\Support\Facades\Log::warning('Error loading SalesConsultant for email notification: ' . $e->getMessage());

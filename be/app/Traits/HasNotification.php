@@ -12,7 +12,7 @@ trait HasNotification
     public static function bootHasNotification()
     {
         static::created(function ($model) {
-            if (request()->route() === null || !config('contact.send_email_default', true)) return;
+            if (request()->attributes->get('skip_contact_auto_notification') || !empty($model->skipAutoNotification) || request()->route() === null || !config('contact.send_email_default', true) || str_contains((string) request()->route()?->getActionName(), 'Frontend\\ContactController@store')) return;
 
             try {
                 if ($model->status === Contact::STATUS_IS_SPAM) {
@@ -45,7 +45,8 @@ trait HasNotification
                         if ($ldp && !empty($ldp->sales_email) && filter_var($ldp->sales_email, FILTER_VALIDATE_EMAIL)) {
                             $salesEmail = trim($ldp->sales_email);
                         }
-                    } elseif (!empty($model->sales_consultant_id)) {
+                    }
+                    if (!$salesEmail && !empty($model->sales_consultant_id)) {
                         $ldp = \App\Models\Vehicle\LandingPage::where('sales_consultant_id', $model->sales_consultant_id)
                             ->whereNotNull('sales_email')
                             ->first();

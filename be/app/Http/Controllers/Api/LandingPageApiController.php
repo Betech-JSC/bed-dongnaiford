@@ -177,6 +177,14 @@ class LandingPageApiController extends Controller
         if (!empty($ldp?->sales_email)) {
             $consultantDetail['email'] = $ldp->sales_email;
         }
+        $candidateEmail = trim((string) ($ldp?->sales_email ?: LandingPage::where('sales_consultant_id', $consultant->id)->whereNotNull('sales_email')->where('sales_email', '!=', '')->value('sales_email') ?: ''));
+        $isStaleEmail = $candidateEmail !== '' && SalesConsultant::where('id', '!=', $consultant->id)->whereRaw('LOWER(email) = ?', [strtolower($candidateEmail)])->exists();
+        $effectiveSalesEmail = (!$isStaleEmail && $candidateEmail !== '')
+            ? $candidateEmail
+            : ($consultant->email ?: \App\Models\Admin::where('sales_consultant_id', $consultant->id)->value('email'));
+        if ($effectiveSalesEmail) {
+            $consultantDetail['email'] = $effectiveSalesEmail;
+        }
         $rawConsultantName = $consultantDetail['name'] ?? $consultant->name;
         $consultantName = $rawConsultantName ? mb_convert_case(trim($rawConsultantName), MB_CASE_TITLE, "UTF-8") : null;
         if ($consultantName) {
@@ -187,7 +195,7 @@ class LandingPageApiController extends Controller
 
         return $this->success([
             'id'                  => $ldp?->id,
-            'sales_email'         => $ldp?->sales_email,
+            'sales_email'         => $effectiveSalesEmail,
             'sales_consultant'    => $consultantDetail,
             'vehicle'             => $leadVehicleData,
             'vehicles'            => $allVehiclesData,
@@ -381,10 +389,18 @@ class LandingPageApiController extends Controller
         if (!empty($ldp?->sales_email)) {
             $consultantDetail['email'] = $ldp->sales_email;
         }
+        $candidateEmail = trim((string) ($ldp?->sales_email ?: LandingPage::where('sales_consultant_id', $consultant->id)->whereNotNull('sales_email')->where('sales_email', '!=', '')->value('sales_email') ?: ''));
+        $isStaleEmail = $candidateEmail !== '' && SalesConsultant::where('id', '!=', $consultant->id)->whereRaw('LOWER(email) = ?', [strtolower($candidateEmail)])->exists();
+        $effectiveSalesEmail = (!$isStaleEmail && $candidateEmail !== '')
+            ? $candidateEmail
+            : ($consultant->email ?: \App\Models\Admin::where('sales_consultant_id', $consultant->id)->value('email'));
+        if ($effectiveSalesEmail) {
+            $consultantDetail['email'] = $effectiveSalesEmail;
+        }
 
         return $this->success([
             'id'                  => $ldp->id,
-            'sales_email'         => $ldp?->sales_email,
+            'sales_email'         => $effectiveSalesEmail,
             'sales_consultant'    => $consultantDetail,
             'vehicle'             => [
                 'id'            => $vehicle->id,

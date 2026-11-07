@@ -1003,11 +1003,14 @@ export default {
             deep: true
         },
         'formData.sales_consultant_id': {
-            handler(newVal) {
+            handler(newVal, oldVal) {
                 if (!newVal) return;
-                const consultant = (this.salesConsultants || []).find(c => String(c.id) === String(newVal));
+                const allConsultants = this.salesConsultants || [];
+                const consultant = allConsultants.find(c => String(c.id) === String(newVal));
                 if (consultant) {
-                    if (!this.formData.sales_email && consultant.email) {
+                    const currentEmail = String(this.formData.sales_email || '').trim().toLowerCase();
+                    const belongsToOther = currentEmail && allConsultants.some(sc => String(sc.id) !== String(newVal) && String(sc.email || '').trim().toLowerCase() === currentEmail);
+                    if (consultant.email && (!currentEmail || belongsToOther || (oldVal && String(oldVal) !== String(newVal)))) {
                         this.formData.sales_email = consultant.email;
                     }
                     this.formData.tracking_config = this._normalizeTrackingConfig(consultant.tracking_config);
@@ -1103,8 +1106,9 @@ export default {
             if (!consultantId || !form) return;
             const c = (this.salesConsultants || []).find(sc => String(sc.id) === String(consultantId));
             if (c) {
-                if (!form.sales_email && c.email) {
+                if (c.email) {
                     form.sales_email = c.email;
+                    this.formData.sales_email = c.email;
                 }
                 form.tracking_config = this._normalizeTrackingConfig(c.tracking_config);
             }
@@ -1155,7 +1159,8 @@ export default {
                 : null;
 
             let initialSalesEmail = cleanItem.sales_email || '';
-            if (!initialSalesEmail && matchedConsultant && matchedConsultant.email) {
+            const isStaleInitialEmail = initialSalesEmail && matchedConsultant && allConsultants.some(sc => String(sc.id) !== String(matchedConsultant.id) && String(sc.email || '').trim().toLowerCase() === String(initialSalesEmail).trim().toLowerCase());
+            if ((!initialSalesEmail || isStaleInitialEmail) && matchedConsultant && matchedConsultant.email) {
                 initialSalesEmail = matchedConsultant.email;
             }
 

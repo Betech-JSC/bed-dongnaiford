@@ -13,7 +13,12 @@ return [
     |
     */
 
-    'default' => env('MAIL_MAILER', 'smtp'),
+    'default' => (strtolower(trim((string) env('MAIL_MAILER', 'smtp'))) === 'log'
+        && trim((string) env('MAIL_HOST', '')) !== ''
+        && !in_array(strtolower(trim((string) env('MAIL_HOST', ''))), ['mailhog', 'localhost', '127.0.0.1'], true)
+        && trim((string) env('MAIL_PASSWORD', '')) !== '')
+        ? 'smtp'
+        : (strtolower(trim((string) env('MAIL_MAILER', 'smtp'))) ?: 'smtp'),
 
     /*
     |--------------------------------------------------------------------------
@@ -38,7 +43,9 @@ return [
             'transport' => 'smtp',
             'host' => env('MAIL_HOST', 'smtp.mailgun.org'),
             'port' => env('MAIL_PORT', 587),
-            'encryption' => env('MAIL_ENCRYPTION', null),
+            'encryption' => in_array(strtolower(trim((string) env('MAIL_ENCRYPTION', ''))), ['tls', 'starttls'], true)
+                ? 'tls'
+                : (strtolower(trim((string) env('MAIL_ENCRYPTION', ''))) === 'ssl' ? 'ssl' : (env('MAIL_ENCRYPTION', null) ?: null)),
             'username' => env('MAIL_USERNAME'),
             'password' => env('MAIL_PASSWORD'),
             'timeout' => null,
