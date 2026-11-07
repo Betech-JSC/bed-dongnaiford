@@ -58,15 +58,6 @@ const OfferIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-const WrenchIcon = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 31.9621 32.0002" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    <g id="Vector">
-      <path d="M20.8561 7.11584C19.5963 2.5074 24.4395 -1.51681 28.7399 0.56213L25.6422 3.65979L26.3073 5.6549L28.3014 6.31994L31.4 3.22229C33.4781 7.5198 29.4576 12.3662 24.8463 11.1061L11.1051 24.8844C12.3648 29.493 7.52185 33.5169 3.22132 31.4381L6.31996 28.3405L5.65492 26.3453L3.6598 25.6803L0.562143 28.778C-1.51592 24.4804 2.50349 19.6349 7.11488 20.8951L20.8561 7.11584Z" fill="currentColor" />
-      <path fillRule="evenodd" clipRule="evenodd" d="M24.8825 20.8942C25.3486 20.7695 25.839 20.7028 26.3444 20.7028C33.8195 20.9785 33.8208 31.7124 26.3444 31.9889C22.6889 32.0445 19.9065 28.3895 20.8932 24.8844L17.3219 21.3141L21.3073 17.318C21.9443 17.9551 24.5098 20.5215 24.8825 20.8942ZM24.8571 24.859L24.3131 26.8903L25.7994 28.3776L27.8317 27.8326L28.3756 25.8014L26.8883 24.3141L24.8571 24.859Z" fill="currentColor" />
-      <path fillRule="evenodd" clipRule="evenodd" d="M5.65394 0.0123251C9.30939 -0.0432956 12.0917 3.61177 11.1051 7.11682L14.6569 10.6686L10.6725 14.6637L7.11488 11.1071C6.64884 11.2316 6.1592 11.2985 5.65394 11.2985C-1.82143 11.0228 -1.82262 0.288636 5.65394 0.0123251ZM4.16664 4.16858L3.62269 6.19983L5.10999 7.68713L7.14124 7.14221L7.68519 5.11096L6.19789 3.62365L4.16664 4.16858Z" fill="currentColor" />
-    </g>
-  </svg>
-);
 
 const ZaloIcon = ({ className = "w-6 h-6" }: { className?: string }) => (
   <svg viewBox="0 0 100 100" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -709,7 +700,7 @@ function LdpHomeInner({
       {/* 2. QUICK ACTIONS BAR (ĐỒNG BỘ 100% GIAO DIỆN HOMEPAGE) */}
       <section className="bg-white border-y border-gray-200 py-8 relative z-20 shadow-xs">
         <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px]">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Action 1: Đăng ký lái thử */}
             <button
               type="button"
@@ -748,17 +739,6 @@ function LdpHomeInner({
                 Ưu đãi
               </h3>
             </button>
-
-            {/* Action 4: Đặt hẹn bảo dưỡng */}
-            <Link
-              href="/lien-he?reason=Đặt lịch hẹn bảo dưỡng"
-              className="flex flex-col gap-[16px] items-center justify-center text-center p-[20px_24px] rounded-[12px] h-[140px] w-full bg-[#f0f0f0] text-[#1a1a1a] hover:bg-[#0562d2] hover:text-white hover:shadow-[2px_6px_12px_-1px_rgba(16,24,40,0.12),0px_4px_6px_-2px_rgba(16,24,40,0.05)] transition-all duration-300 group cursor-pointer border border-transparent"
-            >
-              <WrenchIcon className="h-[32px] text-[#0562D2] group-hover:text-white transition-colors duration-300 shrink-0" />
-              <h3 className="text-sm font-bold transition-colors duration-300 leading-snug uppercase">
-                Đặt hẹn bảo dưỡng
-              </h3>
-            </Link>
           </div>
         </div>
       </section>
