@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { ldpAPI, bannersAPI, vehiclesAPI, servicesAPI, customerHandoversAPI, postsAPI } from "@/lib/api";
+import { ldpAPI, bannersAPI, vehiclesAPI, customerHandoversAPI, postsAPI } from "@/lib/api";
 import { resolveImageUrl as resolveFileUrl } from "@/lib/site-assets";
 import { formatPersonName } from "@/lib/formatters";
 import LdpHomeClient from "@/components/vehicle/LdpHomeClient";
@@ -193,16 +193,14 @@ export default async function Page({ params }: Props) {
   let ldpData: any = null;
   let initialBanners: any[] = [];
   let initialCategories: any[] = [];
-  let initialServices: any[] = [];
   let initialHandovers: any[] = [];
   let initialArticles: any[] = [];
 
   try {
-    const [ldpRes, bannersRes, categoriesRes, servicesRes, handoversRes, postsRes] = await Promise.all([
+    const [ldpRes, bannersRes, categoriesRes, handoversRes, postsRes] = await Promise.all([
       ldpAPI.getBySalesSlug(salesSlug),
       bannersAPI.getAll().catch(() => null),
       vehiclesAPI.getCategories().catch(() => null),
-      servicesAPI.getAll().catch(() => null),
       customerHandoversAPI.getAll().catch(() => null),
       postsAPI.getAll({ categories: 3 }).catch(() => null),
     ]);
@@ -213,9 +211,6 @@ export default async function Page({ params }: Props) {
 
     const cItems = (categoriesRes as any)?.data || categoriesRes;
     if (Array.isArray(cItems)) initialCategories = cItems;
-
-    const sItems = (servicesRes as any)?.services || (servicesRes as any)?.data || servicesRes;
-    if (Array.isArray(sItems)) initialServices = sItems;
 
     const hItems = (handoversRes as any)?.data || handoversRes;
     if (Array.isArray(hItems)) initialHandovers = hItems;
@@ -247,7 +242,6 @@ export default async function Page({ params }: Props) {
       promotions={ldpData.promotions}
       initialBanners={initialBanners}
       initialCategories={initialCategories}
-      initialServices={initialServices}
       initialHandovers={initialHandovers}
       initialArticles={initialArticles}
     />

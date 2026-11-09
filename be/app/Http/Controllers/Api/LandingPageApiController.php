@@ -700,14 +700,6 @@ class LandingPageApiController extends Controller
                     ]
                 ],
                 [
-                    'id' => 'consultant-services',
-                    'type' => 'LdpServices',
-                    'data' => [
-                        'title' => 'Các dịch vụ của chúng tôi',
-                        'subtitle' => 'Các giải pháp dịch vụ toàn diện, tận tâm và chính hãng từ Đồng Nai Ford.'
-                    ]
-                ],
-                [
                     'id' => 'consultant-faq',
                     'type' => 'LdpFaq',
                     'data' => []

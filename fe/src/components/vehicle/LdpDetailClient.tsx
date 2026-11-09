@@ -78,7 +78,7 @@ function LdpInnerContent({ salesConsultant, landingPageId, salesEmail, layoutBlo
   // Backwards compatibility dynamic injection for existing LDP pages
   // Chuẩn hóa và map các block legacy (nếu có)
   let resolvedBlocks = [...layoutBlocks]
-    .filter((b: any) => b && b.type !== "ThreeSixtyViewer" && b.type !== "LdpVehiclesGrid")
+    .filter((b: any) => b && b.type !== "ThreeSixtyViewer" && b.type !== "LdpVehiclesGrid" && b.type !== "LdpServices")
     .map((b: any) => {
       if (b.type === "HeroBanner") return { ...b, type: "LdpHeroBanner" };
       if (b.type === "AccordionFAQs") return { ...b, type: "LdpFaq" };
@@ -111,11 +111,6 @@ function LdpInnerContent({ salesConsultant, landingPageId, salesEmail, layoutBlo
       {
         id: 'default-ldp-technology',
         type: 'LdpTechnology',
-        data: {}
-      },
-      {
-        id: 'default-ldp-services',
-        type: 'LdpServices',
         data: {}
       },
       {

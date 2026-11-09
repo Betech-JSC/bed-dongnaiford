@@ -26,7 +26,7 @@ import {
 } from "lucide-react";
 import { handleCtaFormClick } from "@/lib/scroll-helper";
 import { getPopularVehicleImage, siteAssets, handleImageError, resolveImageUrl } from "@/lib/site-assets";
-import { bannersAPI, postsAPI, vehiclesAPI, servicesAPI, customerHandoversAPI, contactsAPI } from "@/lib/api";
+import { bannersAPI, postsAPI, vehiclesAPI, customerHandoversAPI, contactsAPI } from "@/lib/api";
 import SafeImage from "@/components/shared/SafeImage";
 import LdpUsedVehiclesBlock from "@/components/blocks/LdpUsedVehiclesBlock";
 import VehicleLayoutClient, { useVehicle } from "./VehicleLayoutClient";
@@ -316,11 +316,6 @@ function LdpHomeInner({
     }
   }, [isTechInteracted]);
 
-  // Services State
-  const [servicesList, setServicesList] = useState<any[]>(initialServices);
-  const [activeServiceIndex, setActiveServiceIndex] = useState<number>(0);
-  const [isServiceHovered, setIsServiceHovered] = useState<boolean>(false);
-
   // News & Handovers State (Chỉ hiển thị kho hình ảnh giao xe của riêng chính chủ)
   const [homeArticles, setHomeArticles] = useState<any[]>(() => formatArticlesList(initialArticles));
   const [activeNewsTab, setActiveNewsTab] = useState<number>(3); // 3: Khuyến Mãi
@@ -420,15 +415,14 @@ function LdpHomeInner({
 
   // Client-side fallback fetch if SSR was missing
   useEffect(() => {
-    if (heroSlides.length > 0 && vehiclesList.length > 0 && servicesList.length > 0) return;
+    if (heroSlides.length > 0 && vehiclesList.length > 0) return;
 
     Promise.all([
       bannersAPI.getAll().catch(() => null),
       vehiclesAPI.getCategories().catch(() => null),
       vehiclesAPI.getAll().catch(() => null),
-      servicesAPI.getAll().catch(() => null),
       postsAPI.getAll({ categories: 3 }).catch(() => null),
-    ]).then(([bannersRes, catRes, vRes, sRes, pRes]) => {
+    ]).then(([bannersRes, catRes, vRes, pRes]) => {
       const bItems = (bannersRes as any)?.data || bannersRes;
       if (Array.isArray(bItems) && bItems.length > 0) setHeroSlides(formatBannersList(bItems, salesConsultant));
 
@@ -440,13 +434,10 @@ function LdpHomeInner({
         setVehiclesList(vItems);
       }
 
-      const sItems = (sRes as any)?.services || (sRes as any)?.data || sRes;
-      if (Array.isArray(sItems) && sItems.length > 0) setServicesList(sItems);
-
       const pItems = (pRes as any)?.posts?.data || (pRes as any)?.data || pRes;
       if (Array.isArray(pItems) && pItems.length > 0) setHomeArticles(formatArticlesList(pItems));
     });
-  }, [heroSlides.length, vehiclesList.length, servicesList.length, salesConsultant]);
+  }, [heroSlides.length, vehiclesList.length, salesConsultant]);
 
   // Auto-play Technology tab
   useEffect(() => {
@@ -1071,76 +1062,6 @@ function LdpHomeInner({
         </div>
       </section>
 
-      {/* 6. SERVICES CAROUSEL — Continuous Infinite Scrolling Marquee */}
-      <section id="services" className="w-full bg-[#f0f0f0] py-[72px] overflow-x-clip scroll-mt-12">
-        <div className="w-full">
-          {/* Header row: title left */}
-          <div className="max-w-[1440px] mx-auto px-4 xl:px-[144px] mb-6">
-            <div className="space-y-2">
-              <h2 className="text-4xl md:text-5xl font-semibold text-[#1a1a1a] tracking-[-0.96px] leading-[1.2]">
-                Các dịch vụ của chúng tôi
-              </h2>
-              <p className="text-base text-[#424242] leading-relaxed">
-                Các giải pháp dịch vụ toàn diện, tận tâm và chính hãng từ Đồng Nai Ford.
-              </p>
-            </div>
-          </div>
-
-          {/* Vehicle cards sliding container — continuous infinite marquee */}
-          {servicesList.length > 0 ? (
-            <div className="relative w-full overflow-hidden py-4 select-none">
-              <div className="animate-marquee-continuous gap-[var(--card-gap-service)]">
-                {[...servicesList, ...servicesList].map((srv, idx) => {
-                  const sTitle = srv.title;
-                  const sImg = srv.image?.url || "/service-support-customer.jpg";
-                  const sHref = (srv.custom_link && srv.custom_link.startsWith('/dich-vu/'))
-                    ? srv.custom_link
-                    : `/dich-vu/${srv.slug}`;
-                  return (
-                    <div
-                      key={`${srv.id}-${idx}`}
-                      onClick={() => {
-                        router.push(sHref);
-                      }}
-                      className="relative overflow-hidden rounded-xl h-[480px] group cursor-pointer bg-[#121824] flex-shrink-0 transition-all duration-300 block"
-                      style={{
-                        width: 'var(--card-width-service)',
-                      }}
-                    >
-                      <Image
-                        src={sImg}
-                        alt={sTitle}
-                        fill
-                        sizes="(max-width: 640px) 280px, (max-width: 1024px) 380px, 500px"
-                        className="object-cover group-hover:scale-105 transition-transform duration-500"
-                        onError={handleImageError}
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
-                      <div className="absolute bottom-0 left-0 right-0 p-8 z-10 flex flex-col gap-3 sm:gap-4">
-                        <h3 className="text-xl sm:text-2xl md:text-3xl font-semibold text-white leading-[1.2]">{sTitle}</h3>
-                        {srv.description && (
-                          <p className="text-sm text-white/70 line-clamp-2 leading-relaxed font-normal">
-                            {srv.description}
-                          </p>
-                        )}
-                        <div className="flex flex-row gap-2 sm:gap-3 mt-2">
-                          <span className="bg-[#0562D2] text-white text-xs sm:text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-[#044ea7] transition-all duration-200 whitespace-nowrap text-center">
-                            Xem chi tiết
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          ) : (
-            <div className="text-center py-20 bg-white border border-[#e5e5e5] rounded-[12px] max-w-[1152px] mx-auto">
-              <p className="text-gray-500 text-sm">Đang tải danh sách dịch vụ...</p>
-            </div>
-          )}
-        </div>
-      </section>
 
       {/* 6.5. XE ĐÃ QUA SỬ DỤNG CHÍNH HÃNG (FORD ASSURED SLIDER) */}
       <LdpUsedVehiclesBlock
