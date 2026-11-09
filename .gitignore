@@ -89,6 +89,7 @@ fe/build/
 # IDEs
 
 .idea/
+/.vscode
 
 
 *.suo
@@ -142,3 +143,4 @@ openspect/
 .agents/workflows/opsx-*
 .kiro/prompts/opsx-*
 .kiro/skills/openspec-*
+.env
