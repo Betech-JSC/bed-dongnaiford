@@ -472,7 +472,7 @@ export default function Blocks({
         }
 
         return (
-          <div 
+          <div
             key={block.id || `wrapper-${index}`}
             style={combinedStyle}
             className={wrapperClass}
@@ -1222,9 +1222,8 @@ function AccordionFAQsBlock({ data, vehicle, isEditMode, onChangeData, anchorId 
                 </button>
                 {/* Content Panel with smooth transition */}
                 <div
-                  className={`overflow-hidden transition-all duration-300 ${
-                    isExpanded ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
-                  }`}
+                  className={`overflow-hidden transition-all duration-300 ${isExpanded ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
+                    }`}
                 >
                   <div className="px-6 py-5 text-sm text-gray-600 leading-relaxed font-normal bg-white border-t border-gray-100">
                     <p className={`font-['Ford_Antenna',sans-serif] font-normal whitespace-pre-line w-full
@@ -1435,7 +1434,7 @@ function LdpPromotionsBlock({ blockIndex, data, promotions, salesConsultant, ope
    ========================================================================== */
 function PromotionsBlock({ blockIndex, data, isEditMode, onChangeData, openQuoteDrawer, vehicle, anchorId }: any) {
   const title = data.title || "Ưu Đãi Đặc Biệt";
-  const desc = data.description || "Nhập chương trình khuyến mãi tháng...";
+  const desc = data.description || "";
   const hasImage = hasImageField(data.image);
   const bgImg = hasImage ? resolveImageUrl(data.image) : "";
   const btnText = data.button_text || "Báo giá";
@@ -1692,29 +1691,29 @@ function ThreeSixtyViewerBlock({ data, vehicle, isEditMode, onChangeData, threeS
               </div>
 
               {hasInteriorSequence && (
-              <div className="toggle-wrapper">
-                <div className="model-view toggle-container">
-                  <div className="toggle" role="tablist">
-                    <button
-                      type="button"
-                      className={`toggle-option border-0 cursor-pointer ${viewType === "exterior" ? "active" : "bg-transparent"}`}
-                      onClick={() => setViewType("exterior")}
-                    >
-                      Exterior
-                    </button>
-                    <button
-                      type="button"
-                      className={`toggle-option border-0 cursor-pointer ${viewType === "interior" ? "active" : "bg-transparent"}`}
-                      onClick={() => {
-                        setViewType("interior");
-                        setIs360Active(true);
-                      }}
-                    >
-                      Interior
-                    </button>
+                <div className="toggle-wrapper">
+                  <div className="model-view toggle-container">
+                    <div className="toggle" role="tablist">
+                      <button
+                        type="button"
+                        className={`toggle-option border-0 cursor-pointer ${viewType === "exterior" ? "active" : "bg-transparent"}`}
+                        onClick={() => setViewType("exterior")}
+                      >
+                        Exterior
+                      </button>
+                      <button
+                        type="button"
+                        className={`toggle-option border-0 cursor-pointer ${viewType === "interior" ? "active" : "bg-transparent"}`}
+                        onClick={() => {
+                          setViewType("interior");
+                          setIs360Active(true);
+                        }}
+                      >
+                        Interior
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
               )}
 
               <div>
@@ -1869,7 +1868,7 @@ function ThreeSixtyViewerBlock({ data, vehicle, isEditMode, onChangeData, threeS
    ========================================================================== */
 function FeaturesGridBlock({ blockIndex, data, vehicle, isEditMode, onChangeData, anchorId }: any) {
   const title_1 = data.title_1 || "Thiết kế hiện đại, sắc sảo, đầy cuốn hút";
-  
+
   const hasImg1 = hasImageField(data.image_1);
   const image_1 = hasImg1 ? resolveImageUrl(data.image_1) : "";
 
@@ -1880,7 +1879,7 @@ function FeaturesGridBlock({ blockIndex, data, vehicle, isEditMode, onChangeData
   const image_3 = hasImg3 ? resolveImageUrl(data.image_3) : "";
 
   const title_2 = data.title_2 || "Không gian nội thất rộng rãi, tiện nghi";
-  
+
   const hasImgLarge = hasImageField(data.image_large);
   const image_large = hasImgLarge ? resolveImageUrl(data.image_large) : "";
 
@@ -1891,7 +1890,7 @@ function FeaturesGridBlock({ blockIndex, data, vehicle, isEditMode, onChangeData
   const image_large_3 = hasImgLarge3 ? resolveImageUrl(data.image_large_3) : "";
 
   const title_3 = data.title_3 || "Nâng tầm công nghệ và tiện nghi Tận hưởng trên mọi hành trình";
-  
+
   const hasSplitImg = hasImageField(data.split_image);
   const split_image = hasSplitImg ? resolveImageUrl(data.split_image) : "";
 
@@ -1977,7 +1976,7 @@ function FeaturesGridBlock({ blockIndex, data, vehicle, isEditMode, onChangeData
                 )}
               </div>
             )}
-            
+
             {(hasImg2 || hasImg3 || isEditMode) && (
               <div className="flex gap-[24px] items-start w-full flex-col sm:flex-row">
                 {(hasImg2 || isEditMode) && (
